@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <summary>
 		/// Creates a config entry for each Docker secret with the name DockerSecrets:name
 		/// </summary>
-		/// <param name="configurationBuilder"></param>
+		/// <param name="configuration"></param>
 		/// <param name="optional"></param>
 		/// <param name="reloadOnChange"></param>
 		/// <returns></returns>
@@ -64,6 +64,53 @@ namespace Microsoft.Extensions.DependencyInjection
 			configurationBuilder.Add(configurationSource);
 
 			return configurationBuilder;
+		}
+
+
+		/// <summary>
+		/// Creates a config entry for each Docker secret with the name DockerSecrets:name
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="optional"></param>
+		/// <param name="reloadOnChange"></param>
+		/// <returns></returns>
+		public static IConfiguration AddDockerSecrets(
+			this IConfiguration configuration,
+			bool optional = false,
+			bool reloadOnChange = false)
+		{
+			if (configuration == default) throw new ArgumentNullException(nameof(configuration));
+
+			var configurationBuilder = new ConfigurationBuilder();
+
+			configurationBuilder.AddConfiguration(configuration);
+
+			foreach (var file in _root.EnumerateFiles())
+			{
+				configurationBuilder.AddDockerSecret(file.Name, optional, reloadOnChange);
+			}
+
+			return configurationBuilder.Build();
+		}
+
+		/// <summary>
+		/// Creates a config entry for the Docker secret with the name DockerSecrets:name
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="name"></param>
+		/// <param name="optional"></param>
+		/// <param name="reloadOnChange"></param>
+		/// <returns></returns>
+		public static IConfiguration AddDockerSecret(
+			this IConfiguration configuration,
+			string name,
+			bool optional = false,
+			bool reloadOnChange = false)
+		{
+			return new ConfigurationBuilder()
+				.AddConfiguration(configuration)
+				.AddDockerSecret(name, optional, reloadOnChange)
+				.Build();
 		}
 	}
 }
