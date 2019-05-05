@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>bob</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jaeger" Version="0.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
+    <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.5.0" />
+  </ItemGroup>
+
+</Project>
