@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerSecrets", "He
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing", "Helpers.Tracing\Helpers.Tracing.csproj", "{8F08BC08-9057-4C1A-A9A4-F3FF5890DACF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jaeger", "Helpers.Jaeger\Helpers.Jaeger.csproj", "{97F7D9BB-90BC-45C6-91B7-6EDBB5EE45F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jaeger", "Helpers.Jaeger\Helpers.Jaeger.csproj", "{97F7D9BB-90BC-45C6-91B7-6EDBB5EE45F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D69BA399-8DEF-4F77-9F85-3C599E800081}"
+	ProjectSection(SolutionItems) = preProject
+		build.sh = build.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
