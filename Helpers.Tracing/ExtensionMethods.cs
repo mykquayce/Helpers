@@ -28,6 +28,20 @@ namespace Helpers.Tracing
 			return tracer.BuildSpan(operationName);
 		}
 
+		public static ISpan Log(this ISpan span, params (string, object)[] keyValuePairs)
+		{
+			var dictionary = new Dictionary<string, object>(keyValuePairs.Length / 2);
+
+			foreach (var (key, value) in keyValuePairs)
+			{
+				dictionary.Add(key, value);
+			}
+
+			span.Log(dictionary);
+
+			return span;
+		}
+
 		public static ISpan Log(this ISpan span, params object[] values)
 		{
 			var dictionary = new Dictionary<string, object>(values.Length / 2);
@@ -37,7 +51,7 @@ namespace Helpers.Tracing
 				var key = values[a].ToString();
 				var value = values[a + 1];
 
-				dictionary[key] = value;
+				dictionary.Add(key, value);
 			}
 
 			span.Log(dictionary);

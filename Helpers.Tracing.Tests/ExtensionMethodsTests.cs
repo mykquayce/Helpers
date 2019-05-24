@@ -2,6 +2,7 @@ using Moq;
 using OpenTracing;
 using OpenTracing.Tag;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Helpers.Tracing.Tests
@@ -47,6 +48,65 @@ namespace Helpers.Tracing.Tests
 			Assert.Equal(expected, ((MockSpanBuilder)span).OperationName);
 		}
 
+		[Theory]
+		[InlineData("key", "value")]
+		[InlineData("value", 0)]
+		public void ExtensionMethodsTests_Log_Params(string key, object value)
+		{
+			var spanMock = new Mock<ISpan>(MockBehavior.Strict);
+
+			var logs = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+			spanMock
+				.Setup(s => s.Log(It.IsAny<IEnumerable<KeyValuePair<string, object>>>()))
+				.Callback<IEnumerable<KeyValuePair<string, object>>>(kvps =>
+				{
+					foreach (var (key, value) in kvps)
+					{
+						logs.Add(key, value);
+					}
+				})
+				.Returns(spanMock.Object);
+
+			Assert.Empty(logs);
+
+			spanMock.Object.Log(key, value);
+
+			Assert.Single(logs);
+			Assert.True(logs.ContainsKey(key));
+			Assert.Equal(value, logs[key]);
+		}
+
+		[Theory]
+		[InlineData("key", "value")]
+		[InlineData("value", 0)]
+		public void ExtensionMethodsTests_Log_TupleParams(string key, object value)
+		{
+			var spanMock = new Mock<ISpan>(MockBehavior.Strict);
+
+			var logs = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+			spanMock
+				.Setup(s => s.Log(It.IsAny<IEnumerable<KeyValuePair<string, object>>>()))
+				.Callback<IEnumerable<KeyValuePair<string, object>>>(kvps =>
+				{
+					foreach (var (key, value) in kvps)
+					{
+						logs.Add(key, value);
+					}
+				})
+				.Returns(spanMock.Object);
+
+			Assert.Empty(logs);
+
+			spanMock.Object.Log((key, value));
+
+			Assert.Single(logs);
+			Assert.True(logs.ContainsKey(key));
+			Assert.Equal(value, logs[key]);
+		}
+
+		#region Helper objects
 		private class MockSpanBuilder : ISpanBuilder
 		{
 			public MockSpanBuilder(string operationName)
@@ -73,5 +133,6 @@ namespace Helpers.Tracing.Tests
 			public ISpanBuilder WithTag(IntTag tag, int value) => throw new NotImplementedException();
 			public ISpanBuilder WithTag(StringTag tag, string value) => throw new NotImplementedException();
 		}
+		#endregion Helper objects
 	}
 }
