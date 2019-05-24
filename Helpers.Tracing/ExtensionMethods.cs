@@ -7,26 +7,23 @@ namespace Helpers.Tracing
 {
 	public static class ExtensionMethods
 	{
-		public static string ReducePath(this string path)
-		{
-			if (string.IsNullOrWhiteSpace(path))
-			{
-				return string.Empty;
-			}
-
-			var segments = path.Split(Path.DirectorySeparatorChar);
-
-			return segments[segments.Length - 1];
-		}
+		public static string ReducePath(this string path) =>
+			path?.Split(Path.DirectorySeparatorChar)[^1];
 
 		public static ISpanBuilder BuildDefaultSpan(
 			this ITracer tracer,
 			[CallerFilePath] string filePath = default,
 			[CallerMemberName] string methodName = default)
 		{
-			var path = filePath.ReducePath();
+			filePath = filePath?.ReducePath();
 
-			var operationName = string.Concat(path, "=>", methodName);
+			var operationName = (filePath, methodName) switch
+			{
+				(null, null) => default,
+				(_, null) => filePath,
+				(null, _) => methodName,
+				_ => string.Concat(filePath, "=>", methodName)
+			};
 
 			return tracer.BuildSpan(operationName);
 		}
