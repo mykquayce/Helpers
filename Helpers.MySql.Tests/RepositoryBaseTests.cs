@@ -9,9 +9,9 @@ namespace Helpers.MySql.Tests
 {
 	public class RepositoryBaseTests
 	{
-		[Theory]
+		[Theory(Skip = "requires db access")]
 		[InlineData("server=localhost;port=4040;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;")]
-		public async Task RepositoryBaseTests_(string connectionString)
+		public async Task RepositoryBaseTests_EndToEnd(string connectionString)
 		{
 			// Arrange, Act
 			var sut = new Repository(connectionString);
