@@ -7,8 +7,12 @@ namespace Helpers.Tracing
 {
 	public static class ExtensionMethods
 	{
-		public static string ReducePath(this string path) =>
-			path?.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)[^1];
+		public static string ReducePath(this string path)
+		{
+			return $"{Path.DirectorySeparatorChar},{Path.AltDirectorySeparatorChar}";
+
+			//return path?.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)[^1];
+		}
 
 		public static ISpanBuilder BuildDefaultSpan(
 			this ITracer tracer,
