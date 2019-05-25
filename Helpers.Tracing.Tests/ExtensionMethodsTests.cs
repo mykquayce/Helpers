@@ -3,6 +3,7 @@ using OpenTracing;
 using OpenTracing.Tag;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Xunit;
 
 namespace Helpers.Tracing.Tests
@@ -10,36 +11,35 @@ namespace Helpers.Tracing.Tests
 	public class ExtensionMethodsTests
 	{
 		[Theory]
-		[InlineData(default, default)]
 		[InlineData("", "")]
 		[InlineData(" ", " ")]
-		[InlineData(@"C:\code\temp\Helpers\Helpers.Tracing.Tests\ExtensionMethodsTests.cs", "ExtensionMethodsTests.cs")]
-		[InlineData(@"/c/code/temp/Helpers/Helpers.Tracing.Tests/ExtensionMethodsTests.cs", "ExtensionMethodsTests.cs")]
-		public void ExtensionMethodsTests_ReducePath(string path, string expected)
+		[InlineData("ExtensionMethodsTests.cs", "c", "code", "temp", "Helpers", "Helpers.Tracing.Tests", "ExtensionMethodsTests.cs")]
+		public void ExtensionMethodsTests_ReducePath(string expected, params string[] paths)
 		{
-			Assert.Equal(
-				expected,
-				path.ReducePath());
+			// Arrange
+			var path = Path.Combine(paths);
+
+			// Act
+			var actual = path.ReducePath();
+
+			// Assert
+			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
-		[InlineData(default, default, default)]
 		[InlineData("test", default, "test")]
-		[InlineData(default, "test", "test")]
+		[InlineData("test=>test", "test", "test")]
 		[InlineData(
-			@"C:\code\temp\Helpers\Helpers.Tracing.Tests\ExtensionMethodsTests.cs",
+			"ExtensionMethodsTests.cs=>ExtensionMethodsTests_BuildDefaultSpan",
 			"ExtensionMethodsTests_BuildDefaultSpan",
-			"ExtensionMethodsTests.cs=>ExtensionMethodsTests_BuildDefaultSpan")]
-		[InlineData(
-			@"/c/code/temp/Helpers/Helpers.Tracing.Tests/ExtensionMethodsTests.cs",
-			"ExtensionMethodsTests_BuildDefaultSpan",
-			"ExtensionMethodsTests.cs=>ExtensionMethodsTests_BuildDefaultSpan")]
+			"c", "code", "temp", "Helpers", "Helpers.Tracing.Tests", "ExtensionMethodsTests.cs")]
 		public void ExtensionMethodsTests_BuildDefaultSpan(
-			string filePath,
+			string expected,
 			string methodName,
-			string expected)
+			params string[] paths)
 		{
 			// Arrange
+			var filePath = Path.Combine(paths);
 			var tracerMock = new Mock<ITracer>();
 
 			tracerMock
