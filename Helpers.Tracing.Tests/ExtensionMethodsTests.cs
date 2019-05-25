@@ -13,12 +13,13 @@ namespace Helpers.Tracing.Tests
 		[InlineData(default, default)]
 		[InlineData("", "")]
 		[InlineData(" ", " ")]
-		[InlineData(@"C:\code\temp\Helpers\Helpers.Tracing.Tests\ExtensionMethodsTests.cs", "ExtensionMethodsTests.cs")]
-		public void ExtensionMethodsTests_ReducePath(string path, string expected)
+		[InlineData(@"C:\code\temp\Helpers\Helpers.Tracing.Tests\ExtensionMethodsTests.cs", "ExtensionMethodsTests.cs", '\\')]
+		[InlineData(@"/c/code/temp/Helpers/Helpers.Tracing.Tests/ExtensionMethodsTests.cs", "ExtensionMethodsTests.cs", '/')]
+		public void ExtensionMethodsTests_ReducePath(string path, string expected, char directorySeparatorChar = default)
 		{
 			Assert.Equal(
 				expected,
-				path.ReducePath());
+				path.ReducePath(directorySeparatorChar));
 		}
 
 		[Theory]
