@@ -1,4 +1,3 @@
-using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -121,6 +120,23 @@ namespace Helpers.MySql.Tests
 			Assert.False(await sut.CheckTableExistsAsync(tableName));
 
 			await sut.SafeDropDatabaseAsync("test");
+		}
+
+		[Theory(Skip = "requires db access")]
+		[InlineData("server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;")]
+		public async Task RepositoryBaseTests_OpenAnOpenConnection(string connectionString)
+		{
+			using var sut = new TestRepository(connectionString);
+
+			using (var transaction = sut.BeginTransaction())
+			{
+				await sut.GetDateTimeAsync();
+			}
+
+			using (var transaction = sut.BeginTransaction())
+			{
+				await sut.GetDateTimeAsync();
+			}
 		}
 	}
 }

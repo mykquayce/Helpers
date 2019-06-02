@@ -29,15 +29,20 @@ namespace Helpers.MySql
 
 		public void Dispose()
 		{
-			_connection?.Close();
-			_connection?.Dispose();
+			_connection.Close();
+			_connection.Dispose();
 		}
 
 		protected ConnectionState ConnectionState => _connection?.State ?? ConnectionState.Closed;
 
 		protected void Connect()
 		{
-			_connection?.Open();
+			if ((_connection.State & ConnectionState.Open) != 0)
+			{
+				return;
+			}
+
+			_connection.Open();
 		}
 
 		protected Task<int> ExecuteAsync(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
@@ -66,7 +71,7 @@ namespace Helpers.MySql
 		{
 			Guard.Argument(() => isolationLevel).Defined();
 
-			_connection.Open();
+			Connect();
 
 			return _connection.BeginTransaction(isolationLevel);
 		}
@@ -80,7 +85,7 @@ namespace Helpers.MySql
 			var result = await ExecuteScalarAsync<string>(
 				sql: $"SHOW TABLES FROM {_connection.Database} LIKE @tableName;",
 				param: new { tableName, },
-				transaction:  transaction);
+				transaction: transaction);
 
 			return result == tableName;
 		}
@@ -201,11 +206,13 @@ namespace Helpers.MySql
 						break;
 					}
 				// the schema doesn't exist
+				case MySqlException _ when
+					Regex.IsMatch(exception.Message, "^Unknown database '[$0-9A-Z_a-z]{1,64}'$"):
 				case MySqlException mySqlException when
 					Regex.IsMatch(mySqlException.Message, "Authentication to host '[$0-9A-Z_a-z]{1,64}' for user '[$0-9A-Z_a-z]{1,64}' using method 'mysql_native_password' failed with message: Unknown database '[$0-9A-Z_a-z]{1,64}'")
 					&& mySqlException.InnerException != default
 					&& mySqlException.InnerException is MySqlException mySqlInnerException
-					&& mySqlInnerException.Message.StartsWith("Unknown database ", StringComparison.InvariantCultureIgnoreCase):
+					&& Regex.IsMatch(mySqlInnerException.Message, "^Unknown database '[$0-9A-Z_a-z]{1,64}'$"):
 					{
 						_exceptions[ExceptionTypes.UnknownDatabase]++;
 
