@@ -1,3 +1,4 @@
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,11 +11,14 @@ namespace Helpers.MySql.Tests
 	public class RepositoryBaseTests
 	{
 		[Theory(Skip = "requires db access")]
-		[InlineData("server=localhost;port=4040;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;")]
-		public async Task RepositoryBaseTests_EndToEnd(string connectionString)
+		[InlineData(
+			"server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;",
+			"test",
+			"table1")]
+		public async Task RepositoryBaseTests_EndToEnd(string connectionString, string databaseName, string tableName)
 		{
 			// Arrange, Act
-			var sut = new Repository(connectionString);
+			var sut = new TestRepository(connectionString);
 
 			// Act
 			var now = DateTime.UtcNow;
@@ -26,66 +30,97 @@ namespace Helpers.MySql.Tests
 
 			// Act
 			await sut.SafeCreateTableAsync(
-				"table1",
-				@"CREATE TABLE `test`.`table1` (
+				tableName,
+				$@"CREATE TABLE `{databaseName}`.`{tableName}` (
 					`id` SMALLINT(2) UNSIGNED NOT NULL,
 					`name` VARCHAR(100) NOT NULL,
 					PRIMARY KEY (`id`)
 				);");
 
 			// Assert
-			Assert.True(await sut.CheckTableExistsAsync("table1"));
-			Assert.False(await sut.CheckTableExistsAsync("table2"));
+			Assert.True(await sut.CheckTableExistsAsync(tableName));
 
 			// Act
-			await sut.ExecuteAsync("DELETE FROM `test`.`table1` WHERE id>=0;");
+			await sut.ExecuteAsync($"DELETE FROM `{databaseName}`.`{tableName}` WHERE id>=0;");
 
-			await sut.ExecuteAsync("INSERT `test`.`table1`(id, name) VALUES (@id, @name);", new[]
+			await sut.ExecuteAsync($"INSERT `{databaseName}`.`{tableName}`(id, name) VALUES (@id, @name);", new[]
 			{
 				new { id = 1, name = "test", },
 			});
 
-			var results = (await sut.QueryAsync<(short, string)>("SELECT * FROM `test`.`table1`;"))?.ToList();
+			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{databaseName}`.`{tableName}`;")).ToList();
 
 			// Assert
-			Assert.NotNull(results);
 			Assert.NotEmpty(results);
 			Assert.Single(results);
 			Assert.Equal(1, results[0].Item1);
 			Assert.Equal("test", results[0].Item2);
 
 			// Act
-			await sut.SafeDropTableAsync("table1");
+			await sut.SafeDropTableAsync(tableName);
 
 			// Assert
-			Assert.False(await sut.CheckTableExistsAsync("table1"));
+			Assert.False(await sut.CheckTableExistsAsync(tableName));
+
+			await sut.SafeDropDatabaseAsync(databaseName);
 
 			// Arrange
 			sut.Dispose();
 		}
 
-		private class Repository : RepositoryBase
+		[Theory(Skip = "requires db access")]
+		[InlineData("server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;", "table2")]
+		public async Task RepositoryBaseTests_TransactionTest(string connectionString, string tableName)
 		{
-			public Repository(string connectionString)
-				: base(connectionString)
-			{ }
+			using var sut = new TestRepository(connectionString);
 
-			public new ConnectionState ConnectionState => base.ConnectionState;
+			await sut.SafeDropTableAsync(tableName);
 
-			public new void Connect() => base.Connect();
+			Assert.False(await sut.CheckTableExistsAsync(tableName));
 
-			public new Task<bool> CheckTableExistsAsync(string tableName) => base.CheckTableExistsAsync(tableName);
+			// make a table
+			await sut.SafeCreateTableAsync(
+				tableName,
+				$@"CREATE TABLE `test`.`{tableName}` (
+					`id` SMALLINT NOT NULL,
+					`name` VARCHAR(100) NOT NULL,
+					PRIMARY KEY (`id`)
+				);");
 
-			public new Task SafeCreateTableAsync(string tableName, string sql) => base.SafeCreateTableAsync(tableName, sql);
-			public new Task SafeDropTableAsync(string tableName) => base.SafeDropTableAsync(tableName);
+			IEnumerable<(short id, string name)> results;
 
-			public Task<DateTime> GetDateTimeAsync() => base.ExecuteScalarAsync<DateTime>("SELECT NOW();");
+			using var transaction = sut.BeginTransaction();
 
-			public Task<int> ExecuteAsync(string sql, object param = default) => base.ExecuteAsync(sql, param);
+			// check it's empty
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
 
-			public Task<T> ExecuteScalarAsync<T>(string sql, object param = default) => base.ExecuteScalarAsync<T>(sql, param);
+			Assert.Empty(results);
 
-			public Task<IEnumerable<T>> QueryAsync<T>(string sql) => base.QueryAsync<T>(sql);
+			// add to it
+			await sut.ExecuteAsync(
+				$@"insert `test`.`{tableName}` (id, name) values (@id, @name);",
+				new { id = 1, name = "test", },
+				transaction);
+
+			// check it's not empty
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
+
+			Assert.NotEmpty(results);
+
+			// rollback the transaction
+			transaction.Rollback();
+
+			// check the table is empty
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
+
+			Assert.Empty(results);
+
+			await sut.SafeDropTableAsync(tableName);
+
+			// drop the table
+			Assert.False(await sut.CheckTableExistsAsync(tableName));
+
+			await sut.SafeDropDatabaseAsync("test");
 		}
 	}
 }

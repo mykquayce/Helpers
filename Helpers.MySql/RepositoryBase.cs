@@ -6,6 +6,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Helpers.MySql
@@ -13,11 +15,12 @@ namespace Helpers.MySql
 	public abstract class RepositoryBase : IDisposable
 	{
 		private IDbConnection _connection;
-		private readonly ILogger _logger;
+		private readonly ILogger? _logger;
+		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
 
 		protected RepositoryBase(
 			string connectionString,
-			ILogger<RepositoryBase> logger = default)
+			ILogger<RepositoryBase>? logger = default)
 		{
 			if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
 
@@ -38,72 +41,111 @@ namespace Helpers.MySql
 			_connection?.Open();
 		}
 
-		protected Task<int> ExecuteAsync(string sql, object param = default, IDbTransaction transaction = default, int? commandTimeout = default, CommandType? commandType = default)
+		protected Task<int> ExecuteAsync(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
 		{
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
 			return SafeExecuteAsync(() => _connection.ExecuteAsync(sql, param, transaction, commandTimeout, commandType));
 		}
 
-		protected Task<T> ExecuteScalarAsync<T>(string sql, object param = default, IDbTransaction transaction = default, int? commandTimeout = default, CommandType? commandType = default)
+		protected Task<T> ExecuteScalarAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
 		{
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
 			return SafeExecuteAsync(() => _connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType));
 		}
 
-		protected Task<IEnumerable<T>> QueryAsync<T>(string sql, object param = default, IDbTransaction transaction = default, int? commandTimeout = default, CommandType? commandType = default)
+		protected Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
 		{
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
 			return SafeExecuteAsync(() => _connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType));
 		}
 
+		#region Transactions
 		protected IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
 		{
 			Guard.Argument(() => isolationLevel).Defined();
 
+			_connection.Open();
+
 			return _connection.BeginTransaction(isolationLevel);
 		}
+		#endregion Transactions
 
-		protected async Task<bool> CheckTableExistsAsync(string tableName)
+		#region Tables
+		protected async Task<bool> CheckTableExistsAsync(string tableName, IDbTransaction? transaction = default)
 		{
-			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace().Matches("^[$0-9A-Z_a-z]{1,64}$");
+			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
 
-			return await ExecuteScalarAsync<string>($"SHOW TABLES FROM {_connection.Database} LIKE @tableName;", new { tableName, }) == tableName;
+			var result = await ExecuteScalarAsync<string>(
+				sql: $"SHOW TABLES FROM {_connection.Database} LIKE @tableName;",
+				param: new { tableName, },
+				transaction:  transaction);
+
+			return result == tableName;
 		}
 
-		protected async Task SafeCreateTableAsync(string tableName, string sql)
+		protected async Task SafeCreateTableAsync(string tableName, string sql, IDbTransaction? transaction = default)
 		{
 			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
-			if (await CheckTableExistsAsync(tableName))
+			if (await CheckTableExistsAsync(tableName, transaction: transaction))
 			{
-				SafeDropTableAsync(tableName);
+				SafeDropTableAsync(tableName, transaction: transaction);
 			}
 
-			ExecuteAsync(sql);
+			ExecuteAsync(sql, transaction: transaction);
 		}
 
-		protected async Task SafeDropTableAsync(string tableName)
+		protected async Task SafeDropTableAsync(string tableName, IDbTransaction? transaction = default)
 		{
-			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace().Matches("^[$0-9A-Z_a-z]{1,64}$");
+			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
 
-			if (await CheckTableExistsAsync(tableName))
+			if (await CheckTableExistsAsync(tableName, transaction))
 			{
-				ExecuteAsync($"DROP TABLE {_connection.Database}.{tableName};");
+				ExecuteAsync($"DROP TABLE {_connection.Database}.{tableName};", transaction: transaction);
 			}
 		}
+		#endregion Tables
 
-		private static readonly IDictionary<ExceptionTypes, int> _exceptions = new SafeDictionary<ExceptionTypes, int>();
-
-		[Flags]
-		private enum ExceptionTypes : byte
+		#region Databases
+		protected Task<int> SafeCreateDatabaseAsync(string? databaseName = default, IDbTransaction? transaction = default)
 		{
-			None = 0,
-			TargetMachineActivelyRefused = 1,
+			// break down the connection string
+			var dictionary = _connection.ConnectionString.ToDictionary();
+
+			// get the database name
+			if (databaseName == default
+				&& dictionary.ContainsKey("database"))
+			{
+				databaseName = dictionary["database"];
+			}
+
+			// check it
+			Guard.Argument(() => databaseName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
+
+			// build a new connection string one without the database
+			var temp = string.Join(';', from kvp in dictionary
+										where !string.Equals(kvp.Key, "database", StringComparison.InvariantCultureIgnoreCase)
+										select string.Join("=", kvp.Key, kvp.Value));
+
+			// create database using the new connection string
+			using var connection = new MySqlConnection(temp);
+
+			return connection.ExecuteAsync($"CREATE DATABASE IF NOT EXISTS `{databaseName}`;", transaction: transaction);
 		}
+
+		protected Task<int> SafeDropDatabaseAsync(string databaseName, IDbTransaction? transaction = default)
+		{
+			Guard.Argument(() => databaseName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
+
+			return ExecuteAsync($"DROP DATABASE IF EXISTS `{databaseName}`;", transaction: transaction);
+		}
+		#endregion Databases
+
+		private static readonly IDictionary<ExceptionTypes, int> _exceptions = new ExceptionDictionary();
 
 		private async Task<T> SafeExecuteAsync<T>(Func<Task<T>> func)
 		{
@@ -115,97 +157,77 @@ namespace Helpers.MySql
 				_exceptions.Clear();
 				return result;
 			}
-			catch (MySqlException ex) when (
-				ex.Message == "Unable to connect to any of the specified MySQL hosts."
-				&& (ex.InnerException?.Message.StartsWith("No connection could be made because the target machine actively refused it.") ?? false))
-			{
-				// add this exception to the pile
-				_exceptions[ExceptionTypes.TargetMachineActivelyRefused]++;
-
-				ex.Data.Add("attempt", _exceptions[ExceptionTypes.TargetMachineActivelyRefused]);
-
-				_logger?.LogCritical(ex, ex.Message);
-
-				// if it's happenned ten consequetive times, 'splode
-				if (_exceptions[ExceptionTypes.TargetMachineActivelyRefused] >= 10)
-				{
-					throw;
-				}
-
-				// pause...
-				await Task.Delay(millisecondsDelay: 3_000);
-
-				// ...then try again
-				return await SafeExecuteAsync(func);
-			}
 			catch (Exception ex)
 			{
-				foreach (var (key, value) in _exceptions)
-				{
-					ex.Data.Add(key, value);
-				}
-
-				_logger?.LogCritical(ex, ex.Message);
-
-				throw;
+				await ProcessExceptionAsync(ex);
+				return await SafeExecuteAsync(func);
 			}
 		}
-	}
 
-	public class SafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
-	{
-		private readonly IDictionary<TKey, TValue> _dictionary;
-
-		public SafeDictionary() => _dictionary = new Dictionary<TKey, TValue>();
-		public SafeDictionary(IDictionary<TKey, TValue> dictionary) => _dictionary = new Dictionary<TKey, TValue>(dictionary);
-		public SafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) => _dictionary = new Dictionary<TKey, TValue>(collection);
-		public SafeDictionary(IEqualityComparer<TKey> comparer) => _dictionary = new Dictionary<TKey, TValue>(comparer);
-		public SafeDictionary(int capacity) => _dictionary = new Dictionary<TKey, TValue>(capacity);
-		public SafeDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) => _dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
-		public SafeDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) => _dictionary = new Dictionary<TKey, TValue>(collection, comparer);
-		public SafeDictionary(int capacity, IEqualityComparer<TKey> comparer) => _dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
-
-		public TValue this[TKey key]
+		private async Task ProcessExceptionAsync(Exception exception)
 		{
-			get
+			Guard.Argument(() => exception).NotNull();
+
+			switch (exception)
 			{
-				if (_dictionary.ContainsKey(key))
-				{
-					return _dictionary[key];
-				}
+				// cannot connect to the database server
+				case MySqlException mySqlException when
+					mySqlException.Message == "Unable to connect to any of the specified MySQL hosts."
+					&& mySqlException.InnerException != default
+					&& mySqlException.InnerException is AggregateException aggregateException
+					&& aggregateException.InnerExceptions.Count == 1
+					&& aggregateException.InnerExceptions[0].Message.StartsWith("No connection could be made because the target machine actively refused it.", StringComparison.InvariantCultureIgnoreCase):
+					{
+						_exceptions[ExceptionTypes.TargetMachineActivelyRefused]++;
 
-				_dictionary.Add(key, default);
+						exception.Data.Add("attempt", _exceptions[ExceptionTypes.TargetMachineActivelyRefused]);
 
-				return default;
-			}
+						_logger?.LogCritical(exception, exception.Message);
 
-			set
-			{
-				if (_dictionary.ContainsKey(key))
-				{
-					_dictionary[key] = value;
-				}
-				else
-				{
-					_dictionary.Add(key, value);
-				}
+						// if we've tried more than ten times, 'splode
+						if (_exceptions[ExceptionTypes.TargetMachineActivelyRefused] > 10)
+						{
+							throw exception;
+						}
+
+						// pause...
+						await Task.Delay(millisecondsDelay: 3_000);
+
+						break;
+					}
+				// the schema doesn't exist
+				case MySqlException mySqlException when
+					Regex.IsMatch(mySqlException.Message, "Authentication to host '[$0-9A-Z_a-z]{1,64}' for user '[$0-9A-Z_a-z]{1,64}' using method 'mysql_native_password' failed with message: Unknown database '[$0-9A-Z_a-z]{1,64}'")
+					&& mySqlException.InnerException != default
+					&& mySqlException.InnerException is MySqlException mySqlInnerException
+					&& mySqlInnerException.Message.StartsWith("Unknown database ", StringComparison.InvariantCultureIgnoreCase):
+					{
+						_exceptions[ExceptionTypes.UnknownDatabase]++;
+
+						_logger?.LogCritical(exception, exception.Message);
+
+						// if we've tried before, 'splode
+						if (_exceptions[ExceptionTypes.UnknownDatabase] > 1)
+						{
+							throw exception;
+						}
+
+						await SafeCreateDatabaseAsync();
+
+						break;
+					}
+				default:
+					{
+						foreach (var (key, value) in _exceptions)
+						{
+							exception.Data.Add(key, value);
+						}
+
+						_logger?.LogCritical(exception, exception.Message);
+
+						throw exception;
+					}
 			}
 		}
-
-		public ICollection<TKey> Keys => _dictionary.Keys;
-		public ICollection<TValue> Values => _dictionary.Values;
-		public int Count => _dictionary.Count;
-		public bool IsReadOnly => _dictionary.IsReadOnly;
-		public void Add(TKey key, TValue value) => _dictionary.Add(key, value);
-		public void Add(KeyValuePair<TKey, TValue> item) => _dictionary.Add(item);
-		public void Clear() => _dictionary.Clear();
-		public bool Contains(KeyValuePair<TKey, TValue> item) => _dictionary.Contains(item);
-		public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
-		public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => _dictionary.CopyTo(array, arrayIndex);
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionary.GetEnumerator();
-		public bool Remove(TKey key) => _dictionary.Remove(key);
-		public bool Remove(KeyValuePair<TKey, TValue> item) => _dictionary.Remove(item);
-		public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value);
-		IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 	}
 }
