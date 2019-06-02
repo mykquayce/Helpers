@@ -3,7 +3,6 @@ using Dawn;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace Helpers.MySql
 {
 	public abstract class RepositoryBase : IDisposable
 	{
-		private IDbConnection _connection;
+		private readonly IDbConnection _connection;
 		private readonly ILogger? _logger;
 		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
 
@@ -93,10 +92,14 @@ namespace Helpers.MySql
 
 			if (await CheckTableExistsAsync(tableName, transaction: transaction))
 			{
+#pragma warning disable CS4014
 				SafeDropTableAsync(tableName, transaction: transaction);
+#pragma warning restore CS4014
 			}
 
+#pragma warning disable CS4014
 			ExecuteAsync(sql, transaction: transaction);
+#pragma warning restore CS4014
 		}
 
 		protected async Task SafeDropTableAsync(string tableName, IDbTransaction? transaction = default)
@@ -105,7 +108,9 @@ namespace Helpers.MySql
 
 			if (await CheckTableExistsAsync(tableName, transaction))
 			{
+#pragma warning disable CS4014
 				ExecuteAsync($"DROP TABLE {_connection.Database}.{tableName};", transaction: transaction);
+#pragma warning restore CS4014
 			}
 		}
 		#endregion Tables
