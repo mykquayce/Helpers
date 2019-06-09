@@ -15,11 +15,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		teamcity.dsl = teamcity.dsl
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.MySql", "Helpers.MySql\Helpers.MySql.csproj", "{A7E61084-96D0-4487-B706-461AA62A0802}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.MySql", "Helpers.MySql\Helpers.MySql.csproj", "{A7E61084-96D0-4487-B706-461AA62A0802}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.MySql.Tests", "Helpers.MySql.Tests\Helpers.MySql.Tests.csproj", "{8816A994-AA10-4C24-83A4-79C0274FB126}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.MySql.Tests", "Helpers.MySql.Tests\Helpers.MySql.Tests.csproj", "{8816A994-AA10-4C24-83A4-79C0274FB126}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Tests", "Helpers.Tracing.Tests\Helpers.Tracing.Tests.csproj", "{8FA2A0BA-1992-48D9-992B-5FF15FE89FCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Tests", "Helpers.Tracing.Tests\Helpers.Tracing.Tests.csproj", "{8FA2A0BA-1992-48D9-992B-5FF15FE89FCE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram", "Helpers.Telegram\Helpers.Telegram.csproj", "{740D037A-C239-40A5-94A3-C26D1CB24846}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Tests", "Helpers.Telegram.Tests\Helpers.Telegram.Tests.csproj", "{9E5B17DE-139F-4A90-AD64-5080538411E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Models", "Helpers.Telegram.Models\Helpers.Telegram.Models.csproj", "{E607C8EB-74F2-4593-8E38-214AD8F2FCF7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Models.Tests", "Helpers.Telegram.Models.Tests\Helpers.Telegram.Models.Tests.csproj", "{2CC2EE7D-3137-4F96-A378-5F1D0158C800}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Middleware", "Helpers.Tracing.Middleware\Helpers.Tracing.Middleware.csproj", "{CFE5ABEE-6702-4691-8CCF-EE611CC18ADD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Middleware.Tests", "Helpers.Tracing.Middleware.Tests\Helpers.Tracing.Middleware.Tests.csproj", "{8183AAC6-060B-4D04-83CF-04EB3EAAA654}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +63,30 @@ Global
 		{8FA2A0BA-1992-48D9-992B-5FF15FE89FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FA2A0BA-1992-48D9-992B-5FF15FE89FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FA2A0BA-1992-48D9-992B-5FF15FE89FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{740D037A-C239-40A5-94A3-C26D1CB24846}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{740D037A-C239-40A5-94A3-C26D1CB24846}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{740D037A-C239-40A5-94A3-C26D1CB24846}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{740D037A-C239-40A5-94A3-C26D1CB24846}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E5B17DE-139F-4A90-AD64-5080538411E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E5B17DE-139F-4A90-AD64-5080538411E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E5B17DE-139F-4A90-AD64-5080538411E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E5B17DE-139F-4A90-AD64-5080538411E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E607C8EB-74F2-4593-8E38-214AD8F2FCF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E607C8EB-74F2-4593-8E38-214AD8F2FCF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E607C8EB-74F2-4593-8E38-214AD8F2FCF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E607C8EB-74F2-4593-8E38-214AD8F2FCF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CC2EE7D-3137-4F96-A378-5F1D0158C800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CC2EE7D-3137-4F96-A378-5F1D0158C800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CC2EE7D-3137-4F96-A378-5F1D0158C800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CC2EE7D-3137-4F96-A378-5F1D0158C800}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFE5ABEE-6702-4691-8CCF-EE611CC18ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFE5ABEE-6702-4691-8CCF-EE611CC18ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFE5ABEE-6702-4691-8CCF-EE611CC18ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFE5ABEE-6702-4691-8CCF-EE611CC18ADD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8183AAC6-060B-4D04-83CF-04EB3EAAA654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8183AAC6-060B-4D04-83CF-04EB3EAAA654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8183AAC6-060B-4D04-83CF-04EB3EAAA654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8183AAC6-060B-4D04-83CF-04EB3EAAA654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

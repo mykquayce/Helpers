@@ -1,4 +1,5 @@
 ﻿using OpenTracing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,8 @@ namespace Helpers.Tracing
 			[CallerFilePath] string? filePath = default,
 			[CallerMemberName] string? methodName = default)
 		{
+			if (tracer == default) throw new ArgumentNullException(nameof(tracer));
+
 			filePath = filePath?.ReducePath();
 
 			var operationName = (filePath, methodName) switch
@@ -30,6 +33,8 @@ namespace Helpers.Tracing
 
 		public static ISpan Log(this ISpan span, params (string, object)[] keyValuePairs)
 		{
+			if (span == default) throw new ArgumentNullException(nameof(span));
+
 			var dictionary = new Dictionary<string, object>(keyValuePairs.Length / 2);
 
 			foreach (var (key, value) in keyValuePairs)
@@ -44,6 +49,8 @@ namespace Helpers.Tracing
 
 		public static ISpan Log(this ISpan span, params object[] values)
 		{
+			if (span == default) throw new ArgumentNullException(nameof(span));
+
 			var dictionary = new Dictionary<string, object>(values.Length / 2);
 
 			for (var a = 0; a < values.Length; a += 2)

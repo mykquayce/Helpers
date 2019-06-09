@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		{
 			if (configurationBuilder == default) throw new ArgumentNullException(nameof(configurationBuilder));
 
-			IFileProvider fileProvider = _root.Exists && _root.EnumerateFiles().Any()
+			IFileProvider? fileProvider = _root.Exists && _root.EnumerateFiles().Any()
 				? new PhysicalFileProvider(_root.FullName)
 				: default;
 
