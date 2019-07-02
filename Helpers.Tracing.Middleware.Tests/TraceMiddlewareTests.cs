@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Authentication;
+using Microsoft.AspNetCore.Http.Features;
 using Moq;
 using OpenTracing;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,7 +29,7 @@ namespace Helpers.Tracing.Middleware.Tests
 			var spanMock = new Mock<ISpan>(MockBehavior.Strict);
 
 			spanMock
-				.Setup(span => span.SetTag(It.Is<string>(key => key == "http.body"), It.IsAny<string>()))
+				.Setup(span => span.SetTag(It.Is<string>(key => key == "http.request.body"), It.IsAny<string>()))
 				.Callback<string, string>((key, value) => results.Add(value))
 				.Returns<string, string>((key, value) => spanMock.Object);
 
@@ -42,7 +47,7 @@ namespace Helpers.Tracing.Middleware.Tests
 
 			// Assert
 			spanMock
-				.Verify(span => span.SetTag(It.Is<string>(key => key == "http.body"), It.IsAny<string>()), Times.Once);
+				.Verify(span => span.SetTag(It.Is<string>(key => key == "http.request.body"), It.IsAny<string>()), Times.Once);
 
 			Assert.Single(results);
 			Assert.Equal(body, results[0]);
@@ -55,31 +60,33 @@ namespace Helpers.Tracing.Middleware.Tests
 		public void TraceMiddlewareTests_AttachResponseBodyToTraceMiddlewareTests_InvokeAsync_SavesTheBody(string body)
 		{
 			// Arrange
+			async Task ProcessRequestAsync(HttpContext context)
+			{
+				using var writer = new StreamWriter(context.Response.Body, leaveOpen: true);
+				await writer.WriteAsync(body);
+			}
+
 			var results = new List<string>();
-			var requestDelegate = Mock.Of<RequestDelegate>(rd => rd.Invoke(It.IsAny<HttpContext>()) == Task.CompletedTask);
 
 			var spanMock = new Mock<ISpan>(MockBehavior.Strict);
 
 			spanMock
-				.Setup(span => span.SetTag(It.Is<string>(key => key == "http.body"), It.IsAny<string>()))
+				.Setup(span => span.SetTag(It.Is<string>(key => key == "http.response.body"), It.IsAny<string>()))
 				.Callback<string, string>((key, value) => results.Add(value))
 				.Returns<string, string>((key, value) => spanMock.Object);
 
 			var tracer = Mock.Of<ITracer>(t => t.ActiveSpan == spanMock.Object);
 
-			var sut = new AttachResponseBodyToTraceMiddleware(requestDelegate, tracer);
+			var sut = new AttachResponseBodyToTraceMiddleware(ProcessRequestAsync, tracer);
 
-			var bytes = Encoding.UTF8.GetBytes(body);
-			using var stream = new MemoryStream(bytes);
-
-			var httpContext = Mock.Of<HttpContext>(c => c.Response.Body == stream);
+			var httpContext = Mock.Of<HttpContext>(c => c.Response.Body == new MemoryStream());
 
 			// Act
 			sut.InvokeAsync(httpContext).GetAwaiter().GetResult();
 
 			// Assert
 			spanMock
-				.Verify(span => span.SetTag(It.Is<string>(key => key == "http.body"), It.IsAny<string>()), Times.Once);
+				.Verify(span => span.SetTag(It.Is<string>(key => key == "http.response.body"), It.IsAny<string>()), Times.Once);
 
 			Assert.Single(results);
 			Assert.Equal(body, results[0]);

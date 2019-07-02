@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OpenTracing;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.Tracing.Middleware
@@ -23,39 +22,32 @@ namespace Helpers.Tracing.Middleware
 		{
 			var original = context.Response.Body;
 
-			using var memoryStream = new MemoryStream();
-
-			using var _ = new Swap<Stream>(() => context.Response.Body, stream => context.Response.Body = stream, memoryStream);
-
-			await _next.Invoke(context);
-
-			memoryStream.Position = 0L;
-
-			await SaveAsync(memoryStream);
-
-			memoryStream.Position = 0L;
-
-			await memoryStream.CopyToAsync(original);
-		}
-
-		private async Task SaveAsync(Stream stream)
-		{
-			if (_tracer?.ActiveSpan == default
-				|| stream == default
-				|| !stream.CanRead
-				|| !stream.CanSeek)
+			try
 			{
-				return;
+				using var stream = new MemoryStream();
+				using var reader = new StreamReader(stream);
+
+				context.Response.Body = stream;
+
+				await _next(context);
+
+				stream.Position = 0;
+
+				var body = await reader.ReadToEndAsync();
+
+				_tracer.ActiveSpan?.SetTag("http.response.body", body);
+
+				stream.Position = 0;
+
+				if (!string.IsNullOrEmpty(body))
+				{
+					await stream.CopyToAsync(original);
+				}
 			}
-
-			string body;
-
-			using (var reader = new StreamReader(stream, Encoding.Default, detectEncodingFromByteOrderMarks: true, bufferSize: 1, leaveOpen: true))
+			finally
 			{
-				body = await reader.ReadToEndAsync();
+				context.Response.Body = original;
 			}
-
-			_tracer.ActiveSpan.SetTag("http.response.body", body);
 		}
 	}
 }
