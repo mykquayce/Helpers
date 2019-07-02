@@ -6,14 +6,14 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>bob</Authors>
-    <FileVersion>1.0.2.0</FileVersion>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <Version>1.0.2-preview</Version>
+    <FileVersion>1.0.3.0</FileVersion>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <Version>1.0.3-preview</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Jaeger" Version="0.3.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview5.19227.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.0.0-preview6.19304.6" />
     <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.6.0" />
   </ItemGroup>
 
