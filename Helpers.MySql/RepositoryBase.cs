@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Dawn;
-using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -14,17 +13,14 @@ namespace Helpers.MySql
 	public abstract class RepositoryBase : IDisposable
 	{
 		private readonly IDbConnection _connection;
-		private readonly ILogger? _logger;
 		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
 
 		protected RepositoryBase(
-			string connectionString,
-			ILogger<RepositoryBase>? logger = default)
+			string connectionString)
 		{
 			if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
 
 			_connection = new MySqlConnection(connectionString);
-			_logger = logger;
 		}
 
 		public void Dispose()
@@ -92,7 +88,7 @@ namespace Helpers.MySql
 
 		protected async Task SafeCreateTableAsync(string tableName, string sql, IDbTransaction? transaction = default)
 		{
-			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => tableName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
 			if (await CheckTableExistsAsync(tableName, transaction: transaction))
@@ -192,8 +188,6 @@ namespace Helpers.MySql
 
 						exception.Data.Add("attempt", _exceptions[ExceptionTypes.TargetMachineActivelyRefused]);
 
-						_logger?.LogCritical(exception, exception.Message);
-
 						// if we've tried more than ten times, 'splode
 						if (_exceptions[ExceptionTypes.TargetMachineActivelyRefused] > 10)
 						{
@@ -216,8 +210,6 @@ namespace Helpers.MySql
 					{
 						_exceptions[ExceptionTypes.UnknownDatabase]++;
 
-						_logger?.LogCritical(exception, exception.Message);
-
 						// if we've tried before, 'splode
 						if (_exceptions[ExceptionTypes.UnknownDatabase] > 1)
 						{
@@ -234,8 +226,6 @@ namespace Helpers.MySql
 						{
 							exception.Data.Add(key, value);
 						}
-
-						_logger?.LogCritical(exception, exception.Message);
 
 						throw exception;
 					}
