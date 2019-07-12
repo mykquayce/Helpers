@@ -33,9 +33,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Middleware"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Middleware.Tests", "Helpers.Tracing.Middleware.Tests\Helpers.Tracing.Middleware.Tests.csproj", "{8183AAC6-060B-4D04-83CF-04EB3EAAA654}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.RabbitMQ", "Helpers.RabbitMQ\Helpers.RabbitMQ.csproj", "{A5979DA6-C309-4F0F-982A-011AF4030C37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ", "Helpers.RabbitMQ\Helpers.RabbitMQ.csproj", "{A5979DA6-C309-4F0F-982A-011AF4030C37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{7A17D029-69F9-457E-B6D2-79DB9850AD08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{7A17D029-69F9-457E-B6D2-79DB9850AD08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.HttpClient", "Helpers.HttpClient\Helpers.HttpClient.csproj", "{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.HttpClient.Tests", "Helpers.HttpClient.Tests\Helpers.HttpClient.Tests.csproj", "{64A2AC04-366E-4976-9A01-288A9D0BC833}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +103,14 @@ Global
 		{7A17D029-69F9-457E-B6D2-79DB9850AD08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A17D029-69F9-457E-B6D2-79DB9850AD08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A17D029-69F9-457E-B6D2-79DB9850AD08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
