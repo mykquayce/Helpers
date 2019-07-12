@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Helpers.Telegram.Models.Generated
 {
 	public class Result
 	{
-		[JsonProperty("message_id")]
+		[JsonPropertyName("message_id")]
 		public int MessageId { get; set; }
 		public From? From { get; set; }
 		public Chat? Chat { get; set; }

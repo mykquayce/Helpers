@@ -5,12 +5,13 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1-alpha</Version>
-    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.2-alpha</Version>
+    <FileVersion>1.0.2.0</FileVersion>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0-preview6.19303.8" />
   </ItemGroup>
 
 </Project>

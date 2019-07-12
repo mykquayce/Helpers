@@ -1,5 +1,5 @@
 using Helpers.Telegram.Models.Generated;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace Helpers.Telegram.Models.Tests
@@ -10,6 +10,11 @@ namespace Helpers.Telegram.Models.Tests
 		public void ResultTests_Deserialize()
 		{
 			// Arrange
+			var jsonSerializerOptions = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true,
+			};
+
 			var json = @"{
 				""ok"": true,
 				""result"": {
@@ -32,7 +37,7 @@ namespace Helpers.Telegram.Models.Tests
 			}";
 
 			// Act
-			var actual = JsonConvert.DeserializeObject<Response>(json);
+			var actual = JsonSerializer.Parse<Response>(json, jsonSerializerOptions);
 
 			// Assert
 			Assert.NotNull(actual);
