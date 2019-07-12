@@ -1,4 +1,4 @@
-﻿using Dawn;
+using Dawn;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Generic;
@@ -47,14 +47,17 @@ namespace Helpers.RabbitMQ.Concrete
 			_connection?.Dispose();
 		}
 
+		#region Acknowledge
 		public void Acknowledge(ulong deliveryTag)
 		{
 			Guard.Argument(() => deliveryTag).NotDefault();
 
 			_model.BasicAck(deliveryTag, multiple: false);
 		}
+		#endregion Acknowledge
 
-		public (T value, ulong deliveryTag) Consume<T>(string queue)
+		#region Consume
+		public (byte[] bytes, ulong deliveryTag) Consume(string queue)
 		{
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 
@@ -70,20 +73,26 @@ namespace Helpers.RabbitMQ.Concrete
 			}
 
 			Guard.Argument(() => result).NotNull();
-			Guard.Argument(() => result.Body).NotNull().NotEmpty().Require(bb => bb[0] == '{' || bb[0] == '[');
+			Guard.Argument(() => result.Body).NotNull().NotEmpty();
 
-			var value = JsonSerializer.Parse<T>(result.Body, _jsonSerializerOptions);
-
-			return (value, result.DeliveryTag);
+			return (result.Body, result.DeliveryTag);
 		}
 
-		public void Publish<T>(string queue, T value)
+		public (T value, ulong deliveryTag) Consume<T>(string queue)
+		{
+			var (bytes, deliveryTag) = Consume(queue);
+
+			var value = JsonSerializer.Parse<T>(bytes, _jsonSerializerOptions);
+
+			return (value, deliveryTag);
+		}
+		#endregion Consume
+
+		#region Publish
+		public void Publish(string queue, byte[] bytes)
 		{
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
-
-			var bytes = JsonSerializer.ToUtf8Bytes<T>(value, _jsonSerializerOptions);
-
-			Guard.Argument(() => bytes).NotEmpty();
+			Guard.Argument(() => bytes).NotNull().NotEmpty();
 
 			if (!_queueNames.Contains(queue))
 			{
@@ -104,5 +113,13 @@ namespace Helpers.RabbitMQ.Concrete
 				basicProperties: default,
 				body: bytes);
 		}
+
+		public void Publish<T>(string queue, T value)
+		{
+			Publish(
+				queue,
+				JsonSerializer.ToUtf8Bytes<T>(value, _jsonSerializerOptions));
+		} 
+		#endregion Publish
 	}
 }
