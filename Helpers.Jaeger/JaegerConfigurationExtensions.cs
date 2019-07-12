@@ -11,26 +11,37 @@ namespace Microsoft.Extensions.DependencyInjection
 	{
 		public static IServiceCollection AddJaegerTracing(this IServiceCollection services, string serviceName, string host = "localhost", int port = 6831)
 		{
-			if (string.IsNullOrWhiteSpace(serviceName)) throw new ArgumentNullException(nameof(serviceName));
+			try
+			{
+				if (string.IsNullOrWhiteSpace(serviceName)) throw new ArgumentNullException(nameof(serviceName));
 
-			var sender = new UdpSender(host, port, maxPacketSize: 0);
+				var sender = new UdpSender(host, port, maxPacketSize: 0);
 
-			var reporter = new RemoteReporter.Builder()
-				.WithSender(sender)
-				.Build();
+				var reporter = new RemoteReporter.Builder()
+					.WithSender(sender)
+					.Build();
 
-			var sampler = new ConstSampler(sample: true);
+				var sampler = new ConstSampler(sample: true);
 
-			var tracer = new Tracer.Builder(serviceName)
-				.WithReporter(reporter)
-				.WithSampler(sampler)
-				.Build();
+				var tracer = new Tracer.Builder(serviceName)
+					.WithReporter(reporter)
+					.WithSampler(sampler)
+					.Build();
 
-			services
-				.AddOpenTracing()
-				.AddSingleton<ITracer>(tracer);
+				services
+					.AddOpenTracing()
+					.AddSingleton<ITracer>(tracer);
 
-			return services;
+				return services;
+			}
+			catch (Exception ex)
+			{
+				ex.Data.Add(nameof(serviceName), serviceName);
+				ex.Data.Add(nameof(host), host);
+				ex.Data.Add(nameof(port), port);
+
+				throw;
+			}
 		}
 	}
 }

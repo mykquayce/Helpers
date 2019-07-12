@@ -1,4 +1,4 @@
-﻿using Dawn;
+using Dawn;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Generic;
