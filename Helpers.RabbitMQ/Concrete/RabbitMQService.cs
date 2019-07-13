@@ -8,9 +8,17 @@ namespace Helpers.RabbitMQ.Concrete
 {
 	public class RabbitMQService : IRabbitMQService
 	{
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		{
+			AllowTrailingCommas = true,
+			IgnoreNullValues = false,
+			PropertyNameCaseInsensitive = true,
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			WriteIndented = true,
+		};
+
 		private readonly IConnection _connection;
 		private readonly IModel _model;
-		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions { AllowTrailingCommas = true, };
 		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
