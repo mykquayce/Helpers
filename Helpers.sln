@@ -37,9 +37,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ", "Helpers
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{7A17D029-69F9-457E-B6D2-79DB9850AD08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.HttpClient", "Helpers.HttpClient\Helpers.HttpClient.csproj", "{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.HttpClient", "Helpers.HttpClient\Helpers.HttpClient.csproj", "{BC4DA5A4-9BDC-445A-9B44-33797F0B94CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.HttpClient.Tests", "Helpers.HttpClient.Tests\Helpers.HttpClient.Tests.csproj", "{64A2AC04-366E-4976-9A01-288A9D0BC833}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.HttpClient.Tests", "Helpers.HttpClient.Tests\Helpers.HttpClient.Tests.csproj", "{64A2AC04-366E-4976-9A01-288A9D0BC833}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Common", "Helpers.Common\Helpers.Common.csproj", "{4C8860A4-E18B-4817-9273-8E385DF1F1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Common.Tests", "Helpers.Common.Tests\Helpers.Common.Tests.csproj", "{0D9D48E2-B082-49D3-8093-3003CEA70BEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +115,14 @@ Global
 		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64A2AC04-366E-4976-9A01-288A9D0BC833}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C8860A4-E18B-4817-9273-8E385DF1F1FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C8860A4-E18B-4817-9273-8E385DF1F1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C8860A4-E18B-4817-9273-8E385DF1F1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C8860A4-E18B-4817-9273-8E385DF1F1FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D9D48E2-B082-49D3-8093-3003CEA70BEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D9D48E2-B082-49D3-8093-3003CEA70BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D9D48E2-B082-49D3-8093-3003CEA70BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D9D48E2-B082-49D3-8093-3003CEA70BEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
