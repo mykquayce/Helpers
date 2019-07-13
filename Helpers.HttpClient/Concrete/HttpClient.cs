@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using Helpers.Common;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using System;
@@ -8,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +17,15 @@ namespace Helpers.HttpClient.Concrete
 {
 	public class HttpClient : IHttpClient
 	{
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		{
+			AllowTrailingCommas = true,
+			IgnoreNullValues = false,
+			PropertyNameCaseInsensitive = true,
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			WriteIndented = true,
+		};
+
 		private readonly string _name;
 		private readonly HttpMessageInvoker _httpMessageInvoker;
 		private readonly ILogger? _logger;
@@ -55,7 +66,7 @@ namespace Helpers.HttpClient.Concrete
 		{
 			var (httpStatusCode, stream, headers) = await SendAsync(httpMethod, uri, body, methodName);
 
-			var value = await stream.Deserialize<T>();
+			var value = await JsonSerializer.ReadAsync<T>(stream, _jsonSerializerOptions);
 
 			return (httpStatusCode, value, headers);
 		}
@@ -107,7 +118,7 @@ namespace Helpers.HttpClient.Concrete
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
-				var errorObject = exception.Serialize();
+				var errorObject = JsonSerializer.ToString(exception, _jsonSerializerOptions);
 
 				scope?.Span
 					.SetTag(OpenTracing.Tag.Tags.Error, true)

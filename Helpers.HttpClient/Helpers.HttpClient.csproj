@@ -6,12 +6,13 @@
     <Nullable>enable</Nullable>
     <Version>1.0.3-preview</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.8.0" />
+    <PackageReference Include="Helpers.Common" Version="1.0.2-preview" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0-preview6.19304.6" />
     <PackageReference Include="OpenTracing" Version="0.12.0" />
     <PackageReference Include="System.Text.Json" Version="4.6.0-preview6.19303.8" />
