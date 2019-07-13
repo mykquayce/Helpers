@@ -13,9 +13,9 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Helpers.HttpClient.Concrete
+namespace Helpers.HttpClient
 {
-	public class HttpClient : IHttpClient
+	public abstract class HttpClientBase
 	{
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
@@ -31,9 +31,9 @@ namespace Helpers.HttpClient.Concrete
 		private readonly ILogger? _logger;
 		private readonly ITracer? _tracer;
 
-		public HttpClient(
+		protected HttpClientBase(
 			IHttpClientFactory httpClientFactory,
-			ILogger<HttpClient>? logger = default,
+			ILogger<HttpClientBase>? logger = default,
 			ITracer? tracer = default)
 		{
 			Guard.Argument(() => httpClientFactory).NotNull();
@@ -58,7 +58,7 @@ namespace Helpers.HttpClient.Concrete
 			_httpMessageInvoker?.Dispose();
 		}
 
-		public async Task<(HttpStatusCode, T, IDictionary<string, IEnumerable<string>>)> SendAsync<T>(
+		protected async Task<(HttpStatusCode, T, IDictionary<string, IEnumerable<string>>)> SendAsync<T>(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
@@ -71,7 +71,7 @@ namespace Helpers.HttpClient.Concrete
 			return (httpStatusCode, value, headers);
 		}
 
-		public async Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
+		protected async Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,

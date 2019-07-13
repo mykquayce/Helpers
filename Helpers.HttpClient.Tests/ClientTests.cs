@@ -1,8 +1,11 @@
 using Moq;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -11,7 +14,7 @@ namespace Helpers.HttpClient.Tests
 	public class ClientTests : IDisposable
 	{
 		private readonly System.Net.Http.HttpClient _httpClient;
-		private readonly IHttpClient _client;
+		private readonly HttpClient _client;
 
 		public ClientTests()
 		{
@@ -28,7 +31,7 @@ namespace Helpers.HttpClient.Tests
 				.Setup(f => f.CreateClient(It.Is<string>(name => name == nameof(HttpClient))))
 				.Returns(_httpClient);
 
-			_client = new Concrete.HttpClient(clientFactoryMock.Object);
+			_client = new HttpClient(clientFactoryMock.Object);
 		}
 
 		public void Dispose()
@@ -73,6 +76,23 @@ namespace Helpers.HttpClient.Tests
 			Assert.Equal(HttpStatusCode.OK, statusCode);
 			Assert.NotNull(body);
 			Assert.NotEqual(0, body.Length);
+		}
+	}
+
+	public class HttpClient : HttpClientBase
+	{
+		public HttpClient(
+			IHttpClientFactory httpClientFactory)
+			: base(httpClientFactory)
+		{ }
+
+		public new Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
+			HttpMethod httpMethod,
+			Uri uri,
+			string? body = default,
+			[CallerMemberName] string? methodName = default)
+		{
+			return base.SendAsync(httpMethod, uri, body, methodName);
 		}
 	}
 }
