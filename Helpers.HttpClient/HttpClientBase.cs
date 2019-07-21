@@ -33,7 +33,7 @@ namespace Helpers.HttpClient
 
 		protected HttpClientBase(
 			IHttpClientFactory httpClientFactory,
-			ILogger<HttpClientBase>? logger = default,
+			ILogger? logger = default,
 			ITracer? tracer = default)
 		{
 			Guard.Argument(() => httpClientFactory).NotNull();
