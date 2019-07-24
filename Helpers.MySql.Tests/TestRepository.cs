@@ -7,8 +7,8 @@ namespace Helpers.MySql.Tests
 {
 	public class TestRepository : RepositoryBase
 	{
-		public TestRepository(string connectionString)
-			: base(connectionString)
+		public TestRepository(string server, int port, string userId, string password, string? database = default)
+			: base(server, port, userId, password, database)
 		{ }
 
 		public new ConnectionState ConnectionState => base.ConnectionState;

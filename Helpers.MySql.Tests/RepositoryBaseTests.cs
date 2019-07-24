@@ -10,14 +10,11 @@ namespace Helpers.MySql.Tests
 	public class RepositoryBaseTests
 	{
 		[Theory(Skip = "requires db access")]
-		[InlineData(
-			"server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;",
-			"test",
-			"table1")]
-		public async Task RepositoryBaseTests_EndToEnd(string connectionString, string databaseName, string tableName)
+		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7", "test", "table1")]
+		public async Task RepositoryBaseTests_EndToEnd(string server, int port, string userId, string password, string database, string tableName)
 		{
 			// Arrange, Act
-			var sut = new TestRepository(connectionString);
+			var sut = new TestRepository(server, port, userId, password, database);
 
 			// Act
 			var now = DateTime.UtcNow;
@@ -30,7 +27,7 @@ namespace Helpers.MySql.Tests
 			// Act
 			await sut.SafeCreateTableAsync(
 				tableName,
-				$@"CREATE TABLE `{databaseName}`.`{tableName}` (
+				$@"CREATE TABLE `{database}`.`{tableName}` (
 					`id` SMALLINT(2) UNSIGNED NOT NULL,
 					`name` VARCHAR(100) NOT NULL,
 					PRIMARY KEY (`id`)
@@ -40,14 +37,14 @@ namespace Helpers.MySql.Tests
 			Assert.True(await sut.CheckTableExistsAsync(tableName));
 
 			// Act
-			await sut.ExecuteAsync($"DELETE FROM `{databaseName}`.`{tableName}` WHERE id>=0;");
+			await sut.ExecuteAsync($"DELETE FROM `{database}`.`{tableName}` WHERE id>=0;");
 
-			await sut.ExecuteAsync($"INSERT `{databaseName}`.`{tableName}`(id, name) VALUES (@id, @name);", new[]
+			await sut.ExecuteAsync($"INSERT `{database}`.`{tableName}`(id, name) VALUES (@id, @name);", new[]
 			{
 				new { id = 1, name = "test", },
 			});
 
-			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{databaseName}`.`{tableName}`;")).ToList();
+			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;")).ToList();
 
 			// Assert
 			Assert.NotEmpty(results);
@@ -61,17 +58,17 @@ namespace Helpers.MySql.Tests
 			// Assert
 			Assert.False(await sut.CheckTableExistsAsync(tableName));
 
-			await sut.SafeDropDatabaseAsync(databaseName);
+			await sut.SafeDropDatabaseAsync(database);
 
 			// Arrange
 			sut.Dispose();
 		}
 
 		[Theory(Skip = "requires db access")]
-		[InlineData("server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;database=test;", "table2")]
-		public async Task RepositoryBaseTests_TransactionTest(string connectionString, string tableName)
+		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7", "test", "table2")]
+		public async Task RepositoryBaseTests_TransactionTest(string server, int port, string userId, string password, string database, string tableName)
 		{
-			using var sut = new TestRepository(connectionString);
+			using var sut = new TestRepository(server, port, userId, password, database);
 
 			await sut.SafeDropTableAsync(tableName);
 
@@ -123,10 +120,10 @@ namespace Helpers.MySql.Tests
 		}
 
 		[Theory(Skip = "requires db access")]
-		[InlineData("server=localhost;port=3306;user id=root;password=xiebeiyoothohYaidieroh8ahchohphi;")]
-		public async Task RepositoryBaseTests_OpenAnOpenConnection(string connectionString)
+		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7")]
+		public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, int port, string userId, string password, string? database = default)
 		{
-			using var sut = new TestRepository(connectionString);
+			using var sut = new TestRepository(server, port, userId, password, database);
 
 			using (var transaction = sut.BeginTransaction())
 			{

@@ -16,11 +16,28 @@ namespace Helpers.MySql
 		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
 
 		protected RepositoryBase(
-			string connectionString)
+			string server,
+			int port,
+			string userId,
+			string password,
+			string? database = default)
 		{
-			if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
+			Guard.Argument(() => server, secure: true).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => port, secure: true).InRange(1, 65_535);
+			Guard.Argument(() => userId, secure: true).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => password, secure: true).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => database, secure: true).NotEmpty().NotWhiteSpace();
 
-			_connection = new MySqlConnection(connectionString);
+			var builder = new MySqlConnectionStringBuilder
+			{
+				Database = database,
+				Password = password,
+				Port = (uint)port,
+				Server = server,
+				UserID = userId,
+			};
+
+			_connection = new MySqlConnection(builder.ConnectionString);
 		}
 
 		public void Dispose()
