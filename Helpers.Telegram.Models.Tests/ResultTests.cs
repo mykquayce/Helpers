@@ -1,5 +1,5 @@
 using Helpers.Telegram.Models.Generated;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using Xunit;
 
 namespace Helpers.Telegram.Models.Tests
@@ -37,7 +37,7 @@ namespace Helpers.Telegram.Models.Tests
 			}";
 
 			// Act
-			var actual = JsonSerializer.Parse<Response>(json, jsonSerializerOptions);
+			var actual = JsonSerializer.Deserialize<Response>(json, jsonSerializerOptions);
 
 			// Assert
 			Assert.NotNull(actual);

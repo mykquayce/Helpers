@@ -2,7 +2,7 @@ using Dawn;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Helpers.RabbitMQ.Concrete
 {
@@ -90,7 +90,7 @@ namespace Helpers.RabbitMQ.Concrete
 		{
 			var (bytes, deliveryTag) = Consume(queue);
 
-			var value = JsonSerializer.Parse<T>(bytes, _jsonSerializerOptions);
+			var value = JsonSerializer.Deserialize<T>(bytes, _jsonSerializerOptions);
 
 			return (value, deliveryTag);
 		}
@@ -126,7 +126,7 @@ namespace Helpers.RabbitMQ.Concrete
 		{
 			Publish(
 				queue,
-				JsonSerializer.ToUtf8Bytes<T>(value, _jsonSerializerOptions));
+				JsonSerializer.SerializeToUtf8Bytes<T>(value, _jsonSerializerOptions));
 		} 
 		#endregion Publish
 	}

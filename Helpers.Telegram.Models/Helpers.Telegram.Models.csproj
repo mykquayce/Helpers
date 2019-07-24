@@ -5,13 +5,13 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2-alpha</Version>
-    <FileVersion>1.0.2.0</FileVersion>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <Version>1.0.4-preview</Version>
+    <FileVersion>1.0.4.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview6.19303.8" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0-preview7.19362.9" />
   </ItemGroup>
 
 </Project>

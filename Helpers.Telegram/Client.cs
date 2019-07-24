@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +13,15 @@ namespace Helpers.Telegram
 		private static readonly Regex _apiKeyRegex = new Regex(@"^\d+:[-\w]+$", RegexOptions.Compiled);
 		private static readonly Uri _baseAddress = new Uri("https://api.telegram.org/", UriKind.Absolute);
 		private static readonly HttpMessageInvoker _httpClient;// = new HttpClient { BaseAddress = _baseAddress, };
+
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		{
+			AllowTrailingCommas = true,
+			IgnoreNullValues = false,
+			PropertyNameCaseInsensitive = true,
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			WriteIndented = true,
+		};
 
 		static Client()
 		{
@@ -73,11 +82,11 @@ namespace Helpers.Telegram
 
 			var httpResponseMessage = await _httpClient.SendAsync(httpRequestMessage, CancellationToken.None);
 
-			var content = await httpResponseMessage.Content.ReadAsStringAsync();
+			using var content = await httpResponseMessage.Content.ReadAsStreamAsync();
 
 			if (httpResponseMessage.IsSuccessStatusCode)
 			{
-				var response = JsonConvert.DeserializeObject<Models.Generated.Response>(content);
+				var response = await JsonSerializer.DeserializeAsync<Models.Generated.Response>(content, _jsonSerializerOptions);
 
 				if (response.Ok
 					&& response.Result != default)

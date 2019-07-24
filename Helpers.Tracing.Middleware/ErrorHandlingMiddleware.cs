@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OpenTracing;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Helpers.Tracing.Middleware
@@ -29,7 +29,7 @@ namespace Helpers.Tracing.Middleware
 			{
 				string errorObject;
 
-				try { errorObject = JsonSerializer.ToString(exception); }
+				try { errorObject = JsonSerializer.Serialize(exception); }
 				catch { errorObject = exception.ToString(); }
 
 				_tracer?.ActiveSpan?

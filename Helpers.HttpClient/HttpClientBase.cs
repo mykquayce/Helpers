@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,7 +66,7 @@ namespace Helpers.HttpClient
 		{
 			var (httpStatusCode, stream, headers) = await SendAsync(httpMethod, uri, body, methodName);
 
-			var value = await JsonSerializer.ReadAsync<T>(stream, _jsonSerializerOptions);
+			var value = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
 
 			return (httpStatusCode, value, headers);
 		}
@@ -118,7 +118,7 @@ namespace Helpers.HttpClient
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
-				var errorObject = JsonSerializer.ToString(exception, _jsonSerializerOptions);
+				var errorObject = JsonSerializer.Serialize(exception, _jsonSerializerOptions);
 
 				scope?.Span
 					.SetTag(OpenTracing.Tag.Tags.Error, true)

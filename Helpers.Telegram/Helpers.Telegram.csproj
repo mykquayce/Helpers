@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.1-alpha" />
+    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.4-preview" />
   </ItemGroup>
 
 </Project>
