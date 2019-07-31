@@ -44,7 +44,7 @@ namespace Helpers.MySql.Tests
 				new { id = 1, name = "test", },
 			});
 
-			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;")).ToList();
+			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;").WaitAsync()).ToList();
 
 			// Assert
 			Assert.NotEmpty(results);
@@ -88,7 +88,7 @@ namespace Helpers.MySql.Tests
 			using var transaction = sut.BeginTransaction();
 
 			// check it's empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
 
 			Assert.Empty(results);
 
@@ -99,7 +99,7 @@ namespace Helpers.MySql.Tests
 				transaction);
 
 			// check it's not empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
 
 			Assert.NotEmpty(results);
 
@@ -107,7 +107,7 @@ namespace Helpers.MySql.Tests
 			transaction.Rollback();
 
 			// check the table is empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`");
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
 
 			Assert.Empty(results);
 
@@ -134,6 +134,25 @@ namespace Helpers.MySql.Tests
 			{
 				await sut.GetDateTimeAsync();
 			}
+		}
+	}
+
+	public static class ExtensionMethods
+	{
+		public async static Task<IEnumerable<T>> WaitAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+		{
+			var results = new List<T>();
+
+			var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator();
+
+			while (await asyncEnumerator.MoveNextAsync())
+			{
+				results.Add(asyncEnumerator.Current);
+			}
+
+			await asyncEnumerator.DisposeAsync();
+
+			return results;
 		}
 	}
 }

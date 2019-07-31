@@ -81,11 +81,16 @@ namespace Helpers.MySql
 			return SafeExecuteAsync(() => _connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType));
 		}
 
-		protected Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
+		protected async IAsyncEnumerable<T> QueryAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
 		{
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
-			return SafeExecuteAsync(() => _connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType));
+			var results = await SafeExecuteAsync(() => _connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType));
+
+			foreach (var result in results)
+			{
+				yield return result;
+			}
 		}
 
 		#region Transactions
