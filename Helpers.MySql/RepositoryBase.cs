@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Dawn;
+using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,14 @@ namespace Helpers.MySql
 	{
 		private readonly IDbConnection _connection;
 		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
+
+		protected RepositoryBase(IOptions<Models.DbSettings> options)
+			: this(options.Value)
+		{ }
+
+		protected RepositoryBase(Models.DbSettings dbSettings)
+			: this(dbSettings.Server!, dbSettings.Port!.Value, dbSettings.UserId!, dbSettings.Password!, dbSettings.Database)
+		{ }
 
 		protected RepositoryBase(
 			string server,
