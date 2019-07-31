@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Dawn;
+using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,14 @@ namespace Helpers.MySql
 	{
 		private readonly IDbConnection _connection;
 		private const string _namePattern = @"^[$0-9A-Z_a-z]{1,64}$";
+
+		protected RepositoryBase(IOptions<Models.DbSettings> options)
+			: this(options.Value)
+		{ }
+
+		protected RepositoryBase(Models.DbSettings dbSettings)
+			: this(dbSettings.Server!, dbSettings.Port!.Value, dbSettings.UserId!, dbSettings.Password!, dbSettings.Database)
+		{ }
 
 		protected RepositoryBase(
 			string server,
@@ -72,11 +81,16 @@ namespace Helpers.MySql
 			return SafeExecuteAsync(() => _connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType));
 		}
 
-		protected Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
+		protected async IAsyncEnumerable<T> QueryAsync<T>(string sql, object? param = default, IDbTransaction? transaction = default, int? commandTimeout = default, CommandType? commandType = default)
 		{
 			Guard.Argument(() => sql).NotNull().NotEmpty().NotWhiteSpace();
 
-			return SafeExecuteAsync(() => _connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType));
+			var results = await SafeExecuteAsync(() => _connection.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType));
+
+			foreach (var result in results)
+			{
+				yield return result;
+			}
 		}
 
 		#region Transactions
