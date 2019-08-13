@@ -37,11 +37,11 @@ namespace Helpers.Tracing.Middleware
 					.Log(
 						new Dictionary<string, object>(5)
 						{
-							[LogFields.ErrorKind] = exception.GetType().FullName,
+							[LogFields.ErrorKind] = exception.GetType().FullName!,
 							[LogFields.ErrorObject] = errorObject,
 							[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
 							[LogFields.Message] = exception.Message,
-							[LogFields.Stack] = exception.StackTrace,
+							[LogFields.Stack] = exception.StackTrace!,
 						});
 			}
 		}

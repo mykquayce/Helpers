@@ -8,6 +8,7 @@
     <Version>1.0.2-preview</Version>
     <FileVersion>1.0.2.0</FileVersion>
     <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <Authors>bob</Authors>
   </PropertyGroup>
 
 </Project>

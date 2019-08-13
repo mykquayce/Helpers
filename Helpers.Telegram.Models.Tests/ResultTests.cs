@@ -43,14 +43,14 @@ namespace Helpers.Telegram.Models.Tests
 			Assert.NotNull(actual);
 			Assert.True(actual.Ok);
 			Assert.NotNull(actual.Result);
-			Assert.Equal(4, actual.Result.MessageId);
+			Assert.Equal(4, actual.Result!.MessageId);
 			Assert.NotNull(actual.Result.From);
-			Assert.Equal(898512484, actual.Result.From.Id);
+			Assert.Equal(898512484, actual.Result.From!.Id);
 			Assert.True(actual.Result.From.IsBot);
 			Assert.Equal("CCQEnzJNJotSNA97Yfyy", actual.Result.From.FirstName);
 			Assert.Equal("movie_times_bot", actual.Result.From.Username);
 			Assert.NotNull(actual.Result.Chat);
-			Assert.Equal(-396035426, actual.Result.Chat.Id);
+			Assert.Equal(-396035426, actual.Result.Chat!.Id);
 			Assert.Equal("3JSSAxvnu1dYZbqGtaaz", actual.Result.Chat.Title);
 			Assert.Equal("group", actual.Result.Chat.Type);
 			Assert.True(actual.Result.Chat.AllMembersAreAdministrators);

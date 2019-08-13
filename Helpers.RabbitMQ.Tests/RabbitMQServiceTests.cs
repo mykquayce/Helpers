@@ -34,6 +34,6 @@ namespace Helpers.RabbitMQ.Tests
 			_service.Acknowledge(deliveryTag);
 		}
 
-		private class Class { public string String { get; set; } }
+		private class Class { public string? String { get; set; } }
 	}
 }

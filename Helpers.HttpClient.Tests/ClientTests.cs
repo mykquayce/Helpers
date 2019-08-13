@@ -48,7 +48,9 @@ namespace Helpers.HttpClient.Tests
 			var relativeUri = new Uri(uriString, UriKind.Relative);
 
 			// Act
-			var (statusCode, body, headers) = await _client.SendAsync(HttpMethod.Head, relativeUri);
+			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Head, relativeUri);
+
+			var body = await StreamToString(stream);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.Found, statusCode);
@@ -70,12 +72,21 @@ namespace Helpers.HttpClient.Tests
 			var relativeUri = new Uri(uriString, UriKind.Absolute);
 
 			// Act
-			var (statusCode, body, headers) = await _client.SendAsync(HttpMethod.Get, relativeUri);
+			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Get, relativeUri);
+
+			var body = await StreamToString(stream);
 
 			// Assert
 			Assert.Equal(HttpStatusCode.OK, statusCode);
 			Assert.NotNull(body);
 			Assert.NotEqual(0, body.Length);
+		}
+
+		private async static Task<string> StreamToString(Stream stream)
+		{
+			using var reader = new StreamReader(stream);
+
+			return await reader.ReadToEndAsync();
 		}
 	}
 
