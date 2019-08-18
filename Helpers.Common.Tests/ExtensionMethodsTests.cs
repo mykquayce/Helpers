@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -66,6 +67,19 @@ namespace Helpers.Common.Tests
 			Assert.Equal(4, first["four"]);
 			Assert.Equal(5, first["five"]);
 			Assert.Equal(6, first["six"]);
+		}
+
+		[Theory]
+		[InlineData(
+			"https://old.reddit.com/r/nostalgia/?utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit",
+			"https://old.reddit.com/r/nostalgia/")]
+		public void ExtensionMethodsTests_StripQuery(string uriString, string expectedUriString)
+		{
+			var before = new Uri(uriString, UriKind.Absolute);
+
+			var actual = before.StripQuery();
+
+			Assert.Equal(expectedUriString, actual.OriginalString);
 		}
 	}
 }

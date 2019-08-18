@@ -39,5 +39,26 @@ namespace Helpers.Common
 
 			return dictionary;
 		}
+
+		public static Uri StripQuery(this Uri uri)
+		{
+			if (uri?.OriginalString == default
+				|| string.IsNullOrWhiteSpace(uri.OriginalString))
+			{
+				throw new ArgumentNullException(nameof(uri));
+			}
+
+			if (!uri.IsAbsoluteUri)
+			{
+				throw new ArgumentOutOfRangeException(nameof(uri), uri, nameof(uri) + " must be absolute")
+				{
+					Data = { [nameof(uri)] = uri.OriginalString, },
+				};
+			}
+
+			var normalized = string.Concat(uri.Scheme, Uri.SchemeDelimiter, uri.Host, uri.AbsolutePath);
+
+			return new Uri(normalized, UriKind.Absolute);
+		}
 	}
 }
