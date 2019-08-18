@@ -22,6 +22,11 @@ namespace Helpers.RabbitMQ.Concrete
 		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
+			Models.Settings settings)
+			: this(settings.HostName, settings.Port, settings.UserName, settings.Password, settings.VirtualHost)
+		{ }
+
+		public RabbitMQService(
 			string hostName = "localhost",
 			int port = 5672,
 			string userName = ConnectionFactory.DefaultUser,
