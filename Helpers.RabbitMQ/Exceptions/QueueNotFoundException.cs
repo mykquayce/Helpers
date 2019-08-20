@@ -2,6 +2,7 @@
 
 namespace Helpers.RabbitMQ.Exceptions
 {
+	[Serializable]
 	public class QueueNotFoundException : Exception
 	{
 		public QueueNotFoundException(string queueName)

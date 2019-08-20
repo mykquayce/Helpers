@@ -85,6 +85,11 @@ namespace Helpers.RabbitMQ.Concrete
 				throw new Exceptions.QueueNotFoundException(queue);
 			}
 
+			if (result == default)
+			{
+				throw new Exceptions.QueueEmptyException(queue);
+			}
+
 			Guard.Argument(() => result).NotNull();
 			Guard.Argument(() => result.Body).NotNull().NotEmpty();
 
