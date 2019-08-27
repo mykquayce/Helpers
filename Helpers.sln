@@ -45,9 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Common", "Helpers.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Common.Tests", "Helpers.Common.Tests\Helpers.Common.Tests.csproj", "{0D9D48E2-B082-49D3-8093-3003CEA70BEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Discord", "Helpers.Discord\Helpers.Discord.csproj", "{2A884D61-1062-4EAD-8F48-9DDB063C23B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord", "Helpers.Discord\Helpers.Discord.csproj", "{2A884D61-1062-4EAD-8F48-9DDB063C23B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Discord.Tests", "Helpers.Discord.Tests\Helpers.Discord.Tests.csproj", "{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord.Tests", "Helpers.Discord.Tests\Helpers.Discord.Tests.csproj", "{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jaeger.Tests", "Helpers.Jaeger.Tests\Helpers.Jaeger.Tests.csproj", "{1A645B28-E72F-4FB5-96A3-85D3DC50855E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
