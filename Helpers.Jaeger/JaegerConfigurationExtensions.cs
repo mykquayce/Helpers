@@ -16,9 +16,15 @@ namespace Microsoft.Extensions.DependencyInjection
 		{
 			Guard.Argument(() => configuration).NotNull();
 
-			var serviceName = Guard.Argument(() => configuration["serviceName"]).NotNull().NotEmpty().NotWhiteSpace().Value;
-			var host = Guard.Argument(() => configuration["host"]).NotNull().NotEmpty().NotWhiteSpace().Value;
-			var port = Guard.Argument(() => configuration["port"]).NotNull().NotEmpty().NotWhiteSpace().Matches(@"^\d{1,5}$").Cast<int>().Value;
+			var serviceName = configuration["serviceName"];
+			var host = configuration["host"];
+			var portString = configuration["port"];
+
+			Guard.Argument(() => serviceName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => portString).NotNull().NotEmpty().NotWhiteSpace().Matches(@"^\d{1,5}$");
+
+			var port = int.Parse(portString);
 
 			return AddJaegerTracing(services, serviceName, host, port);
 		}
