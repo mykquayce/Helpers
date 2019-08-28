@@ -1,40 +1,23 @@
 ﻿using Dawn;
-using Helpers.Jaeger.Models;
-using Jaeger;
-using Jaeger.Reporters;
-using Jaeger.Samplers;
-using Jaeger.Senders;
 using Microsoft.Extensions.Configuration;
 using OpenTracing;
-using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
 	public static class JaegerConfigurationExtensions
 	{
-		public static IServiceCollection AddJaegerTracing(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddJaegerTracing(
+			this IServiceCollection services,
+			IConfiguration configuration)
 		{
 			Guard.Argument(() => configuration).NotNull();
 
 			var serviceName = configuration["serviceName"];
 			var host = configuration["host"];
 			var portString = configuration["port"];
-
-			Guard.Argument(() => serviceName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => portString).NotNull().NotEmpty().NotWhiteSpace().Matches(@"^\d{1,5}$");
-
-			var port = int.Parse(portString);
+			var port = int.TryParse(portString, out var value) ? value : default;
 
 			return AddJaegerTracing(services, serviceName, host, port);
-		}
-
-		public static IServiceCollection AddJaegerTracing(this IServiceCollection services, Settings settings)
-		{
-			Guard.Argument(() => settings).NotNull();
-			Guard.Argument(() => settings.ServiceName).NotNull();
-
-			return AddJaegerTracing(services, settings.ServiceName!, settings.Host, settings.Port);
 		}
 
 		public static IServiceCollection AddJaegerTracing(
@@ -43,42 +26,27 @@ namespace Microsoft.Extensions.DependencyInjection
 			string? host = "localhost",
 			int? port = 6_831)
 		{
-			Guard.Argument(() => services).NotNull();
-			Guard.Argument(() => serviceName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => port).NotNull().InRange(1, 65_535);
-
-			try
+			var settings = new Helpers.Jaeger.Models.Settings
 			{
-				if (string.IsNullOrWhiteSpace(serviceName)) throw new ArgumentNullException(nameof(serviceName));
+				ServiceName = serviceName,
+				Host = host,
+				Port = port,
+			};
 
-				var sender = new UdpSender(host, port!.Value, maxPacketSize: 0);
+			return AddJaegerTracing(services, settings);
+		}
 
-				var reporter = new RemoteReporter.Builder()
-					.WithSender(sender)
-					.Build();
+		public static IServiceCollection AddJaegerTracing(
+			this IServiceCollection services,
+			Helpers.Jaeger.Models.Settings settings)
+		{
+			Guard.Argument(() => settings).NotNull();
 
-				var sampler = new ConstSampler(sample: true);
+			var tracer = new Helpers.Jaeger.JaegerTracer(settings);
 
-				var tracer = new Tracer.Builder(serviceName)
-					.WithReporter(reporter)
-					.WithSampler(sampler)
-					.Build();
-
-				services
-					.AddOpenTracing()
-					.AddSingleton<ITracer>(tracer);
-
-				return services;
-			}
-			catch (Exception ex)
-			{
-				ex.Data.Add(nameof(serviceName), serviceName);
-				ex.Data.Add(nameof(host), host);
-				ex.Data.Add(nameof(port), port);
-
-				throw;
-			}
+			return services
+				.AddOpenTracing()
+				.AddSingleton<ITracer>(tracer);
 		}
 	}
 }
