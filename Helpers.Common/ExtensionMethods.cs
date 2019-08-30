@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dawn;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +11,8 @@ namespace Helpers.Common
 
 		public static string ToKeyValuePairString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dictionary)
 		{
+			Guard.Argument(() => dictionary).NotNull();
+
 			var sb = new StringBuilder();
 
 			using var enumerator = dictionary.GetEnumerator();
@@ -28,6 +31,9 @@ namespace Helpers.Common
 			this IDictionary<TKey, TValue> dictionary,
 			IEnumerable<KeyValuePair<TKey, TValue>> range)
 		{
+			Guard.Argument(() => dictionary).NotNull();
+			Guard.Argument(() => range).NotNull();
+
 			using var enumerator = range.GetEnumerator();
 
 			while (enumerator.MoveNext())
@@ -42,19 +48,8 @@ namespace Helpers.Common
 
 		public static Uri StripQuery(this Uri uri)
 		{
-			if (uri?.OriginalString == default
-				|| string.IsNullOrWhiteSpace(uri.OriginalString))
-			{
-				throw new ArgumentNullException(nameof(uri));
-			}
-
-			if (!uri.IsAbsoluteUri)
-			{
-				throw new ArgumentOutOfRangeException(nameof(uri), uri, nameof(uri) + " must be absolute")
-				{
-					Data = { [nameof(uri)] = uri.OriginalString, },
-				};
-			}
+			Guard.Argument(() => uri).NotNull().Require(u => u.IsAbsoluteUri, _ => nameof(uri) + " must be absolute");
+			Guard.Argument(() => uri.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
 			var normalized = string.Concat(uri.Scheme, Uri.SchemeDelimiter, uri.Host, uri.AbsolutePath);
 
