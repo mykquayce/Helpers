@@ -1,3 +1,4 @@
+using Helpers.Common;
 using Microsoft.Extensions.Options;
 using Moq;
 using System;
@@ -30,8 +31,8 @@ namespace Helpers.Discord.Tests
 
 			var webhook = new Models.Webhook
 			{
-				Id = long.Parse(GetEnvironmentVariable("DiscordWebhookId")),
-				Token = GetEnvironmentVariable("DiscordWebhookToken"),
+				Id = long.Parse(EnvironmentHelpers.GetEnvironmentVariable("DiscordWebhookId")),
+				Token = EnvironmentHelpers.GetEnvironmentVariable("DiscordWebhookToken"),
 			};
 
 			var webhookOptions = Mock.Of<IOptions<Models.Webhook>>(o => o.Value == webhook);
@@ -50,18 +51,5 @@ namespace Helpers.Discord.Tests
 		[Theory]
 		[InlineData("Hello world")]
 		public Task DiscordClientTests_SendMessageAsync(string message) => _client.SendMessageAsync(message);
-
-		private static string GetEnvironmentVariable(string variable)
-		{
-			string f(EnvironmentVariableTarget t) => Environment.GetEnvironmentVariable(variable, t);
-
-			return f(EnvironmentVariableTarget.Process)
-				?? f(EnvironmentVariableTarget.User)
-				?? f(EnvironmentVariableTarget.Machine)
-				?? throw new KeyNotFoundException($"Environment variable {variable} not found")
-				{
-					Data = { [nameof(variable)] = variable, },
-				};
-		}
 	}
 }
