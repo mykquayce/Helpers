@@ -9,7 +9,25 @@ namespace Helpers.RabbitMQ.Tests
 
 		public RabbitMQServiceTests()
 		{
-			_service = new Concrete.RabbitMQService();
+			var rabbitMqSettings = new Helpers.RabbitMQ.Models.Settings
+			{
+				HostName = "localhost",
+				Port = 5_672,
+				UserName = "guest",
+				Password = "guest",
+				VirtualHost = "/"
+			};
+
+			var jaegerSettings = new Helpers.Jaeger.Models.Settings
+			{
+				ServiceName = "rabbit-test",
+				Host = "localhost",
+				Port = 6_831,
+			};
+
+			var tracer = new Helpers.Jaeger.JaegerTracer(jaegerSettings);
+
+			_service = new Concrete.RabbitMQService(rabbitMqSettings, tracer);
 		}
 
 		public void Dispose()
