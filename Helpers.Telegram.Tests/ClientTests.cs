@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,14 +7,14 @@ namespace Helpers.Telegram.Tests
 	{
 		[Theory]
 		[InlineData(
-			"",
 			-396035426,
 			"my sample text")]
 		public async Task ClientTests_SendAMessage(
-			string apiKey,
 			int chatId,
 			string message)
 		{
+			var apiKey = Helpers.Common.EnvironmentHelpers.GetEnvironmentVariable("TelegramApiKey");
+
 			var messageId = await Client.SendMesssageAsync(apiKey, chatId, message);
 
 			Assert.InRange(messageId, 1, int.MaxValue);
