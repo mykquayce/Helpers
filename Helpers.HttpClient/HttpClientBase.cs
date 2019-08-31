@@ -118,7 +118,17 @@ namespace Helpers.HttpClient
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
-				var errorObject = JsonSerializer.Serialize(exception, _jsonSerializerOptions);
+				string? errorObject = default;
+
+				if (exception is HttpRequestException
+					&& string.Equals(exception.Message, "The requested name is valid, but no data of the requested type was found.", StringComparison.InvariantCultureIgnoreCase))
+				{
+					errorObject = exception.ToString();
+				}
+				else
+				{
+					errorObject = JsonSerializer.Serialize(exception, _jsonSerializerOptions);
+				}
 
 				scope?.Span
 					.SetTag(OpenTracing.Tag.Tags.Error, true)

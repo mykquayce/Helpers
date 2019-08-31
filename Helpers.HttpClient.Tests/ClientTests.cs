@@ -69,10 +69,10 @@ namespace Helpers.HttpClient.Tests
 		public async Task ClientTests_WithoutBaseAddress(string uriString)
 		{
 			// Arrange
-			var relativeUri = new Uri(uriString, UriKind.Absolute);
+			var absoluteUri = new Uri(uriString, UriKind.Absolute);
 
 			// Act
-			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Get, relativeUri);
+			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Get, absoluteUri);
 
 			var body = await StreamToString(stream);
 
@@ -80,6 +80,27 @@ namespace Helpers.HttpClient.Tests
 			Assert.Equal(HttpStatusCode.OK, statusCode);
 			Assert.NotNull(body);
 			Assert.NotEqual(0, body.Length);
+		}
+
+		[Theory]
+		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "The requested name is valid, but no data of the requested type was found.")]
+		public async Task ClientTests_Failing(string uriString, Type expectedException, string expectedMessage)
+		{
+			// Arrange
+			var uri = new Uri(uriString, UriKind.Absolute);
+
+			// Act
+			try
+			{
+				await _client.SendAsync(HttpMethod.Get, uri);
+				Assert.True(false);
+			}
+			catch (Exception exception)
+			{
+				// Assert
+				Assert.IsType(expectedException, exception);
+				Assert.Equal(expectedMessage, exception.Message);
+			}
 		}
 
 		private async static Task<string> StreamToString(Stream stream)
