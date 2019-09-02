@@ -19,8 +19,9 @@ namespace Helpers.RabbitMQ.Concrete
 		};
 
 		private ITracer? _tracer;
-		private readonly IConnection _connection;
-		private readonly IModel _model;
+		private IConnection? _connection;
+		private IModel _model;
+		private readonly IConnectionFactory _connectionFactory;
 		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
@@ -45,7 +46,7 @@ namespace Helpers.RabbitMQ.Concrete
 			Guard.Argument(() => settings.Password).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => settings.VirtualHost).NotNull().NotEmpty().NotWhiteSpace();
 
-			var connectionFactory = new ConnectionFactory
+			_connectionFactory = new ConnectionFactory
 			{
 				HostName = settings.HostName,
 				Port = settings.Port,
@@ -53,17 +54,10 @@ namespace Helpers.RabbitMQ.Concrete
 				Password = settings.Password,
 				VirtualHost = settings.VirtualHost,
 			};
-
-			_connection = connectionFactory.CreateConnection();
-
-			_model = _connection.CreateModel();
-
-			_model.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 		}
 
 		public void Dispose()
 		{
-			_model?.Dispose();
 			_connection?.Dispose();
 		}
 
@@ -76,6 +70,8 @@ namespace Helpers.RabbitMQ.Concrete
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => deliveryTag).NotDefault();
+
+			Connect();
 
 			_model.BasicAck(deliveryTag, multiple: false);
 		}
@@ -90,6 +86,8 @@ namespace Helpers.RabbitMQ.Concrete
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
+
+			Connect(queue);
 
 			BasicGetResult result;
 
@@ -146,22 +144,11 @@ namespace Helpers.RabbitMQ.Concrete
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => bytes).NotNull().NotEmpty();
 
-			if (!_queueNames.Contains(queue))
-			{
-				_model.QueueDeclare(
-					queue: queue,
-					durable: false,
-					exclusive: false,
-					autoDelete: false,
-					arguments: default);
-
-				_queueNames.Add(queue);
-			}
+			Connect(queue);
 
 			_model.BasicPublish(
 				exchange: string.Empty,
 				routingKey: queue,
-				mandatory: false,
 				basicProperties: default,
 				body: bytes);
 		}
@@ -170,8 +157,37 @@ namespace Helpers.RabbitMQ.Concrete
 		{
 			Publish(
 				queue,
-				JsonSerializer.SerializeToUtf8Bytes<T>(value, _jsonSerializerOptions));
-		} 
+				JsonSerializer.SerializeToUtf8Bytes(value, _jsonSerializerOptions));
+		}
 		#endregion Publish
+
+		public void Connect(string? queue = default)
+		{
+			if (_connection == default || !_connection.IsOpen)
+			{
+				_connection = _connectionFactory.CreateConnection();
+			}
+
+			if (_model?.IsOpen == true)
+			{
+				return;
+			}
+
+			_model = _connection.CreateModel();
+
+			_model.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
+			if (queue == (default))
+			{
+				return;
+			}
+
+			_model.QueueDeclare(
+				queue: queue,
+				durable: false,
+				exclusive: false,
+				autoDelete: false,
+				arguments: default);
+		}
 	}
 }
