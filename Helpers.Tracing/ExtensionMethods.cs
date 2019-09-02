@@ -31,11 +31,11 @@ namespace Helpers.Tracing
 			return tracer.BuildSpan(operationName);
 		}
 
-		public static ISpan Log(this ISpan span, params (string, object)[] keyValuePairs)
+		public static ISpan Log(this ISpan span, params (string, object?)[] keyValuePairs)
 		{
 			if (span == default) throw new ArgumentNullException(nameof(span));
 
-			var dictionary = new Dictionary<string, object>(keyValuePairs.Length / 2);
+			var dictionary = new Dictionary<string, object?>(keyValuePairs.Length / 2);
 
 			foreach (var (key, value) in keyValuePairs)
 			{
@@ -47,15 +47,15 @@ namespace Helpers.Tracing
 			return span;
 		}
 
-		public static ISpan Log(this ISpan span, params object[] values)
+		public static ISpan Log(this ISpan span, params object?[] values)
 		{
 			if (span == default) throw new ArgumentNullException(nameof(span));
 
-			var dictionary = new Dictionary<string, object>(values.Length / 2);
+			var dictionary = new Dictionary<string, object?>(values.Length / 2);
 
 			for (var a = 0; a < values.Length; a += 2)
 			{
-				var key = values[a].ToString();
+				var key = values[a]!.ToString();
 				var value = values[a + 1];
 
 				dictionary.Add(key, value);
