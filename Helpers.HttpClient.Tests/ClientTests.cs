@@ -65,7 +65,9 @@ namespace Helpers.HttpClient.Tests
 		}
 
 		[Theory]
-		[InlineData("https://www.bing.com/")]
+		//[InlineData("https://www.bing.com/")]
+		//[InlineData("https://cuts.diamond.mlb.com/FORGE/2019/2019-09/01/a352d164-5858748f-51ef2b5f-csvm-diamondx64-asset_1280x720_59_4000K.mp4")]
+		[InlineData("https://minibeansjam.de/")]
 		public async Task ClientTests_WithoutBaseAddress(string uriString)
 		{
 			// Arrange
