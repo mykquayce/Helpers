@@ -20,6 +20,7 @@ namespace Helpers.HttpClient
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
 			AllowTrailingCommas = true,
+			DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
 			IgnoreNullValues = false,
 			PropertyNameCaseInsensitive = true,
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -118,25 +119,13 @@ namespace Helpers.HttpClient
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
-				string? errorObject = default;
-
-				if (exception is HttpRequestException
-					&& string.Equals(exception.Message, "The requested name is valid, but no data of the requested type was found.", StringComparison.InvariantCultureIgnoreCase))
-				{
-					errorObject = exception.ToString();
-				}
-				else
-				{
-					errorObject = JsonSerializer.Serialize(exception, _jsonSerializerOptions);
-				}
-
 				scope?.Span
 					.SetTag(OpenTracing.Tag.Tags.Error, true)
 					.Log(
-						new Dictionary<string, object>(5)
+						new Dictionary<string, object?>(5)
 						{
 							[LogFields.ErrorKind] = exception.GetType().FullName,
-							[LogFields.ErrorObject] = errorObject,
+							[LogFields.ErrorObject] = exception,
 							[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
 							[LogFields.Message] = exception.Message,
 							[LogFields.Stack] = exception.StackTrace,
@@ -156,48 +145,5 @@ namespace Helpers.HttpClient
 
 			return (responseStatusCode, responseContent, headers);
 		}
-	}
-
-	public readonly struct SimpleException
-	{
-		public SimpleException(Exception exception)
-		{
-			Data = new Dictionary<object, object>();
-			InnerExceptions = new List<SimpleException>();
-			Message = exception.Message;
-			StackTrace = exception.StackTrace;
-			TypeName = exception.GetType().FullName;
-
-			if (exception.InnerException != default)
-			{
-				InnerException = new SimpleException(exception.InnerException);
-			}
-			else
-			{
-				InnerException = default;
-			}
-
-			foreach (var key in exception.Data.Keys)
-			{
-				Data.Add(key, exception.Data[key]);
-			}
-
-			switch (exception)
-			{
-				case AggregateException aggregateException:
-					foreach (var inner in aggregateException.InnerExceptions)
-					{
-						InnerExceptions.Add(new SimpleException(inner));
-					}
-					break;
-			}
-		}
-
-		public string Message { get; }
-		public string StackTrace { get; }
-		public string TypeName { get; }
-		public IDictionary<object, object> Data { get; }
-		public SimpleException? InnerException { get; }
-		public ICollection<SimpleException> InnerExceptions { get; }
 	}
 }

@@ -65,9 +65,8 @@ namespace Helpers.HttpClient.Tests
 		}
 
 		[Theory]
-		//[InlineData("https://www.bing.com/")]
-		//[InlineData("https://cuts.diamond.mlb.com/FORGE/2019/2019-09/01/a352d164-5858748f-51ef2b5f-csvm-diamondx64-asset_1280x720_59_4000K.mp4")]
-		[InlineData("https://minibeansjam.de/")]
+		[InlineData("https://www.bing.com/")]
+		[InlineData("https://cuts.diamond.mlb.com/FORGE/2019/2019-09/01/a352d164-5858748f-51ef2b5f-csvm-diamondx64-asset_1280x720_59_4000K.mp4")]
 		public async Task ClientTests_WithoutBaseAddress(string uriString)
 		{
 			// Arrange
@@ -85,6 +84,7 @@ namespace Helpers.HttpClient.Tests
 		}
 
 		[Theory]
+		[InlineData("https://minibeansjam.de/", typeof(HttpRequestException), "The SSL connection could not be established, see inner exception.")]
 		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "The requested name is valid, but no data of the requested type was found.")]
 		public async Task ClientTests_Failing(string uriString, Type expectedException, string expectedMessage)
 		{
