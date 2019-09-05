@@ -5,16 +5,16 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.5-preview</Version>
-    <AssemblyVersion>1.1.5.0</AssemblyVersion>
-    <FileVersion>1.1.5.0</FileVersion>
+    <Version>1.1.6-preview</Version>
+    <AssemblyVersion>1.1.6.0</AssemblyVersion>
+    <FileVersion>1.1.6.0</FileVersion>
     <Authors>bob</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.60.6" />
-    <PackageReference Include="Dawn.Guard" Version="1.8.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0-preview8.19405.4" />
+    <PackageReference Include="Dapper" Version="2.0.4" />
+    <PackageReference Include="Dawn.Guard" Version="1.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0-preview9.19423.4" />
     <PackageReference Include="MySql.Data" Version="8.0.17" />
   </ItemGroup>
 
