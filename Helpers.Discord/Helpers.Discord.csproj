@@ -5,14 +5,14 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>1.0.3.0</FileVersion>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <Version>1.0.3-preview</Version>
+    <FileVersion>1.0.4.0</FileVersion>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <Version>1.0.4-preview</Version>
     <Authors>bob</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.HttpClient" Version="1.0.8-preview" />
+    <PackageReference Include="Helpers.HttpClient" Version="1.0.11-preview" />
   </ItemGroup>
 
 </Project>
