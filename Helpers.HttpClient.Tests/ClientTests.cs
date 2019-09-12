@@ -85,7 +85,7 @@ namespace Helpers.HttpClient.Tests
 
 		[Theory]
 		[InlineData("https://minibeansjam.de/", typeof(HttpRequestException), "The SSL connection could not be established, see inner exception.")]
-		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "The requested name is valid, but no data of the requested type was found.")]
+		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "No such host is known.")]
 		public async Task ClientTests_Failing(string uriString, Type expectedException, string expectedMessage)
 		{
 			// Arrange
