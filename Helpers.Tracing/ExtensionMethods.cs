@@ -65,5 +65,23 @@ namespace Helpers.Tracing
 
 			return span;
 		}
+
+		public static ISpan Log(this ISpan span, Exception exception)
+		{
+			if (span == default) throw new ArgumentNullException(nameof(span));
+			if (exception == default) throw new ArgumentNullException(nameof(exception));
+
+			return span
+				.SetTag(OpenTracing.Tag.Tags.Error, true)
+				.Log(
+					new Dictionary<string, object?>(5)
+					{
+						[LogFields.ErrorKind] = exception.GetType().FullName,
+						[LogFields.ErrorObject] = exception,
+						[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
+						[LogFields.Message] = exception.Message,
+						[LogFields.Stack] = exception.StackTrace,
+					});
+		}
 	}
 }
