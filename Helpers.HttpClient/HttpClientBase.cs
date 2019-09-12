@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Helpers.Common;
+using Helpers.Tracing;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using System;
@@ -119,17 +120,7 @@ namespace Helpers.HttpClient
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
-				scope?.Span
-					.SetTag(OpenTracing.Tag.Tags.Error, true)
-					.Log(
-						new Dictionary<string, object?>(5)
-						{
-							[LogFields.ErrorKind] = exception.GetType().FullName,
-							[LogFields.ErrorObject] = exception,
-							[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
-							[LogFields.Message] = exception.Message,
-							[LogFields.Stack] = exception.StackTrace,
-						});
+				scope?.Span.Log(exception);
 
 				_logger?.LogError(exception, "{0}={1}, {2}={3}, {4}={5}", nameof(httpMethod), httpMethod.Method, nameof(uri), uri.OriginalString, nameof(body), body);
 
