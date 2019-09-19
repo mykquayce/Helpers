@@ -18,24 +18,23 @@ namespace Helpers.RabbitMQ.Concrete
 			WriteIndented = true,
 		};
 
-		private ITracer? _tracer;
+		private readonly ITracer? _tracer;
 		private IConnection? _connection;
-		private IModel _model;
+		private IModel? _model;
 		private readonly IConnectionFactory _connectionFactory;
-		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
-			Models.Settings settings,
+			IRabbitMQSettings settings,
 			ITracer? tracer = default)
 		{
 			_tracer = tracer;
 
 			using var scope = _tracer?
 				.BuildSpan(nameof(RabbitMQService))
-				.WithTag(nameof(Models.Settings.HostName), settings.HostName)
-				.WithTag(nameof(Models.Settings.Port), settings.Port)
-				.WithTag(nameof(Models.Settings.UserName), settings.UserName)
-				.WithTag(nameof(Models.Settings.VirtualHost), settings.VirtualHost)
+				.WithTag(nameof(IRabbitMQSettings.HostName), settings.HostName)
+				.WithTag(nameof(IRabbitMQSettings.Port), settings.Port)
+				.WithTag(nameof(IRabbitMQSettings.UserName), settings.UserName)
+				.WithTag(nameof(IRabbitMQSettings.VirtualHost), settings.VirtualHost)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => settings).NotNull();
@@ -58,6 +57,15 @@ namespace Helpers.RabbitMQ.Concrete
 
 		public void Dispose()
 		{
+			Dispose(disposing: true);
+			System.GC.SuppressFinalize(obj: this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
+			_model?.Dispose();
 			_connection?.Dispose();
 		}
 
