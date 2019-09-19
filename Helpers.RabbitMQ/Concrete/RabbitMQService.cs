@@ -18,11 +18,10 @@ namespace Helpers.RabbitMQ.Concrete
 			WriteIndented = true,
 		};
 
-		private ITracer? _tracer;
+		private readonly ITracer? _tracer;
 		private IConnection? _connection;
-		private IModel _model;
+		private IModel? _model;
 		private readonly IConnectionFactory _connectionFactory;
-		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
 			IRabbitMQSettings settings,
