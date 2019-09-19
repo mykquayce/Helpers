@@ -9,7 +9,7 @@ namespace Helpers.RabbitMQ.Tests
 
 		public RabbitMQServiceTests()
 		{
-			var rabbitMqSettings = new Helpers.RabbitMQ.Models.Settings
+			var rabbitMqSettings = new Concrete.RabbitMQSettings
 			{
 				HostName = "localhost",
 				Port = 5_672,

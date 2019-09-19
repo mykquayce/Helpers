@@ -25,17 +25,17 @@ namespace Helpers.RabbitMQ.Concrete
 		private static readonly ICollection<string> _queueNames = new List<string>();
 
 		public RabbitMQService(
-			Models.Settings settings,
+			IRabbitMQSettings settings,
 			ITracer? tracer = default)
 		{
 			_tracer = tracer;
 
 			using var scope = _tracer?
 				.BuildSpan(nameof(RabbitMQService))
-				.WithTag(nameof(Models.Settings.HostName), settings.HostName)
-				.WithTag(nameof(Models.Settings.Port), settings.Port)
-				.WithTag(nameof(Models.Settings.UserName), settings.UserName)
-				.WithTag(nameof(Models.Settings.VirtualHost), settings.VirtualHost)
+				.WithTag(nameof(IRabbitMQSettings.HostName), settings.HostName)
+				.WithTag(nameof(IRabbitMQSettings.Port), settings.Port)
+				.WithTag(nameof(IRabbitMQSettings.UserName), settings.UserName)
+				.WithTag(nameof(IRabbitMQSettings.VirtualHost), settings.VirtualHost)
 				.StartActive(finishSpanOnDispose: true);
 
 			Guard.Argument(() => settings).NotNull();
