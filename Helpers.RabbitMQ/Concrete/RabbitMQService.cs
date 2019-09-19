@@ -57,6 +57,15 @@ namespace Helpers.RabbitMQ.Concrete
 
 		public void Dispose()
 		{
+			Dispose(disposing: true);
+			System.GC.SuppressFinalize(obj: this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
+			_model?.Dispose();
 			_connection?.Dispose();
 		}
 
