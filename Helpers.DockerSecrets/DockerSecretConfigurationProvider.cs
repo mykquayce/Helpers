@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				};
 			}
 
-			var key = "DockerSecrets:" + GetNameFromPath(fileStream.Name);
+			var key = "DockerSecrets:" + Path.GetFileName(fileStream.Name);
 
 			string value;
 
@@ -38,23 +38,6 @@ namespace Microsoft.Extensions.DependencyInjection
 			}
 
 			Data.Add(key, value);
-		}
-
-		public static string GetNameFromPath(string path)
-		{
-			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException(nameof(path)) { Data = { [nameof(path)] = path }, };
-
-			var parts = path.Split(Path.DirectorySeparatorChar);
-
-			switch (parts.Length)
-			{
-				case 0:
-					throw new ArgumentOutOfRangeException(path) { Data = { [nameof(path)] = path }, };
-				case 1:
-					return path;
-				default:
-					return parts.Last();
-			}
 		}
 	}
 }
