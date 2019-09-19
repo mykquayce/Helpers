@@ -1,8 +1,8 @@
 ﻿using RabbitMQ.Client;
 
-namespace Helpers.RabbitMQ.Models
+namespace Helpers.RabbitMQ.Concrete
 {
-	public class Settings
+	public class RabbitMQSettings : IRabbitMQSettings
 	{
 		public string HostName { get; set; } = "localhost";
 		public string Password { get; set; } = ConnectionFactory.DefaultPass;
