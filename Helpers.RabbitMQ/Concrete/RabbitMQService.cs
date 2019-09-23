@@ -1,7 +1,9 @@
 using Dawn;
+using Helpers.Tracing;
 using OpenTracing;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -81,7 +83,7 @@ namespace Helpers.RabbitMQ.Concrete
 
 			Connect();
 
-			_model.BasicAck(deliveryTag, multiple: false);
+			_model!.BasicAck(deliveryTag, multiple: false);
 		}
 		#endregion Acknowledge
 
@@ -101,20 +103,35 @@ namespace Helpers.RabbitMQ.Concrete
 
 			try
 			{
-				result = _model.BasicGet(queue, autoAck: false);
-			}
-			catch (OperationInterruptedException exception) when (exception.ShutdownReason?.ReplyCode == 404)
-			{
-				throw new Exceptions.QueueNotFoundException(queue);
-			}
+				try
+				{
+					result = _model!.BasicGet(queue, autoAck: false);
+				}
+				catch (OperationInterruptedException exception) when (exception.ShutdownReason?.ReplyCode == 404)
+				{
+					throw new Exceptions.QueueNotFoundException(queue);
+				}
 
-			if (result == default)
+				if (result == default)
+				{
+					throw new Exceptions.QueueEmptyException(queue);
+				}
+			}
+			catch(Exception exception)
 			{
-				throw new Exceptions.QueueEmptyException(queue);
+				exception.Data.Add(nameof(queue), queue);
+
+				scope?.Span.Log(exception);
+
+				throw;
 			}
 
 			Guard.Argument(() => result).NotNull();
 			Guard.Argument(() => result.Body).NotNull().NotEmpty();
+
+			scope?.Span.Log(
+				nameof(BasicGetResult.DeliveryTag), result.DeliveryTag,
+				nameof(BasicGetResult.Body), result.Body);
 
 			return (result.Body, result.DeliveryTag);
 		}
@@ -154,7 +171,7 @@ namespace Helpers.RabbitMQ.Concrete
 
 			Connect(queue);
 
-			_model.BasicPublish(
+			_model!.BasicPublish(
 				exchange: string.Empty,
 				routingKey: queue,
 				basicProperties: default,
