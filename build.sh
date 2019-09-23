@@ -4,4 +4,4 @@ dotnet build
 
 ls -1 */*.csproj | awk '{system("dotnet pack " $1 " --output ./nupkg")}'
 
-cp nupkg/*.nupkg //david/nugetserver/Packages
+ls -1 *.nupkg | awk -v ApiKey="$NuGetServerApiKey" '{system("nuget push " $1 " " ApiKey " -Source http://nuget/nuget")}'
