@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>bob</Authors>
-    <Version>1.0.11-preview</Version>
+    <Version>1.0.11</Version>
     <AssemblyVersion>1.0.11.0</AssemblyVersion>
     <FileVersion>1.0.11.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTracing" Version="0.12.1-rc4" />
+    <PackageReference Include="OpenTracing" Version="0.12.0" />
   </ItemGroup>
 
 </Project>
