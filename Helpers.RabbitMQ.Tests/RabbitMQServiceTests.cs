@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Helpers.RabbitMQ.Tests
 {
-	public class RabbitMQServiceTests : IDisposable
+	public sealed class RabbitMQServiceTests : IDisposable
 	{
 		private readonly IRabbitMQService _service;
 
@@ -18,16 +18,7 @@ namespace Helpers.RabbitMQ.Tests
 				VirtualHost = "/"
 			};
 
-			var jaegerSettings = new Helpers.Jaeger.Models.Settings
-			{
-				ServiceName = "rabbit-test",
-				Host = "localhost",
-				Port = 6_831,
-			};
-
-			var tracer = new Helpers.Jaeger.JaegerTracer(jaegerSettings);
-
-			_service = new Concrete.RabbitMQService(rabbitMqSettings, tracer);
+			_service = new Concrete.RabbitMQService(rabbitMqSettings);
 		}
 
 		public void Dispose()
