@@ -1,6 +1,4 @@
 using Dawn;
-using Helpers.Tracing;
-using OpenTracing;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -20,25 +18,13 @@ namespace Helpers.RabbitMQ.Concrete
 			WriteIndented = true,
 		};
 
-		private readonly ITracer? _tracer;
 		private IConnection? _connection;
 		private IModel? _model;
 		private readonly IConnectionFactory _connectionFactory;
 
 		public RabbitMQService(
-			IRabbitMQSettings settings,
-			ITracer? tracer = default)
+			IRabbitMQSettings settings)
 		{
-			_tracer = tracer;
-
-			using var scope = _tracer?
-				.BuildSpan(nameof(RabbitMQService))
-				.WithTag(nameof(IRabbitMQSettings.HostName), settings.HostName)
-				.WithTag(nameof(IRabbitMQSettings.Port), settings.Port)
-				.WithTag(nameof(IRabbitMQSettings.UserName), settings.UserName)
-				.WithTag(nameof(IRabbitMQSettings.VirtualHost), settings.VirtualHost)
-				.StartActive(finishSpanOnDispose: true);
-
 			Guard.Argument(() => settings).NotNull();
 
 			Guard.Argument(() => settings.HostName).NotNull().NotEmpty().NotWhiteSpace();
@@ -74,11 +60,6 @@ namespace Helpers.RabbitMQ.Concrete
 		#region Acknowledge
 		public void Acknowledge(ulong deliveryTag)
 		{
-			using var scope = _tracer?
-				.BuildSpan(nameof(Acknowledge))
-				.WithTag(nameof(deliveryTag), deliveryTag.ToString("D"))
-				.StartActive(finishSpanOnDispose: true);
-
 			Guard.Argument(() => deliveryTag).NotDefault();
 
 			Connect();
@@ -90,11 +71,6 @@ namespace Helpers.RabbitMQ.Concrete
 		#region Consume
 		public (byte[] bytes, ulong deliveryTag) Consume(string queue)
 		{
-			using var scope = _tracer?
-				.BuildSpan(nameof(Consume))
-				.WithTag(nameof(queue), queue)
-				.StartActive(finishSpanOnDispose: true);
-
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 
 			Connect(queue);
@@ -112,7 +88,7 @@ namespace Helpers.RabbitMQ.Concrete
 					throw new Exceptions.QueueNotFoundException(queue);
 				}
 
-				if (result == default)
+				if (result is null)
 				{
 					throw new Exceptions.QueueEmptyException(queue);
 				}
@@ -121,37 +97,20 @@ namespace Helpers.RabbitMQ.Concrete
 			{
 				exception.Data.Add(nameof(queue), queue);
 
-				scope?.Span.Log(exception);
-
 				throw;
 			}
 
 			Guard.Argument(() => result).NotNull();
 			Guard.Argument(() => result.Body).NotNull().NotEmpty();
 
-			scope?.Span.Log(
-				nameof(BasicGetResult.DeliveryTag), result.DeliveryTag,
-				nameof(BasicGetResult.Body), result.Body);
-
 			return (result.Body, result.DeliveryTag);
 		}
 
 		public (T value, ulong deliveryTag) Consume<T>(string queue)
 		{
-			var span = _tracer?.ActiveSpan;
-
-			using var scope = span == default
-				? _tracer?
-					.BuildSpan(nameof(Consume))
-					.WithTag(new OpenTracing.Tag.StringTag(nameof(queue)), queue)
-					.StartActive(finishSpanOnDispose: true)
-				: default;
-
 			var (bytes, deliveryTag) = Consume(queue);
 
 			var value = JsonSerializer.Deserialize<T>(bytes, _jsonSerializerOptions);
-
-			(span ?? scope?.Span)?.SetTag(nameof(value), value?.ToString());
 
 			return (value, deliveryTag);
 		}
@@ -160,12 +119,6 @@ namespace Helpers.RabbitMQ.Concrete
 		#region Publish
 		public void Publish(string queue, byte[] bytes)
 		{
-			using var scope = _tracer?
-				.BuildSpan(nameof(Consume))
-				.WithTag(new OpenTracing.Tag.StringTag(nameof(queue)), queue)
-				.WithTag(new OpenTracing.Tag.IntTag(nameof(bytes)), bytes.Length)
-				.StartActive(finishSpanOnDispose: true);
-
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => bytes).NotNull().NotEmpty();
 
@@ -188,7 +141,7 @@ namespace Helpers.RabbitMQ.Concrete
 
 		public void Connect(string? queue = default)
 		{
-			if (_connection == default || !_connection.IsOpen)
+			if (_connection is null || !_connection.IsOpen)
 			{
 				_connection = _connectionFactory.CreateConnection();
 			}

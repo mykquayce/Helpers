@@ -89,7 +89,7 @@ namespace Helpers.Telegram
 				var response = await JsonSerializer.DeserializeAsync<Models.Generated.Response>(content, _jsonSerializerOptions);
 
 				if (response.Ok
-					&& response.Result != default)
+					&& response.Result is null)
 				{
 					return response.Result.MessageId;
 				}

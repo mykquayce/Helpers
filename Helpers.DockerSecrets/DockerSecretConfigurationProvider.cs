@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 		public override void Load(Stream stream)
 		{
-			if (stream == default) throw new ArgumentNullException(nameof(stream));
+			if (stream is null) throw new ArgumentNullException(nameof(stream));
 
 			if (!(stream is FileStream fileStream))
 			{

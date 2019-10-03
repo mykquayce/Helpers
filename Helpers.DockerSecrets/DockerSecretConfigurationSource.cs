@@ -7,9 +7,9 @@ namespace Microsoft.Extensions.DependencyInjection
 	{
 		public override IConfigurationProvider Build(IConfigurationBuilder builder)
 		{
-			if (builder == default) throw new ArgumentNullException(nameof(builder));
+			if (builder is null) throw new ArgumentNullException(nameof(builder));
 
-			if (base.FileProvider == default)
+			if (base.FileProvider is null)
 			{
 				base.FileProvider = builder.GetFileProvider();
 			}
