@@ -210,7 +210,6 @@ namespace Helpers.MySql
 				// cannot connect to the database server
 				case MySqlException mySqlException when
 					mySqlException.Message == "Unable to connect to any of the specified MySQL hosts."
-					&& mySqlException.InnerException != default
 					&& mySqlException.InnerException is AggregateException aggregateException
 					&& aggregateException.InnerExceptions.Count == 1
 					&& aggregateException.InnerExceptions[0].Message.StartsWith("No connection could be made because the target machine actively refused it.", StringComparison.InvariantCultureIgnoreCase):
@@ -235,7 +234,6 @@ namespace Helpers.MySql
 					Regex.IsMatch(exception.Message, "^Unknown database '[$0-9A-Z_a-z]{1,64}'$"):
 				case MySqlException mySqlException when
 					Regex.IsMatch(mySqlException.Message, "Authentication to host '[$0-9A-Z_a-z]{1,64}' for user '[$0-9A-Z_a-z]{1,64}' using method 'mysql_native_password' failed with message: Unknown database '[$0-9A-Z_a-z]{1,64}'")
-					&& mySqlException.InnerException != default
 					&& mySqlException.InnerException is MySqlException mySqlInnerException
 					&& Regex.IsMatch(mySqlInnerException.Message, "^Unknown database '[$0-9A-Z_a-z]{1,64}'$"):
 					{

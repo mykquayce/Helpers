@@ -16,7 +16,7 @@ namespace Helpers.Tracing
 			[CallerFilePath] string? filePath = default,
 			[CallerMemberName] string? methodName = default)
 		{
-			if (tracer == default) throw new ArgumentNullException(nameof(tracer));
+			if (tracer is null) throw new ArgumentNullException(nameof(tracer));
 
 			filePath = filePath?.ReducePath();
 
@@ -33,7 +33,7 @@ namespace Helpers.Tracing
 
 		public static ISpan Log(this ISpan span, params (string, object?)[] keyValuePairs)
 		{
-			if (span == default) throw new ArgumentNullException(nameof(span));
+			if (span is null) throw new ArgumentNullException(nameof(span));
 
 			var dictionary = new Dictionary<string, object?>(keyValuePairs.Length / 2);
 
@@ -49,7 +49,7 @@ namespace Helpers.Tracing
 
 		public static ISpan Log(this ISpan span, params object?[] values)
 		{
-			if (span == default) throw new ArgumentNullException(nameof(span));
+			if (span is null) throw new ArgumentNullException(nameof(span));
 
 			var dictionary = new Dictionary<string, object?>(values.Length / 2);
 
@@ -68,8 +68,8 @@ namespace Helpers.Tracing
 
 		public static ISpan Log(this ISpan span, Exception exception)
 		{
-			if (span == default) throw new ArgumentNullException(nameof(span));
-			if (exception == default) throw new ArgumentNullException(nameof(exception));
+			if (span is null) throw new ArgumentNullException(nameof(span));
+			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
 			return span
 				.SetTag(OpenTracing.Tag.Tags.Error, true)

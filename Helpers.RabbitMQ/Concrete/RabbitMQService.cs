@@ -112,7 +112,7 @@ namespace Helpers.RabbitMQ.Concrete
 					throw new Exceptions.QueueNotFoundException(queue);
 				}
 
-				if (result == default)
+				if (result is null)
 				{
 					throw new Exceptions.QueueEmptyException(queue);
 				}
@@ -188,7 +188,7 @@ namespace Helpers.RabbitMQ.Concrete
 
 		public void Connect(string? queue = default)
 		{
-			if (_connection == default || !_connection.IsOpen)
+			if (_connection is null || !_connection.IsOpen)
 			{
 				_connection = _connectionFactory.CreateConnection();
 			}

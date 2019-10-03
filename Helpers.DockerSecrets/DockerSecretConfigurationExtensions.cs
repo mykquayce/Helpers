@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
-			if (configurationBuilder == default) throw new ArgumentNullException(nameof(configurationBuilder));
+			if (configurationBuilder is null) throw new ArgumentNullException(nameof(configurationBuilder));
 
 			foreach (var file in _root.EnumerateFiles())
 			{
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
-			if (configurationBuilder == default) throw new ArgumentNullException(nameof(configurationBuilder));
+			if (configurationBuilder is null) throw new ArgumentNullException(nameof(configurationBuilder));
 
 			IFileProvider? fileProvider = _root.Exists && _root.EnumerateFiles().Any()
 				? new PhysicalFileProvider(_root.FullName)
@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
-			if (configuration == default) throw new ArgumentNullException(nameof(configuration));
+			if (configuration is null) throw new ArgumentNullException(nameof(configuration));
 
 			var configurationBuilder = new ConfigurationBuilder();
 

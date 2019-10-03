@@ -21,7 +21,7 @@ namespace Helpers.Tracing.Middleware
 
 		public async Task InvokeAsync(HttpContext context)
 		{
-			if (_tracer?.ActiveSpan == default)
+			if (_tracer?.ActiveSpan is null)
 			{
 				return;
 			}
