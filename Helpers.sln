@@ -49,7 +49,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord", "Helpers.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord.Tests", "Helpers.Discord.Tests\Helpers.Discord.Tests.csproj", "{7327A635-67DF-42A6-BDFF-8E44BD34A0E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jaeger.Tests", "Helpers.Jaeger.Tests\Helpers.Jaeger.Tests.csproj", "{1A645B28-E72F-4FB5-96A3-85D3DC50855E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jaeger.Tests", "Helpers.Jaeger.Tests\Helpers.Jaeger.Tests.csproj", "{1A645B28-E72F-4FB5-96A3-85D3DC50855E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Models", "Helpers.Cineworld.Models\Helpers.Cineworld.Models.csproj", "{4111C45E-FB6E-4FA9-98D6-6C01F85F5C6C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Models.Tests", "Helpers.Cineworld.Models.Tests\Helpers.Cineworld.Models.Tests.csproj", "{6959153E-B453-42B3-B162-A866D27A2916}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld", "Helpers.Cineworld\Helpers.Cineworld.csproj", "{41CC5275-B365-4203-8A29-79ED5FC287FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld.Tests", "Helpers.Cineworld.Tests\Helpers.Cineworld.Tests.csproj", "{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +149,22 @@ Global
 		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A645B28-E72F-4FB5-96A3-85D3DC50855E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4111C45E-FB6E-4FA9-98D6-6C01F85F5C6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4111C45E-FB6E-4FA9-98D6-6C01F85F5C6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4111C45E-FB6E-4FA9-98D6-6C01F85F5C6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4111C45E-FB6E-4FA9-98D6-6C01F85F5C6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6959153E-B453-42B3-B162-A866D27A2916}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6959153E-B453-42B3-B162-A866D27A2916}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6959153E-B453-42B3-B162-A866D27A2916}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6959153E-B453-42B3-B162-A866D27A2916}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41CC5275-B365-4203-8A29-79ED5FC287FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41CC5275-B365-4203-8A29-79ED5FC287FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41CC5275-B365-4203-8A29-79ED5FC287FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41CC5275-B365-4203-8A29-79ED5FC287FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,9 @@
 #! /bin/bash
 
+dotnet restore -s https://api.nuget.org/v3/index.json -s http://nuget/nuget
+
 dotnet build
 
-ls -1 */*.csproj | awk '{system("dotnet pack " $1 " --output ./nupkg")}'
+dotnet pack --output ./nupkg
 
-ls -1 ./nupkg/*.nupkg | awk -v ApiKey="$NUGET_SERVER_API_KEY" '{system("nuget push " $1 " " ApiKey " -Source http://nuget/nuget")}'
+ls -1 ./nupkg/*.nupkg | awk -v ApiKey="$NUGET_SERVER_API_KEY" '{system("dotnet nuget push " $1 " --api-key " ApiKey " --source http://nuget/nuget")}'
