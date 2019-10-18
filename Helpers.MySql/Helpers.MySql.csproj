@@ -12,10 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.4" />
+    <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Dawn.Guard" Version="1.9.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
-    <PackageReference Include="MySql.Data" Version="8.0.17" />
+    <PackageReference Include="MySql.Data" Version="8.0.18" />
   </ItemGroup>
 
 </Project>
