@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Cineworld.Models" Version="1.0.1" />
+    <PackageReference Include="Helpers.Cineworld.Models" Version="1.0.2" />
     <PackageReference Include="Helpers.HttpClient" Version="1.0.14" />
   </ItemGroup>
 

@@ -38,11 +38,11 @@ namespace Helpers.Cineworld.Tests
 				{
 					Assert.Matches(@"^\d{2,3} mins$", film.length);
 
-					Assert.InRange(film.Duration.TotalMinutes, 10d, 999d);
-					Assert.Equal(film.length, $"{film.Duration.TotalMinutes:F0} mins");
+					Assert.InRange(film.Duration, 10, 999);
+					Assert.Equal(film.length, $"{film.Duration:D} mins");
 
 					Assert.NotNull(film.title);
-					Assert.InRange(film.edi, 1, int.MaxValue);
+					Assert.InRange(film.edi, 0, int.MaxValue);
 					Assert.NotNull(film.shows);
 					Assert.NotEmpty(film.shows);
 
