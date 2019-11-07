@@ -51,8 +51,18 @@ namespace Helpers.MySql
 
 		public void Dispose()
 		{
-			_connection.Close();
-			_connection.Dispose();
+			Dispose(disposing: true);
+
+			GC.SuppressFinalize(obj: this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_connection?.Close();
+				_connection?.Dispose();
+			}
 		}
 
 		protected ConnectionState ConnectionState => _connection?.State ?? ConnectionState.Closed;
