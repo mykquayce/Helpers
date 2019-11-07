@@ -116,7 +116,10 @@ namespace Helpers.HttpClient
 			}
 			catch (Exception exception)
 			{
+				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress;
+
 				exception.Data.Add(nameof(httpMethod), httpMethod.Method);
+				exception.Data.Add(nameof(baseAddress), baseAddress);
 				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
 
