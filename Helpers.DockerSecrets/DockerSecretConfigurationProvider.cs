@@ -1,43 +1,35 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using Dawn;
+using Microsoft.Extensions.Configuration;
 using System.IO;
-using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
 	public class DockerSecretConfigurationProvider : FileConfigurationProvider
 	{
-		public DockerSecretConfigurationProvider(FileConfigurationSource source) : base(source)
-		{ }
+		private readonly string _prefix;
+
+		public DockerSecretConfigurationProvider(string prefix, FileConfigurationSource source) : base(source)
+		{
+			_prefix = Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace().Value;
+		}
 
 		public override void Load(Stream stream)
 		{
-			if (stream is null) throw new ArgumentNullException(nameof(stream));
+			Guard.Argument(() => stream).NotNull().Require(s => s is FileStream).Require(s => ((FileStream)s).CanRead);
 
-			if (!(stream is FileStream fileStream))
-			{
-				throw new ArgumentOutOfRangeException(nameof(stream), stream.GetType(), "Expecting a " + nameof(FileStream))
-				{ Data = { [nameof(stream)] = stream.GetType() }, };
-			}
+			var fileStream = (FileStream)stream;
+			var name = Path.GetFileName(fileStream.Name);
 
-			if (!fileStream.CanRead)
-			{
-				throw new ArgumentException("Unreadable stream", nameof(fileStream))
-				{
-					Data = { [nameof(fileStream.Name)] = fileStream.Name, }
-				};
-			}
+			Data.Add(
+				key: string.Concat(_prefix, ":", name),
+				value: GetStreamContents(stream));
+		}
 
-			var key = "DockerSecrets:" + Path.GetFileName(fileStream.Name);
+		private static string GetStreamContents(Stream stream)
+		{
+			using var reader = new StreamReader(stream);
 
-			string value;
-
-			using (var reader = new StreamReader(stream))
-			{
-				value = reader.ReadToEnd();
-			}
-
-			Data.Add(key, value);
+			return reader.ReadToEnd();
 		}
 	}
 }
