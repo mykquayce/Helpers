@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.HttpClient
 {
-	public abstract class HttpClientBase
+	public abstract class HttpClientBase : IDisposable
 	{
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
@@ -57,7 +57,16 @@ namespace Helpers.HttpClient
 
 		public void Dispose()
 		{
-			_httpMessageInvoker?.Dispose();
+			Dispose(disposing: true);
+			GC.SuppressFinalize(obj: this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_httpMessageInvoker?.Dispose();
+			}
 		}
 
 		protected async Task<(HttpStatusCode, T, IDictionary<string, IEnumerable<string>>)> SendAsync<T>(

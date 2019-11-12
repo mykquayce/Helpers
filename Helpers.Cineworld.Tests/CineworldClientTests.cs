@@ -4,13 +4,18 @@ using Xunit;
 
 namespace Helpers.Cineworld.Tests
 {
-	public class CineworldClientTests
+	public sealed class CineworldClientTests : IDisposable
 	{
 		private readonly ICineworldClient _cineworldClient;
 
 		public CineworldClientTests()
 		{
 			_cineworldClient = new Concrete.CineworldClient();
+		}
+
+		public void Dispose()
+		{
+			_cineworldClient?.Dispose();
 		}
 
 		[Fact]
