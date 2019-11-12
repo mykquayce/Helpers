@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Helpers.HttpClient.Tests
 {
-	public class ClientTests : IDisposable
+	public sealed class ClientTests : IDisposable
 	{
 		private readonly System.Net.Http.HttpClient _httpClient;
 		private readonly HttpClient _client;
@@ -73,7 +73,7 @@ namespace Helpers.HttpClient.Tests
 			var absoluteUri = new Uri(uriString, UriKind.Absolute);
 
 			// Act
-			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Get, absoluteUri);
+			var (statusCode, stream, _) = await _client.SendAsync(HttpMethod.Get, absoluteUri);
 
 			var body = await StreamToString(stream);
 
@@ -97,7 +97,9 @@ namespace Helpers.HttpClient.Tests
 				await _client.SendAsync(HttpMethod.Get, uri);
 				Assert.True(false);
 			}
+#pragma warning disable CA1031 // Do not catch general exception types
 			catch (Exception exception)
+#pragma warning restore CA1031 // Do not catch general exception types
 			{
 				// Assert
 				Assert.IsType(expectedException, exception);

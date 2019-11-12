@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Helpers.Discord.Tests
 {
-	public class DiscordClientTests : IDisposable
+	public sealed class DiscordClientTests : IDisposable
 	{
 		private readonly IDiscordClient _client;
 		private readonly System.Net.Http.HttpClient _httpClient;
