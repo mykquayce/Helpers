@@ -1,4 +1,5 @@
 ﻿using System;
+﻿using Helpers.Cineworld.Models.Enums;
 using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests

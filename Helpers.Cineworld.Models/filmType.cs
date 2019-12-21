@@ -1,4 +1,5 @@
 ﻿using Dawn;
+﻿using Helpers.Cineworld.Models.Enums;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 

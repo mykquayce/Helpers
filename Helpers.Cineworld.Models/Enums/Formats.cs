@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Helpers.Cineworld.Models
+namespace Helpers.Cineworld.Models.Enums
 {
 	[Flags]
 	public enum Formats : short
