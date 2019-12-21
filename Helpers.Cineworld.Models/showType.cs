@@ -11,8 +11,9 @@ namespace Helpers.Cineworld.Models
 		{
 			this.PropertyChanged += showType_PropertyChanged;
 		}
-		public DateTime DateTime { get; set; }
 
+		[field: NonSerialized]
+		public DateTime DateTime { get; set; }
 
 		private void showType_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

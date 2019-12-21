@@ -1,5 +1,6 @@
 ﻿using Dawn;
 ﻿using Helpers.Cineworld.Models.Enums;
+using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 
@@ -16,8 +17,12 @@ namespace Helpers.Cineworld.Models
 		}
 
 		public int Duration { get; set; }
+
+		[field: NonSerialized]
 		public Formats Formats { get; set; }
-		public string FixedTitle { get; set; }
+
+		[field: NonSerialized]
+		public string? FixedTitle { get; set; }
 
 		private void FilmType_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{

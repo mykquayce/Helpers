@@ -85,7 +85,7 @@ namespace Helpers.Cineworld.Models
 			return (title, formats | Formats._2d);
 		}
 
-		public static string DeArticlize(this string title)
+		public static string? DeArticlize(this string? title)
 		{
 			var words = title?.Split(' ');
 
@@ -95,7 +95,7 @@ namespace Helpers.Cineworld.Models
 				case 1:
 					return title;
 				default:
-					return title.Split(' ')[0] switch
+					return title!.Split(' ')[0] switch
 					{
 						"A" => title[2..] + ", A",
 						"An" => title[3..] + ", An",
