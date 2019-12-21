@@ -1,30 +1,11 @@
-﻿using System;
 ﻿using Helpers.Cineworld.Models.Enums;
+using System;
 using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
-	public class ExtensionMethodTests : IDisposable
+	public class ExtensionMethodTests : IClassFixture<ExtensionMethodTestsFixture>
 	{
-		private readonly Func<DateTime> _getUtcNow;
-
-		public ExtensionMethodTests()
-		{
-			_getUtcNow = ExtensionMethods.GetUtcNow;
-		}
-
-		public void Dispose()
-		{
-			Dispose(managed: true);
-
-			GC.SuppressFinalize(obj: this);
-		}
-
-		protected virtual void Dispose(bool managed)
-		{
-			ExtensionMethods.GetUtcNow = _getUtcNow;
-		}
-
 		[Theory]
 		[InlineData("", Formats.None, "")]
 		[InlineData("(2D) Ad Astra", Formats._2d, "Ad Astra")]
