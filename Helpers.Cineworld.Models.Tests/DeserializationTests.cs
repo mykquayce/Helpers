@@ -1,42 +1,31 @@
-using System;
+using Helpers.Cineworld.Models.Enums;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Xml.Serialization;
 using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
-	public class DeserializationTests : IDisposable
+	public class DeserializationTests : IClassFixture<ExtensionMethodTestsFixture>
 	{
-		private readonly Func<DateTime> _getUtcNow;
 		private readonly XmlSerializer _xmlSerializer;
+
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		{
+			PropertyNameCaseInsensitive = true,
+		};
 
 		public DeserializationTests()
 		{
-			_getUtcNow = ExtensionMethods.GetUtcNow;
 			_xmlSerializer = new XmlSerializer(typeof(cinemasType));
-		}
-
-		public void Dispose()
-		{
-			Dispose(managed: true);
-
-			GC.SuppressFinalize(obj: this);
-		}
-
-		protected virtual void Dispose(bool managed)
-		{
-			ExtensionMethods.GetUtcNow = _getUtcNow;
 		}
 
 		[Theory]
 		[InlineData("all-performances.xml")]
 		public void DeserializationTests_Test1(string fileName)
 		{
-			// Arrange
-			ExtensionMethods.GetUtcNow = () => new DateTime(2019, 10, 16, 6, 23, 32, 547, DateTimeKind.Utc);
-
 			// Act
 			var cinemas = Deserialize(fileName);
 
@@ -79,6 +68,27 @@ namespace Helpers.Cineworld.Models.Tests
 			}
 
 			var deduped = titles.GroupBy(s => s).Select(g => g.Key).ToList();
+		}
+
+		[Theory]
+		[InlineData(
+			@"{""title"": ""ashton this friday/saturday afternoon/evening"", ""cinemaIds"": [1, 2, 3], ""timesOfDay"": ""Afternoon|Evening"", ""daysOfWeek"": ""Friday|Saturday"", ""weekCount"": 1 }",
+			"ashton this friday/saturday afternoon/evening",
+			new short[3] { 1, 2, 3, },
+			TimesOfDay.Afternoon | TimesOfDay.Evening,
+			DaysOfWeek.Friday | DaysOfWeek.Saturday,
+			1)]
+		public void DeserializationTests_Queries(
+			string json,
+			string expectedTitle, IEnumerable<short> expectedCinemaIds, TimesOfDay expectedTimesOfDay, DaysOfWeek expectedDaysOfWeek, byte expectedWeekCount)
+		{
+			var actual = JsonSerializer.Deserialize<Query>(json, _jsonSerializerOptions);
+
+			Assert.Equal(expectedTitle, actual.Title);
+			Assert.Equal(expectedCinemaIds, actual.CinemaIds);
+			Assert.Equal(expectedTimesOfDay, actual.TimesOfDay);
+			Assert.Equal(expectedDaysOfWeek, actual.DaysOfWeek);
+			Assert.Equal(expectedWeekCount, actual.WeekCount);
 		}
 
 		private cinemasType Deserialize(string fileName)

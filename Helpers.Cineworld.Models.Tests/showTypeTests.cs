@@ -3,27 +3,8 @@ using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
-	public class showTypeTests : IDisposable
+	public class showTypeTests : IClassFixture<ExtensionMethodTestsFixture>
 	{
-		private readonly Func<DateTime> _getUtcNow;
-
-		public showTypeTests()
-		{
-			_getUtcNow = ExtensionMethods.GetUtcNow;
-		}
-
-		public void Dispose()
-		{
-			Dispose(managed: true);
-
-			GC.SuppressFinalize(obj: this);
-		}
-
-		protected virtual void Dispose(bool managed)
-		{
-			ExtensionMethods.GetUtcNow = _getUtcNow;
-		}
-
 		[Theory]
 		[InlineData("Wed 23 Oct", "18:00", 2019, 10, 23, 17, 0)]
 		[InlineData("Tue 12 Nov", "19:30", 2019, 11, 12, 19, 30)]
@@ -33,9 +14,6 @@ namespace Helpers.Cineworld.Models.Tests
 			string date, string time,
 			int expectedYear, int expectedMonth, int expectedDay, int expectedHour, int expectedMinute)
 		{
-			// Arrange
-			ExtensionMethods.GetUtcNow = () => new DateTime(2019, 10, 24, 15, 23, 32, 547, DateTimeKind.Utc);
-
 			// Act
 			var show = new showType
 			{
