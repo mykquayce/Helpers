@@ -17,5 +17,6 @@ namespace Helpers.Cineworld.Models.Enums
 
 		Weekend = Sunday | Saturday,
 		Weekdays = Monday | Tuesday | Wednesday | Thursday | Friday,
+		AllWeek = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday,
 	}
 }

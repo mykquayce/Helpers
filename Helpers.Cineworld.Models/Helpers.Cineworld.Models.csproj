@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.10.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
 
 </Project>
