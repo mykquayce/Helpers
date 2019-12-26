@@ -72,23 +72,30 @@ namespace Helpers.Cineworld.Models.Tests
 
 		[Theory]
 		[InlineData(
-			@"{""title"": ""ashton this friday/saturday afternoon/evening"", ""cinemaIds"": [1, 2, 3], ""timesOfDay"": ""Afternoon|Evening"", ""daysOfWeek"": ""Friday|Saturday"", ""weekCount"": 1 }",
-			"ashton this friday/saturday afternoon/evening",
+			@"{ ""cinemaIds"": [1, 2, 3], ""timesOfDay"": ""Afternoon|Evening"", ""daysOfWeek"": ""Friday|Saturday"", ""weekCount"": 1, ""titles"": [""jaws"", ""star wars""] }",
 			new short[3] { 1, 2, 3, },
 			TimesOfDay.Afternoon | TimesOfDay.Evening,
 			DaysOfWeek.Friday | DaysOfWeek.Saturday,
-			1)]
+			1,
+			new string[2] { "jaws", "star wars", })]
+		[InlineData(
+			@"{ ""cinemaIds"": [4], ""titles"": [""unlimited"", ""preview""] }",
+			new short[1] { 4, },
+			TimesOfDay.AllDay,
+			DaysOfWeek.AllWeek,
+			byte.MaxValue,
+			new string[2] { "unlimited", "preview", })]
 		public void DeserializationTests_Queries(
 			string json,
-			string expectedTitle, IEnumerable<short> expectedCinemaIds, TimesOfDay expectedTimesOfDay, DaysOfWeek expectedDaysOfWeek, byte expectedWeekCount)
+			IEnumerable<short> expectedCinemaIds, TimesOfDay expectedTimesOfDay, DaysOfWeek expectedDaysOfWeek, byte expectedWeekCount, IEnumerable<string> expectedTitles)
 		{
 			var actual = JsonSerializer.Deserialize<Query>(json, _jsonSerializerOptions);
 
-			Assert.Equal(expectedTitle, actual.Title);
 			Assert.Equal(expectedCinemaIds, actual.CinemaIds);
 			Assert.Equal(expectedTimesOfDay, actual.TimesOfDay);
 			Assert.Equal(expectedDaysOfWeek, actual.DaysOfWeek);
 			Assert.Equal(expectedWeekCount, actual.WeekCount);
+			Assert.Equal(expectedTitles, actual.Titles);
 		}
 
 		private cinemasType Deserialize(string fileName)
