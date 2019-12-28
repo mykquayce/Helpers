@@ -1,0 +1,47 @@
+﻿<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="cinemas" type="cinemasType"/>
+
+  <xs:complexType name="cinemasType">
+    <xs:sequence>
+      <xs:element type="cinemaType" name="cinema" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="cinemaType">
+    <xs:sequence>
+      <xs:element type="listingType" name="listing"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="required"/>
+    <xs:attribute type="xs:short" name="id" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="listingType">
+    <xs:sequence>
+      <xs:element type="filmType" name="film" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="filmType">
+    <xs:sequence>
+      <xs:element type="showsType" name="shows"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="title" use="required"/>
+    <xs:attribute type="xs:int" name="edi" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="showsType">
+    <xs:sequence>
+      <xs:element type="showType" name="show" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="showType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:dateTime" name="time" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+</xs:schema>

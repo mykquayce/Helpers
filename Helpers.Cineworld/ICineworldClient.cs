@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Helpers.Cineworld
 {
 	public interface ICineworldClient : IDisposable
 	{
-		Task<Models.cinemasType> GetPerformancesAsync();
-		Task<DateTime> GetPerformancesLastModifiedDateAsync();
+		IAsyncEnumerable<(int edi, string title, short duration)> GetFilmDurationsAsync();
+		IAsyncEnumerable<Models.Generated.Listings.cinemaType> GetListingsAsync();
+		Task<DateTime> GetListingsLastModifiedDateAsync();
 	}
 }

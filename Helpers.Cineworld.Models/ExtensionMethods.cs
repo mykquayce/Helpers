@@ -1,15 +1,12 @@
-﻿using Dawn;
-using Helpers.Cineworld.Models.Enums;
+﻿using Helpers.Cineworld.Models.Enums;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Helpers.Cineworld.Models
 {
 	public static class ExtensionMethods
 	{
-		private readonly static TimeZoneInfo _timeZone = TimeZoneInfo.FindSystemTimeZoneById("Greenwich Standard Time");
-
 		public static (string, Formats) DeconstructTitle(this string title)
 		{
 			if (string.IsNullOrWhiteSpace(title)) return (title, Formats.None);
@@ -105,81 +102,6 @@ namespace Helpers.Cineworld.Models
 			}
 		}
 
-		public static Func<DateTime> GetUtcNow { get; set; } = () => DateTime.UtcNow;
-
-		public static DateTime ParseDate(this string s)
-		{
-			// Thu 10 Oct
-			Guard.Argument(() => s)
-				.NotNull()
-				.NotEmpty()
-				.NotWhiteSpace()
-				.Matches(@"^(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat) (?:[012]\d|3[01]) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$");
-
-			var day = int.Parse(s[4..6]);
-
-			var month = s[7..] switch
-			{
-				"Jan" => 1,
-				"Feb" => 2,
-				"Mar" => 3,
-				"Apr" => 4,
-				"May" => 5,
-				"Jun" => 6,
-				"Jul" => 7,
-				"Aug" => 8,
-				"Sep" => 9,
-				"Oct" => 10,
-				"Nov" => 11,
-				"Dec" => 12,
-				_ => throw new ArgumentOutOfRangeException(nameof(s), s, "Unexpected month of year")
-				{
-					Data = { [nameof(s)] = s, },
-				},
-			};
-
-			var now = GetUtcNow();
-
-			var year = now.Year;
-
-			if (!DateTime.IsLeapYear(year) && month == 2 && day == 29)
-			{
-				year++;
-			}
-
-			var ok = DateTime.TryParse(
-				$"{year:D4}-{month:D2}-{day:D2}T00:00:00.00000+0000",
-				provider: CultureInfo.InvariantCulture,
-				styles: DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal,
-				out var result);
-
-			if (ok)
-			{
-				if (result > now.AddMonths(-1))
-				{
-					return result;
-				}
-
-				return result.AddYears(1);
-			}
-
-			throw new ArgumentOutOfRangeException(nameof(s), s, "Unable to parse date")
-			{
-				Data = { [nameof(s)] = s, },
-			};
-		}
-
-		public static TimeSpan ParseTime(this string s)
-		{
-			Guard.Argument(() => s)
-				.NotNull()
-				.NotEmpty()
-				.NotWhiteSpace()
-				.Matches(@"^(?:[01]\d|2[0-3]):[0-5]\d$");
-
-			return TimeSpan.Parse(s + ":00");
-		}
-
 		public static IEnumerable<byte> ToHours(this TimesOfDay timesOfDay)
 		{
 			if ((timesOfDay & TimesOfDay.Night) != 0)
@@ -221,6 +143,24 @@ namespace Helpers.Cineworld.Models
 				yield return 22;
 				yield return 23;
 			}
+		}
+
+		public static short ParseLength(this string s)
+		{
+			if (string.IsNullOrWhiteSpace(s))
+			{
+				throw new ArgumentNullException(nameof(s));
+			}
+
+			if (short.TryParse(s[..^5], out var result))
+			{
+				return result;
+			}
+
+			throw new ArgumentOutOfRangeException(nameof(s), s, $"Unexpected value for {nameof(s)}: {s}")
+			{
+				Data = { [nameof(s)] = s, },
+			};
 		}
 	}
 }

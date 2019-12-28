@@ -22,30 +22,19 @@ namespace Helpers.Cineworld.Tests
 		public async Task CineworldClientTests_GetPerformancesAsync_ReturnsValidXml()
 		{
 			// Arrange
-			var today = DateTime.UtcNow.Date;
+			var yesterday = DateTime.UtcNow.Date.AddDays(-1);
 
 			// Act
-			var cinemas = await _cineworldClient.GetPerformancesAsync();
-
-			// Assert
-			Assert.NotNull(cinemas);
-			Assert.NotNull(cinemas.cinema);
-			Assert.NotEmpty(cinemas.cinema);
-
-			foreach (var cinema in cinemas.cinema)
+			await foreach(var cinema in _cineworldClient.GetListingsAsync())
 			{
+				// Assert
 				Assert.NotNull(cinema.name);
 				Assert.InRange(cinema.id, 1, short.MaxValue);
-				Assert.NotNull(cinema.films);
-				Assert.NotEmpty(cinema.films);
+				Assert.NotNull(cinema.listing);
+				Assert.NotEmpty(cinema.listing);
 
-				foreach (var film in cinema.films)
+				foreach (var film in cinema.listing)
 				{
-					Assert.Matches(@"^\d{2,3} mins$", film.length);
-
-					Assert.InRange(film.Duration, 10, 999);
-					Assert.Equal(film.length, $"{film.Duration:D} mins");
-
 					Assert.NotNull(film.title);
 					Assert.InRange(film.edi, 0, int.MaxValue);
 					Assert.NotNull(film.shows);
@@ -53,12 +42,8 @@ namespace Helpers.Cineworld.Tests
 
 					foreach (var show in film.shows)
 					{
-						Assert.NotNull(show.date);
-						Assert.Matches(@"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \d\d (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$", show.date);
-						Assert.NotNull(show.time);
-						Assert.Matches(@"^\d\d:\d\d$", show.time);
-
-						Assert.InRange(show.DateTime, today, DateTime.MaxValue);
+						Assert.NotEqual(default, show.time);
+						Assert.InRange(show.time, yesterday, DateTime.MaxValue);
 					}
 				}
 			}
@@ -71,7 +56,7 @@ namespace Helpers.Cineworld.Tests
 			var now = DateTime.UtcNow;
 
 			// Act
-			var actual = await _cineworldClient.GetPerformancesLastModifiedDateAsync();
+			var actual = await _cineworldClient.GetListingsLastModifiedDateAsync();
 
 			// Assert
 			Assert.NotEqual(default, actual);

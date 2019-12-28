@@ -1,4 +1,5 @@
 using Helpers.Cineworld.Models.Enums;
+using Helpers.Cineworld.Models.Generated.AllPerformances;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,7 @@ using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
-	public class DeserializationTests : IClassFixture<ExtensionMethodTestsFixture>
+	public class DeserializationTests
 	{
 		private readonly XmlSerializer _xmlSerializer;
 
@@ -46,9 +47,6 @@ namespace Helpers.Cineworld.Models.Tests
 				foreach (var film in cinema.films)
 				{
 					Assert.Matches(@"^(\d{2,3}) mins$", film.length);
-
-					Assert.InRange(film.Duration, 10d, 999d);
-					Assert.Equal(film.length, $"{film.Duration:D} mins");
 
 					Assert.NotNull(film.title);
 					Assert.InRange(film.edi, 1, int.MaxValue);

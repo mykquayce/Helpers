@@ -1,10 +1,9 @@
 ﻿using Helpers.Cineworld.Models.Enums;
-using System;
 using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
-	public class ExtensionMethodTests : IClassFixture<ExtensionMethodTestsFixture>
+	public class ExtensionMethodTests
 	{
 		[Theory]
 		[InlineData("", Formats.None, "")]
@@ -24,7 +23,7 @@ namespace Helpers.Cineworld.Models.Tests
 		[InlineData("SubM4J Playmobil: The Movie", Formats._2d | Formats.MoviesForJuniors | Formats.Subtitled, "Playmobil: The Movie")]
 		[InlineData("The Mustang", Formats._2d, "Mustang, The")]
 		[InlineData("The Day Shall Come: Unlimited Screening", Formats._2d | Formats.SecretUnlimitedScreening, "Day Shall Come, The")]
-		public void DeserializationTests_Formats(string title, Formats expectedFormats, string expectedTitle)
+		public void ExtensionMethodTests_Formats(string title, Formats expectedFormats, string expectedTitle)
 		{
 			// Act
 			var (actualTitle, actualFormats) = title.DeconstructTitle();
@@ -43,48 +42,19 @@ namespace Helpers.Cineworld.Models.Tests
 		[InlineData("Ad Astra", "Ad Astra")]
 		[InlineData("The Lion King", "Lion King, The")]
 		[InlineData("A Shaun The Sheep Movie: Farmageddon", "Shaun The Sheep Movie: Farmageddon, A")]
-		public void DeserializationTests_DeArticlize(string before, string expected)
+		public void ExtensionMethodTests_DeArticlize(string before, string expected)
 		{
 			Assert.Equal(expected, before.DeArticlize());
 		}
 
 		[Theory]
-		[InlineData("Thu 10 Oct", 2019, 10, 10)]
-		[InlineData("Thu 10 Nov", 2019, 11, 10)]
-		public void ExtensionMethodTests_ParseDate(string before, int expectedYear, int expectedMonth, int expectedDay)
+		[InlineData("119 mins", 119)]
+		[InlineData("1 mins", 1)]
+		public void ExtensionMethodTests_ParseLength(string s, short expected)
 		{
-			// Arrange
-			ExtensionMethods.GetUtcNow = () => new DateTime(2019, 10, 24, 15, 23, 32, 547, DateTimeKind.Utc);
+			var actual = s.ParseLength();
 
-			// Act
-			var actual = before.ParseDate();
-
-			// Assert
-			Assert.Equal(expectedYear, actual.Year);
-			Assert.Equal(expectedMonth, actual.Month);
-			Assert.Equal(expectedDay, actual.Day);
-			Assert.Equal(0, actual.Hour);
-			Assert.Equal(0, actual.Minute);
-			Assert.Equal(0, actual.Second);
-			Assert.Equal(0, actual.Millisecond);
-			Assert.Equal(DateTimeKind.Utc, actual.Kind);
-		}
-
-		[Theory]
-		[InlineData("10:30", 10, 30)]
-		[InlineData("12:00", 12, 00)]
-		[InlineData("23:15", 23, 15)]
-		public void ExtensionMethodTests_ParseTime(string before, int expectedHours, int expectedMinutes)
-		{
-			// Act
-			var actual = before.ParseTime();
-
-			// Assert
-			Assert.InRange(actual.Ticks, 0, TimeSpan.TicksPerDay);
-			Assert.Equal(expectedHours, actual.Hours);
-			Assert.Equal(expectedMinutes, actual.Minutes);
-			Assert.Equal(0, actual.Seconds);
-			Assert.Equal(0, actual.Milliseconds);
+			Assert.Equal(expected, actual);
 		}
 	}
 }

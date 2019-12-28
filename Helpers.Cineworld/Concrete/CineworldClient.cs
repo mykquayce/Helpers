@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,7 +15,7 @@ namespace Helpers.Cineworld.Concrete
 {
 	public class CineworldClient : Helpers.HttpClient.HttpClientBase, ICineworldClient
 	{
-		private static readonly XmlSerializer _xmlSerializer = new XmlSerializer(typeof(cinemasType));
+		private static readonly XmlSerializerFactory _xmlSerializerFactory = new XmlSerializerFactory();
 
 		public CineworldClient(
 			ILogger? logger = default,
@@ -21,65 +23,89 @@ namespace Helpers.Cineworld.Concrete
 			: base(new CineworldHttpClientFactory(), logger, tracer)
 		{ }
 
-		public async Task<cinemasType> GetPerformancesAsync()
+		public async IAsyncEnumerable<(int edi, string title, short duration)> GetFilmDurationsAsync()
 		{
-			var (statusCode, stream, headers) = await base.SendAsync(HttpMethod.Get, Settings.Path);
+			var uri = Settings.AllPerformancesPath;
+
+			var cinemas = await GetAsync<Helpers.Cineworld.Models.Generated.AllPerformances.cinemasType>(uri);
+
+			foreach (var tuple in from c in cinemas.cinema
+								  from f in c.films
+								  let tuple = (f.edi, f.title, f.length.ParseLength())
+								  group tuple by tuple into gg
+								  select gg.Key)
+			{
+				yield return tuple;
+			}
+		}
+
+		public async IAsyncEnumerable<Helpers.Cineworld.Models.Generated.Listings.cinemaType> GetListingsAsync()
+		{
+			var uri = Settings.ListingsPath;
+
+			var cinemas = await GetAsync<Helpers.Cineworld.Models.Generated.Listings.cinemasType>(uri);
+
+			foreach (var cinema in cinemas.cinema)
+			{
+				yield return cinema;
+			}
+		}
+
+		public async Task<DateTime> GetListingsLastModifiedDateAsync()
+		{
+			var uri = Settings.ListingsPath;
+
+			var (_, _, headers) = await base.SendAsync(HttpMethod.Head, uri);
+
+			var s = headers?[Settings.LastModifiedHeaderKey]?.FirstOrDefault() ?? string.Empty;
+
+			if (DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var lastModified))
+			{
+				return lastModified;
+			}
+
+			return DateTime.UtcNow;
+		}
+
+		private async Task<T> GetAsync<T>(Uri uri)
+		{
+			var (statusCode, stream, headers) = await base.SendAsync(HttpMethod.Get, uri);
 
 			if (statusCode == HttpStatusCode.OK)
 			{
-				using (stream)
-				{
-					return (cinemasType)_xmlSerializer.Deserialize(stream);
-				}
+				var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
+
+				var value = (T)serializer.Deserialize(stream);
+
+				return value;
 			}
 
-			await (stream?.DisposeAsync() ?? default);
+			string response;
 
-			throw new Exception($"Request for performances returned {statusCode:G}")
+			if (stream.CanRead)
+			{
+				using (stream)
+				{
+					using var reader = new StreamReader(stream);
+
+					response = await reader.ReadToEndAsync();
+				}
+			}
+			else
+			{
+				response = string.Empty;
+			}
+
+			throw new Exception($"{statusCode:G} response from {uri.OriginalString}")
 			{
 				Data =
 				{
+					[nameof(uri)] = uri,
 					[nameof(statusCode)] = statusCode,
-					[nameof(headers)] = headers,
+					[nameof(headers)] = string.Join(';', headers.Select(kvp => $"{kvp.Key}={kvp.Value}")),
+					[nameof(response)] = response,
 				},
 			};
-		}
-
-		public async Task<DateTime> GetPerformancesLastModifiedDateAsync()
-		{
-			var (statusCode, stream, headers) = await base.SendAsync(HttpMethod.Head, Settings.Path);
-
-			await (stream?.DisposeAsync() ?? default);
-
-			if (statusCode != HttpStatusCode.OK)
-			{
-				throw new Exception($"Request for performances last-modified date returned {statusCode:G}")
-				{
-					Data =
-					{
-						[nameof(statusCode)] = statusCode,
-						[nameof(headers)] = headers,
-					},
-				};
-			}
-
-			try
-			{
-				var s = headers?[Settings.LastModifiedHeaderKey]?.FirstOrDefault();
-
-				return DateTime.Parse(s, styles: DateTimeStyles.AdjustToUniversal);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("Request for performances last-modified date returned " + ex.Message, ex)
-				{
-					Data =
-					{
-						[nameof(statusCode)] = statusCode,
-						[nameof(headers)] = headers,
-					},
-				};
-			}
 		}
 	}
 }
