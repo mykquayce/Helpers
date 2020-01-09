@@ -1,8 +1,7 @@
-using Helpers.Common;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,6 +15,12 @@ namespace Helpers.Discord.Tests
 
 		public DiscordClientTests()
 		{
+			var config = new ConfigurationBuilder()
+				.AddUserSecrets("8093bdd7-e455-40d8-a574-90ff004106b6")
+				.Build();
+
+			var webhook = config.GetSection("Discord").GetSection(nameof(Models.Webhook)).Get<Models.Webhook>();
+
 			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
 
 			_httpClient = new System.Net.Http.HttpClient(handler)
@@ -28,12 +33,6 @@ namespace Helpers.Discord.Tests
 			httpClientFactoryMock
 				.Setup(f => f.CreateClient(It.IsAny<string>()))
 				.Returns(_httpClient);
-
-			var webhook = new Models.Webhook
-			{
-				Id = long.Parse(EnvironmentHelpers.GetEnvironmentVariable("DiscordWebhookId")),
-				Token = EnvironmentHelpers.GetEnvironmentVariable("DiscordWebhookToken"),
-			};
 
 			var webhookOptions = Mock.Of<IOptions<Models.Webhook>>(o => o.Value == webhook);
 
