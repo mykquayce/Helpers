@@ -135,6 +135,81 @@ namespace Helpers.MySql.Tests
 				await sut.GetDateTimeAsync();
 			}
 		}
+
+		[Theory]
+		[InlineData("localhost", 3_306, "movietimes", "xiebeiyoothohYaidieroh8ahchohphi")]
+		public async Task RepositoryBaseTests_ReturnDateTime(string server, int port, string userId, string password, string? database = default)
+		{
+			using var sut = new TestRepository(server, port, userId, password, database);
+
+			var results = sut.QueryAsync<DateTimeResult>("select now() now union all select now();");
+
+			var now = DateTime.UtcNow;
+			var count = 0;
+
+			await foreach(var result in results)
+			{
+				count++;
+				Assert.NotNull(result);
+				Assert.NotEqual(default, result.Now);
+				Assert.Equal(DateTimeKind.Unspecified, result.Now!.Value.Kind);
+				Assert.InRange(result.Now!.Value, now.AddSeconds(-3), now.AddSeconds(3));
+			}
+
+			Assert.Equal(2, count);
+		}
+
+		private class DateTimeResult
+		{
+			public DateTime? Now { get; set; }
+		}
+
+		[Theory]
+		[InlineData("localhost", 3_306, "movietimes", "xiebeiyoothohYaidieroh8ahchohphi")]
+		public async Task RepositoryBaseTests_Queries(string server, int port, string userId, string password, string? database = default)
+		{
+			using var sut = new TestRepository(server, port, userId, password, database);
+
+			var sql = @"select
+					c.id cinemaId,
+					c.name cinemaName,
+					f.title filmTitle,
+					f.duration filmDuration,
+					s.time showDateTime
+				from `cineworld`.`show` s
+					join `cineworld`.`cinema` c on s.cinemaId = c.id
+					join `cineworld`.`film` f on s.filmEdi = f.edi where c.id in (23) order by c.id, s.time, f.title;";
+
+			var results = sut.QueryAsync<QueryResult>(sql);
+
+			var now = DateTime.UtcNow;
+			var count = 0;
+
+			await foreach(var result in results)
+			{
+				count++;
+				Assert.NotNull(result);
+				Assert.InRange(result.CinemaId ?? 0, (short)1, short.MaxValue);
+				Assert.NotNull(result.CinemaName);
+				Assert.NotEmpty(result.CinemaName);
+				Assert.NotNull(result.FilmTitle);
+				Assert.NotEmpty(result.FilmTitle);
+				Assert.NotEqual(default, result.ShowDateTime);
+				Assert.Equal(DateTimeKind.Unspecified, result.ShowDateTime!.Value.Kind);
+				Assert.InRange(result.ShowDateTime!.Value, now.AddYears(-1), now.AddYears(1));
+			}
+
+			Assert.InRange(count, 1, int.MaxValue);
+		}
+
+		private class QueryResult
+		{
+			public short? CinemaId { get; set; }
+			public string? CinemaName { get; set; }
+			public string? FilmTitle { get; set; }
+			public short? FilmDuration { get; set; }
+			public DateTime? ShowDateTime { get; set; }
+		}
 	}
 
 	public static class ExtensionMethods

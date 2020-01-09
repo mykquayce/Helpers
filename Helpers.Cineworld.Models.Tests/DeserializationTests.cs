@@ -83,6 +83,13 @@ namespace Helpers.Cineworld.Models.Tests
 			DaysOfWeek.AllWeek,
 			byte.MaxValue,
 			new string[2] { "unlimited", "preview", })]
+		[InlineData(
+			@"{ ""cinemaIds"": [ 23 ], ""timesOfDay"": ""Evening"", ""daysOfWeek"": ""Friday"", ""weekCount"": 1 }",
+			new short[1] { 23, },
+			TimesOfDay.Evening,
+			DaysOfWeek.Friday,
+			(byte)1,
+			new string[0])]
 		public void DeserializationTests_Queries(
 			string json,
 			IEnumerable<short> expectedCinemaIds, TimesOfDay expectedTimesOfDay, DaysOfWeek expectedDaysOfWeek, byte expectedWeekCount, IEnumerable<string> expectedTitles)
