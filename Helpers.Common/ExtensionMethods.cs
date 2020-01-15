@@ -55,5 +55,25 @@ namespace Helpers.Common
 
 			return new Uri(normalized, UriKind.Absolute);
 		}
+
+		public static int GetDeterministicHashCode(this string s)
+		{
+			unchecked
+			{
+				int hash1 = 5_381, hash2 = hash1;
+
+				for (var i = 0; i < s.Length && s[i] != '\0'; i += 2)
+				{
+					hash1 = ((hash1 << 5) + hash1) ^ s[i];
+					if (i == s.Length - 1 || s[i + 1] == '\0')
+					{
+						break;
+					}
+					hash2 = ((hash2 << 5) + hash2) ^ s[i + 1];
+				}
+
+				return hash1 + (hash2 * 1_566_083_941);
+			}
+		}
 	}
 }

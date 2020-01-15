@@ -81,5 +81,15 @@ namespace Helpers.Common.Tests
 
 			Assert.Equal(expectedUriString, actual.OriginalString);
 		}
+
+		[Theory]
+		[InlineData("A quick brown fox jumps over the lazy dog", 1341739415)]
+		[InlineData("Hello world", -1694202214)]
+		public void ExtensionMethodsTests_DeterministicHashCode(string before, int expected)
+		{
+			Assert.Equal(
+				expected,
+				before.GetDeterministicHashCode());
+		}
 	}
 }
