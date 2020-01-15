@@ -49,6 +49,7 @@ namespace Helpers.Discord.Tests
 
 		[Theory]
 		[InlineData("Hello world")]
+		[InlineData("Hello\r\nworld")]
 		public Task DiscordClientTests_SendMessageAsync(string message) => _client.SendMessageAsync(message);
 	}
 }
