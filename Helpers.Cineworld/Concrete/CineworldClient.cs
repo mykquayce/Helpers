@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using System.Xml.Xsl;
@@ -33,9 +34,7 @@ namespace Helpers.Cineworld.Concrete
 
 			using (stream)
 			{
-				var xslt = new XslTransform();
-
-				xslt.Load(@"Data\\all-performances.xslt");
+				var xslt = BuildXslt(Properties.Resources.all_performances);
 
 				var films = Transform<Models.Generated.FilmType[]>(stream, xslt);
 
@@ -54,9 +53,7 @@ namespace Helpers.Cineworld.Concrete
 
 			using (stream)
 			{
-				var xslt = new XslTransform();
-
-				xslt.Load(@"Data\\listings.xslt");
+				var xslt = BuildXslt(Properties.Resources.listings);
 
 				var cinemas = Transform<Models.Generated.CinemasType>(stream, xslt);
 
@@ -83,19 +80,33 @@ namespace Helpers.Cineworld.Concrete
 			return DateTime.UtcNow;
 		}
 
-		private static T Transform<T>(Stream input, XslTransform xslt)
+		private static T Transform<T>(Stream input, XslCompiledTransform xslt)
 		{
-			var doc = new XPathDocument(input);
+			using var reader = XmlReader.Create(input);
 
 			using var output = new MemoryStream();
 
-			xslt.Transform(doc, args: default, output);
+			using var writer = XmlWriter.Create(output);
+
+			xslt.Transform(reader, writer);
 
 			output.Seek(0L, SeekOrigin.Begin);
 
 			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
 
 			return (T)serializer.Deserialize(output);
+		}
+
+		private static XslCompiledTransform BuildXslt(string s)
+		{
+			using var stringReader = new StringReader(s);
+			using var xmlTextReader = new XmlTextReader(stringReader);
+
+			var xslt = new XslCompiledTransform();
+
+			xslt.Load(xmlTextReader);
+
+			return xslt;
 		}
 	}
 }
