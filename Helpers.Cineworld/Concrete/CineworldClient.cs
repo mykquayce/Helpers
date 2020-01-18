@@ -80,13 +80,15 @@ namespace Helpers.Cineworld.Concrete
 			return DateTime.UtcNow;
 		}
 
-		private static T Transform<T>(Stream input, XslTransform xslt)
+		private static T Transform<T>(Stream input, XslCompiledTransform xslt)
 		{
-			var doc = new XPathDocument(input);
+			using var reader = XmlReader.Create(input);
 
 			using var output = new MemoryStream();
 
-			xslt.Transform(doc, args: default, output);
+			using var writer = XmlWriter.Create(output);
+
+			xslt.Transform(reader, writer);
 
 			output.Seek(0L, SeekOrigin.Begin);
 
@@ -95,12 +97,12 @@ namespace Helpers.Cineworld.Concrete
 			return (T)serializer.Deserialize(output);
 		}
 
-		private static XslTransform BuildXslt(string s)
+		private static XslCompiledTransform BuildXslt(string s)
 		{
 			using var stringReader = new StringReader(s);
 			using var xmlTextReader = new XmlTextReader(stringReader);
 
-			var xslt = new XslTransform();
+			var xslt = new XslCompiledTransform();
 
 			xslt.Load(xmlTextReader);
 
