@@ -10,6 +10,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Xml.XPath;
+using System.Xml.Xsl;
 
 namespace Helpers.Cineworld.Concrete
 {
@@ -23,31 +25,45 @@ namespace Helpers.Cineworld.Concrete
 			: base(new CineworldHttpClientFactory(), logger, tracer)
 		{ }
 
-		public async IAsyncEnumerable<(int edi, string title, short duration)> GetFilmDurationsAsync()
+		public async IAsyncEnumerable<Models.Generated.FilmType> GetFilmDurationsAsync()
 		{
 			var uri = Settings.AllPerformancesPath;
 
-			var cinemas = await GetAsync<Helpers.Cineworld.Models.Generated.AllPerformances.cinemasType>(uri);
+			var (_, stream, _) = await base.SendAsync(HttpMethod.Get, uri);
 
-			foreach (var tuple in from c in cinemas.cinema
-								  from f in c.films
-								  let tuple = (f.edi, f.title, f.length.ParseLength())
-								  group tuple by tuple into gg
-								  select gg.Key)
+			using (stream)
 			{
-				yield return tuple;
+				var xslt = new XslTransform();
+
+				xslt.Load(@"Data\\all-performances.xslt");
+
+				var films = Transform<Models.Generated.FilmType[]>(stream, xslt);
+
+				foreach (var film in films)
+				{
+					yield return film;
+				}
 			}
 		}
 
-		public async IAsyncEnumerable<Helpers.Cineworld.Models.Generated.Listings.cinemaType> GetListingsAsync()
+		public async IAsyncEnumerable<Models.Generated.CinemaType> GetListingsAsync()
 		{
 			var uri = Settings.ListingsPath;
 
-			var cinemas = await GetAsync<Helpers.Cineworld.Models.Generated.Listings.cinemasType>(uri);
+			var (_, stream, _) = await base.SendAsync(HttpMethod.Get, uri);
 
-			foreach (var cinema in cinemas.cinema)
+			using (stream)
 			{
-				yield return cinema;
+				var xslt = new XslTransform();
+
+				xslt.Load(@"Data\\listings.xslt");
+
+				var cinemas = Transform<Models.Generated.CinemasType>(stream, xslt);
+
+				foreach (var cinema in cinemas.Cinema)
+				{
+					yield return cinema;
+				}
 			}
 		}
 
@@ -67,45 +83,19 @@ namespace Helpers.Cineworld.Concrete
 			return DateTime.UtcNow;
 		}
 
-		private async Task<T> GetAsync<T>(Uri uri)
+		private static T Transform<T>(Stream input, XslTransform xslt)
 		{
-			var (statusCode, stream, headers) = await base.SendAsync(HttpMethod.Get, uri);
+			var doc = new XPathDocument(input);
 
-			if (statusCode == HttpStatusCode.OK)
-			{
-				var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
+			using var output = new MemoryStream();
 
-				var value = (T)serializer.Deserialize(stream);
+			xslt.Transform(doc, args: default, output);
 
-				return value;
-			}
+			output.Seek(0L, SeekOrigin.Begin);
 
-			string response;
+			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
 
-			if (stream.CanRead)
-			{
-				using (stream)
-				{
-					using var reader = new StreamReader(stream);
-
-					response = await reader.ReadToEndAsync();
-				}
-			}
-			else
-			{
-				response = string.Empty;
-			}
-
-			throw new Exception($"{statusCode:G} response from {uri.OriginalString}")
-			{
-				Data =
-				{
-					[nameof(uri)] = uri,
-					[nameof(statusCode)] = statusCode,
-					[nameof(headers)] = string.Join(';', headers.Select(kvp => $"{kvp.Key}={kvp.Value}")),
-					[nameof(response)] = response,
-				},
-			};
+			return (T)serializer.Deserialize(output);
 		}
 	}
 }
