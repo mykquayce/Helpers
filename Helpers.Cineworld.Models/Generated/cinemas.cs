@@ -21,11 +21,30 @@ namespace Helpers.Cineworld.Models.Generated {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlRootAttribute("Cinemas", Namespace="", IsNullable=false)]
-    public partial class CinemasType {
+    public partial class CinemasType : object, System.ComponentModel.INotifyPropertyChanged {
+        
+        private CinemaType[] cinemaField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Cinema")]
-        public CinemaType[] Cinema;
+        public CinemaType[] Cinema {
+            get {
+                return this.cinemaField;
+            }
+            set {
+                this.cinemaField = value;
+                this.RaisePropertyChanged("Cinema");
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
     
     /// <remarks/>
@@ -33,37 +52,125 @@ namespace Helpers.Cineworld.Models.Generated {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class CinemaType {
+    public partial class CinemaType : object, System.ComponentModel.INotifyPropertyChanged {
+        
+        private short idField;
+        
+        private string nameField;
+        
+        private FilmType[] filmsField;
         
         /// <remarks/>
-        public short Id;
+        public short Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+                this.RaisePropertyChanged("Id");
+            }
+        }
         
         /// <remarks/>
-        public string Name;
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+                this.RaisePropertyChanged("Name");
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute("Film", IsNullable=false)]
-        public FilmType[] Films;
+        public FilmType[] Films {
+            get {
+                return this.filmsField;
+            }
+            set {
+                this.filmsField = value;
+                this.RaisePropertyChanged("Films");
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    //[System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class FilmType {
+    public partial class FilmType : object, System.ComponentModel.INotifyPropertyChanged {
+        
+        private int ediField;
+        
+        private string titleField;
+        
+        private short lengthField;
+        
+        private System.DateTime[] dateTimesField;
         
         /// <remarks/>
-        public int Edi;
+        public int Edi {
+            get {
+                return this.ediField;
+            }
+            set {
+                this.ediField = value;
+                this.RaisePropertyChanged("Edi");
+            }
+        }
         
         /// <remarks/>
-        public string Title;
+        public string Title {
+            get {
+                return this.titleField;
+            }
+            set {
+                this.titleField = value;
+                this.RaisePropertyChanged("Title");
+            }
+        }
         
         /// <remarks/>
-        public short Length;
+        public short Length {
+            get {
+                return this.lengthField;
+            }
+            set {
+                this.lengthField = value;
+                this.RaisePropertyChanged("Length");
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute("DateTime", IsNullable=false)]
-        public System.DateTime[] DateTimes;
+        public System.DateTime[] DateTimes {
+            get {
+                return this.dateTimesField;
+            }
+            set {
+                this.dateTimesField = value;
+                this.RaisePropertyChanged("DateTimes");
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }

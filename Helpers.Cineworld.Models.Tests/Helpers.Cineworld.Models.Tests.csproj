@@ -20,4 +20,10 @@
     <ProjectReference Include="..\Helpers.Cineworld.Models\Helpers.Cineworld.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\Cinemas.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
