@@ -25,25 +25,25 @@ namespace Helpers.Cineworld.Tests
 			var yesterday = DateTime.UtcNow.Date.AddDays(-1);
 
 			// Act
-			await foreach(var cinema in _cineworldClient.GetListingsAsync())
+			await foreach (var cinema in _cineworldClient.GetListingsAsync())
 			{
 				// Assert
-				Assert.NotNull(cinema.name);
-				Assert.InRange(cinema.id, 1, short.MaxValue);
-				Assert.NotNull(cinema.listing);
-				Assert.NotEmpty(cinema.listing);
+				Assert.NotNull(cinema.Name);
+				Assert.InRange(cinema.Id, 1, short.MaxValue);
+				Assert.NotNull(cinema.Films);
+				Assert.NotEmpty(cinema.Films);
 
-				foreach (var film in cinema.listing)
+				foreach (var film in cinema.Films)
 				{
-					Assert.NotNull(film.title);
-					Assert.InRange(film.edi, 0, int.MaxValue);
-					Assert.NotNull(film.shows);
-					Assert.NotEmpty(film.shows);
+					Assert.NotNull(film.Title);
+					Assert.InRange(film.Edi, 0, int.MaxValue);
+					Assert.NotNull(film.DateTimes);
+					Assert.NotEmpty(film.DateTimes);
 
-					foreach (var show in film.shows)
+					foreach (var dateTime in film.DateTimes)
 					{
-						Assert.NotEqual(default, show.time);
-						Assert.InRange(show.time, yesterday, DateTime.MaxValue);
+						Assert.NotEqual(default, dateTime);
+						Assert.InRange(dateTime, yesterday, DateTime.MaxValue);
 					}
 				}
 			}
