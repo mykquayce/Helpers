@@ -4,18 +4,20 @@
   <xsl:output method="xml" indent="yes"/>
 
   <xsl:template match="/">
-    <xsl:for-each select="/cinemas/cinema/films/film[not(.=preceding::*)]">
-      <Film>
-        <Edi>
-          <xsl:value-of select="@edi"/>
-        </Edi>
-        <Title>
-          <xsl:value-of select="@title"/>
-        </Title>
-        <Length>
-          <xsl:value-of select="substring-before(@length, ' ')"/>
-        </Length>
-      </Film>
-    </xsl:for-each>
+    <Films>
+      <xsl:for-each select="/cinemas/cinema/films/film[not(.=preceding::*)]">
+        <Film>
+          <Edi>
+            <xsl:value-of select="@edi"/>
+          </Edi>
+          <Title>
+            <xsl:value-of select="@title"/>
+          </Title>
+          <Length>
+            <xsl:value-of select="substring-before(@length, ' ')"/>
+          </Length>
+        </Film>
+      </xsl:for-each>
+    </Films>
   </xsl:template>
 </xsl:stylesheet>

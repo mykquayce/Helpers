@@ -36,9 +36,9 @@ namespace Helpers.Cineworld.Concrete
 			{
 				var xslt = BuildXslt(Properties.Resources.all_performances);
 
-				var films = Transform<Models.Generated.FilmType[]>(stream, xslt);
+				var films = Transform<FilmsType>(stream, xslt);
 
-				foreach (var film in films)
+				foreach (var film in films.Film!)
 				{
 					yield return film;
 				}
