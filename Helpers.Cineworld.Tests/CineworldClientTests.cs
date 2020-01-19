@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -62,6 +63,23 @@ namespace Helpers.Cineworld.Tests
 			Assert.NotEqual(default, actual);
 			Assert.Equal(DateTimeKind.Utc, actual.Kind);
 			Assert.InRange(actual, now.AddDays(-1), now);
+		}
+
+		[Fact]
+		public async Task CineworldClientTests_GetFilmDurationsAsync()
+		{
+			var films = await _cineworldClient.GetFilmDurationsAsync().ToListAsync();
+
+			Assert.NotNull(films);
+			Assert.NotEmpty(films);
+
+			foreach (var film in films)
+			{
+				Assert.NotNull(film);
+				Assert.InRange(film.Edi, 0, int.MaxValue);
+				Assert.NotNull(film.Title);
+				Assert.NotEmpty(film.Title);
+			}
 		}
 	}
 }
