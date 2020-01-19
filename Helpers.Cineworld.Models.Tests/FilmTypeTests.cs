@@ -17,5 +17,24 @@ namespace Helpers.Cineworld.Models.Tests
 			Assert.Equal(expectedTitle, film.Title);
 			Assert.Equal(expectedFormats, film.Formats);
 		}
+
+		[Theory]
+		[InlineData("Films.xml")]
+		public void FilmTypeTests_Deserialize(string fileName)
+		{
+			var films = fileName.DeserializeFile<Models.FilmsType>();
+
+			Assert.NotNull(films);
+			Assert.NotNull(films.Film);
+			Assert.NotEmpty(films.Film);
+
+			foreach (var film in films.Film)
+			{
+				Assert.NotNull(film);
+				Assert.InRange(film.Edi, 0, int.MaxValue);
+				Assert.NotNull(film.Title);
+				Assert.NotEmpty(film.Title);
+			}
+		}
 	}
 }

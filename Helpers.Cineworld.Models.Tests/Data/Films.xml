@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Films>
+  <Film>
+    <Edi>269710</Edi>
+    <Title>1917</Title>
+    <Length>119</Length>
+  </Film>
+  <Film>
+    <Edi>240510</Edi>
+    <Title>A Hidden Life</Title>
+    <Length>173</Length>
+  </Film>
+  <Film>
+    <Edi>189099</Edi>
+    <Title>Bad Boys For Life</Title>
+    <Length>124</Length>
+  </Film>
+  <Film>
+    <Edi>802559</Edi>
+    <Title>CIN Personal History of David Copperfield</Title>
+    <Length>119</Length>
+  </Film>
+  <Film>
+    <Edi>156027</Edi>
+    <Title>Frozen 2</Title>
+    <Length>104</Length>
+  </Film>
+  <Film>
+    <Edi>257283</Edi>
+    <Title>Jojo Rabbit</Title>
+    <Length>108</Length>
+  </Film>
+  <Film>
+    <Edi>258584</Edi>
+    <Title>Jumanji: The Next Level</Title>
+    <Length>123</Length>
+  </Film>
+  <Film>
+    <Edi>259789</Edi>
+    <Title>Little Women</Title>
+    <Length>135</Length>
+  </Film>
+  <Film>
+    <Edi>295239</Edi>
+    <Title>Pattas (Tamil)</Title>
+    <Length>150</Length>
+  </Film>
+  <Film>
+    <Edi>271494</Edi>
+    <Title>Playing With Fire</Title>
+    <Length>96</Length>
+  </Film>
+  <Film>
+    <Edi>269710</Edi>
+    <Title>1917</Title>
+    <Length>119</Length>
+  </Film>
+  <Film>
+    <Edi>802529</Edi>
+    <Title>(4DX) 1917</Title>
+    <Length>119</Length>
+  </Film>
+  <Film>
+    <Edi>258584</Edi>
+    <Title>Jumanji: The Next Level</Title>
+    <Length>123</Length>
+  </Film>
+  <Film>
+    <Edi>244258</Edi>
+    <Title>Just Mercy</Title>
+    <Length>136</Length>
+  </Film>
+  <Film>
+    <Edi>259789</Edi>
+    <Title>Little Women</Title>
+    <Length>135</Length>
+  </Film>
+  <Film>
+    <Edi>269710</Edi>
+    <Title>1917</Title>
+    <Length>119</Length>
+  </Film>
+  <Film>
+    <Edi>234840</Edi>
+    <Title>Birds Of Prey</Title>
+    <Length>100</Length>
+  </Film>
+  <Film>
+    <Edi>229590</Edi>
+    <Title>Star Wars: The Rise of Skywalke</Title>
+    <Length>142</Length>
+  </Film>
+  <Film>
+    <Edi>273273</Edi>
+    <Title>The Gentlemen</Title>
+    <Length>113</Length>
+  </Film>
+</Films>

@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
 {
 	public class CinemasTypeTests
 	{
-		private static readonly XmlSerializerFactory _xmlSerializerFactory = new XmlSerializerFactory();
-
 		[Theory]
 		[InlineData("Cinemas.xml")]
 		public void CinemasTypeTests_Deserialize(string fileName)
 		{
-			var cinemas = DeserializeFile<Models.Generated.CinemasType>(fileName);
+			var cinemas = fileName.DeserializeFile<Models.Generated.CinemasType>();
 
 			Assert.NotNull(cinemas);
 			Assert.NotNull(cinemas.Cinema);
@@ -47,17 +39,6 @@ namespace Helpers.Cineworld.Models.Tests
 					Assert.All(film.DateTimes, dt => Assert.NotEqual(default, dt));
 				}
 			}
-		}
-
-		private static T DeserializeFile<T>(string fileName)
-		{
-			var path = Path.Combine("Data", fileName);
-
-			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
-
-			using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None);
-
-			return (T)serializer.Deserialize(stream);
 		}
 	}
 }
