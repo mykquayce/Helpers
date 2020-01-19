@@ -26,7 +26,7 @@ namespace Helpers.Cineworld.Concrete
 			: base(new CineworldHttpClientFactory(), logger, tracer)
 		{ }
 
-		public async IAsyncEnumerable<Models.Generated.FilmType> GetFilmDurationsAsync()
+		public async IAsyncEnumerable<Models.Generated.FilmType> GetFilmsAsync()
 		{
 			var uri = Settings.AllPerformancesPath;
 
@@ -64,7 +64,7 @@ namespace Helpers.Cineworld.Concrete
 			}
 		}
 
-		public async Task<DateTime> GetListingsLastModifiedDateAsync()
+		public async Task<DateTime> GetLastModifiedDateAsync()
 		{
 			var uri = Settings.ListingsPath;
 

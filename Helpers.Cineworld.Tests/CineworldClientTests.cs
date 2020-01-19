@@ -20,10 +20,12 @@ namespace Helpers.Cineworld.Tests
 		}
 
 		[Fact]
-		public async Task CineworldClientTests_GetPerformancesAsync_ReturnsValidXml()
+		public async Task CineworldClientTests_GetListingsAsync_ReturnsValidXml()
 		{
 			// Arrange
-			var yesterday = DateTime.UtcNow.Date.AddDays(-1);
+			var today = DateTime.UtcNow.Date;
+			var yesterday = today.AddDays(-1);
+			var nextYear = today.AddYears(1);
 
 			// Act
 			await foreach (var cinema in _cineworldClient.GetListingsAsync())
@@ -44,20 +46,20 @@ namespace Helpers.Cineworld.Tests
 					foreach (var dateTime in film.DateTimes)
 					{
 						Assert.NotEqual(default, dateTime);
-						Assert.InRange(dateTime, yesterday, DateTime.MaxValue);
+						Assert.InRange(dateTime, yesterday, nextYear);
 					}
 				}
 			}
 		}
 
 		[Fact]
-		public async Task CineworldClientTests_GetPerformancesLastModifiedDateAsync_ReturnsUtcDateTime()
+		public async Task CineworldClientTests_GeLastModifiedDateAsync_ReturnsUtcDateTime()
 		{
 			// Arrange
 			var now = DateTime.UtcNow;
 
 			// Act
-			var actual = await _cineworldClient.GetListingsLastModifiedDateAsync();
+			var actual = await _cineworldClient.GetLastModifiedDateAsync();
 
 			// Assert
 			Assert.NotEqual(default, actual);
@@ -66,9 +68,9 @@ namespace Helpers.Cineworld.Tests
 		}
 
 		[Fact]
-		public async Task CineworldClientTests_GetFilmDurationsAsync()
+		public async Task CineworldClientTests_GetFilmsAsync()
 		{
-			var films = await _cineworldClient.GetFilmDurationsAsync().ToListAsync();
+			var films = await _cineworldClient.GetFilmsAsync().ToListAsync();
 
 			Assert.NotNull(films);
 			Assert.NotEmpty(films);

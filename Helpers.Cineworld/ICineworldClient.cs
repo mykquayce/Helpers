@@ -6,8 +6,8 @@ namespace Helpers.Cineworld
 {
 	public interface ICineworldClient : IDisposable
 	{
-		IAsyncEnumerable<Models.Generated.FilmType> GetFilmDurationsAsync();
+		IAsyncEnumerable<Models.Generated.FilmType> GetFilmsAsync();
 		IAsyncEnumerable<Models.Generated.CinemaType> GetListingsAsync();
-		Task<DateTime> GetListingsLastModifiedDateAsync();
+		Task<DateTime> GetLastModifiedDateAsync();
 	}
 }
