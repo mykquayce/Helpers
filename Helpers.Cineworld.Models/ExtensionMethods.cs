@@ -145,6 +145,35 @@ namespace Helpers.Cineworld.Models
 			}
 		}
 
+		public static TimesOfDay ToTimesOfDay(this IEnumerable<DateTime> dateTimes)
+		{
+			var results = TimesOfDay.None;
+
+			foreach (var dateTime in dateTimes)
+			{
+				var hour = dateTime.Hour;
+
+				if (hour < 6)
+				{
+					results |= TimesOfDay.Night;
+				}
+				else if (hour < 12)
+				{
+					results |= TimesOfDay.Morning;
+				}
+				else if (hour < 18)
+				{
+					results |= TimesOfDay.Afternoon;
+				}
+				else
+				{
+					results |= TimesOfDay.Evening;
+				}
+			}
+
+			return results;
+		}
+
 		public static short ParseLength(this string s)
 		{
 			if (string.IsNullOrWhiteSpace(s))

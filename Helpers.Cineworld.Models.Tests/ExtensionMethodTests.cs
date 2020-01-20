@@ -1,4 +1,6 @@
 ﻿using Helpers.Cineworld.Models.Enums;
+using System;
+using System.Linq;
 using Xunit;
 
 namespace Helpers.Cineworld.Models.Tests
@@ -53,6 +55,47 @@ namespace Helpers.Cineworld.Models.Tests
 		public void ExtensionMethodTests_ParseLength(string s, short expected)
 		{
 			var actual = s.ParseLength();
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Theory]
+		[InlineData(TimesOfDay.Night, 0)]
+		[InlineData(TimesOfDay.Night, 1)]
+		[InlineData(TimesOfDay.Night, 2)]
+		[InlineData(TimesOfDay.Night, 3)]
+		[InlineData(TimesOfDay.Night, 4)]
+		[InlineData(TimesOfDay.Night, 5)]
+		[InlineData(TimesOfDay.Morning, 6)]
+		[InlineData(TimesOfDay.Morning, 7)]
+		[InlineData(TimesOfDay.Morning, 8)]
+		[InlineData(TimesOfDay.Morning, 9)]
+		[InlineData(TimesOfDay.Morning, 10)]
+		[InlineData(TimesOfDay.Morning, 11)]
+		[InlineData(TimesOfDay.Afternoon, 12)]
+		[InlineData(TimesOfDay.Afternoon, 13)]
+		[InlineData(TimesOfDay.Afternoon, 14)]
+		[InlineData(TimesOfDay.Afternoon, 15)]
+		[InlineData(TimesOfDay.Afternoon, 16)]
+		[InlineData(TimesOfDay.Afternoon, 17)]
+		[InlineData(TimesOfDay.Evening, 18)]
+		[InlineData(TimesOfDay.Evening, 19)]
+		[InlineData(TimesOfDay.Evening, 20)]
+		[InlineData(TimesOfDay.Evening, 21)]
+		[InlineData(TimesOfDay.Evening, 22)]
+		[InlineData(TimesOfDay.Evening, 23)]
+		[InlineData(TimesOfDay.Night, 0, 1, 2, 3, 4, 5)]
+		[InlineData(TimesOfDay.Morning, 6, 7, 8, 9, 10, 11)]
+		[InlineData(TimesOfDay.Afternoon, 12, 13, 14, 15, 16, 17)]
+		[InlineData(TimesOfDay.Evening, 18, 19, 20, 21, 22, 23)]
+		[InlineData(TimesOfDay.AM, 5, 6)]
+		[InlineData(TimesOfDay.Morning | TimesOfDay.Afternoon, 11, 12)]
+		[InlineData(TimesOfDay.AllDay, 2, 8, 15, 20)]
+		public void ExtensionMethodTests_ToTimesOfDay(TimesOfDay expected, params int[] hours)
+		{
+			var dateTimes = hours.Select(hour => new DateTime(2020, 1, 19, hour, 53, 27, DateTimeKind.Utc));
+
+			var actual = dateTimes.ToTimesOfDay();
 
 			Assert.Equal(expected, actual);
 		}
