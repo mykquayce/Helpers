@@ -12,10 +12,11 @@ namespace Microsoft.Extensions.DependencyInjection
 	{
 		private static readonly IFileProvider _fileProvider;
 
-		private static readonly IEnumerable<string> _paths = new string[2]
+		private static readonly IEnumerable<string> _paths = new string[3]
 		{
 			Path.Combine(Path.DirectorySeparatorChar.ToString(), "run", "secrets"),
 			new DirectoryInfo("Data").FullName,
+			new DirectoryInfo(".").FullName,
 		};
 
 		static DockerSecretConfigurationExtensions()
@@ -28,8 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
 					return;
 				}
 			}
-
-			throw new InvalidOperationException("Unable to find secrets directory");
 		}
 
 		/// <summary>
@@ -81,16 +80,19 @@ namespace Microsoft.Extensions.DependencyInjection
 
 			var file = _fileProvider.GetFileInfo(fileName);
 
-			var source = new DockerSecretConfigurationSource(configKey ?? fileName)
+			if (file.Exists)
 			{
-				FileProvider = _fileProvider,
-				Optional = optional,
-				Path = file.Name,
-				ReloadOnChange = reloadOnChange,
-			};
+				var source = new DockerSecretConfigurationSource(configKey ?? fileName)
+				{
+					FileProvider = _fileProvider,
+					Optional = optional,
+					Path = file.Name,
+					ReloadOnChange = reloadOnChange,
+				};
 
-			configurationBuilder
-				.Add(source);
+				configurationBuilder
+					.Add(source);
+			}
 
 			return configurationBuilder;
 		}
