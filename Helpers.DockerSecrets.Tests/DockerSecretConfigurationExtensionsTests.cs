@@ -86,6 +86,24 @@ namespace Helpers.DockerSecrets.Tests
 			}
 		}
 
+		[Theory]
+		[InlineData("ulhnfiprtasrfpauihlntrudaflpt")]
+		public void AddDockerSecret_AddMissingFile_DoesntThrowException(string fileName)
+		{
+			// Arrange
+			var configurationBuilder = new TestConfigurationBuilder();
+
+			// Assert
+			Assert.Empty(configurationBuilder.Sources);
+
+			// Act
+			configurationBuilder
+				.AddDockerSecret(fileName);
+
+			// Assert
+			Assert.Empty(configurationBuilder.Sources);
+		}
+
 		public class TestConfigurationBuilder : IConfigurationBuilder
 		{
 			public IDictionary<string, object> Properties => throw new NotImplementedException();
