@@ -1,31 +1,39 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
 	public class DockerSecretConfigurationProvider : FileConfigurationProvider
 	{
-		private readonly string _prefix;
+		private readonly string? _configKey;
 
-		public DockerSecretConfigurationProvider(string prefix, FileConfigurationSource source) : base(source)
+		public DockerSecretConfigurationProvider(FileConfigurationSource source, string? configKey = default)
+			: base(source)
 		{
-			_prefix = Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace().Value;
+			_configKey = Guard.Argument(() => configKey)
+				.ValidConfigKey()
+				.Value;
 		}
+
+		public new IDictionary<string, string> Data => base.Data;
 
 		public override void Load(Stream stream)
 		{
-			Guard.Argument(() => stream).NotNull().Require(s => s is FileStream).Require(s => ((FileStream)s).CanRead);
+			Guard.Argument(() => stream)
+				.NotNull()
+				.Require(s => s is FileStream)
+				.Require(s => s.CanRead, _ => nameof(stream) + " is readonly")
+				.Require(s => s.Length > 0, _ => nameof(stream) + " is empty");
 
-			var fileStream = (FileStream)stream;
-			var name = Path.GetFileName(fileStream.Name);
+			var key = _configKey ?? Path.GetFileName(((FileStream)stream).Name);
+			var value = GetStreamContents(stream);
 
-			Data.Add(
-				key: string.Concat(_prefix, ":", name),
-				value: GetStreamContents(stream));
+			Data.Add(key, value);
 		}
 
-		private static string GetStreamContents(Stream stream)
+		internal static string GetStreamContents(Stream stream)
 		{
 			using var reader = new StreamReader(stream);
 

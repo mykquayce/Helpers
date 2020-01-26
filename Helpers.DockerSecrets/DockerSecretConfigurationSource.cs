@@ -5,11 +5,13 @@ namespace Microsoft.Extensions.DependencyInjection
 {
 	public class DockerSecretConfigurationSource : FileConfigurationSource
 	{
-		private readonly string _prefix;
+		private readonly string? _configKey;
 
-		public DockerSecretConfigurationSource(string prefix)
+		public DockerSecretConfigurationSource(string? configKey = default)
 		{
-			_prefix = Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace().Value;
+			_configKey = Guard.Argument(() => configKey)
+				.ValidConfigKey()
+				.Value;
 		}
 
 		public override IConfigurationProvider Build(IConfigurationBuilder builder)
@@ -21,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				base.FileProvider = builder.GetFileProvider();
 			}
 
-			return new DockerSecretConfigurationProvider(_prefix, this);
+			return new DockerSecretConfigurationProvider(this, _configKey);
 		}
 	}
 }
