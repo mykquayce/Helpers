@@ -36,5 +36,22 @@ namespace Helpers.Cineworld.Models.Tests
 				Assert.NotEmpty(film.Title);
 			}
 		}
+
+		[Theory]
+		[InlineData("(2D) 1917", "1917")]
+		[InlineData("(3D) 1917", "1917 (_3d)")]
+		[InlineData("(IMAX) 1917", "1917 (Imax)")]
+		[InlineData("1917", "1917")]
+		public void FilmTypeTests_ToString(string title, string expected)
+		{
+			// Arrange
+			var film = new Generated.FilmType { Title = title, };
+
+			// Act
+			var actual = film.ToString();
+
+			// Assert
+			Assert.Equal(expected, actual);
+		}
 	}
 }

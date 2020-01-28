@@ -43,5 +43,17 @@ namespace Helpers.Cineworld.Models.Generated
 					break;
 			}
 		}
+
+		public override string ToString()
+		{
+			var formats = Formats & ~Enums.Formats._2d;
+
+			if (formats == Enums.Formats.None)
+			{
+				return this.Title;
+			}
+
+			return $"{Title} ({formats:G})";
+		}
 	}
 }
