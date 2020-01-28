@@ -1,131 +1,144 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
 	public static class DockerSecretConfigurationExtensions
 	{
-		private static readonly string _path = Path.Combine(Path.DirectorySeparatorChar.ToString(), "run", "secrets");
-		private static readonly DirectoryInfo _root = new DirectoryInfo(_path);
+		private static readonly IFileProvider _fileProvider;
+
+		private static readonly IEnumerable<string> _paths = new string[3]
+		{
+			Path.Combine(Path.DirectorySeparatorChar.ToString(), "run", "secrets"),
+			new DirectoryInfo("Data").FullName,
+			new DirectoryInfo(".").FullName,
+		};
+
+		static DockerSecretConfigurationExtensions()
+		{
+			foreach (var path in _paths)
+			{
+				if (Directory.Exists(path))
+				{
+					_fileProvider = new PhysicalFileProvider(path, ExclusionFilters.Sensitive);
+					return;
+				}
+			}
+		}
 
 		/// <summary>
-		/// Creates a config entry for each Docker secret with the name prefix:name
+		/// Creates a config entry for each Docker secret
 		/// </summary>
-		/// <param name="configuration"></param>
-		/// <param name="prefix"></param>
+		/// <param name="configurationBuilder"></param>
 		/// <param name="optional"></param>
 		/// <param name="reloadOnChange"></param>
 		/// <returns></returns>
 		public static IConfigurationBuilder AddDockerSecrets(
 			this IConfigurationBuilder configurationBuilder,
-			string prefix,
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
 			Guard.Argument(() => configurationBuilder).NotNull();
-			Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace();
 
-			foreach (var file in _root.EnumerateFiles())
+			foreach (var file in _fileProvider.GetDirectoryContents(string.Empty))
 			{
-				configurationBuilder.AddDockerSecret(file.Name, prefix, optional, reloadOnChange);
+				var configKey = file.Name;
+
+				configurationBuilder
+					.AddDockerSecret(file.Name, configKey, optional, reloadOnChange);
 			}
 
 			return configurationBuilder;
 		}
 
 		/// <summary>
-		/// Creates a config entry for the Docker secret with the name prefix:name
+		/// Creates a config entry for each Docker secret with the name: configKey ?? fileName
 		/// </summary>
 		/// <param name="configurationBuilder"></param>
-		/// <param name="prefix"></param>
-		/// <param name="name"></param>
+		/// <param name="fileName">The name of the file in /run/secrets</param>
+		/// <param name="configKey">The key of the config entry</param>
 		/// <param name="optional"></param>
 		/// <param name="reloadOnChange"></param>
 		/// <returns></returns>
 		public static IConfigurationBuilder AddDockerSecret(
 			this IConfigurationBuilder configurationBuilder,
-			string prefix,
-			string name,
+			string fileName,
+			string? configKey = default,
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
+			var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
 			Guard.Argument(() => configurationBuilder).NotNull();
-			Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => name).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => fileName).ValidFileName();
+			Guard.Argument(() => configKey).ValidConfigKey();
 
-			IFileProvider? fileProvider = _root.Exists && _root.EnumerateFiles().Any()
-				? new PhysicalFileProvider(_root.FullName)
-				: default;
+			var file = _fileProvider.GetFileInfo(fileName);
 
-			var configurationSource = new DockerSecretConfigurationSource(prefix)
+			if (file.Exists)
 			{
-				FileProvider = fileProvider,
-				Path = name,
-				Optional = optional,
-				ReloadOnChange = reloadOnChange,
-			};
+				var source = new DockerSecretConfigurationSource(configKey ?? fileName)
+				{
+					FileProvider = _fileProvider,
+					Optional = optional,
+					Path = file.Name,
+					ReloadOnChange = reloadOnChange,
+				};
 
-			configurationBuilder.Add(configurationSource);
+				configurationBuilder
+					.Add(source);
+			}
 
 			return configurationBuilder;
 		}
 
 
 		/// <summary>
-		/// Creates a config entry for each Docker secret with the name prefix:name
+		/// Creates a config entry for each Docker secret with the name: configKey ?? fileName
 		/// </summary>
 		/// <param name="configuration"></param>
-		/// <param name="prefix"></param>
 		/// <param name="optional"></param>
 		/// <param name="reloadOnChange"></param>
 		/// <returns></returns>
 		public static IConfiguration AddDockerSecrets(
 			this IConfiguration configuration,
-			string prefix,
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
 			Guard.Argument(() => configuration).NotNull();
-			Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace();
 
-			var configurationBuilder = new ConfigurationBuilder();
-
-			configurationBuilder.AddConfiguration(configuration);
-
-			foreach (var file in _root.EnumerateFiles())
-			{
-				configurationBuilder.AddDockerSecret(file.Name, prefix, optional, reloadOnChange);
-			}
-
-			return configurationBuilder.Build();
+			return new ConfigurationBuilder()
+				.AddConfiguration(configuration)
+				.AddDockerSecrets(optional, reloadOnChange)
+				.Build();
 		}
 
 		/// <summary>
-		/// Creates a config entry for the Docker secret with the name prefix:name
+		/// Creates a config entry for each Docker secret with the name: configKey ?? fileName
 		/// </summary>
 		/// <param name="configuration"></param>
-		/// <param name="prefix"></param>
-		/// <param name="name"></param>
+		/// <param name="fileName">The name of the file in /run/secrets</param>
+		/// <param name="configKey">The key of the config entry</param>
 		/// <param name="optional"></param>
 		/// <param name="reloadOnChange"></param>
 		/// <returns></returns>
 		public static IConfiguration AddDockerSecret(
 			this IConfiguration configuration,
-			string prefix,
-			string name,
+			string fileName,
+			string? configKey = default,
 			bool optional = false,
 			bool reloadOnChange = false)
 		{
 			Guard.Argument(() => configuration).NotNull();
-			Guard.Argument(() => prefix).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => name).NotNull().NotEmpty().NotWhiteSpace();
 
 			return new ConfigurationBuilder()
 				.AddConfiguration(configuration)
-				.AddDockerSecret(name, prefix, optional, reloadOnChange)
+				.AddDockerSecret(fileName, configKey, optional, reloadOnChange)
 				.Build();
 		}
 	}
