@@ -15,5 +15,6 @@ namespace Helpers.Cineworld.Models.Enums
 		ScreenX = 64,
 		SecretUnlimitedScreening = 128,
 		Subtitled = 256,
+		DementiaFriendlyScreening = 512,
 	}
 }
