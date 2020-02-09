@@ -2,7 +2,6 @@ using Dawn;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Helpers.RabbitMQ.Concrete
@@ -93,7 +92,7 @@ namespace Helpers.RabbitMQ.Concrete
 					throw new Exceptions.QueueEmptyException(queue);
 				}
 			}
-			catch(Exception exception)
+			catch (Exception exception)
 			{
 				exception.Data.Add(nameof(queue), queue);
 
