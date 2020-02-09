@@ -143,7 +143,19 @@ namespace Helpers.RabbitMQ.Concrete
 		{
 			if (_connection is null || !_connection.IsOpen)
 			{
-				_connection = _connectionFactory.CreateConnection();
+				try
+				{
+					_connection = _connectionFactory.CreateConnection();
+				}
+				catch (BrokerUnreachableException ex)
+				{
+					ex.Data.Add(nameof(queue), queue);
+					ex.Data.Add(nameof(IConnectionFactory.Uri), _connectionFactory.Uri?.OriginalString);
+					ex.Data.Add(nameof(IConnectionFactory.VirtualHost), _connectionFactory.VirtualHost);
+					ex.Data.Add(nameof(IConnectionFactory.UserName), _connectionFactory.UserName);
+
+					throw;
+				}
 			}
 
 			if (_model?.IsOpen == true)
