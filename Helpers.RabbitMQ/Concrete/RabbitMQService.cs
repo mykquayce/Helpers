@@ -2,7 +2,6 @@ using Dawn;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Helpers.RabbitMQ.Concrete
@@ -23,7 +22,7 @@ namespace Helpers.RabbitMQ.Concrete
 		private readonly IConnectionFactory _connectionFactory;
 
 		public RabbitMQService(
-			IRabbitMQSettings settings)
+			Models.RabbitMQSettings settings)
 		{
 			Guard.Argument(() => settings).NotNull();
 
@@ -93,7 +92,7 @@ namespace Helpers.RabbitMQ.Concrete
 					throw new Exceptions.QueueEmptyException(queue);
 				}
 			}
-			catch(Exception exception)
+			catch (Exception exception)
 			{
 				exception.Data.Add(nameof(queue), queue);
 
@@ -143,7 +142,19 @@ namespace Helpers.RabbitMQ.Concrete
 		{
 			if (_connection is null || !_connection.IsOpen)
 			{
-				_connection = _connectionFactory.CreateConnection();
+				try
+				{
+					_connection = _connectionFactory.CreateConnection();
+				}
+				catch (BrokerUnreachableException ex)
+				{
+					ex.Data.Add(nameof(queue), queue);
+					ex.Data.Add(nameof(IConnectionFactory.Uri), _connectionFactory.Uri?.OriginalString);
+					ex.Data.Add(nameof(IConnectionFactory.VirtualHost), _connectionFactory.VirtualHost);
+					ex.Data.Add(nameof(IConnectionFactory.UserName), _connectionFactory.UserName);
+
+					throw;
+				}
 			}
 
 			if (_model?.IsOpen == true)
