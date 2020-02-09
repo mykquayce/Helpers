@@ -23,7 +23,7 @@ namespace Helpers.RabbitMQ.Concrete
 		private readonly IConnectionFactory _connectionFactory;
 
 		public RabbitMQService(
-			IRabbitMQSettings settings)
+			Models.RabbitMQSettings settings)
 		{
 			Guard.Argument(() => settings).NotNull();
 
