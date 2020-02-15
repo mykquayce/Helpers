@@ -1,5 +1,9 @@
 ﻿using Dawn;
-using Microsoft.Extensions.Configuration;
+using Helpers.Jaeger.Models;
+using Jaeger;
+using Jaeger.Reporters;
+using Jaeger.Samplers;
+using Jaeger.Senders;
 using OpenTracing;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -24,11 +28,25 @@ namespace Microsoft.Extensions.DependencyInjection
 
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
-			Helpers.Jaeger.Models.Settings settings)
+			Settings settings)
 		{
 			Guard.Argument(() => settings).NotNull();
+			Guard.Argument(() => settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => settings.Host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => settings.Port).InRange(1, 65_535);
 
-			var tracer = new Helpers.Jaeger.JaegerTracer(settings);
+			var sender = new UdpSender(settings.Host, settings.Port, maxPacketSize: 0);
+
+			var reporter = new RemoteReporter.Builder()
+				.WithSender(sender)
+				.Build();
+
+			var sampler = new ConstSampler(sample: true);
+
+			var tracer = new Tracer.Builder(settings.ServiceName!)
+				.WithReporter(reporter)
+				.WithSampler(sampler)
+				.Build();
 
 			return services
 				.AddOpenTracing()
