@@ -1,5 +1,9 @@
 ﻿using Dawn;
-using Microsoft.Extensions.Configuration;
+using Helpers.Jaeger.Models;
+using Jaeger;
+using Jaeger.Reporters;
+using Jaeger.Samplers;
+using Jaeger.Senders;
 using OpenTracing;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -8,29 +12,15 @@ namespace Microsoft.Extensions.DependencyInjection
 	{
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
-			IConfiguration configuration)
-		{
-			Guard.Argument(() => configuration).NotNull();
-
-			var serviceName = configuration["serviceName"];
-			var host = configuration["host"];
-			var portString = configuration["port"];
-			var port = int.TryParse(portString, out var value) ? value : default;
-
-			return AddJaegerTracing(services, serviceName, host, port);
-		}
-
-		public static IServiceCollection AddJaegerTracing(
-			this IServiceCollection services,
 			string serviceName,
-			string? host = "localhost",
-			int? port = 6_831)
+			string? host = default,
+			int? port = default)
 		{
-			var settings = new Helpers.Jaeger.Models.Settings
+			var settings = new Settings
 			{
 				ServiceName = serviceName,
-				Host = host,
-				Port = port,
+				Host = host ?? Settings.DefaultHost,
+				Port = port ?? Settings.DefaultPort,
 			};
 
 			return AddJaegerTracing(services, settings);
@@ -38,11 +28,25 @@ namespace Microsoft.Extensions.DependencyInjection
 
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
-			Helpers.Jaeger.Models.Settings settings)
+			Settings settings)
 		{
 			Guard.Argument(() => settings).NotNull();
+			Guard.Argument(() => settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => settings.Host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => settings.Port).InRange(1, 65_535);
 
-			var tracer = new Helpers.Jaeger.JaegerTracer(settings);
+			var sender = new UdpSender(settings.Host, settings.Port, maxPacketSize: 0);
+
+			var reporter = new RemoteReporter.Builder()
+				.WithSender(sender)
+				.Build();
+
+			var sampler = new ConstSampler(sample: true);
+
+			var tracer = new Tracer.Builder(settings.ServiceName!)
+				.WithReporter(reporter)
+				.WithSampler(sampler)
+				.Build();
 
 			return services
 				.AddOpenTracing()
