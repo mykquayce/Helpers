@@ -64,7 +64,7 @@ namespace Helpers.Cineworld.Tests
 			// Assert
 			Assert.NotEqual(default, actual);
 			Assert.Equal(DateTimeKind.Utc, actual.Kind);
-			Assert.InRange(actual, now.AddDays(-1), now);
+			Assert.InRange(actual, now.AddDays(-1), now.AddMinutes(5));
 		}
 
 		[Fact]
