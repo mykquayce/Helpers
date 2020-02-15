@@ -8,20 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection
 	{
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
-			IConfiguration configuration)
-		{
-			Guard.Argument(() => configuration).NotNull();
-
-			var serviceName = configuration["serviceName"];
-			var host = configuration["host"];
-			var portString = configuration["port"];
-			var port = int.TryParse(portString, out var value) ? value : default;
-
-			return AddJaegerTracing(services, serviceName, host, port);
-		}
-
-		public static IServiceCollection AddJaegerTracing(
-			this IServiceCollection services,
 			string serviceName,
 			string? host = "localhost",
 			int? port = 6_831)
