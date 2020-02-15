@@ -79,6 +79,11 @@ namespace Helpers.Cineworld.Models
 				return (title[7..], formats | Formats._2d | Formats.MoviesForJuniors | Formats.Subtitled);
 			}
 
+			if (title.StartsWith("Dementia Friendly Screening "))
+			{
+				return (title[28..], formats | Formats._2d | Formats.DementiaFriendlyScreening);
+			}
+
 			return (title, formats | Formats._2d);
 		}
 

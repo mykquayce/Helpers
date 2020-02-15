@@ -8,6 +8,7 @@ namespace Helpers.Cineworld.Models.Tests
 		[InlineData("1917", "1917", Enums.Formats._2d)]
 		[InlineData("M4J A Shaun The Sheep Movie: Farmageddon", "Shaun The Sheep Movie: Farmageddon, A", Enums.Formats._2d | Enums.Formats.MoviesForJuniors)]
 		[InlineData("Bombshell : Unlimited Screening", "Bombshell", Enums.Formats._2d | Enums.Formats.SecretUnlimitedScreening)]
+		[InlineData("Dementia Friendly Screening Calamity Jane", "Calamity Jane", Enums.Formats._2d | Enums.Formats.DementiaFriendlyScreening)]
 		public void FilmTypeTests_Formats(string title, string expectedTitle, Enums.Formats expectedFormats)
 		{
 			// Arrange, Act
@@ -42,6 +43,7 @@ namespace Helpers.Cineworld.Models.Tests
 		[InlineData("(3D) 1917", "1917 (_3d)")]
 		[InlineData("(IMAX) 1917", "1917 (Imax)")]
 		[InlineData("1917", "1917")]
+		[InlineData("Dementia Friendly Screening Calamity Jane", "Calamity Jane (DementiaFriendlyScreening)")]
 		public void FilmTypeTests_ToString(string title, string expected)
 		{
 			// Arrange
