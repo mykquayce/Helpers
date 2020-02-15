@@ -9,14 +9,14 @@ namespace Microsoft.Extensions.DependencyInjection
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
 			string serviceName,
-			string? host = "localhost",
-			int? port = 6_831)
+			string? host = default,
+			int? port = default)
 		{
-			var settings = new Helpers.Jaeger.Models.Settings
+			var settings = new Settings
 			{
 				ServiceName = serviceName,
-				Host = host,
-				Port = port,
+				Host = host ?? Settings.DefaultHost,
+				Port = port ?? Settings.DefaultPort,
 			};
 
 			return AddJaegerTracing(services, settings);
