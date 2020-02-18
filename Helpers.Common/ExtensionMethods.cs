@@ -75,5 +75,39 @@ namespace Helpers.Common
 				return hash1 + (hash2 * 1_566_083_941);
 			}
 		}
+
+		public static IEnumerable<KeyValuePair<object, object?>> GetData(this Exception exception)
+		{
+			var enumerator = exception.Data.GetEnumerator();
+
+			while (enumerator.MoveNext())
+			{
+				var key = enumerator.Key;
+				var value = enumerator.Value;
+
+				yield return new KeyValuePair<object, object?>(key, value);
+			}
+
+			if (exception is AggregateException aggregateException)
+			{
+				foreach (var innerException in aggregateException.InnerExceptions)
+				{
+					foreach (var kvp in innerException.GetData())
+					{
+						yield return kvp;
+					}
+				}
+			}
+
+			if (exception.InnerException is null)
+			{
+				yield break;
+			}
+
+			foreach (var kvp in exception.InnerException.GetData())
+			{
+				yield return kvp;
+			}
+		}
 	}
 }

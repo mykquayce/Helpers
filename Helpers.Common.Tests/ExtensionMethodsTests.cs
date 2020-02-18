@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Helpers.Common.Tests
@@ -90,6 +91,53 @@ namespace Helpers.Common.Tests
 			Assert.Equal(
 				expected,
 				before.GetDeterministicHashCode());
+		}
+
+		[Fact]
+		public void GetData()
+		{
+			var inner = new Exception
+			{
+				Data =
+				{
+					["three"] = 3,
+					["four"] = 4,
+				},
+			};
+
+			var middle = new Exception(default, inner);
+
+			var outer = new Exception(default, middle)
+			{
+				Data =
+				{
+					["one"] = 1,
+					["two"] = 2,
+				},
+			};
+
+			// Act
+			var data = new Dictionary<object, object?>(outer.GetData());
+
+			// Assert
+			Assert.NotNull(data);
+			Assert.NotEmpty(data);
+			Assert.Equal(4, data!.Count);
+			Assert.Contains("one", data.Keys);
+			Assert.Contains("two", data.Keys);
+			Assert.Contains("three", data.Keys);
+			Assert.Contains("four", data.Keys);
+			Assert.Equal(1, data["one"]);
+			Assert.Equal(2, data["two"]);
+			Assert.Equal(3, data["three"]);
+			Assert.Equal(4, data["four"]);
+
+			var enumerator = data.GetEnumerator();
+
+			Assert.True(enumerator.MoveNext());
+
+			Assert.Equal("one", enumerator.Current.Key);
+			Assert.Equal(1, enumerator.Current.Value);
 		}
 	}
 }
