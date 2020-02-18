@@ -17,20 +17,12 @@ namespace Helpers.Tracing
 
 		public static ISpanBuilder BuildDefaultSpan(
 			this ITracer tracer,
-			[CallerFilePath] string? filePath = default,
-			[CallerMemberName] string? methodName = default)
+			[CallerMemberName] string? callerMethodName = default,
+			[CallerFilePath] string? callerFilePath = default)
 		{
 			if (tracer is null) throw new ArgumentNullException(nameof(tracer));
 
-			var fileName = Path.GetFileNameWithoutExtension(filePath);
-
-			var operationName = (fileName, methodName) switch
-			{
-				(null, null) => default,
-				(_, null) => fileName,
-				(null, _) => methodName,
-				_ => string.Concat(fileName, "=>", methodName),
-			};
+			var operationName = GetOperationName(callerMethodName, callerFilePath);
 
 			return tracer.BuildSpan(operationName);
 		}
