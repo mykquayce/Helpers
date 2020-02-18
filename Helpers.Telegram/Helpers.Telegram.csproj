@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.6" />
+    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.7" />
   </ItemGroup>
 
 </Project>
