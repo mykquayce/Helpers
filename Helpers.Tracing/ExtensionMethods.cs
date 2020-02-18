@@ -1,4 +1,5 @@
-﻿using OpenTracing;
+﻿using Helpers.Common;
+using OpenTracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -68,6 +69,8 @@ namespace Helpers.Tracing
 			if (span is null) throw new ArgumentNullException(nameof(span));
 			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
+			var data = exception.GetData();
+
 			return span
 				.SetTag(OpenTracing.Tag.Tags.Error, true)
 				.Log(
@@ -78,6 +81,7 @@ namespace Helpers.Tracing
 						[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
 						[LogFields.Message] = exception.Message,
 						[LogFields.Stack] = exception.StackTrace,
+						[nameof(Exception.Data)] = data.ToKeyValuePairString(),
 					});
 		}
 	}

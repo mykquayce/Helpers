@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Helpers.Common" Version="1.0.7" />
     <PackageReference Include="OpenTracing" Version="0.12.1" />
   </ItemGroup>
 
