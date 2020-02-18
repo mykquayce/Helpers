@@ -1,4 +1,5 @@
-﻿using OpenTracing;
+﻿using Helpers.Common;
+using OpenTracing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +9,6 @@ namespace Helpers.Tracing
 {
 	public static class ExtensionMethods
 	{
-		public static string? ReducePath(this string? path) =>
-			path?.Split(Path.DirectorySeparatorChar)[^1];
-
 		public static ISpanBuilder BuildDefaultSpan(
 			this ITracer tracer,
 			[CallerFilePath] string? filePath = default,
@@ -18,14 +16,14 @@ namespace Helpers.Tracing
 		{
 			if (tracer is null) throw new ArgumentNullException(nameof(tracer));
 
-			filePath = filePath?.ReducePath();
+			var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-			var operationName = (filePath, methodName) switch
+			var operationName = (fileName, methodName) switch
 			{
 				(null, null) => default,
-				(_, null) => filePath,
+				(_, null) => fileName,
 				(null, _) => methodName,
-				_ => string.Concat(filePath, "=>", methodName)
+				_ => string.Concat(fileName, "=>", methodName),
 			};
 
 			return tracer.BuildSpan(operationName);
@@ -71,6 +69,9 @@ namespace Helpers.Tracing
 			if (span is null) throw new ArgumentNullException(nameof(span));
 			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
+			var data = exception.GetData();
+			exception = exception.GetBaseException();
+
 			return span
 				.SetTag(OpenTracing.Tag.Tags.Error, true)
 				.Log(
@@ -81,6 +82,7 @@ namespace Helpers.Tracing
 						[LogFields.Event] = OpenTracing.Tag.Tags.Error.Key,
 						[LogFields.Message] = exception.Message,
 						[LogFields.Stack] = exception.StackTrace,
+						[nameof(Exception.Data)] = data.ToKeyValuePairString(),
 					});
 		}
 	}
