@@ -70,6 +70,7 @@ namespace Helpers.Tracing
 			if (exception is null) throw new ArgumentNullException(nameof(exception));
 
 			var data = exception.GetData();
+			exception = exception.GetBaseException();
 
 			return span
 				.SetTag(OpenTracing.Tag.Tags.Error, true)
