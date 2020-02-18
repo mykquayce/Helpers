@@ -28,7 +28,7 @@ namespace Helpers.Tracing.Tests
 				.Returns((string s) => new MockSpanBuilder(s));
 
 			// Act
-			var span = tracerMock.Object.BuildDefaultSpan(filePath, methodName);
+			var span = tracerMock.Object.BuildDefaultSpan(methodName, filePath);
 
 			// Assert
 			Assert.Equal(expected, (span as MockSpanBuilder)?.OperationName);
