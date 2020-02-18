@@ -1,5 +1,6 @@
 ﻿using Helpers.Common;
 using OpenTracing;
+using OpenTracing.Propagation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,11 @@ namespace Helpers.Tracing
 {
 	public static class ExtensionMethods
 	{
+		private readonly static IDictionary<string, string> _textMap = new Dictionary<string, string>(1)
+		{
+			["message"] = "hello world",
+		};
+
 		public static ISpanBuilder BuildDefaultSpan(
 			this ITracer tracer,
 			[CallerFilePath] string? filePath = default,
@@ -27,6 +33,46 @@ namespace Helpers.Tracing
 			};
 
 			return tracer.BuildSpan(operationName);
+		}
+
+		public static IScope StartParentSpan(
+			this ITracer tracer,
+			[CallerMemberName] string? callerMethodName = default,
+			[CallerFilePath] string? callerFilePath = default)
+		{
+			var operationName = GetOperationName(callerMethodName, callerFilePath);
+
+			var scope = tracer
+				.BuildSpan(operationName)
+				.StartActive();
+
+			tracer.Inject(
+				scope.Span.Context,
+				format: BuiltinFormats.TextMap,
+				carrier: new TextMapInjectAdapter(_textMap));
+
+			return scope;
+		}
+
+		public static IScope StartSpan(
+			this ITracer tracer,
+			[CallerMemberName] string? callerMethodName = default,
+			[CallerFilePath] string? callerFilePath = default)
+		{
+			var operationName = GetOperationName(callerMethodName, callerFilePath);
+
+			var context = tracer.Extract(
+				format: BuiltinFormats.TextMap,
+				carrier: new TextMapExtractAdapter(_textMap));
+
+			if (context is null)
+			{
+				return tracer.StartParentSpan(callerMethodName, callerFilePath);
+			}
+
+			return tracer.BuildSpan(operationName)
+				.AsChildOf(context)
+				.StartActive();
 		}
 
 		public static ISpan Log(this ISpan span, params (string, object?)[] keyValuePairs)
@@ -84,6 +130,19 @@ namespace Helpers.Tracing
 						[LogFields.Stack] = exception.StackTrace,
 						[nameof(Exception.Data)] = data.ToKeyValuePairString(),
 					});
+		}
+
+		private static string? GetOperationName(string? callerMethodName, string? callerFilePath)
+		{
+			var fileName = Path.GetFileNameWithoutExtension(callerFilePath);
+
+			return (fileName, callerMethodName) switch
+			{
+				(null, null) => default,
+				(_, null) => fileName!,
+				(null, _) => callerMethodName!,
+				_ => string.Concat(fileName!, "=>", callerMethodName!),
+			};
 		}
 	}
 }
