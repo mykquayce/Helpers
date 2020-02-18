@@ -5,14 +5,14 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>1.0.8.0</FileVersion>
-    <AssemblyVersion>1.0.8.0</AssemblyVersion>
-    <Version>1.0.8</Version>
+    <FileVersion>1.0.9.0</FileVersion>
+    <AssemblyVersion>1.0.9.0</AssemblyVersion>
+    <Version>1.0.9</Version>
     <Authors>bob</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.HttpClient" Version="1.0.16" />
+    <PackageReference Include="Helpers.HttpClient" Version="1.0.17" />
   </ItemGroup>
 
 </Project>
