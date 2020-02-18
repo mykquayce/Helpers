@@ -22,7 +22,7 @@ namespace Helpers.Tracing
 				(null, null) => default,
 				(_, null) => fileName,
 				(null, _) => methodName,
-				_ => string.Concat(fileName, "=>", methodName)
+				_ => string.Concat(fileName, "=>", methodName),
 			};
 
 			return tracer.BuildSpan(operationName);
