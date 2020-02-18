@@ -59,7 +59,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld", "Helper
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Tests", "Helpers.Cineworld.Tests\Helpers.Cineworld.Tests.csproj", "{E96ED8DB-BEE8-4526-A2A9-5F0B7D843C00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DockerSecrets.Tests", "Helpers.DockerSecrets.Tests\Helpers.DockerSecrets.Tests.csproj", "{80ECBFEA-2733-4201-956E-4B60A638C06C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerSecrets.Tests", "Helpers.DockerSecrets.Tests\Helpers.DockerSecrets.Tests.csproj", "{80ECBFEA-2733-4201-956E-4B60A638C06C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DawnGuard", "Helpers.DawnGuard\Helpers.DawnGuard.csproj", "{748C7556-5F53-44D9-AD47-1F2EF096EAB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DawnGuard.Tests", "Helpers.DawnGuard.Tests\Helpers.DawnGuard.Tests.csproj", "{8111A550-A6D5-421B-9DC2-A69C609459A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +175,14 @@ Global
 		{80ECBFEA-2733-4201-956E-4B60A638C06C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80ECBFEA-2733-4201-956E-4B60A638C06C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80ECBFEA-2733-4201-956E-4B60A638C06C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{748C7556-5F53-44D9-AD47-1F2EF096EAB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{748C7556-5F53-44D9-AD47-1F2EF096EAB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{748C7556-5F53-44D9-AD47-1F2EF096EAB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{748C7556-5F53-44D9-AD47-1F2EF096EAB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8111A550-A6D5-421B-9DC2-A69C609459A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8111A550-A6D5-421B-9DC2-A69C609459A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8111A550-A6D5-421B-9DC2-A69C609459A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8111A550-A6D5-421B-9DC2-A69C609459A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
