@@ -113,7 +113,7 @@ namespace Helpers.Tracing
 			return span
 				.SetTag(OpenTracing.Tag.Tags.Error, true)
 				.Log(
-					new Dictionary<string, object?>(5)
+					new Dictionary<string, object?>(6)
 					{
 						[LogFields.ErrorKind] = exception.GetType().FullName,
 						[LogFields.ErrorObject] = exception,
