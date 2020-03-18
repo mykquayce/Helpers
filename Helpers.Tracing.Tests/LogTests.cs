@@ -109,5 +109,57 @@ namespace Helpers.Tracing.Tests
 			Assert.Equal("inner", _logsDictionary[LogFields.Message]);
 			Assert.Equal("one=1;two=2;three=3;four=4;", _logsDictionary[nameof(System.Exception.Data)]);
 		}
+
+		[Theory]
+		[InlineData("hello world", 1)]
+		public void Object(string s, int i)
+		{
+			// Arrange
+			_logsDictionary.Clear();
+
+			var o = new Class { String = s, Int = i, };
+
+			// Act
+			_span.Log(o);
+
+			// Assert
+			Assert.NotEmpty(_logsDictionary);
+
+			Assert.Contains(nameof(Class.String), _logsDictionary.Keys);
+			Assert.Contains(nameof(Class.Int), _logsDictionary.Keys);
+
+			Assert.NotNull(_logsDictionary[nameof(Class.String)]);
+			Assert.NotNull(_logsDictionary[nameof(Class.Int)]);
+
+			Assert.Equal(s, _logsDictionary[nameof(Class.String)]);
+			Assert.Equal(i, _logsDictionary[nameof(Class.Int)]);
+		}
+
+		private class Class { public string? String { get; set; } public int? Int { get; set; } }
+
+		[Theory]
+		[InlineData("hello world", 1)]
+		public void Object_AnonymousObject(string s, int i)
+		{
+			// Arrange
+			_logsDictionary.Clear();
+
+			var o = new { s, i, };
+
+			// Act
+			_span.Log(o);
+
+			// Assert
+			Assert.NotEmpty(_logsDictionary);
+
+			Assert.Contains(nameof(s), _logsDictionary.Keys);
+			Assert.Contains(nameof(i), _logsDictionary.Keys);
+
+			Assert.NotNull(_logsDictionary[nameof(s)]);
+			Assert.NotNull(_logsDictionary[nameof(i)]);
+
+			Assert.Equal(s, _logsDictionary[nameof(s)]);
+			Assert.Equal(i, _logsDictionary[nameof(i)]);
+		}
 	}
 }

@@ -4,6 +4,8 @@ using OpenTracing.Propagation;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Helpers.Tracing
@@ -122,6 +124,26 @@ namespace Helpers.Tracing
 						[LogFields.Stack] = exception.StackTrace,
 						[nameof(Exception.Data)] = data.ToKeyValuePairString(),
 					});
+		}
+
+		private static readonly IDictionary<Type, ICollection<PropertyInfo>> _cache = new Dictionary<Type, ICollection<PropertyInfo>>();
+
+		public static ISpan Log(this ISpan span, object o)
+		{
+			var type = o.GetType();
+
+			if (!_cache.TryGetValue(type, out var properties))
+			{
+				properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+
+				_cache.Add(type, properties);
+			}
+
+			var dictionary = properties
+				.ToDictionary(p => p.Name, p => p.GetValue(o));
+
+			return span
+				.Log(dictionary);
 		}
 
 		private static string? GetOperationName(string? callerMethodName, string? callerFilePath)
