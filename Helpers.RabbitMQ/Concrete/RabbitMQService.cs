@@ -42,19 +42,28 @@ namespace Helpers.RabbitMQ.Concrete
 			};
 		}
 
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			System.GC.SuppressFinalize(obj: this);
-		}
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing) return;
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					_model?.Dispose();
+					_connection?.Dispose();
+				}
 
-			_model?.Dispose();
-			_connection?.Dispose();
+				disposedValue = true;
+			}
 		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
+		#endregion
 
 		#region Acknowledge
 		public void Acknowledge(ulong deliveryTag)
