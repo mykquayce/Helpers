@@ -128,9 +128,17 @@ namespace Helpers.Tracing
 
 		private static readonly IDictionary<Type, ICollection<PropertyInfo>> _cache = new Dictionary<Type, ICollection<PropertyInfo>>();
 
-		public static ISpan Log(this ISpan span, object o)
+		public static ISpan Log<T>(this ISpan span, T? o)
+			where T : class
 		{
-			var type = o.GetType();
+			if (o is null) return span;
+
+			if (o is Exception exception)
+			{
+				return Log(span, exception);
+			}
+
+			var type = typeof(T);
 
 			if (!_cache.TryGetValue(type, out var properties))
 			{
