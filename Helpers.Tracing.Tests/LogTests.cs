@@ -136,5 +136,30 @@ namespace Helpers.Tracing.Tests
 		}
 
 		private class Class { public string? String { get; set; } public int? Int { get; set; } }
+
+		[Theory]
+		[InlineData("hello world", 1)]
+		public void Object_AnonymousObject(string s, int i)
+		{
+			// Arrange
+			_logsDictionary.Clear();
+
+			var o = new { s, i, };
+
+			// Act
+			_span.Log(o);
+
+			// Assert
+			Assert.NotEmpty(_logsDictionary);
+
+			Assert.Contains(nameof(s), _logsDictionary.Keys);
+			Assert.Contains(nameof(i), _logsDictionary.Keys);
+
+			Assert.NotNull(_logsDictionary[nameof(s)]);
+			Assert.NotNull(_logsDictionary[nameof(i)]);
+
+			Assert.Equal(s, _logsDictionary[nameof(s)]);
+			Assert.Equal(i, _logsDictionary[nameof(i)]);
+		}
 	}
 }
