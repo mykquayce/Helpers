@@ -1,4 +1,6 @@
 using Dawn;
+using Helpers.Tracing;
+using OpenTracing;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -19,18 +21,33 @@ namespace Helpers.RabbitMQ.Concrete
 
 		private IConnection? _connection;
 		private IModel? _model;
+		private readonly ITracer? _tracer;
 		private readonly IConnectionFactory _connectionFactory;
 
 		public RabbitMQService(
-			Models.RabbitMQSettings settings)
+			Models.RabbitMQSettings settings,
+			ITracer? tracer = default)
 		{
-			Guard.Argument(() => settings).NotNull();
+			_tracer = tracer;
 
-			Guard.Argument(() => settings.HostName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.Port).InRange(1, 65_535);
-			Guard.Argument(() => settings.UserName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.Password).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.VirtualHost).NotNull().NotEmpty().NotWhiteSpace();
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(settings);
+
+			try
+			{
+				Guard.Argument(() => settings).NotNull();
+
+				Guard.Argument(() => settings.HostName).NotNull().NotEmpty().NotWhiteSpace();
+				Guard.Argument(() => settings.Port).InRange(1, 65_535);
+				Guard.Argument(() => settings.UserName).NotNull().NotEmpty().NotWhiteSpace();
+				Guard.Argument(() => settings.Password, secure: true).NotNull().NotEmpty().NotWhiteSpace();
+				Guard.Argument(() => settings.VirtualHost).NotNull().NotEmpty().NotWhiteSpace();
+			}
+			catch (Exception ex)
+			{
+				scope?.Span.Log(ex);
+				throw;
+			}
 
 			_connectionFactory = new ConnectionFactory
 			{
@@ -42,23 +59,35 @@ namespace Helpers.RabbitMQ.Concrete
 			};
 		}
 
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			System.GC.SuppressFinalize(obj: this);
-		}
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing) return;
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					_model?.Dispose();
+					_connection?.Dispose();
+				}
 
-			_model?.Dispose();
-			_connection?.Dispose();
+				disposedValue = true;
+			}
 		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
+		#endregion
 
 		#region Acknowledge
 		public void Acknowledge(ulong deliveryTag)
 		{
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(nameof(deliveryTag), deliveryTag);
+
 			Guard.Argument(() => deliveryTag).NotDefault();
 
 			Connect();
@@ -70,6 +99,9 @@ namespace Helpers.RabbitMQ.Concrete
 		#region Consume
 		public (byte[] bytes, ulong deliveryTag) Consume(string queue)
 		{
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(nameof(queue), queue);
+
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 
 			Connect(queue);
@@ -96,20 +128,33 @@ namespace Helpers.RabbitMQ.Concrete
 			{
 				exception.Data.Add(nameof(queue), queue);
 
+				scope?.Span.Log(exception);
+
 				throw;
 			}
 
 			Guard.Argument(() => result).NotNull();
 			Guard.Argument(() => result.Body).NotNull().NotEmpty();
 
+			scope?.Span.Log(result);
+
 			return (result.Body, result.DeliveryTag);
 		}
 
 		public (T value, ulong deliveryTag) Consume<T>(string queue)
 		{
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(nameof(queue), queue);
+
 			var (bytes, deliveryTag) = Consume(queue);
 
+			scope?.Span.Log(
+				nameof(bytes), bytes,
+				nameof(deliveryTag), deliveryTag);
+
 			var value = JsonSerializer.Deserialize<T>(bytes, _jsonSerializerOptions);
+
+			scope?.Span.Log(value);
 
 			return (value, deliveryTag);
 		}
@@ -118,6 +163,11 @@ namespace Helpers.RabbitMQ.Concrete
 		#region Publish
 		public void Publish(string queue, byte[] bytes)
 		{
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(
+				nameof(queue), queue,
+				nameof(bytes), bytes);
+
 			Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => bytes).NotNull().NotEmpty();
 
@@ -140,6 +190,9 @@ namespace Helpers.RabbitMQ.Concrete
 
 		public void Connect(string? queue = default)
 		{
+			using var scope = _tracer?.StartSpan();
+			scope?.Span.Log(nameof(queue), queue);
+
 			if (_connection is null || !_connection.IsOpen)
 			{
 				try
@@ -152,6 +205,8 @@ namespace Helpers.RabbitMQ.Concrete
 					ex.Data.Add(nameof(IConnectionFactory.Uri), _connectionFactory.Uri?.OriginalString);
 					ex.Data.Add(nameof(IConnectionFactory.VirtualHost), _connectionFactory.VirtualHost);
 					ex.Data.Add(nameof(IConnectionFactory.UserName), _connectionFactory.UserName);
+
+					scope?.Span.Log(ex);
 
 					throw;
 				}

@@ -4,15 +4,16 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <FileVersion>1.1.1.0</FileVersion>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <Version>1.1.1</Version>
+    <FileVersion>1.1.2.0</FileVersion>
+    <AssemblyVersion>1.1.2.0</AssemblyVersion>
+    <Version>1.1.2</Version>
     <Authors>bob</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.10.0" />
+    <PackageReference Include="Dawn.Guard" Version="1.11.0" />
     <PackageReference Include="Helpers.Common" Version="1.0.7" />
+    <PackageReference Include="Helpers.Tracing" Version="1.0.16" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
