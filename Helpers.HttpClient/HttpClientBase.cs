@@ -28,7 +28,6 @@ namespace Helpers.HttpClient
 			WriteIndented = true,
 		};
 
-		private readonly string _name;
 		private readonly HttpMessageInvoker _httpMessageInvoker;
 		private readonly ILogger? _logger;
 		private readonly ITracer? _tracer;
@@ -37,22 +36,29 @@ namespace Helpers.HttpClient
 			IHttpClientFactory httpClientFactory,
 			ILogger? logger = default,
 			ITracer? tracer = default)
+			: this(logger, tracer)
 		{
-			Guard.Argument(() => httpClientFactory).NotNull();
+			var name = this.GetType().Name;
+			var httpClient = httpClientFactory.CreateClient(name);
+			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
+		}
 
+		protected HttpClientBase(
+			System.Net.Http.HttpClient httpClient,
+			ILogger? logger = default,
+			ITracer? tracer = default)
+			: this(logger, tracer)
+		{
+			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
+		}
+
+		protected HttpClientBase(
+			ILogger? logger = default,
+			ITracer? tracer = default)
+		{
 			_logger = logger;
 			_tracer = tracer;
-
-			_name = this.GetType().Name;
-
-			var httpClient = httpClientFactory.CreateClient(_name);
-
-			Guard.Argument(() => httpClient).NotNull();
-			Guard.Argument(() => httpClient.BaseAddress)
-				.NotNull()
-				.Require(u => !string.IsNullOrWhiteSpace(u.OriginalString), _ => nameof(httpClientFactory) + " has a blank base address");
-
-			_httpMessageInvoker = httpClient;
+			_httpMessageInvoker = new System.Net.Http.HttpClient();
 		}
 
 		#region IDisposable implementation
