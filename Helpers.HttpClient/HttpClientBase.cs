@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using OpenTracing;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -28,7 +26,6 @@ namespace Helpers.HttpClient
 			WriteIndented = true,
 		};
 
-		private readonly string _name;
 		private readonly HttpMessageInvoker _httpMessageInvoker;
 		private readonly ILogger? _logger;
 		private readonly ITracer? _tracer;
@@ -37,68 +34,90 @@ namespace Helpers.HttpClient
 			IHttpClientFactory httpClientFactory,
 			ILogger? logger = default,
 			ITracer? tracer = default)
+			: this(logger, tracer)
 		{
-			Guard.Argument(() => httpClientFactory).NotNull();
-
-			_logger = logger;
-			_tracer = tracer;
-
-			_name = this.GetType().Name;
-
-			var httpClient = httpClientFactory.CreateClient(_name);
-
-			Guard.Argument(() => httpClient).NotNull();
-			Guard.Argument(() => httpClient.BaseAddress)
-				.NotNull()
-				.Require(u => !string.IsNullOrWhiteSpace(u.OriginalString), _ => nameof(httpClientFactory) + " has a blank base address");
-
-			_httpMessageInvoker = httpClient;
+			var name = this.GetType().Name;
+			var httpClient = httpClientFactory.CreateClient(name);
+			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
 		}
 
+		protected HttpClientBase(
+			System.Net.Http.HttpClient httpClient,
+			ILogger? logger = default,
+			ITracer? tracer = default)
+			: this(logger, tracer)
+		{
+			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
+		}
+
+		protected HttpClientBase(
+			ILogger? logger = default,
+			ITracer? tracer = default)
+		{
+			_logger = logger;
+			_tracer = tracer;
+			_httpMessageInvoker = new System.Net.Http.HttpClient();
+		}
+
+		#region IDisposable implementation
+		private bool _disposedValue;
 		public void Dispose()
 		{
 			Dispose(disposing: true);
-			GC.SuppressFinalize(obj: this);
 		}
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (!_disposedValue)
 			{
-				_httpMessageInvoker?.Dispose();
+				if (disposing)
+				{
+					_httpMessageInvoker?.Dispose();
+				}
+
+				_disposedValue = true;
 			}
 		}
+		#endregion IDisposable implementation
 
-		protected async Task<(HttpStatusCode, T, IDictionary<string, IEnumerable<string>>)> SendAsync<T>(
+		protected async Task<Models.IResponse<T>> SendAsync<T>(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
-			[CallerMemberName] string? methodName = default)
+			[CallerMemberName] string? callerMemberName = default,
+			[CallerFilePath] string? callerFilePath = default)
+			where T : class
 		{
-			var (httpStatusCode, stream, headers) = await SendAsync(httpMethod, uri, body, methodName);
+			var response = await SendAsync(httpMethod, uri, body, callerMemberName, callerFilePath);
 
-			var value = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
+			using var stream = await response.TaskStream!;
 
-			return (httpStatusCode, value, headers);
+			var o = await JsonSerializer.DeserializeAsync<T>(stream);
+
+			return new Models.Concrete.Response<T>
+			{
+				Headers = response.Headers,
+				StatusCode = response.StatusCode,
+				Object = o,
+			};
 		}
 
-		protected async Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
+		protected async Task<Models.IResponse> SendAsync(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
-			[CallerMemberName] string? methodName = default)
+			[CallerMemberName] string? callerMemberName = default,
+			[CallerFilePath] string? callerFilePath = default)
 		{
 			Guard.Argument(() => httpMethod).NotNull()
-				.Require(m => !string.IsNullOrWhiteSpace(m.Method), _ => nameof(httpMethod) + " is blank");
-			Guard.Argument(() => uri)
-				.NotNull()
-				.Require(u => !string.IsNullOrWhiteSpace(u.OriginalString), _ => nameof(uri) + " is blank");
+				.Wrap(m => m.Method).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => uri).NotNull()
+				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
-			using var scope = _tracer?.BuildSpan($"{_name}=>{methodName}")
-				.WithTag(nameof(httpMethod), httpMethod.Method)
-				.WithTag(nameof(uri), uri.OriginalString)
-				.WithTag(nameof(body), body)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan(callerMemberName, callerFilePath);
+			scope?.Span.SetTag(nameof(httpMethod), httpMethod.Method);
+			scope?.Span.SetTag(nameof(uri), uri.OriginalString);
+			scope?.Span.SetTag(nameof(body), body);
 
 			_logger?.LogInformation(
 				new Dictionary<string, object?>(3)
@@ -117,36 +136,53 @@ namespace Helpers.HttpClient
 				httpRequestMessage.Content = requestContent;
 			}
 
-			HttpResponseMessage httpResponseMessage;
+			return await SendAsync(httpRequestMessage);
+		}
+
+		protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
+		{
+			HttpResponseMessage response;
 
 			try
 			{
-				httpResponseMessage = await _httpMessageInvoker.SendAsync(httpRequestMessage, CancellationToken.None);
+				response = await _httpMessageInvoker.SendAsync(request, CancellationToken.None);
 			}
 			catch (Exception exception)
 			{
-				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress;
+				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress.OriginalString;
 
-				exception.Data.Add(nameof(httpMethod), httpMethod.Method);
+				string? body = request.Content is null
+					? null
+					: await request.Content.ReadAsStringAsync();
+
 				exception.Data.Add(nameof(baseAddress), baseAddress);
-				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
+				exception.Data.Add(nameof(request.Method), request.Method);
+				exception.Data.Add(nameof(request.RequestUri), request.RequestUri.OriginalString);
 
-				scope?.Span.Log(exception);
+				_tracer?.ActiveSpan?.Log(exception);
 
-				_logger?.LogError(exception, "{0}={1}, {2}={3}, {4}={5}", nameof(httpMethod), httpMethod.Method, nameof(uri), uri.OriginalString, nameof(body), body);
+				_logger?.LogError(exception,
+					"{0}={1}, {2}={3}, {4}={5}",
+					nameof(request.Method), request.Method,
+					nameof(request.RequestUri), request.RequestUri.OriginalString,
+					nameof(body), body);
 
 				throw;
 			}
 
-			var responseStatusCode = httpResponseMessage.StatusCode;
-			var responseContent = await httpResponseMessage.Content.ReadAsStreamAsync();
+			var headers = new Dictionary<string, IEnumerable<string>>();
 
-			var headers = new Dictionary<string, IEnumerable<string>>(StringComparer.InvariantCultureIgnoreCase)
-				.AddRange(httpResponseMessage.Headers)
-				.AddRange(httpResponseMessage.Content.Headers);
+			headers
+				.AddRange(response.Headers)
+				.AddRange(response.Content.Headers);
 
-			return (responseStatusCode, responseContent, headers);
+			return new Models.Concrete.Response
+			{
+				Headers = headers,
+				StatusCode = response.StatusCode,
+				TaskStream = response.Content.ReadAsStreamAsync(),
+			};
 		}
 	}
 }
