@@ -56,17 +56,22 @@ namespace Helpers.HttpClient
 		}
 
 		#region IDisposable implementation
+		private bool _disposedValue;
 		public void Dispose()
 		{
 			Dispose(disposing: true);
-			GC.SuppressFinalize(obj: this);
 		}
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing)
+			if (!_disposedValue)
 			{
-				_httpMessageInvoker?.Dispose();
+				if (disposing)
+				{
+					_httpMessageInvoker?.Dispose();
+				}
+
+				_disposedValue = true;
 			}
 		}
 		#endregion IDisposable implementation
