@@ -69,21 +69,29 @@ namespace Helpers.HttpClient
 			}
 		}
 
-		protected async Task<(HttpStatusCode, T, IDictionary<string, IEnumerable<string>>)> SendAsync<T>(
+		protected async Task<Models.IResponse<T>> SendAsync<T>(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
 			[CallerMemberName] string? callerMemberName = default,
 			[CallerFilePath] string? callerFilePath = default)
+			where T : class
 		{
 			var response = await SendAsync(httpMethod, uri, body, callerMemberName, callerFilePath);
 
-			var value = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
+			using var stream = await response.TaskStream!;
 
-			return (httpStatusCode, value, headers);
+			var o = await JsonSerializer.DeserializeAsync<T>(stream);
+
+			return new Models.Concrete.Response<T>
+			{
+				Headers = response.Headers,
+				StatusCode = response.StatusCode,
+				Object = o,
+			};
 		}
 
-		protected async Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
+		protected async Task<Models.IResponse> SendAsync(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
@@ -117,36 +125,50 @@ namespace Helpers.HttpClient
 				httpRequestMessage.Content = requestContent;
 			}
 
-			HttpResponseMessage httpResponseMessage;
+			return await SendAsync(httpRequestMessage);
+		}
+
+		protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
+		{
+			HttpResponseMessage response;
 
 			try
 			{
-				httpResponseMessage = await _httpMessageInvoker.SendAsync(httpRequestMessage, CancellationToken.None);
+				response = await _httpMessageInvoker.SendAsync(request, CancellationToken.None);
 			}
 			catch (Exception exception)
 			{
-				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress;
+				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress.OriginalString;
+				var body = await request.Content.ReadAsStringAsync();
 
-				exception.Data.Add(nameof(httpMethod), httpMethod.Method);
 				exception.Data.Add(nameof(baseAddress), baseAddress);
-				exception.Data.Add(nameof(uri), uri.OriginalString);
 				exception.Data.Add(nameof(body), body);
+				exception.Data.Add(nameof(request.Method), request.Method);
+				exception.Data.Add(nameof(request.RequestUri), request.RequestUri.OriginalString);
 
-				scope?.Span.Log(exception);
+				_tracer?.ActiveSpan?.Log(exception);
 
-				_logger?.LogError(exception, "{0}={1}, {2}={3}, {4}={5}", nameof(httpMethod), httpMethod.Method, nameof(uri), uri.OriginalString, nameof(body), body);
+				_logger?.LogError(exception,
+					"{0}={1}, {2}={3}, {4}={5}",
+					nameof(request.Method), request.Method,
+					nameof(request.RequestUri), request.RequestUri.OriginalString,
+					nameof(body), body);
 
 				throw;
 			}
 
-			var responseStatusCode = httpResponseMessage.StatusCode;
-			var responseContent = await httpResponseMessage.Content.ReadAsStreamAsync();
+			var headers = new Dictionary<string, IEnumerable<string>>();
 
-			var headers = new Dictionary<string, IEnumerable<string>>(StringComparer.InvariantCultureIgnoreCase)
-				.AddRange(httpResponseMessage.Headers)
-				.AddRange(httpResponseMessage.Content.Headers);
+			headers
+				.AddRange(response.Headers)
+				.AddRange(response.Content.Headers);
 
-			return (responseStatusCode, responseContent, headers);
+			return new Models.Concrete.Response
+			{
+				Headers = headers,
+				StatusCode = response.StatusCode,
+				TaskStream = response.Content.ReadAsStreamAsync(),
+			};
 		}
 	}
 }
