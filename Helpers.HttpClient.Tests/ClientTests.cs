@@ -113,6 +113,18 @@ namespace Helpers.HttpClient.Tests
 
 			return await reader.ReadToEndAsync();
 		}
+
+		[Theory]
+		[InlineData("https://www.httpbin.org/get")]
+		public async Task Test(string uriString)
+		{
+			// Arrange
+			var uri = new Uri(uriString, UriKind.Absolute);
+			using var client = new HttpClient();
+
+			// Act
+			var (statusCode, stream, headers) = await client.SendAsync(HttpMethod.Get, uri);
+		}
 	}
 
 	public class HttpClient : HttpClientBase
@@ -122,13 +134,22 @@ namespace Helpers.HttpClient.Tests
 			: base(httpClientFactory)
 		{ }
 
-		public new Task<(HttpStatusCode, Stream, IDictionary<string, IEnumerable<string>>)> SendAsync(
+		public HttpClient(
+			System.Net.Http.HttpClient httpClient)
+			: base(httpClient)
+		{ }
+
+		public HttpClient() { }
+
+		public async Task<(HttpStatusCode, Stream, IReadOnlyDictionary<string, IEnumerable<string>>)> SendAsync(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
 			[CallerMemberName] string? methodName = default)
 		{
-			return base.SendAsync(httpMethod, uri, body, methodName);
+			var response = await base.SendAsync(httpMethod, uri, body, methodName);
+
+			return (response.StatusCode!.Value, await response.TaskStream!, response.Headers!);
 		}
 	}
 }
