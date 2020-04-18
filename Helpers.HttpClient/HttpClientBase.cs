@@ -73,9 +73,10 @@ namespace Helpers.HttpClient
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
-			[CallerMemberName] string? methodName = default)
+			[CallerMemberName] string? callerMemberName = default,
+			[CallerFilePath] string? callerFilePath = default)
 		{
-			var (httpStatusCode, stream, headers) = await SendAsync(httpMethod, uri, body, methodName);
+			var response = await SendAsync(httpMethod, uri, body, callerMemberName, callerFilePath);
 
 			var value = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
 
@@ -86,18 +87,18 @@ namespace Helpers.HttpClient
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
-			[CallerMemberName] string? methodName = default)
+			[CallerMemberName] string? callerMemberName = default,
+			[CallerFilePath] string? callerFilePath = default)
 		{
 			Guard.Argument(() => httpMethod).NotNull()
 				.Wrap(m => m.Method).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => uri).NotNull()
 				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
-			using var scope = _tracer?.BuildSpan($"{_name}=>{methodName}")
-				.WithTag(nameof(httpMethod), httpMethod.Method)
-				.WithTag(nameof(uri), uri.OriginalString)
-				.WithTag(nameof(body), body)
-				.StartActive(finishSpanOnDispose: true);
+			using var scope = _tracer?.StartSpan(callerMemberName, callerFilePath);
+			scope?.Span.SetTag(nameof(httpMethod), httpMethod.Method);
+			scope?.Span.SetTag(nameof(uri), uri.OriginalString);
+			scope?.Span.SetTag(nameof(body), body);
 
 			_logger?.LogInformation(
 				new Dictionary<string, object?>(3)
