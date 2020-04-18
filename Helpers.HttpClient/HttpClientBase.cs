@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using OpenTracing;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -152,7 +150,10 @@ namespace Helpers.HttpClient
 			catch (Exception exception)
 			{
 				var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress.OriginalString;
-				var body = await request.Content.ReadAsStringAsync();
+
+				string? body = request.Content is null
+					? null
+					: await request.Content.ReadAsStringAsync();
 
 				exception.Data.Add(nameof(baseAddress), baseAddress);
 				exception.Data.Add(nameof(body), body);
