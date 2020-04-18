@@ -1,6 +1,8 @@
 ﻿using Dawn;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Helpers.Common
@@ -40,7 +42,10 @@ namespace Helpers.Common
 			{
 				var (key, value) = enumerator.Current;
 
-				dictionary.Add(key, value);
+				if (!dictionary.TryAdd(key, value))
+				{
+					dictionary[key] = value;
+				}
 			}
 
 			return dictionary;
@@ -107,6 +112,48 @@ namespace Helpers.Common
 			foreach (var kvp in exception.InnerException.GetData())
 			{
 				yield return kvp;
+			}
+		}
+
+		public static string ToCsvString(this IDictionary dictionary)
+		{
+			var sb = new StringBuilder();
+
+			var enumerator = dictionary.GetEnumerator();
+
+			while (enumerator.MoveNext())
+			{
+				sb.Append($"{enumerator.Key}={enumerator.Value};");
+			}
+
+			var s = sb.ToString();
+
+			if (s.Length > 0)
+			{
+				return s[..^1];
+			}
+
+			return string.Empty;
+		}
+
+		public static IDictionary<TKey, TValue> Add<TKey, TValue>(IDictionary<TKey, TValue> dictionary, params TValue[] values)
+		{
+			return dictionary;
+		}
+
+		public static IEnumerable<FileSystemInfo> EnumerateFileSystemInfosLeafFirst(this DirectoryInfo dir, string searchPattern = "*.*")
+		{
+			foreach (var fsi in dir.EnumerateFileSystemInfos(searchPattern, SearchOption.TopDirectoryOnly))
+			{
+				if (fsi is DirectoryInfo subDirectory)
+				{
+					foreach (var nested in subDirectory.EnumerateFileSystemInfosLeafFirst(searchPattern))
+					{
+						yield return nested;
+					}
+				}
+
+				yield return fsi;
 			}
 		}
 	}

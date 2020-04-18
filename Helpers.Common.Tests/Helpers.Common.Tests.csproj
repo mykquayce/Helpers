@@ -21,4 +21,9 @@
     <ProjectReference Include="..\Helpers.Common\Helpers.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="1\11\111\" />
+    <Folder Include="1\12\121\1211\" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace Helpers.Common.Tests
@@ -139,5 +141,29 @@ namespace Helpers.Common.Tests
 			Assert.Equal("one", enumerator.Current.Key);
 			Assert.Equal(1, enumerator.Current.Value);
 		}
+
+		[Fact]
+		public void EnumerateFileSystemInfosLeafFirstTest()
+		{
+			// Arrange
+			var path = Path.Combine(GetClassDirectory(), "1");
+			var root = new DirectoryInfo(path);
+
+			// Act
+			var directories = root.EnumerateFileSystemInfosLeafFirst().ToList();
+
+			// Assert
+			Assert.NotNull(directories);
+			Assert.NotEmpty(directories);
+			Assert.Equal(5, directories.Count);
+			Assert.Equal("111",  directories[0].Name);
+			Assert.Equal("11",   directories[1].Name);
+			Assert.Equal("1211", directories[2].Name);
+			Assert.Equal("121",  directories[3].Name);
+			Assert.Equal("12",   directories[4].Name);
+		}
+
+		private static string GetClassDirectory([CallerFilePath] string? callerFilePath = default)
+			=> Path.GetDirectoryName(callerFilePath)!;
 	}
 }

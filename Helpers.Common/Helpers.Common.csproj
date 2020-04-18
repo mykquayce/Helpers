@@ -5,14 +5,14 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.7</Version>
-    <FileVersion>1.0.7.0</FileVersion>
-    <AssemblyVersion>1.0.7.0</AssemblyVersion>
+    <Version>1.0.8</Version>
+    <FileVersion>1.0.8.0</FileVersion>
+    <AssemblyVersion>1.0.8.0</AssemblyVersion>
     <Authors>bob</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.10.0" />
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
   </ItemGroup>
 
 </Project>
