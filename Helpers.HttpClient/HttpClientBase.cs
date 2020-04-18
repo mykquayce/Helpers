@@ -89,10 +89,9 @@ namespace Helpers.HttpClient
 			[CallerMemberName] string? methodName = default)
 		{
 			Guard.Argument(() => httpMethod).NotNull()
-				.Require(m => !string.IsNullOrWhiteSpace(m.Method), _ => nameof(httpMethod) + " is blank");
-			Guard.Argument(() => uri)
-				.NotNull()
-				.Require(u => !string.IsNullOrWhiteSpace(u.OriginalString), _ => nameof(uri) + " is blank");
+				.Wrap(m => m.Method).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => uri).NotNull()
+				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
 			using var scope = _tracer?.BuildSpan($"{_name}=>{methodName}")
 				.WithTag(nameof(httpMethod), httpMethod.Method)
