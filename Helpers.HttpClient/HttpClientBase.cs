@@ -55,6 +55,7 @@ namespace Helpers.HttpClient
 			_httpMessageInvoker = httpClient;
 		}
 
+		#region IDisposable implementation
 		public void Dispose()
 		{
 			Dispose(disposing: true);
@@ -68,6 +69,7 @@ namespace Helpers.HttpClient
 				_httpMessageInvoker?.Dispose();
 			}
 		}
+		#endregion IDisposable implementation
 
 		protected async Task<Models.IResponse<T>> SendAsync<T>(
 			HttpMethod httpMethod,
