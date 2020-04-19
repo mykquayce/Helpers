@@ -1,0 +1,8 @@
+﻿namespace Helpers.Slack.Models
+{
+	public class Settings
+	{
+		public string? Token { get; set; }
+		public string[]? WebhookSegments { get; set; }
+	}
+}
