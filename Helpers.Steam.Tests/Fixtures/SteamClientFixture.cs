@@ -9,7 +9,7 @@ namespace Helpers.Steam.Tests.Fixtures
 		{
 			var userSecretsFixture = new Fixtures.UserSecretsFixture();
 
-			var settings = new Models.Settings { Key = userSecretsFixture.Key, };
+			var settings = new Config.Settings { Key = userSecretsFixture.SteamKey, };
 
 			var optionsSettings = Options.Create(settings);
 
@@ -18,9 +18,6 @@ namespace Helpers.Steam.Tests.Fixtures
 
 		public ISteamClient SteamClient { get; }
 
-		public void Dispose()
-		{
-			SteamClient?.Dispose();
-		}
+		public void Dispose() => SteamClient?.Dispose();
 	}
 }

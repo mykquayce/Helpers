@@ -1,4 +1,4 @@
-﻿namespace Helpers.Steam.Models
+﻿namespace Helpers.Steam.Config
 {
 	public class Settings
 	{

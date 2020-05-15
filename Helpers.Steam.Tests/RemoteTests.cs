@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace Helpers.Steam.Tests
 				.Wrap(f => f.HttpClient).NotNull().Value;
 
 			_key = Guard.Argument(() => userSecretsFixture).NotNull()
-				.Wrap(f => f.Key).NotNull().NotEmpty().NotWhiteSpace().Value;
+				.Wrap(f => f.SteamKey).NotNull().NotEmpty().NotWhiteSpace().Value;
 
 			_steamIds = Guard.Argument(() => userSecretsFixture).NotNull()
 				.Wrap(f => f.SteamIds).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
@@ -35,7 +36,7 @@ namespace Helpers.Steam.Tests
 
 			using var responseMessage = await _httpClient.SendAsync(requestMessage);
 
-			using var responseContentStream = await responseMessage.Content.ReadAsStreamAsync();
+			using var responseContentStream = await responseMessage.Content!.ReadAsStreamAsync();
 
 			var getOwnedGamesResponse = await JsonSerializer.DeserializeAsync<Concrete.SteamClient.GetOwnedGamesResponse>(responseContentStream);
 
@@ -54,12 +55,26 @@ namespace Helpers.Steam.Tests
 				count++;
 				Assert.NotNull(game!.AppId);
 				Assert.InRange(game.AppId!.Value, 0, int.MaxValue);
-				Assert.InRange(game.Minutes!.Value, 0, int.MaxValue);
-				Assert.NotNull(game.Name);
-				Assert.NotEmpty(game.Name);
 			}
 
 			Assert.InRange(count, 1, int.MaxValue);
+		}
+
+		[Theory]
+		[InlineData(4540)]
+		public async Task GetAppDetailsAsync_Failing(int appId)
+		{
+			var requestUri = $"https://store.steampowered.com/api/appdetails?appids={appId:D}";
+
+			using var response = await _httpClient.GetAsync(requestUri);
+
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			Assert.NotNull(response.Content);
+
+			var json = await response.Content!.ReadAsStringAsync();
+
+			Assert.NotNull(json);
+			Assert.Equal($@"{{""{appId:D}"":{{""success"":false}}}}", json);
 		}
 	}
 }
