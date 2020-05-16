@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Primitives;
-using Moq;
+using Helpers.Web.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,30 +8,24 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Helpers.HttpClient.Tests
+namespace Helpers.Web.Tests
 {
-	public sealed class ClientTests : IDisposable
+	public class WebClientBaseTests : IDisposable
 	{
 		private readonly HttpMessageHandler _httpMessageHandler;
-		private readonly System.Net.Http.HttpClient _httpClient;
-		private readonly HttpClient _client;
+		private readonly HttpClient _httpClient;
+		private readonly WebClient _client;
 
-		public ClientTests()
+		public WebClientBaseTests()
 		{
 			_httpMessageHandler = new HttpClientHandler { AllowAutoRedirect = false, };
 
-			_httpClient = new System.Net.Http.HttpClient(_httpMessageHandler)
+			_httpClient = new HttpClient(_httpMessageHandler)
 			{
 				BaseAddress = new Uri("https://old.reddit.com/", UriKind.Absolute),
 			};
 
-			var clientFactoryMock = new Mock<IHttpClientFactory>();
-
-			clientFactoryMock
-				.Setup(f => f.CreateClient(It.Is<string>(name => name == nameof(HttpClient))))
-				.Returns(_httpClient);
-
-			_client = new HttpClient(clientFactoryMock.Object);
+			_client = new WebClient(_httpClient);
 		}
 
 		public void Dispose()
@@ -51,20 +43,24 @@ namespace Helpers.HttpClient.Tests
 			var relativeUri = new Uri(uriString, UriKind.Relative);
 
 			// Act
-			var (statusCode, stream, headers) = await _client.SendAsync(HttpMethod.Head, relativeUri);
+			var response = await _client.SendAsync(HttpMethod.Head, relativeUri);
 
-			var body = await StreamToString(stream);
+			Assert.NotNull(response);
+			Assert.NotNull(response.TaskStream);
+
+			var body = await StreamToString(await response.TaskStream!);
 
 			// Assert
-			Assert.Equal(HttpStatusCode.Found, statusCode);
+			Assert.Equal(HttpStatusCode.Found, response.StatusCode);
 			Assert.NotNull(body);
 			Assert.Equal(0, body.Length);
-			Assert.True(headers.ContainsKey("Location"));
-			Assert.NotEmpty(headers["Location"]);
-			Assert.Single(headers["Location"]);
+			Assert.NotNull(response.Headers);
+			Assert.True(response.Headers!.ContainsKey("Location"));
+			Assert.NotEmpty(response.Headers["Location"]);
+			Assert.Single(response.Headers["Location"]);
 			Assert.Matches(
 				@"^https:\/\/old\.reddit\.com\/r\/[_0-9A-Za-z]+\/\?utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit$",
-				headers["Location"].Single());
+				response.Headers["Location"].Single());
 		}
 
 		[Theory]
@@ -76,12 +72,12 @@ namespace Helpers.HttpClient.Tests
 			var absoluteUri = new Uri(uriString, UriKind.Absolute);
 
 			// Act
-			var (statusCode, stream, _) = await _client.SendAsync(HttpMethod.Get, absoluteUri);
+			var response = await _client.SendAsync(HttpMethod.Get, absoluteUri);
 
-			var body = await StreamToString(stream);
+			var body = await StreamToString(await response.TaskStream!);
 
 			// Assert
-			Assert.Equal(HttpStatusCode.OK, statusCode);
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 			Assert.NotNull(body);
 			Assert.NotEqual(0, body.Length);
 		}
@@ -119,40 +115,39 @@ namespace Helpers.HttpClient.Tests
 
 		[Theory]
 		[InlineData("https://www.httpbin.org/get")]
-		public async Task Test(string uriString)
+		public async Task DeserializeToString(string uriString)
 		{
 			// Arrange
 			var uri = new Uri(uriString, UriKind.Absolute);
-			using var client = new HttpClient();
+			var client = new WebClient();
 
 			// Act
-			var (statusCode, stream, headers) = await client.SendAsync(HttpMethod.Get, uri);
+			var response = await client.SendAsync<string>(HttpMethod.Get, uri);
+
+			// Assert
+			Assert.NotNull(response);
+			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			Assert.NotNull(response.Object);
+			Assert.NotEmpty(response.Object);
+			Assert.StartsWith("{", response.Object);
+
 		}
 	}
 
-	public class HttpClient : HttpClientBase
+	public class WebClient : WebClientBase
 	{
-		public HttpClient(
-			IHttpClientFactory httpClientFactory)
-			: base(httpClientFactory)
-		{ }
-
-		public HttpClient(
-			System.Net.Http.HttpClient httpClient)
+		public WebClient(HttpClient httpClient)
 			: base(httpClient)
 		{ }
 
-		public HttpClient() { }
+		public WebClient() { }
 
-		public async Task<(HttpStatusCode, Stream, IReadOnlyDictionary<string, StringValues>)> SendAsync(
-			HttpMethod httpMethod,
-			Uri uri,
-			string? body = default,
-			[CallerMemberName] string? methodName = default)
-		{
-			var response = await base.SendAsync(httpMethod, uri, body, methodName);
+		public Task<IResponse> SendAsync(HttpMethod httpMethod, Uri uri, string? body = default)
+			=> base.SendAsync(httpMethod, uri, body);
 
-			return (response.StatusCode!.Value, await response.TaskStream!, response.Headers!);
-		}
+		public Task<IResponse<T>> SendAsync<T>(HttpMethod httpMethod, Uri uri, string? body = default)
+			where T : class
+			=> base.SendAsync<T>(httpMethod, uri, body);
+
 	}
 }

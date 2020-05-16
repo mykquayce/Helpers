@@ -6,6 +6,7 @@ using Microsoft.Extensions.Primitives;
 using OpenTracing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -14,9 +15,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Helpers.HttpClient
+namespace Helpers.Web
 {
-	public abstract class HttpClientBase : IDisposable
+	public abstract class WebClientBase
 	{
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
@@ -32,19 +33,8 @@ namespace Helpers.HttpClient
 		private readonly ILogger? _logger;
 		private readonly ITracer? _tracer;
 
-		protected HttpClientBase(
-			IHttpClientFactory httpClientFactory,
-			ILogger? logger = default,
-			ITracer? tracer = default)
-			: this(logger, tracer)
-		{
-			var name = this.GetType().Name;
-			var httpClient = httpClientFactory.CreateClient(name);
-			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
-		}
-
-		protected HttpClientBase(
-			System.Net.Http.HttpClient httpClient,
+		protected WebClientBase(
+			HttpClient httpClient,
 			ILogger? logger = default,
 			ITracer? tracer = default)
 			: this(logger, tracer)
@@ -52,13 +42,13 @@ namespace Helpers.HttpClient
 			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
 		}
 
-		protected HttpClientBase(
+		protected WebClientBase(
 			ILogger? logger = default,
 			ITracer? tracer = default)
 		{
 			_logger = logger;
 			_tracer = tracer;
-			_httpMessageInvoker = new System.Net.Http.HttpClient();
+			_httpMessageInvoker = new HttpClient();
 		}
 
 		#region IDisposable implementation
@@ -94,7 +84,18 @@ namespace Helpers.HttpClient
 
 			using var stream = await response.TaskStream!;
 
-			var o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
+			T? o;
+
+			if (typeof(T) == typeof(string))
+			{
+				using var reader = new StreamReader(stream);
+				var s = await reader.ReadToEndAsync();
+				o = (T)Convert.ChangeType(s, TypeCode.String);
+			}
+			else
+			{
+				o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
+			}
 
 			return new Models.Concrete.Response<T>
 			{

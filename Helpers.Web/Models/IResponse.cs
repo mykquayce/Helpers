@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Helpers.HttpClient.Models
+namespace Helpers.Web.Models
 {
 	public interface IResponse
 	{

@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Helpers.HttpClient.Models.Concrete
+namespace Helpers.Web.Models.Concrete
 {
 	public class Response : IResponse
 	{
