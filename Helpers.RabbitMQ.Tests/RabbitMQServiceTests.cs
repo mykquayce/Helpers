@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System;
 using Xunit;
 
@@ -9,14 +10,13 @@ namespace Helpers.RabbitMQ.Tests
 
 		public RabbitMQServiceTests()
 		{
-			var rabbitMqSettings = new Models.RabbitMQSettings
-			{
-				HostName = "localhost",
-				Port = 5_672,
-				UserName = "guest",
-				Password = "guest",
-				VirtualHost = "/"
-			};
+			var config = new ConfigurationBuilder()
+				.AddUserSecrets(this.GetType().Assembly)
+				.Build();
+
+			var rabbitMqSettings = config
+				.GetSection("RabbitMQ")
+				.Get<Models.RabbitMQSettings>();
 
 			_service = new Concrete.RabbitMQService(rabbitMqSettings);
 		}

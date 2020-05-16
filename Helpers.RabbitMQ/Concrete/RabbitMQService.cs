@@ -133,12 +133,12 @@ namespace Helpers.RabbitMQ.Concrete
 				throw;
 			}
 
-			Guard.Argument(() => result).NotNull();
-			Guard.Argument(() => result.Body).NotNull().NotEmpty();
+			Guard.Argument(() => result).NotNull().Wrap(r => r.Body)
+				.NotDefault();
 
 			scope?.Span.Log(result);
 
-			return (result.Body, result.DeliveryTag);
+			return (result.Body.Span.ToArray(), result.DeliveryTag);
 		}
 
 		public (T value, ulong deliveryTag) Consume<T>(string queue)
