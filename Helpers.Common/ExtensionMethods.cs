@@ -53,12 +53,13 @@ namespace Helpers.Common
 
 		public static Uri StripQuery(this Uri uri)
 		{
-			Guard.Argument(() => uri).NotNull().Require(u => u.IsAbsoluteUri, _ => nameof(uri) + " must be absolute");
-			Guard.Argument(() => uri.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => uri).NotNull().Wrap(u => u.IsAbsoluteUri)
+				.Positive(_ => nameof(uri) + " must be absolute");
 
-			var normalized = string.Concat(uri.Scheme, Uri.SchemeDelimiter, uri.Host, uri.AbsolutePath);
+			Guard.Argument(() => uri).NotNull().Wrap(u => u.OriginalString)
+				.NotNull().NotEmpty().NotWhiteSpace();
 
-			return new Uri(normalized, UriKind.Absolute);
+			return new Uri(uri.GetLeftPart(UriPartial.Path), UriKind.Absolute);
 		}
 
 		public static int GetDeterministicHashCode(this string s)
