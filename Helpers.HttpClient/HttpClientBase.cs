@@ -2,9 +2,11 @@
 using Helpers.Common;
 using Helpers.Tracing;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using OpenTracing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -92,7 +94,7 @@ namespace Helpers.HttpClient
 
 			using var stream = await response.TaskStream!;
 
-			var o = await JsonSerializer.DeserializeAsync<T>(stream);
+			var o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
 
 			return new Models.Concrete.Response<T>
 			{
@@ -141,6 +143,10 @@ namespace Helpers.HttpClient
 
 		protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
 		{
+			Guard.Argument(() => request).NotNull()
+				.Wrap(r => r.RequestUri).NotNull()
+				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
+
 			HttpResponseMessage response;
 
 			try
@@ -171,11 +177,17 @@ namespace Helpers.HttpClient
 				throw;
 			}
 
-			var headers = new Dictionary<string, IEnumerable<string>>();
+			var headers = new Dictionary<string, StringValues>(StringComparer.InvariantCultureIgnoreCase);
 
-			headers
-				.AddRange(response.Headers)
-				.AddRange(response.Content.Headers);
+			foreach (var (key, values) in response.Headers)
+			{
+				headers.Add(key, new StringValues(values.ToArray()));
+			}
+
+			foreach (var (key, values) in response.Content.Headers)
+			{
+				headers.Add(key, new StringValues(values.ToArray()));
+			}
 
 			return new Models.Concrete.Response
 			{

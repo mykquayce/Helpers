@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Primitives;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -13,14 +14,15 @@ namespace Helpers.HttpClient.Tests
 {
 	public sealed class ClientTests : IDisposable
 	{
+		private readonly HttpMessageHandler _httpMessageHandler;
 		private readonly System.Net.Http.HttpClient _httpClient;
 		private readonly HttpClient _client;
 
 		public ClientTests()
 		{
-			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+			_httpMessageHandler = new HttpClientHandler { AllowAutoRedirect = false, };
 
-			_httpClient = new System.Net.Http.HttpClient(handler)
+			_httpClient = new System.Net.Http.HttpClient(_httpMessageHandler)
 			{
 				BaseAddress = new Uri("https://old.reddit.com/", UriKind.Absolute),
 			};
@@ -38,6 +40,7 @@ namespace Helpers.HttpClient.Tests
 		{
 			_httpClient?.Dispose();
 			_client?.Dispose();
+			_httpMessageHandler?.Dispose();
 		}
 
 		[Theory]
@@ -141,7 +144,7 @@ namespace Helpers.HttpClient.Tests
 
 		public HttpClient() { }
 
-		public async Task<(HttpStatusCode, Stream, IReadOnlyDictionary<string, IEnumerable<string>>)> SendAsync(
+		public async Task<(HttpStatusCode, Stream, IReadOnlyDictionary<string, StringValues>)> SendAsync(
 			HttpMethod httpMethod,
 			Uri uri,
 			string? body = default,
