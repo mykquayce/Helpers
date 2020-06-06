@@ -11,8 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jaeger", "Helpers.J
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D69BA399-8DEF-4F77-9F85-3C599E800081}"
 	ProjectSection(SolutionItems) = preProject
+		build.dsl = build.dsl
 		build.sh = build.sh
-		teamcity.dsl = teamcity.dsl
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.MySql", "Helpers.MySql\Helpers.MySql.csproj", "{A7E61084-96D0-4487-B706-461AA62A0802}"
