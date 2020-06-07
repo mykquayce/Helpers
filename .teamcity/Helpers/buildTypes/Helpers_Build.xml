@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="ebd1a8de-50b1-4503-a6df-2ce0d60261b6" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2020.1/project-config.xsd">
+  <name>Build</name>
+  <description />
+  <settings>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_5" name="restore" type="dotnet">
+        <parameters>
+          <param name="args" value="--source https://api.nuget.org/v3/index.json --source http://nuget/nuget" />
+          <param name="command" value="restore" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_6" name="build" type="dotnet">
+        <parameters>
+          <param name="command" value="build" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_7" name="pack" type="dotnet">
+        <parameters>
+          <param name="args" value="--output ./nupkg" />
+          <param name="command" value="pack" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_8" name="deploy" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[NuGetServerApiKey=$(cat /run/secrets/NuGetServerApiKey)
+
+for f in ./nupkg/*.nupkg
+do
+  dotnet nuget push $f --api-key $NuGetServerApiKey --source http://nuget | head --lines 3
+done]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="Helpers_GitGithubComMykquayceHelpersGitRefsHeadsMaster" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers>
+      <build-trigger id="vcsTrigger" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:*" />
+          <param name="enableQueueOptimization" value="true" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <cleanup />
+  </settings>
+</build-type>
+
