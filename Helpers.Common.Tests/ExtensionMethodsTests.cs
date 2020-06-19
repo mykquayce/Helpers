@@ -165,5 +165,6 @@ namespace Helpers.Common.Tests
 
 		private static string GetClassDirectory([CallerFilePath] string? callerFilePath = default)
 			=> Path.GetDirectoryName(callerFilePath)!;
+
 	}
 }

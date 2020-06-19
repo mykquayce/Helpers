@@ -70,9 +70,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Slack", "Helpers.Sl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Slack.Tests", "Helpers.Slack.Tests\Helpers.Slack.Tests.csproj", "{03E83938-5DBF-474F-AA96-F42535F5095D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Web", "Helpers.Web\Helpers.Web.csproj", "{0C1C99CF-52CB-4F7B-8ACA-44CCA910E993}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web", "Helpers.Web\Helpers.Web.csproj", "{0C1C99CF-52CB-4F7B-8ACA-44CCA910E993}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{2B100C53-14AE-4ADC-B5BE-CC4A65880BED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{2B100C53-14AE-4ADC-B5BE-CC4A65880BED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch", "Helpers.Twitch\Helpers.Twitch.csproj", "{39803DE4-E27F-46B7-BE76-74CC2B8063C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch.Tests", "Helpers.Twitch.Tests\Helpers.Twitch.Tests.csproj", "{C12E3E62-46F2-412A-9592-524816ABA302}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -212,6 +216,14 @@ Global
 		{2B100C53-14AE-4ADC-B5BE-CC4A65880BED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B100C53-14AE-4ADC-B5BE-CC4A65880BED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B100C53-14AE-4ADC-B5BE-CC4A65880BED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39803DE4-E27F-46B7-BE76-74CC2B8063C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39803DE4-E27F-46B7-BE76-74CC2B8063C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39803DE4-E27F-46B7-BE76-74CC2B8063C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39803DE4-E27F-46B7-BE76-74CC2B8063C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C12E3E62-46F2-412A-9592-524816ABA302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C12E3E62-46F2-412A-9592-524816ABA302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C12E3E62-46F2-412A-9592-524816ABA302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C12E3E62-46F2-412A-9592-524816ABA302}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

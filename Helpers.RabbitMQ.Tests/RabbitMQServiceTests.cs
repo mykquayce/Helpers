@@ -28,7 +28,7 @@ namespace Helpers.RabbitMQ.Tests
 
 		[Theory]
 		[InlineData("test", "message")]
-		public void RabbitMQServiceTests_PublishConsumeAcknowledge(string queue, string message)
+		public void PublishConsumeAcknowledge(string queue, string message)
 		{
 			var before = new Class { String = message, };
 
@@ -45,7 +45,7 @@ namespace Helpers.RabbitMQ.Tests
 
 		[Theory]
 		[InlineData("test", "https://old.reddit.com/r/random/.rss")]
-		public void RabbitMQServiceTests_ConsumePublishConsumeAckhowledge(string queue, string message)
+		public void ConsumePublishConsumeAckhowledge(string queue, string message)
 		{
 			var bytes = System.Text.Encoding.UTF8.GetBytes(message);
 

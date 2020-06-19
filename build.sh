@@ -12,4 +12,4 @@ then
 	do
 		dotnet nuget push $f --api-key $NuGetServerApiKey --source http://nuget | head --lines=3
 	done
-end
+fi

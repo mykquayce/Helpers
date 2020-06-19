@@ -41,7 +41,12 @@ namespace Microsoft.Extensions.DependencyInjection
 				.WithSender(sender)
 				.Build();
 
-			var sampler = new ConstSampler(sample: true);
+			ISampler sampler = settings.SamplingRate switch
+			{
+				double d when d >= 1 => new ConstSampler(sample: true),
+				double d when d <= 0 => new ConstSampler(sample: false),
+				_ => new ProbabilisticSampler(samplingRate: settings.SamplingRate),
+			};
 
 			var tracer = new Tracer.Builder(settings.ServiceName!)
 				.WithReporter(reporter)

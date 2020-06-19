@@ -3,7 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Helpers.Common
 {
@@ -137,11 +141,6 @@ namespace Helpers.Common
 			return string.Empty;
 		}
 
-		public static IDictionary<TKey, TValue> Add<TKey, TValue>(IDictionary<TKey, TValue> dictionary, params TValue[] values)
-		{
-			return dictionary;
-		}
-
 		public static IEnumerable<FileSystemInfo> EnumerateFileSystemInfosLeafFirst(this DirectoryInfo dir, string searchPattern = "*.*")
 		{
 			foreach (var fsi in dir.EnumerateFileSystemInfos(searchPattern, SearchOption.TopDirectoryOnly))
@@ -155,6 +154,30 @@ namespace Helpers.Common
 				}
 
 				yield return fsi;
+			}
+		}
+
+		public async static Task<T> GetAsync<T>(this HttpClient client, Uri requestUri, CancellationToken? cancellationToken = default)
+		{
+			using var response = await client.GetAsync(requestUri, cancellationToken: cancellationToken ?? CancellationToken.None);
+
+			using var stream = await response.Content.ReadAsStreamAsync();
+
+			try
+			{
+				return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken ?? CancellationToken.None);
+			}
+			catch (Exception ex)
+			{
+				stream.Position = 0L;
+
+				using var reader = new StreamReader(stream);
+
+				var text = await reader.ReadToEndAsync();
+
+				ex.Data.Add(nameof(text), text);
+
+				throw;
 			}
 		}
 	}
