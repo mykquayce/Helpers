@@ -6,10 +6,10 @@ dotnet build
 
 dotnet pack --output ./nupkg
 
-if [ -n "$NuGetServerApiKey" ]
+if [ -n "$NUGET_SERVER_API_KEY" ]
 then
 	for f in ./nupkg/*.nupkg
 	do
-		dotnet nuget push $f --api-key $NuGetServerApiKey --source http://nuget | head --lines=3
+		dotnet nuget push $f --api-key $NUGET_SERVER_API_KEY --source http://nuget | head --lines=3
 	done
 fi
