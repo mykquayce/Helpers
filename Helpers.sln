@@ -78,6 +78,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch", "Helpers.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch.Tests", "Helpers.Twitch.Tests\Helpers.Twitch.Tests.csproj", "{C12E3E62-46F2-412A-9592-524816ABA302}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt", "Helpers.Jwt\Helpers.Jwt.csproj", "{7B00A21B-CBFB-42D8-A1C9-4DD0FFB9784E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt.Tests", "Helpers.Jwt.Tests\Helpers.Jwt.Tests.csproj", "{485862B5-3FF9-40F3-B5F6-1A24F698637A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -224,6 +228,14 @@ Global
 		{C12E3E62-46F2-412A-9592-524816ABA302}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C12E3E62-46F2-412A-9592-524816ABA302}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C12E3E62-46F2-412A-9592-524816ABA302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B00A21B-CBFB-42D8-A1C9-4DD0FFB9784E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B00A21B-CBFB-42D8-A1C9-4DD0FFB9784E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B00A21B-CBFB-42D8-A1C9-4DD0FFB9784E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B00A21B-CBFB-42D8-A1C9-4DD0FFB9784E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{485862B5-3FF9-40F3-B5F6-1A24F698637A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485862B5-3FF9-40F3-B5F6-1A24F698637A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485862B5-3FF9-40F3-B5F6-1A24F698637A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485862B5-3FF9-40F3-B5F6-1A24F698637A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
