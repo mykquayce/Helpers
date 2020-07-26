@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Web
 {
-	public abstract class WebClientBase
+	public abstract class WebClientBase : IDisposable
 	{
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
