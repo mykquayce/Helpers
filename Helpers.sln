@@ -83,6 +83,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt", "Helpers.Jwt\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt.Tests", "Helpers.Jwt.Tests\Helpers.Jwt.Tests.csproj", "{485862B5-3FF9-40F3-B5F6-1A24F698637A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.XUnitClassFixtures", "Helpers.XUnitClassFixtures\Helpers.XUnitClassFixtures.csproj", "{7800CE92-460A-42BA-815F-D8E6DAC04BFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

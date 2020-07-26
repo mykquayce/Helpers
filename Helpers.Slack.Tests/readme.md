@@ -1,5 +1,0 @@
-## Requires a user secret
-
-```
-dotnet user-secrets set Slack:Token xoxp-000000000000-000000000000-000000000000-00000000000000000000000000000000 --id 4cd65675-2dde-4dff-88ae-8e9a78327e27
-```
