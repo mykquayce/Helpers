@@ -180,5 +180,24 @@ namespace Helpers.Common
 				throw;
 			}
 		}
+
+		public static IEnumerable<T> Expand<T>(this T @enum) where T : Enum, IConvertible
+		{
+			var provider = System.Globalization.CultureInfo.InvariantCulture;
+			var type = typeof(T);
+			var values = (T[])Enum.GetValues(type);
+			var enumLong = @enum.ToInt64(provider);
+
+			foreach (var value in values)
+			{
+				var l = value.ToInt64(provider);
+
+				if (l == enumLong
+					|| (l & enumLong) != 0)
+				{
+					yield return value;
+				}
+			}
+		}
 	}
 }

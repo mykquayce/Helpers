@@ -166,5 +166,36 @@ namespace Helpers.Common.Tests
 		private static string GetClassDirectory([CallerFilePath] string? callerFilePath = default)
 			=> Path.GetDirectoryName(callerFilePath)!;
 
+		[Flags]
+		public enum Numbers : byte
+		{
+			Zero = 0,
+			One = 1,
+			Two = 2,
+			Three = 4,
+			Four = 8,
+		}
+
+		[Theory]
+		[InlineData(default(Numbers), "Zero")]
+		[InlineData(Numbers.One, "One")]
+		[InlineData(Numbers.One | Numbers.Two, "One,Two")]
+		[InlineData(Numbers.One | Numbers.Three | Numbers.Two, "One,Two,Three")]
+		[InlineData(Numbers.One | Numbers.Three, "One,Three")]
+		[InlineData(Numbers.One | Numbers.Four, "One,Four")]
+		[InlineData(Numbers.Two, "Two")]
+		public void ExpandTest(Numbers before, string expected)
+		{
+			// Act
+			var after = before.Expand().ToList();
+
+			// Assert
+			Assert.NotNull(after);
+			Assert.NotEmpty(after);
+
+			var actual = string.Join(",", after.Select(n => n.ToString("G")));
+
+			Assert.Equal(expected, actual);
+		}
 	}
 }
