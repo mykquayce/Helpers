@@ -29,6 +29,8 @@ namespace Microsoft.Extensions.DependencyInjection
 					return;
 				}
 			}
+
+			throw new Exception("Unable to locate a secrets directory");
 		}
 
 		/// <summary>

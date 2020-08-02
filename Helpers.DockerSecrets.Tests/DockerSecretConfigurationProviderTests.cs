@@ -12,11 +12,7 @@ namespace Helpers.DockerSecrets.Tests
 	{
 		[Theory]
 		[InlineData("")]
-		[InlineData(" ")]
 		[InlineData("hello world")]
-		[InlineData(" hello world")]
-		[InlineData("hello world ")]
-		[InlineData(" hello world ")]
 		public void GetStreamContents(string message)
 		{
 			var bytes = Encoding.UTF8.GetBytes(message);
@@ -84,6 +80,21 @@ namespace Helpers.DockerSecrets.Tests
 			{
 				Assert.True(false, ex.Message);
 			}
+		}
+
+		[Theory]
+		[InlineData(" ", "")]
+		[InlineData(" hello world", "hello world")]
+		[InlineData("hello world ", "hello world")]
+		[InlineData(" hello world ", "hello world")]
+		public void Trim(string before, string expected)
+		{
+			var bytes = Encoding.UTF8.GetBytes(before);
+			using var stream = new MemoryStream(bytes);
+
+			var actual = DockerSecretConfigurationProvider.GetStreamContents(stream);
+
+			Assert.Equal(expected, actual);
 		}
 	}
 }

@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		{
 			using var reader = new StreamReader(stream);
 
-			return reader.ReadToEnd();
+			return reader.ReadToEnd()?.Trim() ?? string.Empty;
 		}
 	}
 }
