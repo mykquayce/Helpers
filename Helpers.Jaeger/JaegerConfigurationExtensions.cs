@@ -3,7 +3,7 @@ using Helpers.Jaeger.Models;
 using Jaeger;
 using Jaeger.Reporters;
 using Jaeger.Samplers;
-using Jaeger.Senders;
+using Jaeger.Senders.Thrift;
 using OpenTracing;
 
 namespace Microsoft.Extensions.DependencyInjection

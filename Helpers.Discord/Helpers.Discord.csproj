@@ -2,17 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>1.0.9.0</FileVersion>
-    <AssemblyVersion>1.0.9.0</AssemblyVersion>
-    <Version>1.0.9</Version>
-    <Authors>bob</Authors>
+    <Version>1.0.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.HttpClient" Version="1.0.17" />
+    <PackageReference Include="Helpers.Web" Version="2.0.5" />
   </ItemGroup>
 
 </Project>

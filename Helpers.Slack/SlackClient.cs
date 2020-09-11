@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using Helpers.HttpClient;
 using Helpers.Slack.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Slack
 {
-	public class SlackClient : HttpClientBase
+	public class SlackClient : Web.WebClientBase
 	{
 		private static readonly JsonSerializerOptions _options = new JsonSerializerOptions
 		{
@@ -48,20 +47,18 @@ namespace Helpers.Slack
 			var requestUriString = "/services/" + string.Join('/', _webhookSegments);
 			var requestUri = new Uri(requestUriString, UriKind.Relative);
 
-			var requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri);
+			var response = await base.SendAsync(HttpMethod.Post, requestUri);
 
-			var (statusCode, stream, headers) = await base.SendAsync(HttpMethod.Post, requestUri);
-
-			return statusCode == System.Net.HttpStatusCode.OK;
+			return response.StatusCode == System.Net.HttpStatusCode.OK;
 		}
 
 		public async IAsyncEnumerable<Channel> GetChannelsAsync()
 		{
 			var uri = new Uri("/api/conversations.list?token=" + _token, UriKind.Relative);
 
-			var (_, response, _) = await base.SendAsync<Models.ChannelsResponse>(HttpMethod.Get, uri);
+			var response = await base.SendAsync<Models.ChannelsResponse>(HttpMethod.Get, uri);
 
-			foreach (var channel in response.Channels!)
+			foreach (var channel in response.Object!.Channels!)
 			{
 				yield return channel;
 			}

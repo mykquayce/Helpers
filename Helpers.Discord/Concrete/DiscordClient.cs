@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Discord.Concrete
 {
-	public class DiscordClient : Helpers.HttpClient.HttpClientBase, IDiscordClient
+	public class DiscordClient : Helpers.Web.WebClientBase, IDiscordClient
 	{
 		private readonly Uri _relativeUri;
 
@@ -23,7 +23,7 @@ namespace Helpers.Discord.Concrete
 
 			Guard.Argument(() => webhook).NotNull();
 			Guard.Argument(() => webhook.Id).InRange(1, long.MaxValue);
-			Guard.Argument(() => webhook.Token).NotNull().NotEmpty().NotWhiteSpace().Matches(@"^[-0-9A-Z_a-z]{68}$");
+			Guard.Argument(() => webhook.Token!).NotNull().NotEmpty().NotWhiteSpace().Matches(@"^[-0-9A-Z_a-z]{68}$");
 
 			_relativeUri = new Uri($"/api/webhooks/{webhook.Id:D}/{webhook.Token}", UriKind.Relative);
 		}

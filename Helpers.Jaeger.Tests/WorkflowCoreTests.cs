@@ -2,7 +2,7 @@
 using Jaeger;
 using Jaeger.Reporters;
 using Jaeger.Samplers;
-using Jaeger.Senders;
+using Jaeger.Senders.Thrift;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTracing;
 using System;

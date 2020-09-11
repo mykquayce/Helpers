@@ -17,11 +17,13 @@ namespace Helpers.Slack.Tests
 			PropertyNameCaseInsensitive = true,
 		};
 
+		private const string _slackTokenKey = "Slack:Token";
+
 		private readonly string _token;
 
 		public UnitTest1(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
 		{
-			_token = fixture["Slack:Token"];
+			_token = fixture[_slackTokenKey] ?? throw new ArgumentNullException(nameof(_slackTokenKey));
 		}
 
 		[Theory]

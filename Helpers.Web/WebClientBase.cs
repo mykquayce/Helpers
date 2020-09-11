@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,8 +23,8 @@ namespace Helpers.Web
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
 			AllowTrailingCommas = true,
+			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
 			DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-			IgnoreNullValues = false,
 			PropertyNameCaseInsensitive = true,
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			WriteIndented = true,
@@ -40,6 +41,15 @@ namespace Helpers.Web
 			: this(logger, tracer)
 		{
 			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
+		}
+
+		protected WebClientBase(
+			IHttpClientFactory httpClientFactory,
+			ILogger? logger = default,
+			ITracer? tracer = default)
+			: this(logger, tracer)
+		{
+			_httpMessageInvoker = httpClientFactory.CreateClient(this.GetType().Name);
 		}
 
 		protected WebClientBase(

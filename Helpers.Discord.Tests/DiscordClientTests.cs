@@ -1,63 +1,55 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Discord.Tests
 {
-	public sealed class DiscordClientTests : IDisposable
+	public class DiscordClientTests :
+		IClassFixture<Helpers.XUnitClassFixtures.HttpClientFixture>,
+		IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
 	{
-		private const string _userSettingsIdKey = "UserSettings:Id";
-		private readonly IDiscordClient _client;
-		private readonly System.Net.Http.HttpClient _httpClient;
+		private const string _uriString = "https://ptb.discordapp.com/";
+		private readonly IDiscordClient _sut;
 
-		public DiscordClientTests()
+		public DiscordClientTests(
+			Helpers.XUnitClassFixtures.HttpClientFixture httpClientFixture,
+			Helpers.XUnitClassFixtures.UserSecretsFixture userSecretsFixture)
 		{
-			var userSettingsId = new ConfigurationBuilder()
-				.AddJsonFile("appsettings.json")
-				.Build()
-				.GetValue<string>(_userSettingsIdKey)
-				?? throw new KeyNotFoundException($"{_userSettingsIdKey} key not found in config");
+			var httpClient = httpClientFixture.HttpClient;
 
-			var config = new ConfigurationBuilder()
-				.AddUserSecrets(userSettingsId)
-				.Build();
-
-			var webhook = config.GetSection("Discord").GetSection(nameof(Models.Webhook)).Get<Models.Webhook>();
-
-			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-
-			_httpClient = new System.Net.Http.HttpClient(handler)
+			if (httpClient.BaseAddress is null)
 			{
-				BaseAddress = new Uri("https://ptb.discordapp.com/", UriKind.Absolute),
-			};
+				httpClient.BaseAddress = new Uri(_uriString);
+			}
 
 			var httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
 			httpClientFactoryMock
 				.Setup(f => f.CreateClient(It.IsAny<string>()))
-				.Returns(_httpClient);
+				.Returns(httpClient);
 
-			var webhookOptions = Mock.Of<IOptions<Models.Webhook>>(o => o.Value == webhook);
+			var webHook = new Models.Webhook
+			{
+				Id = long.TryParse(userSecretsFixture["Discord:WebHook:Id"], out var l)
+					? l
+					: throw new ArgumentNullException("Discord:WebHook:Id"),
+				Token = userSecretsFixture["Discord:WebHook:Token"]
+					?? throw new ArgumentNullException("Discord:WebHook:Token"),
+			};
 
-			_client = new Helpers.Discord.Concrete.DiscordClient(
+			var webhookOptions = Options.Create(webHook);
+
+			_sut = new Helpers.Discord.Concrete.DiscordClient(
 				httpClientFactoryMock.Object,
 				webhookOptions);
-		}
-
-		public void Dispose()
-		{
-			_httpClient?.Dispose();
-			_client?.Dispose();
 		}
 
 		[Theory]
 		[InlineData("Hello world")]
 		[InlineData("Hello\r\nworld")]
-		public Task DiscordClientTests_SendMessageAsync(string message) => _client.SendMessageAsync(message);
+		public Task DiscordClientTests_SendMessageAsync(string message) => _sut.SendMessageAsync(message);
 	}
 }

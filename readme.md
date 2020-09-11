@@ -4,6 +4,11 @@ Save the Nuget Server API Key to a local variable with:
 export NUGET_SERVER_API_KEY=…
 ```
 ### User Secrets
+#### Helpers.Discord.Tests
+```
+dotnet user-secrets set Discord:WebHook:Id … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Discord:WebHook:Token … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
 #### Helpers.DockerHub.Tests
 ```
 dotnet user-secrets set DockerHub:Password … --id 8391cb70-d94f-4863-b7e4-5659af167bc6

@@ -12,15 +12,14 @@ namespace Helpers.Web.Tests
 {
 	public class WebClientBaseTests : IDisposable
 	{
-		private readonly HttpMessageHandler _httpMessageHandler;
 		private readonly HttpClient _httpClient;
 		private readonly WebClient _client;
 
 		public WebClientBaseTests()
 		{
-			_httpMessageHandler = new HttpClientHandler { AllowAutoRedirect = false, };
+			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
 
-			_httpClient = new HttpClient(_httpMessageHandler)
+			_httpClient = new HttpClient(handler)
 			{
 				BaseAddress = new Uri("https://old.reddit.com/", UriKind.Absolute),
 			};
@@ -32,7 +31,6 @@ namespace Helpers.Web.Tests
 		{
 			_httpClient?.Dispose();
 			_client?.Dispose();
-			_httpMessageHandler?.Dispose();
 		}
 
 		[Theory]
@@ -84,7 +82,7 @@ namespace Helpers.Web.Tests
 
 		[Theory]
 		[InlineData("https://minibeansjam.de/", typeof(HttpRequestException), "The SSL connection could not be established, see inner exception.")]
-		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "No such host is known.")]
+		[InlineData("https://puslelabs.ai/panelists", typeof(HttpRequestException), "No such host is known. (puslelabs.ai:443)")]
 		public async Task ClientTests_Failing(string uriString, Type expectedException, string expectedMessage)
 		{
 			// Arrange
@@ -103,6 +101,8 @@ namespace Helpers.Web.Tests
 				// Assert
 				Assert.IsType(expectedException, exception);
 				Assert.Equal(expectedMessage, exception.Message);
+				Assert.Contains("RequestUri", exception.Data.Keys.Cast<object>());
+				Assert.Equal(uriString, exception.Data["RequestUri"]);
 			}
 		}
 

@@ -1,5 +1,4 @@
 using Dawn;
-using Helpers.HttpClient;
 using Helpers.Steam.Models;
 using System;
 using System.Collections.Generic;

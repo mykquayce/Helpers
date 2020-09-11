@@ -171,7 +171,7 @@ namespace Helpers.MySql
 			}
 
 			// check it
-			Guard.Argument(() => databaseName).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
+			Guard.Argument(() => databaseName!).NotNull().NotEmpty().NotWhiteSpace().Matches(_namePattern);
 
 			// build a new connection string one without the database
 			var temp = string.Join(';', from kvp in dictionary

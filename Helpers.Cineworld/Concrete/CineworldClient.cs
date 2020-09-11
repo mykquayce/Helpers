@@ -16,7 +16,7 @@ using System.Xml.Xsl;
 
 namespace Helpers.Cineworld.Concrete
 {
-	public class CineworldClient : Helpers.HttpClient.HttpClientBase, ICineworldClient
+	public class CineworldClient : Helpers.Web.WebClientBase, ICineworldClient
 	{
 		private static readonly XmlSerializerFactory _xmlSerializerFactory = new XmlSerializerFactory();
 
@@ -30,18 +30,17 @@ namespace Helpers.Cineworld.Concrete
 		{
 			var uri = Settings.AllPerformancesPath;
 
-			var (_, stream, _) = await base.SendAsync(HttpMethod.Get, uri);
+			var response = await base.SendAsync(HttpMethod.Get, uri);
 
-			using (stream)
+			await using var stream = await response.TaskStream!;
+
+			var xslt = BuildXslt(Properties.Resources.all_performances);
+
+			var films = Transform<FilmsType>(stream, xslt);
+
+			foreach (var film in films.Film!)
 			{
-				var xslt = BuildXslt(Properties.Resources.all_performances);
-
-				var films = Transform<FilmsType>(stream, xslt);
-
-				foreach (var film in films.Film!)
-				{
-					yield return film;
-				}
+				yield return film;
 			}
 		}
 
@@ -49,18 +48,17 @@ namespace Helpers.Cineworld.Concrete
 		{
 			var uri = Settings.ListingsPath;
 
-			var (_, stream, _) = await base.SendAsync(HttpMethod.Get, uri);
+			var response = await base.SendAsync(HttpMethod.Get, uri);
 
-			using (stream)
+			await using var stream = await response.TaskStream!;
+
+			var xslt = BuildXslt(Properties.Resources.listings);
+
+			var cinemas = Transform<Models.Generated.CinemasType>(stream, xslt);
+
+			foreach (var cinema in cinemas.Cinema)
 			{
-				var xslt = BuildXslt(Properties.Resources.listings);
-
-				var cinemas = Transform<Models.Generated.CinemasType>(stream, xslt);
-
-				foreach (var cinema in cinemas.Cinema)
-				{
-					yield return cinema;
-				}
+				yield return cinema;
 			}
 		}
 
@@ -68,11 +66,13 @@ namespace Helpers.Cineworld.Concrete
 		{
 			var uri = Settings.ListingsPath;
 
-			var (_, _, headers) = await base.SendAsync(HttpMethod.Head, uri);
+			var response = await base.SendAsync(HttpMethod.Head, uri);
 
-			var s = headers?[Settings.LastModifiedHeaderKey]?.FirstOrDefault() ?? string.Empty;
+			var values = response.Headers?[Settings.LastModifiedHeaderKey];
 
-			if (DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var lastModified))
+			var value = values?.FirstOrDefault() ?? string.Empty;
+
+			if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var lastModified))
 			{
 				return lastModified;
 			}

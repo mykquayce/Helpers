@@ -1,31 +1,23 @@
 ﻿using System;
-using System.Net.Http;
+using Xunit;
 
 namespace Helpers.Steam.Tests.Fixtures
 {
-	public class HttpClientFixture : IDisposable
+	public class HttpClientFixture : IClassFixture<Helpers.XUnitClassFixtures.HttpClientFixture>
 	{
-		private readonly HttpMessageHandler _httpClientHandler;
+		private const string _uriString = "https://api.steampowered.com";
+
+		private readonly Helpers.XUnitClassFixtures.HttpClientFixture _fixture
+			= new Helpers.XUnitClassFixtures.HttpClientFixture();
 
 		public HttpClientFixture()
 		{
-			_httpClientHandler = new HttpClientHandler
+			if (_fixture.HttpClient.BaseAddress is null)
 			{
-				AllowAutoRedirect = false,
-			};
-
-			HttpClient = new System.Net.Http.HttpClient(_httpClientHandler)
-			{
-				BaseAddress = new Uri("https://api.steampowered.com", UriKind.Absolute),
-			};
+				_fixture.HttpClient.BaseAddress = new Uri(_uriString);
+			}
 		}
 
-		public System.Net.Http.HttpClient HttpClient { get; }
-
-		public void Dispose()
-		{
-			_httpClientHandler?.Dispose();
-			HttpClient?.Dispose();
-		}
+		public System.Net.Http.HttpClient HttpClient => _fixture.HttpClient;
 	}
 }

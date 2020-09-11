@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Steam.Concrete
 {
-	public class SteamClient : Helpers.HttpClient.HttpClientBase, IDisposable, ISteamClient
+	public class SteamClient : Helpers.Web.WebClientBase, IDisposable, ISteamClient
 	{
 		private readonly string _key;
 
