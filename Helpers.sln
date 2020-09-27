@@ -85,7 +85,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerHub.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.XUnitClassFixtures", "Helpers.XUnitClassFixtures\Helpers.XUnitClassFixtures.csproj", "{7800CE92-460A-42BA-815F-D8E6DAC04BFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{C071D73D-5A0E-497B-B5E7-2F816BB7C074}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{C071D73D-5A0E-497B-B5E7-2F816BB7C074}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{673963F0-2942-4926-A67C-251C1EA00E79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,6 +253,14 @@ Global
 		{C071D73D-5A0E-497B-B5E7-2F816BB7C074}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C071D73D-5A0E-497B-B5E7-2F816BB7C074}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C071D73D-5A0E-497B-B5E7-2F816BB7C074}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{673963F0-2942-4926-A67C-251C1EA00E79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{673963F0-2942-4926-A67C-251C1EA00E79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{673963F0-2942-4926-A67C-251C1EA00E79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{673963F0-2942-4926-A67C-251C1EA00E79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
