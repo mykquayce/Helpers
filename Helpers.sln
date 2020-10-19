@@ -89,7 +89,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web.Tests", "Helper
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{673963F0-2942-4926-A67C-251C1EA00E79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{673963F0-2942-4926-A67C-251C1EA00E79}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink.Tests", "Helpers.TPLink.Tests\Helpers.TPLink.Tests.csproj", "{4CE492E2-780C-45B6-BEFC-CBBA7873683E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink.Models", "Helpers.TPLink.Models\Helpers.TPLink.Models.csproj", "{08123BE3-2636-4BE5-A6D2-EC6C471EBE2D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink", "Helpers.TPLink\Helpers.TPLink.csproj", "{03AF37DE-A955-4BDB-8CC4-8566A28694E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.TPLink.Models.Tests", "Helpers.TPLink.Models.Tests\Helpers.TPLink.Models.Tests.csproj", "{3AF45F34-B75D-412A-A7EF-750444AD58BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -261,6 +269,22 @@ Global
 		{673963F0-2942-4926-A67C-251C1EA00E79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{673963F0-2942-4926-A67C-251C1EA00E79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{673963F0-2942-4926-A67C-251C1EA00E79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CE492E2-780C-45B6-BEFC-CBBA7873683E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CE492E2-780C-45B6-BEFC-CBBA7873683E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CE492E2-780C-45B6-BEFC-CBBA7873683E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CE492E2-780C-45B6-BEFC-CBBA7873683E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08123BE3-2636-4BE5-A6D2-EC6C471EBE2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08123BE3-2636-4BE5-A6D2-EC6C471EBE2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08123BE3-2636-4BE5-A6D2-EC6C471EBE2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08123BE3-2636-4BE5-A6D2-EC6C471EBE2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03AF37DE-A955-4BDB-8CC4-8566A28694E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03AF37DE-A955-4BDB-8CC4-8566A28694E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03AF37DE-A955-4BDB-8CC4-8566A28694E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03AF37DE-A955-4BDB-8CC4-8566A28694E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF45F34-B75D-412A-A7EF-750444AD58BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF45F34-B75D-412A-A7EF-750444AD58BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF45F34-B75D-412A-A7EF-750444AD58BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF45F34-B75D-412A-A7EF-750444AD58BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
