@@ -34,6 +34,4 @@ dotnet user-secrets set Twitch:Client:Secret ... --id 8391cb70-d94f-4863-b7e4-56
 ```powershell
 dotnet user-secrets set TPLink:UserName ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set TPLink:Password ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set TPLink:Token ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set TPLink:DeviceId ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
