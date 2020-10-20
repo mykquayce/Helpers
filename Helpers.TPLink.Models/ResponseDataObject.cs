@@ -46,9 +46,9 @@
 
 		public class EmeterObject
 		{
-			public GetRealtimeObject? get_realtime { get; init; }
+			public RealtimeObject? get_realtime { get; init; }
 
-			public class GetRealtimeObject
+			public class RealtimeObject
 			{
 				public int? voltage_mv { get; init; }
 				public int? current_ma { get; init; }
