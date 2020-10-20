@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.TPLink.Models" Version="1.1.3" />
+    <PackageReference Include="Helpers.TPLink.Models" Version="1.2.0" />
     <PackageReference Include="Helpers.Web" Version="2.0.8" />
   </ItemGroup>
 

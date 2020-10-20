@@ -28,7 +28,7 @@ namespace Helpers.TPLink.Concrete
 			}
 		}
 
-		public async Task<Models.ResponseDataObject.EmeterObject.GetRealtimeObject> GetRealtimeDataAsync(string token, string deviceId)
+		public async Task<Models.ResponseDataObject.EmeterObject.RealtimeObject> GetRealtimeDataAsync(string token, string deviceId)
 		{
 			Guard.Argument(() => token).NotNull().NotEmpty().NotWhiteSpace().Matches("^6bdd39aa-[0-9A-Za-z]{23}$");
 			Guard.Argument(() => deviceId).NotNull().NotEmpty().NotWhiteSpace().Matches("^[0-9A-F]{40}$");
