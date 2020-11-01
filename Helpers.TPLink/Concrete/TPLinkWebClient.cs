@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.TPLink.Concrete
 {
-	public class TPLinkClient : Helpers.Web.WebClientBase, ITPLinkClient
+	public class TPLinkWebClient : Helpers.Web.WebClientBase, ITPLinkWebClient
 	{
 		public async IAsyncEnumerable<Models.DeviceObject> GetDevicesAsync(string token)
 		{

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.TPLink
 {
-	public interface ITPLinkClient : IDisposable
+	public interface ITPLinkWebClient : IDisposable
 	{
 		IAsyncEnumerable<Models.DeviceObject> GetDevicesAsync(string token);
 		Task<string> LoginAsync(string userName, string password);

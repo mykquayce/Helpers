@@ -8,7 +8,7 @@ namespace Helpers.TPLink.Tests
 {
 	public sealed class TPLinkClientTests : IDisposable
 	{
-		private readonly Helpers.TPLink.ITPLinkClient _sut;
+		private readonly Helpers.TPLink.ITPLinkWebClient _sut;
 		private readonly string _userName, _password;
 
 		public TPLinkClientTests()
@@ -20,7 +20,7 @@ namespace Helpers.TPLink.Tests
 			_userName = config["TPLink:UserName"] ?? throw new ArgumentNullException("TPLink:UserName");
 			_password = config["TPLink:Password"] ?? throw new ArgumentNullException("TPLink:Password");
 
-			_sut = new Helpers.TPLink.Concrete.TPLinkClient();
+			_sut = new Helpers.TPLink.Concrete.TPLinkWebClient();
 		}
 
 		public void Dispose() => _sut?.Dispose();
