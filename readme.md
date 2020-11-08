@@ -14,6 +14,10 @@ dotnet user-secrets set Discord:WebHook:Token … --id 8391cb70-d94f-4863-b7e4-565
 dotnet user-secrets set DockerHub:Password … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set DockerHub:Username … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
+#### Helpers.Elgato.Tests
+```bash
+dotnet user-secrets set Elgato:EndPoint 192.168.1.218:9123 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
 #### Helpers.Slack.Tests
 ```powershell
 dotnet user-secrets set Slack:Token xoxp-000000000000-000000000000-000000000000-00000000000000000000000000000000 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
