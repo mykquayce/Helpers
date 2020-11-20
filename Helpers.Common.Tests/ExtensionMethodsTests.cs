@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -156,11 +156,11 @@ namespace Helpers.Common.Tests
 			Assert.NotNull(directories);
 			Assert.NotEmpty(directories);
 			Assert.Equal(5, directories.Count);
-			Assert.Equal("111",  directories[0].Name);
-			Assert.Equal("11",   directories[1].Name);
+			Assert.Equal("111", directories[0].Name);
+			Assert.Equal("11", directories[1].Name);
 			Assert.Equal("1211", directories[2].Name);
-			Assert.Equal("121",  directories[3].Name);
-			Assert.Equal("12",   directories[4].Name);
+			Assert.Equal("121", directories[3].Name);
+			Assert.Equal("12", directories[4].Name);
 		}
 
 		private static string GetClassDirectory([CallerFilePath] string? callerFilePath = default)

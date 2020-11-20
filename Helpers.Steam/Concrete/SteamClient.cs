@@ -68,7 +68,7 @@ namespace Helpers.Steam.Concrete
 						};
 				}
 			}
-			
+
 			throw new Exceptions.AppNotFoundException(appId);
 		}
 

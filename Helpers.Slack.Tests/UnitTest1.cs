@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
@@ -52,7 +52,7 @@ namespace Helpers.Slack.Tests
 
 			var channels = client.GetChannelsAsync();
 
-			await foreach(var channel in channels)
+			await foreach (var channel in channels)
 			{
 				Assert.False(string.IsNullOrWhiteSpace(channel.Id));
 				Assert.False(string.IsNullOrWhiteSpace(channel.Name));

@@ -17,7 +17,7 @@ namespace Helpers.Steam.Tests
 		{
 			return base.ExecuteAsync(
 				sql: "INSERT IGNORE INTO `steam`.`user` (`id`, `name`) VALUES (@id, @name);",
-				param: new {id, name, });
+				param: new { id, name, });
 		}
 
 		public IAsyncEnumerable<long> GetUserIdsAsync()
@@ -60,7 +60,7 @@ namespace Helpers.Steam.Tests
 				sql: "INSERT IGNORE INTO `steam`.`userapp` (`appId`, `userId`, `hours`) VALUES (@AppId, @userId, @Hours);",
 				param: from g in games
 					   let hours = MinutesToHours(g.Minutes ?? 0)
-					   select new { g.AppId, userId, hours},
+					   select new { g.AppId, userId, hours, },
 				transaction: transaction);
 
 			transaction.Commit();
@@ -72,7 +72,7 @@ namespace Helpers.Steam.Tests
 		{
 			var after = func(before);
 
-			if(before > 0 && after == 0)
+			if (before > 0 && after == 0)
 			{
 				return after + 1;
 			}

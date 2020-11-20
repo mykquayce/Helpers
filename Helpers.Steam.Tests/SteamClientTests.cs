@@ -1,4 +1,4 @@
-using Dawn;
+﻿using Dawn;
 using Helpers.Steam.Models;
 using System;
 using System.Collections.Generic;

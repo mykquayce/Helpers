@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -147,7 +147,7 @@ namespace Helpers.MySql.Tests
 			var now = DateTime.UtcNow;
 			var count = 0;
 
-			await foreach(var result in results)
+			await foreach (var result in results)
 			{
 				count++;
 				Assert.NotNull(result);
@@ -185,7 +185,7 @@ namespace Helpers.MySql.Tests
 			var now = DateTime.UtcNow;
 			var count = 0;
 
-			await foreach(var result in results)
+			await foreach (var result in results)
 			{
 				count++;
 				Assert.NotNull(result);

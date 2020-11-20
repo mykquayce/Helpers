@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Xunit;
 
 namespace Helpers.TPLink.Models.Tests
