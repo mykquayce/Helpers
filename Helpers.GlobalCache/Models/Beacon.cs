@@ -24,14 +24,19 @@ namespace Helpers.GlobalCache.Models
 
 		#region parse
 		private const RegexOptions _options = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-		private readonly static Regex _beaconRegex = new Regex("<-(.+?)=(.+?)>", _options);
+		private readonly static Regex _beaconRegex = new("<-(.+?)=(.+?)>", _options);
 
 		public static Beacon Parse(string s)
 		{
-			var dictionary = _beaconRegex
-				.Matches(s)
-				.Select(match => (match.Groups[1].Value, match.Groups[2].Value))
-				.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2, StringComparer.InvariantCultureIgnoreCase);
+			var matches = _beaconRegex.Matches(s);
+
+			var dictionary = (from m in matches
+							  where m.Success
+							  let key = m.Groups[1].Value
+							  let value = m.Groups[2].Value
+							  let kvp = new { key, value, }
+							  select kvp
+							).ToDictionary(o => o.key, o => o.value, StringComparer.InvariantCultureIgnoreCase);
 
 			return new Beacon(dictionary);
 		}
