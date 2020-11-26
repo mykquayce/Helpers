@@ -17,7 +17,7 @@ namespace Helpers.GlobalCache.Extensions
 
 		public static IPAddress GetIPAddress(this Models.Beacon beacon)
 		{
-			var value = Guard.Argument(() => beacon).NotNull().Wrap(b => b.ConfigUrl)
+			var value = Guard.Argument(() => beacon).NotNull().Wrap(b => b.ConfigUrl!)
 				.NotNull().NotEmpty().Matches(_ipAddressRegexPattern).Value;
 
 			var match = _ipAddressRegex.Match(value);
@@ -27,7 +27,7 @@ namespace Helpers.GlobalCache.Extensions
 
 		public static PhysicalAddress GetPhysicalAddress(this Models.Beacon beacon)
 		{
-			var value = Guard.Argument(() => beacon).NotNull().Wrap(b => b.Uuid)
+			var value = Guard.Argument(() => beacon).NotNull().Wrap(b => b.Uuid!)
 				.NotNull().NotEmpty().Matches(_physicalAddressRegexPattern).Value;
 
 			var match = _physicalAddressRegex.Match(value);

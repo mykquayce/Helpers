@@ -39,7 +39,8 @@ namespace Helpers.GlobalCache.Clients.Concrete
 			_udpClient = new System.Net.Sockets.UdpClient { ExclusiveAddressUse = false, };
 			_udpClient.JoinMulticastGroup(broadcastIPAddress);
 			var socket = _udpClient.Client;
-			socket.Bind(IPEndPoint.Parse("0.0.0.0:" + receivePort));
+			var endPoint = new IPEndPoint(IPAddress.Any, receivePort);
+			socket.Bind(endPoint);
 		}
 
 		public void Dispose() => _udpClient?.Dispose();

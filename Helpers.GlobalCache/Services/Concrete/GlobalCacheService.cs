@@ -3,7 +3,6 @@ using Helpers.GlobalCache.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.GlobalCache.Services.Concrete
 {
-	public class GlobalCacheService : IGlobalCacheService
+	public sealed class GlobalCacheService : IGlobalCacheService
 	{
 		public record Config
 		{
