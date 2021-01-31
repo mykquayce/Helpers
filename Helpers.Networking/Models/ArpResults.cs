@@ -23,7 +23,7 @@ namespace Helpers.Networking.Models
 		{
 			if (string.IsNullOrWhiteSpace(s)) throw new ArgumentNullException(nameof(s));
 
-			var match = Regex.Match(s, @"Interface: ((?:\d+\.?){4}) --- 0x\d+");
+			var match = Regex.Match(s, @"Interface: ((?:\d+\.?){4}) --- 0x[0-9a-f]+");
 
 			if (!match.Success) throw new ArgumentOutOfRangeException(nameof(s), s);
 

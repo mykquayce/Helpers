@@ -5,6 +5,6 @@ namespace Helpers.Networking.Clients
 {
 	public interface IWhoIsClient
 	{
-		IAsyncEnumerable<(IPAddress, byte)> GetIpsAsync(int asn);
+		IAsyncEnumerable<Models.SubnetAddress> GetIpsAsync(int asn);
 	}
 }

@@ -18,7 +18,7 @@ namespace Helpers.Networking.Clients.Concrete
 		public WhoIsClient() : base("riswhois.ripe.net", 43)
 		{ }
 
-		public async IAsyncEnumerable<(IPAddress, byte)> GetIpsAsync(int asn)
+		public async IAsyncEnumerable<Models.SubnetAddress> GetIpsAsync(int asn)
 		{
 			Guard.Argument(() => asn).Positive();
 
@@ -33,14 +33,14 @@ namespace Helpers.Networking.Clients.Concrete
 			}
 		}
 
-		public static IEnumerable<(IPAddress, byte)> Parse(string response)
+		public static IEnumerable<Models.SubnetAddress> Parse(string response)
 		{
 			Guard.Argument(() => response).NotNull();
 
 			return _ipRegices.Select(r => r.Matches(response)).SelectMany(Parse);
 		}
 
-		public static IEnumerable<(IPAddress, byte)> Parse(IEnumerable<Match> matches)
+		public static IEnumerable<Models.SubnetAddress> Parse(IEnumerable<Match> matches)
 		{
 			Guard.Argument(() => matches).NotNull();
 
@@ -52,7 +52,7 @@ namespace Helpers.Networking.Clients.Concrete
 				var ip = IPAddress.Parse(ipString);
 				var subnet = byte.Parse(subnetString);
 
-				yield return (ip, subnet);
+				yield return new Models.SubnetAddress(ip, subnet);
 			}
 		}
 	}

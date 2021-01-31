@@ -1,0 +1,25 @@
+﻿using Microsoft.Extensions.Configuration;
+using System;
+
+namespace Helpers.OpenWrt.Tests.Fixtures
+{
+	public class OpenWrtClientFixture
+	{
+		public OpenWrtClientFixture()
+		{
+			var httpClientFixture = new XUnitClassFixtures.HttpClientFixture();
+			var userSecretsFixture = new XUnitClassFixtures.UserSecretsFixture();
+			Settings = userSecretsFixture.Configuration
+				.GetSection("OpenWrt")
+				.Get<Clients.Concrete.OpenWrtClient.Settings>()
+				?? throw new ArgumentNullException("missing config");
+
+			httpClientFixture.HttpClient.BaseAddress = new Uri("http://" + Settings.EndPoint);
+
+			OpenWrtClient = new Clients.Concrete.OpenWrtClient(httpClientFixture.HttpClient, Settings);
+		}
+
+		public Clients.Concrete.OpenWrtClient.Settings Settings { get; }
+		public Clients.IOpenWrtClient OpenWrtClient { get; }
+	}
+}

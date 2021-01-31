@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Networking.Tests
@@ -10,15 +11,17 @@ namespace Helpers.Networking.Tests
 		public async Task Test1(int asn)
 		{
 			var sut = new Helpers.Networking.Clients.Concrete.WhoIsClient();
-			var tuples = sut.GetIpsAsync(asn);
 
-			Assert.NotNull(tuples);
+			var subnetAddresses = await sut.GetIpsAsync(asn).ToListAsync();
 
-			await foreach (var (ip, mask) in tuples)
+			Assert.NotNull(subnetAddresses);
+			Assert.NotEmpty(subnetAddresses);
+
+			foreach (var (ip, mask) in subnetAddresses)
 			{
 				Assert.NotNull(ip);
 				Assert.NotEmpty(ip.ToString());
-				Assert.InRange(mask, 0, 64);
+				Assert.InRange(mask ?? -1, 0, 64);
 			}
 		}
 	}
