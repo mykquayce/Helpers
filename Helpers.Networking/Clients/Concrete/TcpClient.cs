@@ -7,8 +7,8 @@ namespace Helpers.Networking.Clients.Concrete
 {
 	public class TcpClient : ITcpClient
 	{
-		private string _hostname;
-		private int _port;
+		private readonly string _hostname;
+		private readonly int _port;
 		private readonly System.Net.Sockets.TcpClient _tcpClient;
 		private bool _isDisposed;
 
