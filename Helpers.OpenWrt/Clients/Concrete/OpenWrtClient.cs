@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Helpers.Web.Extensions;
+using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
 using System.Text.Json;
@@ -17,10 +18,11 @@ namespace Helpers.OpenWrt.Clients.Concrete
 			public Settings() : this(default, default) { }
 		}
 
-		public OpenWrtClient(HttpClient httpClient, Settings settings)
+		public OpenWrtClient(HttpClient httpClient, IOptions<Settings> options)
 			: base(httpClient)
 		{
-			_password = Guard.Argument(() => settings).NotNull().Wrap(s => s.Password!)
+			_password = Guard.Argument(() => options).NotNull().Wrap(o => o.Value)
+				.NotNull().Wrap(s => s.Password!)
 				.NotNull().NotEmpty().NotWhiteSpace().NotEqual("\u2026").Value;
 		}
 

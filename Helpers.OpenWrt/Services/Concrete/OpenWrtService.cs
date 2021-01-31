@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -21,6 +22,13 @@ namespace Helpers.OpenWrt.Services.Concrete
 		{
 			Guard.Argument(() => subnetAddress).NotNull();
 			return _openWrtClient.ExecuteCommandAsync("ip route add blackhole " + subnetAddress);
+		}
+
+		public Task AddBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		{
+			Guard.Argument(() => subnetAddresses).NotNull();
+			var tasks = subnetAddresses.Select(AddBlackholeAsync);
+			return Task.WhenAll(tasks);
 		}
 
 		public async IAsyncEnumerable<Helpers.Networking.Models.SubnetAddress> GetBlackholesAsync()
