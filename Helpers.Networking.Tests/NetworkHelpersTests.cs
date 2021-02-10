@@ -38,21 +38,21 @@ namespace Helpers.Networking.Tests
 		public void RunArpCommand(string physicalAddressString, string expectedIPAddressString)
 		{
 			// Act
-			var arpResultsCollection = NetworkHelpers.RunArpCommand();
+			var arpResultsDictionary = NetworkHelpers.RunArpCommand();
 
 			// Assert
-			Assert.NotNull(arpResultsCollection);
-			Assert.NotEmpty(arpResultsCollection);
+			Assert.NotNull(arpResultsDictionary);
+			Assert.NotEmpty(arpResultsDictionary);
 
-			foreach (var results in arpResultsCollection)
+			foreach (var (ip, results) in arpResultsDictionary)
 			{
 				Assert.NotNull(results);
 
-				Assert.NotNull(results.IPAddress);
-				Assert.NotNull(results.Results);
-				Assert.NotEmpty(results.Results);
+				Assert.NotNull(ip);
+				Assert.NotNull(results);
+				Assert.NotEmpty(results);
 
-				foreach (var result in results.Results)
+				foreach (var result in results)
 				{
 					Assert.NotNull(result);
 					Assert.NotNull(result.IPAddress);
@@ -62,10 +62,6 @@ namespace Helpers.Networking.Tests
 					Assert.NotEqual(Models.ArpResult.Types.None, result.Type);
 				}
 			}
-
-			Assert.Equal(
-				IPAddress.Parse(expectedIPAddressString),
-				arpResultsCollection.GetIPAddressFromPhysicalAddress(PhysicalAddress.Parse(physicalAddressString)));
 		}
 	}
 }

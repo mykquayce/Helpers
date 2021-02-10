@@ -42,10 +42,10 @@ namespace Helpers.Networking
 			}
 		}
 
-		public static Models.ArpResultsCollection RunArpCommand()
+		public static Models.ArpResultsDictionary RunArpCommand()
 		{
 			var output = RunCommand("arp", "-a");
-			return Models.ArpResultsCollection.Parse(output);
+			return Models.ArpResultsDictionary.Parse(output);
 		}
 
 		public static string RunCommand(string fileName, string? arguments = default)
