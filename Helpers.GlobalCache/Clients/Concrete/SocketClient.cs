@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -34,11 +35,18 @@ namespace Helpers.GlobalCache.Clients.Concrete
 		public ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
 			=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None);
 
-		public async Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<byte> ReceiveAsync(CancellationToken? cancellationToken = default)
 		{
-			var buffer = new byte[_bufferSize];
-			var bytesRead = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
-			return buffer[..bytesRead];
+			var count = 0;
+			var buffer = new byte[1];
+			await using var stream = new NetworkStream(_socket);
+
+			do
+			{
+				count = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
+				if (count > 0) yield return buffer[0];
+			}
+			while (count > 0);
 		}
 	}
 }

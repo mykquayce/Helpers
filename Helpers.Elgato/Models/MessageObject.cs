@@ -2,18 +2,10 @@
 
 namespace Helpers.Elgato.Models
 {
-	public record MessageObject
-	{
 #pragma warning disable IDE1006 // Naming Styles
-		public int? numberOfLights { get; init; }
-		public IList<LightObject>? lights { get; init; }
-
-		public record LightObject
-		{
-			public byte? on { get; init; }
-			public byte? brightness { get; init; }
-			public short? temperature { get; init; }
-		}
-#pragma warning restore IDE1006 // Naming Styles
+	public record MessageObject(int? numberOfLights, IList<MessageObject.LightObject>? lights)
+	{
+		public record LightObject(byte? on, byte? brightness, short? temperature);
 	}
+#pragma warning restore IDE1006 // Naming Styles
 }
