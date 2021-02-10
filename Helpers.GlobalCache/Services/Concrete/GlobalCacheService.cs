@@ -3,6 +3,7 @@ using Helpers.GlobalCache.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -81,12 +82,12 @@ namespace Helpers.GlobalCache.Services.Concrete
 		private async Task<string> ConnectSendReceiveAsync(EndPoint endPoint, string message)
 		{
 			var messageBytes = _encoding.GetBytes(message);
-			var responseBytes = await ConnectSendReceiveAsync(endPoint, messageBytes);
+			var responseBytes = await ConnectSendReceiveAsync(endPoint, messageBytes).ToArrayAsync();
 			var response = _encoding.GetString(responseBytes);
 			return response;
 		}
 
-		private async Task<byte[]> ConnectSendReceiveAsync(EndPoint endPoint, byte[] message)
+		private async IAsyncEnumerable<byte> ConnectSendReceiveAsync(EndPoint endPoint, byte[] message)
 		{
 			using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
 
@@ -100,7 +101,10 @@ namespace Helpers.GlobalCache.Services.Concrete
 				await Task.Delay(millisecondsDelay: 100);
 			}
 
-			return await _socketClient.ReceiveAsync(cts.Token);
+			await foreach (var @byte in _socketClient.ReceiveAsync(cts.Token))
+			{
+				yield return @byte;
+			}
 		}
 	}
 }

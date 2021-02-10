@@ -18,6 +18,16 @@ dotnet user-secrets set DockerHub:Username … --id 8391cb70-d94f-4863-b7e4-5659af
 ```bash
 dotnet user-secrets set Elgato:EndPoint 192.168.1.218:9123 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
+#### Helpers.OpenWrt
+```bash
+dotnet user-secrets set OpenWrt:EndPoint 192.168.1.10 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set OpenWrt:Password … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
+#### Helpers.PhilipsHue
+```bash
+dotnet user-secrets set PhilipsHue:BridgeIPAddress 192.168.1.156 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set PhilipsHue:Username … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
 #### Helpers.Slack.Tests
 ```powershell
 dotnet user-secrets set Slack:Token xoxp-000000000000-000000000000-000000000000-00000000000000000000000000000000 --id 8391cb70-d94f-4863-b7e4-5659af167bc6

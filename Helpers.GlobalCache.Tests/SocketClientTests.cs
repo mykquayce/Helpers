@@ -43,7 +43,7 @@ namespace Helpers.GlobalCache.Tests
 		public async Task Receive(string ipEndPointString, string message, string expected)
 		{
 			await Send(ipEndPointString, message);
-			var result = await _sut.ReceiveAsync();
+			var result = await _sut.ReceiveAsync().ToArrayAsync();
 			Assert.Equal((byte)'c', result[0]);
 			var actual = Encoding.UTF8.GetString(result);
 			Assert.Equal(expected, actual);

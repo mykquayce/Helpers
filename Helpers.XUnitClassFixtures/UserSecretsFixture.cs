@@ -13,5 +13,6 @@ namespace Helpers.XUnitClassFixtures
 
 		public string this[string key] => Configuration[key];
 		public IConfiguration Configuration { get; }
+		public T GetSection<T>(string section) => Configuration.GetSection(section).Get<T>();
 	}
 }
