@@ -11,6 +11,6 @@ namespace Helpers.GlobalCache.Clients
 		ValueTask ConnectAsync(EndPoint endPoint, CancellationToken? cancellationToken = default);
 		ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default);
 		ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default);
-		IAsyncEnumerable<byte> ReceiveAsync(CancellationToken? cancellationToken = default);
+		Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default);
 	}
 }
