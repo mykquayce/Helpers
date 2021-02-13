@@ -10,7 +10,7 @@ namespace Helpers.PhilipsHue.Clients.Concrete
 {
 	public class PhilipsHueClient : Helpers.Web.WebClientBase, IPhilipsHueClient
 	{
-		public record Config(string? BridgeIPAddress, string? Username)
+		public record Config(string? BridgePhysicalAddress, string? Username)
 		{
 			// needed for deserialization
 			public Config() : this(default, default) { }

@@ -64,23 +64,23 @@ namespace Helpers.PhilipsHue.Tests
 				.Build();
 
 			Assert.NotNull(config);
-			Assert.NotNull(config["PhilipsHue:BridgeIPAddress"]);
+			Assert.NotNull(config["PhilipsHue:BridgePhysicalAddress"]);
 			Assert.NotNull(config["PhilipsHue:Username"]);
 
 			var section = config.GetSection("PhilipsHue");
 
 			Assert.NotNull(section);
-			Assert.NotNull(section["BridgeIPAddress"]);
+			Assert.NotNull(section["BridgePhysicalAddress"]);
 			Assert.NotNull(section["Username"]);
-			Assert.NotEmpty(section["BridgeIPAddress"]);
+			Assert.NotEmpty(section["BridgePhysicalAddress"]);
 			Assert.NotEmpty(section["Username"]);
 
 			var poco = section.Get<Helpers.PhilipsHue.Clients.Concrete.PhilipsHueClient.Config>();
 
 			Assert.NotNull(poco);
-			Assert.NotNull(poco.BridgeIPAddress);
+			Assert.NotNull(poco.BridgePhysicalAddress);
 			Assert.NotNull(poco.Username);
-			Assert.NotEmpty(poco.BridgeIPAddress!);
+			Assert.NotEmpty(poco.BridgePhysicalAddress!);
 			Assert.NotEmpty(poco.Username);
 		}
 	}

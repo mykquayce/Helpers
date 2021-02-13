@@ -66,5 +66,45 @@ namespace Helpers.Networking
 
 			return process.StandardOutput.ReadToEnd();
 		}
+
+		public static IPAddress IPAddressFromPhysicalAddress(PhysicalAddress physicalAddress)
+		{
+			foreach (var (_, results) in RunArpCommand())
+			{
+				foreach (var (mac, ip, _) in results)
+				{
+					if (mac.Equals(physicalAddress))
+					{
+						return ip;
+					}
+				}
+			}
+
+			throw new KeyNotFoundException($"{physicalAddress} not found in ARP table")
+			{
+				Data = { [nameof(physicalAddress)] = physicalAddress, },
+			};
+		}
+
+		public static PhysicalAddress PhysicalAddressFromIPAddress(IPAddress ipAddress)
+		{
+			PingAsync(ipAddress).GetAwaiter().GetResult();
+
+			foreach (var (_, results) in RunArpCommand())
+			{
+				foreach (var (mac, ip, _) in results)
+				{
+					if (ip.Equals(ipAddress))
+					{
+						return mac;
+					}
+				}
+			}
+
+			throw new KeyNotFoundException($"{ipAddress} not found in ARP table")
+			{
+				Data = { [nameof(ipAddress)] = ipAddress, },
+			};
+		}
 	}
 }

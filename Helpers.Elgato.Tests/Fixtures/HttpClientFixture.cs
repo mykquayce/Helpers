@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System;
 using System.Net.Http;
 using Xunit;
 
@@ -11,10 +8,11 @@ namespace Helpers.Elgato.Tests.Fixtures
 	{
 		public HttpClientFixture()
 		{
-			var config = new Helpers.XUnitClassFixtures.UserSecretsFixture().Configuration;
-			var endPointString = config["Elgato:EndPoint"] ?? throw new KeyNotFoundException("endpoint not found in config");
-			var endPoint = IPEndPoint.Parse(endPointString);
-			var baseAddress = new Uri("http://" + endPoint);
+			var userSecrets = new UserSecretsFixture();
+
+			var ipAddress = Helpers.Networking.NetworkHelpers.IPAddressFromPhysicalAddress(userSecrets.PhysicalAddress);
+			var port = userSecrets.Port;
+			var baseAddress = new Uri($"http://{ipAddress}:{port:D}");
 			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
 			HttpClient = new HttpClient(handler) { BaseAddress = baseAddress, };
 		}

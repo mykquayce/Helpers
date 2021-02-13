@@ -1,22 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using Xunit;
 
 namespace Helpers.RabbitMQ.Tests
 {
-	public sealed class RabbitMQServiceTests : IDisposable
+	public sealed class RabbitMQServiceTests : IDisposable, IClassFixture<Fixtures.UserSecretsFixture>
 	{
 		private readonly IRabbitMQService _service;
 
-		public RabbitMQServiceTests()
+		public RabbitMQServiceTests(Fixtures.UserSecretsFixture fixture)
 		{
-			var config = new ConfigurationBuilder()
-				.AddUserSecrets(this.GetType().Assembly)
-				.Build();
-
-			var rabbitMqSettings = config
-				.GetSection("RabbitMQ")
-				.Get<Models.RabbitMQSettings>();
+			var rabbitMqSettings = fixture.Settings;
 
 			_service = new Concrete.RabbitMQService(rabbitMqSettings);
 		}

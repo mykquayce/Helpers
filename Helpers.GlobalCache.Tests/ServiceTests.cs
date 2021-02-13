@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Helpers.GlobalCache.Tests
 {
+	[Collection("Non-Parallel Collection")]
 	public class ServiceTests : IClassFixture<Fixtures.GlobalCacheServiceFixture>
 	{
 		private readonly Services.IGlobalCacheService _sut;

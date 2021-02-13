@@ -6,18 +6,18 @@ using System.Text.RegularExpressions;
 
 namespace Helpers.GlobalCache.Models
 {
-	public record Beacon
+	public record Beacon(
+		string? ConfigUrl,
+		string? Make,
+		string? Model,
+		string? PackageLevel,
+		string? PCB_PN,
+		string? Revision,
+		string? SDKClass,
+		string? Status,
+		string? Uuid
+		)
 	{
-		public string? ConfigUrl { get; init; }
-		public string? Make { get; init; }
-		public string? Model { get; init; }
-		public string? PackageLevel { get; init; }
-		public string? PCB_PN { get; init; }
-		public string? Revision { get; init; }
-		public string? SDKClass { get; init; }
-		public string? Status { get; init; }
-		public string? Uuid { get; init; }
-
 		#region parse
 		private const RegexOptions _options = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
 		private readonly static Regex _beaconRegex = new("<-(.+?)=(.+?)>", _options);
@@ -42,22 +42,23 @@ namespace Helpers.GlobalCache.Models
 			var keys = Guard.Argument(() => dictionary).NotNull()
 				.Wrap(d => d.Keys).NotNull().NotEmpty().Value;
 
+			var keysString = string.Join(',', keys!);
+
 			string f(string key) => dictionary.TryGetValue(key, out var s)
 				? s
-				: throw new KeyNotFoundException($"{key} key not found in keys: " + string.Join(",", keys!));
+				: throw new KeyNotFoundException($"{key} {nameof(key)} not found in {nameof(keys)}: {keysString}");
 
-			return new Beacon
-			{
-				ConfigUrl = f("Config-URL"),
-				Make = f("Make"),
-				Model = f("Model"),
-				PackageLevel = f("Pkg_Level"),
-				PCB_PN = f("PCB_PN"),
-				Revision = f("Revision"),
-				SDKClass = f("SDKClass"),
-				Status = f("Status"),
-				Uuid = f("UUID"),
-			};
+			var configUrl = f("Config-URL");
+			var make = f("Make");
+			var model = f("Model");
+			var pkgLevel = f("Pkg_Level");
+			var pcb_pn = f("PCB_PN");
+			var revision = f("Revision");
+			var sdkClass = f("SDKClass");
+			var status = f("Status");
+			var uuid = f("UUID");
+
+			return new Beacon(configUrl, make, model, pkgLevel, pcb_pn, revision, sdkClass, status, uuid);
 		}
 		#endregion parse
 	}

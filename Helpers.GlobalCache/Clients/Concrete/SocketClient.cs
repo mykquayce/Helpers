@@ -35,18 +35,11 @@ namespace Helpers.GlobalCache.Clients.Concrete
 		public ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
 			=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None);
 
-		public async IAsyncEnumerable<byte> ReceiveAsync(CancellationToken? cancellationToken = default)
+		public async Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default)
 		{
-			var count = 0;
-			var buffer = new byte[1];
-			await using var stream = new NetworkStream(_socket);
-
-			do
-			{
-				count = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
-				if (count > 0) yield return buffer[0];
-			}
-			while (count > 0);
+			var buffer = new byte[_bufferSize];
+			var bytesRead = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
+			return buffer[..bytesRead];
 		}
 	}
 }
