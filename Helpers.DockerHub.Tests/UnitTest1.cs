@@ -197,9 +197,7 @@ namespace Helpers.DockerHub.Tests
    ]
 }";
 
-			var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-			await using var stream = new MemoryStream(bytes);
-			var o = await JsonSerializer.DeserializeAsync<ManifestsResponseObject>(stream);
+			JsonSerializer.Deserialize<ManifestsResponseObject>(json);
 		}
 	}
 

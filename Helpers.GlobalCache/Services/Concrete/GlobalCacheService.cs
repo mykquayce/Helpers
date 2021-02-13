@@ -3,6 +3,7 @@ using Helpers.GlobalCache.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -100,7 +101,9 @@ namespace Helpers.GlobalCache.Services.Concrete
 				await Task.Delay(millisecondsDelay: 100);
 			}
 
-			return await _socketClient.ReceiveAsync(cts.Token);
+			var bytes = await _socketClient.ReceiveAsync(cts.Token);
+
+			return bytes;
 		}
 	}
 }

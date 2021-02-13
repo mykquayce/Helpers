@@ -150,7 +150,7 @@ namespace Helpers.Common.Tests
 			var root = new DirectoryInfo(path);
 
 			// Act
-			var directories = root.EnumerateFileSystemInfosLeafFirst().ToList();
+			var directories = root.EnumerateFileSystemInfosLeafFirst().Where(fsi => fsi is DirectoryInfo).ToList();
 
 			// Assert
 			Assert.NotNull(directories);

@@ -2,6 +2,7 @@
 using Helpers.TPLink.Models;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,10 +14,9 @@ namespace Helpers.TPLink.Concrete
 	public class TPLinkUdpClient : ITPLinkUdpClient
 	{
 		#region config poco
-		public class Config
+		public record Config(int? MillisecondsTimeout = 5_000, ushort? Port = 9_999)
 		{
-			public int? MillisecondsTimeout { get; init; } = 5_000;
-			public ushort? Port { get; init; } = 9_999;
+			public Config() : this(default, default) { }
 		}
 		#endregion config poco
 
@@ -42,11 +42,14 @@ namespace Helpers.TPLink.Concrete
 		}
 		#endregion constructors
 
-		public async Task<ResponseDataObject.SystemObject.SysInfoObject> DiscoverAsync()
+		public async Task<DiscoveryResponseObject.ResultObject> DiscoverAsync()
 		{
-			var requestObject = new { system = new { get_sysinfo = new object(), }, };
-			var responseObject = await SendAndReceiveObjectAsync<ResponseDataObject>(requestObject);
-			return responseObject.system!.get_sysinfo!;
+			var requestBytes = new byte[] { 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 70, 60, 181, 211, };
+
+			var responseBytes = await SendAndReceiveBytesAsync(requestBytes);
+			await using var responseStream = new MemoryStream(responseBytes[16..]);
+			var response = await JsonSerializer.DeserializeAsync<DiscoveryResponseObject>(responseStream);
+			return response!.result!;
 		}
 
 		public async Task<ResponseDataObject.EmeterObject.RealtimeObject> GetRealtimeAsync()

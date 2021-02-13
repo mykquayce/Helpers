@@ -57,5 +57,16 @@ namespace Helpers.TPLink.Tests
 			Assert.NotNull(data.power_mw);
 			Assert.InRange(data.power_mw!.Value, 1, int.MaxValue);
 		}
+
+		[Theory]
+		[InlineData("amp", "1.1.0 Build 201016 Rel.175140")]
+		public async Task HasPlugUpdated(string alias, string expectedFwVer)
+		{
+			var token = await _sut.LoginAsync(_userName, _password);
+			var device = await _sut.GetDevicesAsync(token).SingleOrDefaultAsync(d => d.alias == alias);
+
+			Assert.NotNull(device);
+			Assert.NotEqual(device!.fwVer, expectedFwVer, StringComparer.InvariantCultureIgnoreCase);
+		}
 	}
 }
