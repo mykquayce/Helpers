@@ -48,11 +48,18 @@ namespace Helpers.GlobalCache.Clients.Concrete
 
 		public async IAsyncEnumerable<Models.Beacon> DiscoverAsync()
 		{
+			string? uuid = default;
+
 			using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
 
 			await foreach (var beacon in DiscoverAsync(cts.Token))
 			{
-				yield return beacon;
+				if (uuid != beacon.Uuid)
+				{
+					yield return beacon;
+				}
+
+				uuid = beacon.Uuid;
 			}
 		}
 

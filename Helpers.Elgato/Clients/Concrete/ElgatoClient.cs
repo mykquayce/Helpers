@@ -37,11 +37,7 @@ namespace Helpers.Elgato.Clients.Concrete
 		{
 			var uri = new Uri("/elgato/lights", UriKind.Relative);
 
-			var messageObject = new Models.MessageObject
-			{
-				numberOfLights = 1,
-				lights = new[] { light, },
-			};
+			var messageObject = new Models.MessageObject(numberOfLights: 1, lights: new Models.MessageObject.LightObject[1] { light, });
 
 			var json = JsonSerializer.Serialize(messageObject);
 

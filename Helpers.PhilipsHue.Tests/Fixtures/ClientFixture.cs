@@ -2,6 +2,7 @@
 using Helpers.PhilipsHue.Clients.Concrete;
 using System;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 
 namespace Helpers.PhilipsHue.Tests.Fixtures
 {
@@ -13,7 +14,9 @@ namespace Helpers.PhilipsHue.Tests.Fixtures
 		{
 			var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 			var config = userSecretsFixture.GetSection<PhilipsHueClient.Config>(_section);
-			var baseAddress = new Uri("http://" + config.BridgeIPAddress!.ToString());
+			var physicalAddress = PhysicalAddress.Parse(config.BridgePhysicalAddress);
+			var ipAddress = Helpers.Networking.NetworkHelpers.IPAddressFromPhysicalAddress(physicalAddress);
+			var baseAddress = new Uri("http://" + ipAddress.ToString());
 			var httpClient = new HttpClient { BaseAddress = baseAddress, };
 			Client = new PhilipsHueClient(httpClient, config);
 		}

@@ -58,12 +58,7 @@ namespace Helpers.Elgato.Tests
 		[InlineData(0, 23, 343)]
 		public Task SetLight(int? on, int? brightness, int? temperature)
 		{
-			var light = new Models.MessageObject.LightObject
-			{
-				on = (byte?)on,
-				brightness = (byte?)brightness,
-				temperature = (short?)temperature,
-			};
+			var light = new Models.MessageObject.LightObject((byte?)on, (byte?)brightness, (byte?)temperature);
 
 			return _sut.SetLightAsync(light);
 		}

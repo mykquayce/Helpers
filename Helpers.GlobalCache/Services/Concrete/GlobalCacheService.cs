@@ -82,12 +82,12 @@ namespace Helpers.GlobalCache.Services.Concrete
 		private async Task<string> ConnectSendReceiveAsync(EndPoint endPoint, string message)
 		{
 			var messageBytes = _encoding.GetBytes(message);
-			var responseBytes = await ConnectSendReceiveAsync(endPoint, messageBytes).ToArrayAsync();
+			var responseBytes = await ConnectSendReceiveAsync(endPoint, messageBytes);
 			var response = _encoding.GetString(responseBytes);
 			return response;
 		}
 
-		private async IAsyncEnumerable<byte> ConnectSendReceiveAsync(EndPoint endPoint, byte[] message)
+		private async Task<byte[]> ConnectSendReceiveAsync(EndPoint endPoint, byte[] message)
 		{
 			using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
 
@@ -101,10 +101,9 @@ namespace Helpers.GlobalCache.Services.Concrete
 				await Task.Delay(millisecondsDelay: 100);
 			}
 
-			await foreach (var @byte in _socketClient.ReceiveAsync(cts.Token))
-			{
-				yield return @byte;
-			}
+			var bytes = await _socketClient.ReceiveAsync(cts.Token);
+
+			return bytes;
 		}
 	}
 }

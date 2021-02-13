@@ -7,14 +7,22 @@ using Xunit;
 
 namespace Helpers.MySql.Tests
 {
-	public class RepositoryBaseTests
+	public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
 	{
+		private readonly string _username, _password;
+
+		public RepositoryBaseTests(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
+		{
+			_username = fixture.Configuration["MySql:Username"];
+			_password = fixture.Configuration["MySql:Password"];
+		}
+
 		[Theory(Skip = "requires db access")]
-		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7", "test", "table1")]
-		public async Task RepositoryBaseTests_EndToEnd(string server, int port, string userId, string password, string database, string tableName)
+		[InlineData("localhost", 3_306, "test", "table1")]
+		public async Task RepositoryBaseTests_EndToEnd(string server, int port, string database, string tableName)
 		{
 			// Arrange, Act
-			var sut = new TestRepository(server, port, userId, password, database);
+			var sut = new TestRepository(server, port, _username, _password, database);
 
 			// Act
 			var now = DateTime.UtcNow;
@@ -44,7 +52,7 @@ namespace Helpers.MySql.Tests
 				new { id = 1, name = "test", },
 			});
 
-			var results = (await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;").WaitAsync()).ToList();
+			var results = await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;").ToListAsync();
 
 			// Assert
 			Assert.NotEmpty(results);
@@ -65,10 +73,10 @@ namespace Helpers.MySql.Tests
 		}
 
 		[Theory(Skip = "requires db access")]
-		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7", "test", "table2")]
-		public async Task RepositoryBaseTests_TransactionTest(string server, int port, string userId, string password, string database, string tableName)
+		[InlineData("localhost", 3_306, "test", "table2")]
+		public async Task RepositoryBaseTests_TransactionTest(string server, int port, string database, string tableName)
 		{
-			using var sut = new TestRepository(server, port, userId, password, database);
+			using var sut = new TestRepository(server, port, _username, _password, database);
 
 			await sut.SafeDropTableAsync(tableName);
 
@@ -88,7 +96,7 @@ namespace Helpers.MySql.Tests
 			using var transaction = sut.BeginTransaction();
 
 			// check it's empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
 
 			Assert.Empty(results);
 
@@ -99,7 +107,7 @@ namespace Helpers.MySql.Tests
 				transaction);
 
 			// check it's not empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
 
 			Assert.NotEmpty(results);
 
@@ -107,7 +115,7 @@ namespace Helpers.MySql.Tests
 			transaction.Rollback();
 
 			// check the table is empty
-			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").WaitAsync();
+			results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
 
 			Assert.Empty(results);
 
@@ -120,10 +128,10 @@ namespace Helpers.MySql.Tests
 		}
 
 		[Theory(Skip = "requires db access")]
-		[InlineData("localhost", 3_306, "root", "thaonad2aeF4Di4zais9IefoodaiBee7")]
-		public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, int port, string userId, string password, string? database = default)
+		[InlineData("localhost", 3_306)]
+		public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, int port, string? database = default)
 		{
-			using var sut = new TestRepository(server, port, userId, password, database);
+			using var sut = new TestRepository(server, port, _username, _password, database);
 
 			using (var transaction = sut.BeginTransaction())
 			{
@@ -136,11 +144,11 @@ namespace Helpers.MySql.Tests
 			}
 		}
 
-		[Theory]
-		[InlineData("localhost", 3_306, "movietimes", "xiebeiyoothohYaidieroh8ahchohphi")]
-		public async Task RepositoryBaseTests_ReturnDateTime(string server, int port, string userId, string password, string? database = default)
+		[Theory(Skip = "requires db access")]
+		[InlineData("localhost", 3_306)]
+		public async Task RepositoryBaseTests_ReturnDateTime(string server, int port, string? database = default)
 		{
-			using var sut = new TestRepository(server, port, userId, password, database);
+			using var sut = new TestRepository(server, port, _username, _password, database);
 
 			var results = sut.QueryAsync<DateTimeResult>("select now() now union all select now();");
 
@@ -159,75 +167,6 @@ namespace Helpers.MySql.Tests
 			Assert.Equal(2, count);
 		}
 
-		private class DateTimeResult
-		{
-			public DateTime? Now { get; set; }
-		}
-
-		[Theory]
-		[InlineData("localhost", 3_306, "movietimes", "xiebeiyoothohYaidieroh8ahchohphi")]
-		public async Task RepositoryBaseTests_Queries(string server, int port, string userId, string password, string? database = default)
-		{
-			using var sut = new TestRepository(server, port, userId, password, database);
-
-			var sql = @"select
-					c.id cinemaId,
-					c.name cinemaName,
-					f.title filmTitle,
-					f.duration filmDuration,
-					s.time showDateTime
-				from `cineworld`.`show` s
-					join `cineworld`.`cinema` c on s.cinemaId = c.id
-					join `cineworld`.`film` f on s.filmEdi = f.edi where c.id in (23) order by c.id, s.time, f.title;";
-
-			var results = sut.QueryAsync<QueryResult>(sql);
-
-			var now = DateTime.UtcNow;
-			var count = 0;
-
-			await foreach (var result in results)
-			{
-				count++;
-				Assert.NotNull(result);
-				Assert.InRange(result.CinemaId ?? 0, (short)1, short.MaxValue);
-				Assert.NotNull(result.CinemaName);
-				Assert.NotEmpty(result.CinemaName);
-				Assert.NotNull(result.FilmTitle);
-				Assert.NotEmpty(result.FilmTitle);
-				Assert.NotEqual(default, result.ShowDateTime);
-				Assert.Equal(DateTimeKind.Unspecified, result.ShowDateTime!.Value.Kind);
-				Assert.InRange(result.ShowDateTime!.Value, now.AddYears(-1), now.AddYears(1));
-			}
-
-			Assert.InRange(count, 1, int.MaxValue);
-		}
-
-		private class QueryResult
-		{
-			public short? CinemaId { get; set; }
-			public string? CinemaName { get; set; }
-			public string? FilmTitle { get; set; }
-			public short? FilmDuration { get; set; }
-			public DateTime? ShowDateTime { get; set; }
-		}
-	}
-
-	public static class ExtensionMethods
-	{
-		public async static Task<IEnumerable<T>> WaitAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
-		{
-			var results = new List<T>();
-
-			var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator();
-
-			while (await asyncEnumerator.MoveNextAsync())
-			{
-				results.Add(asyncEnumerator.Current);
-			}
-
-			await asyncEnumerator.DisposeAsync();
-
-			return results;
-		}
+		private record DateTimeResult(DateTime? Now);
 	}
 }

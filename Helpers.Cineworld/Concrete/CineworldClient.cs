@@ -38,9 +38,12 @@ namespace Helpers.Cineworld.Concrete
 
 			var films = Transform<FilmsType>(stream, xslt);
 
-			foreach (var film in films.Film!)
+			if (films.Film is not null)
 			{
-				yield return film;
+				foreach (var film in films.Film!)
+				{
+					yield return film;
+				}
 			}
 		}
 
