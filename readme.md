@@ -11,12 +11,12 @@ dotnet user-secrets set Discord:WebHook:Token … --id 8391cb70-d94f-4863-b7e4-565
 ```
 #### Helpers.DockerHub.Tests
 ```powershell
-dotnet user-secrets set DockerHub:Password ***REMOVED*** --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set DockerHub:Username eassbhhtgu --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set DockerHub:Password … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set DockerHub:Username … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.Elgato.Tests
 ```bash
-dotnet user-secrets set Elgato:EndPoint:PhysicalAddress 3c6a9d14d765 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Elgato:EndPoint:PhysicalAddress … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set Elgato:EndPoint:Port 9123 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.MySql
@@ -31,7 +31,7 @@ dotnet user-secrets set OpenWrt:Password … --id 8391cb70-d94f-4863-b7e4-5659af16
 ```
 #### Helpers.PhilipsHue
 ```bash
-dotnet user-secrets set PhilipsHue:BridgePhysicalAddress ecb5fa18e324 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set PhilipsHue:BridgePhysicalAddress  …--id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set PhilipsHue:Username … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.RabbitMQ.Tests
