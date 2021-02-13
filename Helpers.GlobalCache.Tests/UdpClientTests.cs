@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Helpers.GlobalCache.Tests
 {
+	[Collection("Non-Parallel Collection")]
 	public class UdpClientTests : IClassFixture<Fixtures.UdpClientFixture>
 	{
 		private readonly Clients.IUdpClient _sut;
@@ -14,13 +15,18 @@ namespace Helpers.GlobalCache.Tests
 		}
 
 		[Theory]
-		[InlineData("GlobalCache_000C1E059CAD", "http://192.168.1.114")]
-		public async Task Discover(string expectedUuid, string expectedConfigUrl)
+		[InlineData("GlobalCache_000C1E059CAD", @"^http:\/\/192\.168\.1\.\d+$")]
+		public async Task Discover(string expectedUuid, string expectedConfigUrlPattern)
 		{
-			var beacon = await _sut.DiscoverAsync().FirstAsync();
+			var beacons = await _sut.DiscoverAsync().ToListAsync();
+
+			Assert.Single(beacons);
+			Assert.DoesNotContain(default, beacons);
+
+			var beacon = beacons.Single();
 
 			Assert.Equal(expectedUuid, beacon.Uuid);
-			Assert.Equal(expectedConfigUrl, beacon.ConfigUrl);
+			Assert.Matches(expectedConfigUrlPattern, beacon.ConfigUrl);
 		}
 	}
 }

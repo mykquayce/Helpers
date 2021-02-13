@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using OpenTracing;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace Helpers.Tracing.Middleware
 				return;
 			}
 
-			BufferingHelper.EnableRewind(context.Request);
+			context.Request.EnableBuffering();
 
 			string body;
 

@@ -28,7 +28,12 @@ namespace Helpers.Cineworld.Tests
 			var nextYear = today.AddYears(1);
 
 			// Act
-			await foreach (var cinema in _cineworldClient.GetListingsAsync())
+			var listings = await _cineworldClient.GetListingsAsync().ToListAsync();
+
+			// Assert
+			Assert.DoesNotContain(default, listings);
+
+			foreach (var cinema in listings)
 			{
 				// Assert
 				Assert.NotNull(cinema.Name);
@@ -73,7 +78,7 @@ namespace Helpers.Cineworld.Tests
 			var films = await _cineworldClient.GetFilmsAsync().ToListAsync();
 
 			Assert.NotNull(films);
-			Assert.NotEmpty(films);
+			Assert.DoesNotContain(default, films);
 
 			foreach (var film in films)
 			{
