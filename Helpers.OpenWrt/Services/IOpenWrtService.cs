@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Helpers.OpenWrt.Services
 {
-	public interface IOpenWrtService
+	public interface IOpenWrtService : IDisposable
 	{
 		Task AddBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress);
 		Task AddBlackholesAsync(IEnumerable<Helpers.Networking.Models.SubnetAddress> subnetAddresses);

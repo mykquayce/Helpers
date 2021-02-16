@@ -4,7 +4,7 @@ using System;
 
 namespace Helpers.OpenWrt.Tests.Fixtures
 {
-	public class OpenWrtClientFixture
+	public sealed class OpenWrtClientFixture : IDisposable
 	{
 		public OpenWrtClientFixture()
 		{
@@ -24,5 +24,7 @@ namespace Helpers.OpenWrt.Tests.Fixtures
 
 		public Clients.Concrete.OpenWrtClient.Settings Settings { get; }
 		public Clients.IOpenWrtClient OpenWrtClient { get; }
+
+		public void Dispose() => OpenWrtClient.Dispose();
 	}
 }
