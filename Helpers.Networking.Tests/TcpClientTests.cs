@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Networking.Tests
@@ -16,6 +17,10 @@ namespace Helpers.Networking.Tests
 
 			Assert.NotNull(response);
 			Assert.NotEmpty(response);
+
+			var lines = response.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+			Assert.DoesNotContain("% No entries found", lines);
 		}
 	}
 }

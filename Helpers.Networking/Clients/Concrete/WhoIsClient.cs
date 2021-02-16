@@ -24,7 +24,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 			var message = $"-F -K -i {asn:D}";
 
-			var response = await SendAndReceiveAsync(message);
+			var response = await base.SendAndReceiveAsync(message);
 			var tuples = Parse(response);
 
 			foreach (var tuple in tuples)
