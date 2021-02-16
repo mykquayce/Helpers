@@ -1,6 +1,8 @@
-﻿namespace Helpers.OpenWrt.Tests.Fixtures
+﻿using System;
+
+namespace Helpers.OpenWrt.Tests.Fixtures
 {
-	public class OpenWrtServiceFixture
+	public sealed class OpenWrtServiceFixture : IDisposable
 	{
 		public OpenWrtServiceFixture()
 		{
@@ -10,5 +12,7 @@
 		}
 
 		public Services.IOpenWrtService OpenWrtService { get; }
+
+		public void Dispose() => OpenWrtService.Dispose();
 	}
 }

@@ -31,6 +31,13 @@ namespace Helpers.OpenWrt.Clients.Concrete
 			Guard.Argument(() => command).NotNull().NotEmpty().NotWhiteSpace();
 
 			_token ??= await LoginAsync();
+
+			Guard.Argument(() => _token, secure: true)
+				.NotNull(message: "token is null")
+				.NotEmpty(message: "token is empty")
+				.NotWhiteSpace(message: "token is whitespace")
+				.Matches("^[0-9a-f]{32}$", message: (_, _) => "token doesn't match regex: ^[0-9a-f]{32}$");
+
 			return await SendAsync("/cgi-bin/luci/rpc/sys?auth=" + _token, "exec", command);
 		}
 
