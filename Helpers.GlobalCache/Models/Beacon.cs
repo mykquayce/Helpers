@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 
 namespace Helpers.GlobalCache.Models
@@ -18,6 +20,35 @@ namespace Helpers.GlobalCache.Models
 		string? Uuid
 		)
 	{
+		private const RegexOptions _regexOptions = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+
+		private const string _ipAddressRegexPattern = @"^http:\/\/(\d+\.\d+\.\d+\.\d+)$";
+		private readonly static Regex _ipAddressRegex = new(_ipAddressRegexPattern, _regexOptions);
+
+		private const string _physicalAddressRegexPattern = "^GlobalCache_([0-9A-F]{12})$";
+		private readonly static Regex _physicalAddressRegex = new(_physicalAddressRegexPattern, _regexOptions);
+
+		public IPAddress IPAddress
+		{
+			get
+			{
+				var match = _ipAddressRegex.Match(ConfigUrl);
+				var s = match.Groups[1].Value;
+				return IPAddress.Parse(s);
+			}
+		}
+
+		public PhysicalAddress PhysicalAddress
+		{
+			get
+			{
+				var match = _physicalAddressRegex.Match(Uuid);
+				var s = match.Groups[1].Value;
+				return PhysicalAddress.Parse(s);
+			}
+		}
+
+
 		#region parse
 		private const RegexOptions _options = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
 		private readonly static Regex _beaconRegex = new("<-(.+?)=(.+?)>", _options);
