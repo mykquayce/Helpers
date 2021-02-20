@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using Helpers.GlobalCache.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -14,27 +13,24 @@ namespace Helpers.GlobalCache.Services.Concrete
 {
 	public sealed class GlobalCacheService : IGlobalCacheService
 	{
-		public record Config
-		{
-			public ushort Port { get; init; } = 4_998;
-		}
+		public record Config(string BroadcastIPAddress = "239.255.250.250", string PhysicalAddress = "000c1e059cad", ushort Port = 4_998, ushort ReceivePort = 9_131);
 
 		private readonly static IDictionary<PhysicalAddress, IPAddress> _cache = new Dictionary<PhysicalAddress, IPAddress>();
 		private readonly static Encoding _encoding = Encoding.UTF8;
 
 		private readonly ushort _port;
-		private readonly Clients.ISocketClient _socketClient;
-		private readonly Clients.IUdpClient _udpClient;
+		private readonly Networking.Clients.ISocketClient _socketClient;
+		private readonly Clients.IDiscoveryClient _udpClient;
 
-		public GlobalCacheService(IOptions<Config> options, Clients.ISocketClient socketClient, Clients.IUdpClient udpClient)
+		public GlobalCacheService(IOptions<Config> options, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
 			: this(options.Value, socketClient, udpClient)
 		{ }
 
-		public GlobalCacheService(Config config, Clients.ISocketClient socketClient, Clients.IUdpClient udpClient)
+		public GlobalCacheService(Config config, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
 			: this(config.Port, socketClient, udpClient)
 		{ }
 
-		public GlobalCacheService(ushort port, Clients.ISocketClient socketClient, Clients.IUdpClient udpClient)
+		public GlobalCacheService(ushort port, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
 		{
 			_port = Guard.Argument(() => port).NotEqual((ushort)0).Value;
 			_socketClient = Guard.Argument(() => socketClient).NotNull().Value;
@@ -49,8 +45,8 @@ namespace Helpers.GlobalCache.Services.Concrete
 
 			await foreach (var beacon in beacons)
 			{
-				var mac = beacon.GetPhysicalAddress();
-				var ip = beacon.GetIPAddress();
+				var mac = beacon.PhysicalAddress;
+				var ip = beacon.IPAddress;
 				_cache.TryAdd(mac, ip);
 				yield return mac;
 			}
@@ -98,7 +94,7 @@ namespace Helpers.GlobalCache.Services.Concrete
 			while (--count >= 0)
 			{
 				await _socketClient.SendAsync(message, cts.Token);
-				await Task.Delay(millisecondsDelay: 100);
+				await Task.Delay(millisecondsDelay: 100, cts.Token);
 			}
 
 			var bytes = await _socketClient.ReceiveAsync(cts.Token);

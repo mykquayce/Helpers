@@ -6,11 +6,12 @@ namespace Helpers.GlobalCache.Tests.Fixtures
 	{
 		public SocketClientFixture()
 		{
-			SocketClient = new Clients.Concrete.SocketClient();
+			var config = new Helpers.Networking.Clients.Concrete.SocketClient.Config();
+			SocketClient = new Helpers.Networking.Clients.Concrete.SocketClient(config);
 		}
 
 		public void Dispose() => SocketClient?.Dispose();
 
-		public Clients.ISocketClient SocketClient { get; }
+		public Helpers.Networking.Clients.ISocketClient SocketClient { get; }
 	}
 }
