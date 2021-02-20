@@ -26,4 +26,10 @@
     <ProjectReference Include="..\Helpers.OpenWrt\Helpers.OpenWrt.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\IPAddresses.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
