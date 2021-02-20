@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -43,6 +44,25 @@ namespace Helpers.OpenWrt.Tests
 
 			// if it existed previously, put it back
 			if (exists) await _sut.AddBlackholeAsync(subnetAddress);
+		}
+
+		[Theory]
+		[InlineData("IPAddresses.csv")]
+		public async Task AddManyBlackholes(string filename)
+		{
+			var path = Path.Combine(".", "Data", filename);
+			var lines = await File.ReadAllLinesAsync(path);
+
+			Assert.NotNull(lines);
+			Assert.NotEmpty(lines);
+			Assert.DoesNotContain(default, lines);
+
+			var subnetAddresses = lines.Select(Helpers.Networking.Models.SubnetAddress.Parse).ToList();
+
+			Assert.NotEmpty(subnetAddresses);
+			Assert.DoesNotContain(default, subnetAddresses);
+
+			await _sut.AddBlackholesAsync(subnetAddresses);
 		}
 	}
 }
