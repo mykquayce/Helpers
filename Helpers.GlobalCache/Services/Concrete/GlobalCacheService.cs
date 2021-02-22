@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -13,7 +12,10 @@ namespace Helpers.GlobalCache.Services.Concrete
 {
 	public sealed class GlobalCacheService : IGlobalCacheService
 	{
-		public record Config(string BroadcastIPAddress = "239.255.250.250", string PhysicalAddress = "000c1e059cad", ushort Port = 4_998, ushort ReceivePort = 9_131);
+		public record Config(string BroadcastIPAddress, string PhysicalAddress, ushort Port, ushort ReceivePort)
+		{
+			public Config() : this("239.255.250.250", "000c1e059cad", 4_998, 9_131) { }
+		}
 
 		private readonly static IDictionary<PhysicalAddress, IPAddress> _cache = new Dictionary<PhysicalAddress, IPAddress>();
 		private readonly static Encoding _encoding = Encoding.UTF8;

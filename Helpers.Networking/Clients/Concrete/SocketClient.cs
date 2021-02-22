@@ -11,10 +11,13 @@ namespace Helpers.Networking.Clients.Concrete
 	public class SocketClient : ISocketClient
 	{
 		#region Config
-		public record Config(int BufferSize = 1_024,
-			[property: JsonConverter(typeof(JsonStringEnumConverter))] AddressFamily AddressFamily = AddressFamily.InterNetwork,
-			[property: JsonConverter(typeof(JsonStringEnumConverter))] ProtocolType ProtocolType = ProtocolType.Tcp,
-			[property: JsonConverter(typeof(JsonStringEnumConverter))] SocketType SocketType = SocketType.Stream);
+		public record Config(int BufferSize,
+			[property: JsonConverter(typeof(JsonStringEnumConverter))] AddressFamily AddressFamily,
+			[property: JsonConverter(typeof(JsonStringEnumConverter))] ProtocolType ProtocolType,
+			[property: JsonConverter(typeof(JsonStringEnumConverter))] SocketType SocketType)
+		{
+			public Config() : this(1_024, AddressFamily.InterNetwork, ProtocolType.Tcp, SocketType.Stream) { }
+		}
 		#endregion Config
 
 		private readonly int _bufferSize;
