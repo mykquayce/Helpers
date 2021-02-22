@@ -12,7 +12,10 @@ namespace Helpers.Networking.Clients.Concrete
 {
 	public class UdpClient : IUdpClient
 	{
-		public record Config(string BroadcastIPAddress = "239.255.250.250", ushort ReceivePort = 9_131);
+		public record Config(string BroadcastIPAddress, ushort ReceivePort)
+		{
+			public Config() : this("239.255.250.250", 9_131) { }
+		}
 
 		private readonly System.Net.Sockets.UdpClient _udpClient;
 
