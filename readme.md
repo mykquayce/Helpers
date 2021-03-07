@@ -57,6 +57,13 @@ dotnet user-secrets set RabbitMQSettings:Password … --id 8391cb70-d94f-4863-b7e4
 ```powershell
 dotnet user-secrets set Slack:Token xoxp-000000000000-000000000000-000000000000-00000000000000000000000000000000 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
+#### Helpers.SSH
+```powershell
+dotnet user-secrets set SSH:Host … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set SSH:Port … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set SSH:Username … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set SSH:Password … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
 #### Helpers.Steam.Tests
 ```powershell
 dotnet user-secrets set SteamAPI:Key 00000000000000000000000000000000 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
