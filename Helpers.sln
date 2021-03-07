@@ -126,9 +126,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue", "Helpers.PhilipsHue\Helpers.PhilipsHue.csproj", "{B1A53B4A-82B8-4D0D-932E-D5D54404924F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking.Models", "Helpers.Networking.Models\Helpers.Networking.Models.csproj", "{B7CEA04F-6034-4ED2-8869-BCE27F0A6FA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models", "Helpers.Networking.Models\Helpers.Networking.Models.csproj", "{B7CEA04F-6034-4ED2-8869-BCE27F0A6FA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking.Models.Tests", "Helpers.Networking.Models.Tests\Helpers.Networking.Models.Tests.csproj", "{5F895615-C2D7-4A25-B3AC-2B385BE3D700}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models.Tests", "Helpers.Networking.Models.Tests\Helpers.Networking.Models.Tests.csproj", "{5F895615-C2D7-4A25-B3AC-2B385BE3D700}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH.Tests", "Helpers.SSH.Tests\Helpers.SSH.Tests.csproj", "{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{384FF8F0-5AD5-4015-BF54-BDA287744732}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -376,6 +380,14 @@ Global
 		{5F895615-C2D7-4A25-B3AC-2B385BE3D700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F895615-C2D7-4A25-B3AC-2B385BE3D700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F895615-C2D7-4A25-B3AC-2B385BE3D700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
