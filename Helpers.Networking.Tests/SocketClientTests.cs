@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -9,25 +8,20 @@ using Xunit;
 namespace Helpers.Networking.Tests
 {
 	[Collection("Non-Parallel Collection")]
-	public class SocketClientTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
+	public class SocketClientTests : IClassFixture<Fixtures.SocketClientFixture>
 	{
 		private readonly EndPoint _endPoint;
 		private readonly Clients.ISocketClient _sut;
 
-		public SocketClientTests(Helpers.XUnitClassFixtures.UserSecretsFixture userSecretsFixture)
+		public SocketClientTests(Fixtures.SocketClientFixture socketClientFixture)
 		{
-			var physicalAddressString = userSecretsFixture["Networking:GlobalCache:PhysicalAddress"];
-			var portString = userSecretsFixture["Networking:GlobalCache:Port"];
-
-			var physicalAddress = PhysicalAddress.Parse(physicalAddressString);
+			var physicalAddress = socketClientFixture.PhysicalAddress;
 
 			var ipAddress = NetworkHelpers.IPAddressFromPhysicalAddress(physicalAddress);
-			var port = ushort.Parse(portString);
+			var port = socketClientFixture.Port;
 
 			_endPoint = new IPEndPoint(ipAddress, port);
-
-			var config = new Helpers.Networking.Clients.Concrete.SocketClient.Config();
-			_sut = new Helpers.Networking.Clients.Concrete.SocketClient(config);
+			_sut = socketClientFixture.SocketClient;
 		}
 
 		[Fact]
@@ -59,9 +53,10 @@ namespace Helpers.Networking.Tests
 		{
 			await Send(count, millisecondsDelay, message);
 
-			var result = await _sut.ReceiveAsync();
-			Assert.Equal((byte)'c', result[0]);
-			var actual = Encoding.UTF8.GetString(result);
+			var bytesResult = await _sut.ReceiveAsync();
+			Assert.NotNull(bytesResult);
+			Assert.NotEmpty(bytesResult);
+			var actual = Encoding.UTF8.GetString(bytesResult);
 			Assert.Equal(expected, actual);
 		}
 	}
