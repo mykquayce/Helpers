@@ -5,17 +5,13 @@ using Xunit;
 namespace Helpers.Networking.Tests
 {
 	[Collection("Non-Parallel Collection")]
-	public class UdpClientTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
+	public class UdpClientTests : IClassFixture<Fixtures.UdpClientFixture>
 	{
 		private readonly Clients.IUdpClient _sut;
 
-		public UdpClientTests(Helpers.XUnitClassFixtures.UserSecretsFixture userSecretsFixture)
+		public UdpClientTests(Fixtures.UdpClientFixture udpClientFixture)
 		{
-			var broadcastIPAddressString = userSecretsFixture["Networking:GlobalCache:BroadcastIPAddress"];
-			var receivePort = ushort.Parse(userSecretsFixture["Networking:GlobalCache:ReceivePort"]);
-
-			var config = new Helpers.Networking.Clients.Concrete.UdpClient.Config(broadcastIPAddressString, receivePort);
-			_sut = new Helpers.Networking.Clients.Concrete.UdpClient(config);
+			_sut = udpClientFixture.UdpClient;
 		}
 
 		[Fact]

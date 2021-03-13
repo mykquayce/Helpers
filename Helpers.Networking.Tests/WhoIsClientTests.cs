@@ -8,7 +8,11 @@ namespace Helpers.Networking.Tests
 	{
 		[Theory]
 		[InlineData(32_934)]
-		public async Task Test1(int asn)
+		[InlineData(7_224)]
+		[InlineData(8_987)]
+		[InlineData(14_618)]
+		[InlineData(16_509)]
+		public async Task GetIps(int asn)
 		{
 			var sut = new Helpers.Networking.Clients.Concrete.WhoIsClient();
 
