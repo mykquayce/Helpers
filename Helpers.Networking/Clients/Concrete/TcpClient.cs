@@ -1,5 +1,5 @@
 ﻿using Dawn;
-using System;
+using Microsoft.Extensions.Options;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,26 +7,43 @@ namespace Helpers.Networking.Clients.Concrete
 {
 	public class TcpClient : ITcpClient
 	{
+		#region Config
+		public record Config(string? Hostname, ushort? Port)
+		{
+			public Config() : this(default, default) { }
+		}
+		#endregion Config
+
 		private readonly string _hostname;
 		private readonly int _port;
-		private readonly System.Net.Sockets.TcpClient _tcpClient;
-		private bool _isDisposed;
 
-		public TcpClient(string hostname, int port)
+		#region Constructors
+		public TcpClient(IOptions<Config> options)
+			: this(options.Value)
+		{ }
+
+		public TcpClient(Config config)
+			: this(config.Hostname, config.Port)
+		{ }
+
+		public TcpClient(string? hostname, ushort? port)
 		{
-			_hostname = Guard.Argument(() => hostname).NotNull().NotEmpty().NotWhiteSpace().Value;
-			_port = Guard.Argument(() => port).InRange(0, 65_535).Value;
-			_tcpClient = new System.Net.Sockets.TcpClient();
+			_hostname = Guard.Argument(() => hostname!).NotNull().NotEmpty().NotWhiteSpace().Value;
+			_port = Guard.Argument(() => port!).NotNull().Value;
 		}
+		#endregion Constructors
 
 		public async Task<string> SendAndReceiveAsync(string message)
 		{
-			await _tcpClient.ConnectAsync(_hostname, _port);
-			await using var stream = _tcpClient.GetStream();
+			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
+
+			using var tcpClient = new System.Net.Sockets.TcpClient();
+			await tcpClient.ConnectAsync(_hostname, _port);
+			await using var stream = tcpClient.GetStream();
 			using var reader = new StreamReader(stream);
 			using var writer = new StreamWriter(stream)
 			{
-				NewLine = "\r\n",
+				NewLine = "\n",
 			};
 
 			await writer.WriteLineAsync(message);
@@ -35,22 +52,5 @@ namespace Helpers.Networking.Clients.Concrete
 
 			return response;
 		}
-
-		#region disposing
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_isDisposed)
-			{
-				if (disposing) _tcpClient?.Dispose();
-				_isDisposed = true;
-			}
-		}
-
-		void IDisposable.Dispose()
-		{
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
-		}
-		#endregion disposing
 	}
 }

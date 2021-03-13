@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Helpers.Networking.Clients
 {
-	public interface ITcpClient : IDisposable
+	public interface ITcpClient
 	{
 		Task<string> SendAndReceiveAsync(string message);
 	}
