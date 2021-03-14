@@ -5,11 +5,11 @@ using Xunit;
 
 namespace Helpers.SSH.Tests
 {
-	public class UnitTest1 : IClassFixture<Fixtures.SSHServiceFixture>
+	public class SSHServiceTests : IClassFixture<Fixtures.SSHServiceFixture>
 	{
 		private readonly Helpers.SSH.Services.ISSHService _sut;
 
-		public UnitTest1(Fixtures.SSHServiceFixture fixture)
+		public SSHServiceTests(Fixtures.SSHServiceFixture fixture)
 		{
 			_sut = fixture.SSHService;
 		}
@@ -17,7 +17,7 @@ namespace Helpers.SSH.Tests
 		[Theory]
 		[InlineData("echo Hello world", "Hello world\n")]
 		[InlineData("date --utc --rfc-2822", @"^\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2} UTC$")]
-		public async Task Test1(string command, string expected)
+		public async Task RunCommand(string command, string expected)
 		{
 			var actual = await _sut.RunCommandAsync(command);
 

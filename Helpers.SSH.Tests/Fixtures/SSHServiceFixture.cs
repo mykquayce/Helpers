@@ -1,18 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System;
 
 namespace Helpers.SSH.Tests.Fixtures
 {
-	public sealed class SSHServiceFixture : IDisposable
+	public sealed class SSHServiceFixture : UserSecretsFixture, IDisposable
 	{
 		public SSHServiceFixture()
 		{
-			var fixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
-
-			var config = fixture.Configuration
-				.GetSection("SSH")
-				.Get<Helpers.SSH.Services.Concrete.SSHService.Config>();
+			var config = base.Config;
 
 			var options = Options.Create(config);
 
