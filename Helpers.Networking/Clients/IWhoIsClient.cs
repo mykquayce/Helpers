@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Collections.Generic;
 
 namespace Helpers.Networking.Clients
 {
-	public interface IWhoIsClient : IDisposable
+	public interface IWhoIsClient
 	{
 		IAsyncEnumerable<Models.SubnetAddress> GetIpsAsync(int asn);
 	}
