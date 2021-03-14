@@ -1,19 +1,17 @@
-﻿using System;
-using System.Text;
+﻿using Helpers.SSH.Tests.Fixtures;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.SSH.Tests
 {
-	public sealed class AsyncTests : IDisposable
+	public sealed class LibraryAsyncTests : IClassFixture<LibraryFixture>
 	{
 		private readonly Renci.SshNet.SshClient _sut;
 
-		public AsyncTests()
+		public LibraryAsyncTests(LibraryFixture libraryFixture)
 		{
-			_sut = new Renci.SshNet.SshClient("192.168.1.10", 22, "root", "***REMOVED***");
-
-			_sut.Connect();
+			_sut = libraryFixture.Library;
 		}
 
 		[Theory]
@@ -35,12 +33,6 @@ namespace Helpers.SSH.Tests
 			Assert.NotNull(actual);
 			Assert.NotEmpty(actual);
 			Assert.Matches(expected, actual);
-		}
-
-		public void Dispose()
-		{
-			if (_sut?.IsConnected ?? false) _sut.Disconnect();
-			_sut?.Dispose();
 		}
 	}
 }
