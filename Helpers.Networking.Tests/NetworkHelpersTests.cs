@@ -8,21 +8,6 @@ namespace Helpers.Networking.Tests
 {
 	public class NetworkHelpersTests
 	{
-		[Fact]
-		public async Task PingEntireNetwork()
-		{
-			var results = await NetworkHelpers.PingEntireNetworkAsync().ToListAsync();
-
-			Assert.NotNull(results);
-			Assert.NotEmpty(results);
-
-			foreach (var (ip, status) in results)
-			{
-				Assert.NotNull(ip);
-				Assert.NotEqual(default, ip);
-				Assert.NotEqual(default, status);
-			}
-		}
 
 		[Theory]
 		[InlineData("192.168.1.50", IPStatus.Success)]
