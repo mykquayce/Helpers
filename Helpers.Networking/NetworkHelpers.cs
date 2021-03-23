@@ -28,7 +28,7 @@ namespace Helpers.Networking
 		public async static Task<IPStatus> PingAsync(IPAddress ipAddress)
 		{
 			using var ping = new Ping();
-			var reply = await ping.SendPingAsync(ipAddress, timeout: 10);
+			var reply = await ping.SendPingAsync(ipAddress, timeout: 10_000);
 			return reply.Status;
 		}
 
