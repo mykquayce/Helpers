@@ -11,5 +11,6 @@ namespace Helpers.Networking.Clients
 		ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default);
 		ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default);
 		Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default);
+		Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default);
 	}
 }

@@ -22,7 +22,7 @@ dotnet user-secrets set Elgato:EndPoint:Port 9123 --id 8391cb70-d94f-4863-b7e4-5
 #### Helpers.GlobalCache
 ```bash
 dotnet user-secrets set GlobalCache:BroadcastIPAddress … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set GlobalCache:PhysicalAddress … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set GlobalCache:HostName iTach059CAD --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set GlobalCache:Port … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set GlobalCache:ReceivePort … --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```

@@ -1,4 +1,4 @@
-﻿using Helpers.Networking.Extensions;
+﻿using Dawn;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -28,18 +28,16 @@ namespace Helpers.Networking
 		public async static Task<IPStatus> PingAsync(IPAddress ipAddress)
 		{
 			using var ping = new Ping();
-			var reply = await ping.SendPingAsync(ipAddress, timeout: 10);
+			var reply = await ping.SendPingAsync(ipAddress, timeout: 10_000);
 			return reply.Status;
 		}
 
-		public async static IAsyncEnumerable<(IPAddress, IPStatus)> PingEntireNetworkAsync()
+		public async static Task<(IPAddress, IPStatus)> PingAsync(string hostName)
 		{
-			foreach (var unicast in GetAllBroadcastAddresses())
-			{
-				var broadcast = unicast.GetBroadcastAddress();
-				var status = await PingAsync(broadcast);
-				yield return (broadcast, status);
-			}
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+			using var ping = new Ping();
+			var reply = await ping.SendPingAsync(hostName, timeout: 10_000);
+			return (reply.Address, reply.Status);
 		}
 
 		public static Models.ArpResultsDictionary RunArpCommand()

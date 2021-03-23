@@ -22,6 +22,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		private readonly int _bufferSize;
 		private readonly Socket _socket;
+		private readonly static Encoding _encoding = Encoding.UTF8;
 
 		#region Constructors
 		public SocketClient(IOptions<Config> options)
@@ -48,7 +49,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default)
 		{
-			var bytes = Encoding.UTF8.GetBytes(message);
+			var bytes = _encoding.GetBytes(message);
 			return SendAsync(bytes, cancellationToken ?? CancellationToken.None);
 		}
 
@@ -60,6 +61,14 @@ namespace Helpers.Networking.Clients.Concrete
 			var buffer = new byte[_bufferSize];
 			var bytesRead = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
 			return buffer[..bytesRead];
+		}
+
+		public async Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = null)
+		{
+			await SendAsync(message, cancellationToken ?? CancellationToken.None);
+			var responseBytes = await ReceiveAsync(cancellationToken ?? CancellationToken.None);
+			var response = _encoding.GetString(responseBytes);
+			return response;
 		}
 
 		#region IDisposable implementation
