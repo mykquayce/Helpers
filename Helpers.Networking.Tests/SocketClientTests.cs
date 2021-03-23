@@ -15,9 +15,9 @@ namespace Helpers.Networking.Tests
 
 		public SocketClientTests(Fixtures.SocketClientFixture socketClientFixture)
 		{
-			var physicalAddress = socketClientFixture.PhysicalAddress;
+			var (ipAddress, _) = Helpers.Networking.NetworkHelpers.PingAsync(socketClientFixture.HostName)
+				.GetAwaiter().GetResult();
 
-			var ipAddress = NetworkHelpers.IPAddressFromPhysicalAddress(physicalAddress);
 			var port = socketClientFixture.Port;
 
 			_endPoint = new IPEndPoint(ipAddress, port);
