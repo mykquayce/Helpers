@@ -1,4 +1,4 @@
-﻿using Helpers.Networking.Extensions;
+﻿using Dawn;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -32,7 +32,12 @@ namespace Helpers.Networking
 			return reply.Status;
 		}
 
+		public async static Task<(IPAddress, IPStatus)> PingAsync(string hostName)
 		{
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+			using var ping = new Ping();
+			var reply = await ping.SendPingAsync(hostName, timeout: 10_000);
+			return (reply.Address, reply.Status);
 		}
 
 		public static Models.ArpResultsDictionary RunArpCommand()
