@@ -32,14 +32,7 @@ namespace Helpers.Networking
 			return reply.Status;
 		}
 
-		public async static IAsyncEnumerable<(IPAddress, IPStatus)> PingEntireNetworkAsync()
 		{
-			foreach (var unicast in GetAllBroadcastAddresses())
-			{
-				var broadcast = unicast.GetBroadcastAddress();
-				var status = await PingAsync(broadcast);
-				yield return (broadcast, status);
-			}
 		}
 
 		public static Models.ArpResultsDictionary RunArpCommand()
