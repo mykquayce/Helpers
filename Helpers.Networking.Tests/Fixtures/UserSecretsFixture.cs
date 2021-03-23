@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.NetworkInformation;
 
 namespace Helpers.Networking.Tests.Fixtures
 {
@@ -10,13 +9,13 @@ namespace Helpers.Networking.Tests.Fixtures
 			var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 
 			BroadcastIPAddress = IPAddress.Parse(userSecretsFixture["GlobalCache:BroadcastIPAddress"]);
-			PhysicalAddress = PhysicalAddress.Parse(userSecretsFixture["GlobalCache:PhysicalAddress"]);
+			HostName = userSecretsFixture["GlobalCache:HostName"];
 			Port = ushort.Parse(userSecretsFixture["GlobalCache:Port"]);
 			ReceivePort = ushort.Parse(userSecretsFixture["GlobalCache:ReceivePort"]);
 		}
 
 		public IPAddress BroadcastIPAddress { get; }
-		public PhysicalAddress PhysicalAddress { get; }
+		public string HostName { get; }
 		public ushort Port { get; }
 		public ushort ReceivePort { get; }
 	}
