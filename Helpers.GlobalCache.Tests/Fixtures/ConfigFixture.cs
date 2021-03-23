@@ -1,4 +1,6 @@
-﻿namespace Helpers.GlobalCache.Tests.Fixtures
+﻿using System.Net;
+
+namespace Helpers.GlobalCache.Tests.Fixtures
 {
 	public class ConfigFixture
 	{
@@ -6,17 +8,20 @@
 		{
 			var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 
-			var broadcastIPAddress = userSecretsFixture["GlobalCache:BroadcastIPAddress"];
-			var physicalAddress = userSecretsFixture["GlobalCache:PhysicalAddress"];
-			var port = ushort.Parse(userSecretsFixture["GlobalCache:Port"]);
-			var receivePort = ushort.Parse(userSecretsFixture["GlobalCache:ReceivePort"]);
+			BroadcastIPAddress = IPAddress.Parse(userSecretsFixture["GlobalCache:BroadcastIPAddress"]);
+			HostName = userSecretsFixture["GlobalCache:HostName"];
+			Port = ushort.Parse(userSecretsFixture["GlobalCache:Port"]);
+			ReceivePort = ushort.Parse(userSecretsFixture["GlobalCache:ReceivePort"]);
 
 			Config = new Services.Concrete.GlobalCacheService.Config(
-				broadcastIPAddress,
-				physicalAddress,
-				port,
-				receivePort);
+				BroadcastIPAddress.ToString(),
+				Port);
 		}
+
+		public IPAddress BroadcastIPAddress { get; }
+		public string HostName { get; }
+		public ushort Port { get; }
+		public ushort ReceivePort { get; }
 
 		public Helpers.GlobalCache.Services.Concrete.GlobalCacheService.Config Config { get; }
 	}

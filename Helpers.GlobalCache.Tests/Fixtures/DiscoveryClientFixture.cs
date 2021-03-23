@@ -8,7 +8,7 @@ namespace Helpers.GlobalCache.Tests.Fixtures
 		{
 			var configFixture = new ConfigFixture();
 			var config = configFixture.Config;
-			var udpClientConfig = new Helpers.Networking.Clients.Concrete.UdpClient.Config(config.BroadcastIPAddress, config.ReceivePort);
+			var udpClientConfig = new Helpers.Networking.Clients.Concrete.UdpClient.Config(config.BroadcastIPAddress, configFixture.ReceivePort);
 			var udpClient = new Helpers.Networking.Clients.Concrete.UdpClient(udpClientConfig);
 			DiscoveryClient = new Clients.Concrete.DiscoveryClient(udpClient);
 		}

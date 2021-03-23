@@ -1,36 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Helpers.GlobalCache.Tests.Fixtures
 {
 	public sealed class GlobalCacheServiceFixture : IDisposable
 	{
-		private readonly Stack<IDisposable> _disposables = new();
-
 		public GlobalCacheServiceFixture()
 		{
-			var socketClientFixture = new SocketClientFixture();
-			var udpClientFixture = new DiscoveryClientFixture();
+			var configFixture = new Fixtures.ConfigFixture();
+			var config = configFixture.Config;
 
-			var config = new Services.Concrete.GlobalCacheService.Config();
-
-			GlobalCacheService = new Services.Concrete.GlobalCacheService(
-				config,
-				socketClientFixture.SocketClient,
-				udpClientFixture.DiscoveryClient);
-
-			_disposables.Push(socketClientFixture);
-			_disposables.Push(udpClientFixture);
-			_disposables.Push(GlobalCacheService);
+			GlobalCacheService = new Services.Concrete.GlobalCacheService(config);
 		}
 
-		public void Dispose()
-		{
-			while (_disposables.TryPop(out var disposable))
-			{
-				disposable?.Dispose();
-			}
-		}
+		public void Dispose() => GlobalCacheService.Dispose();
 
 		public Services.IGlobalCacheService GlobalCacheService { get; }
 	}
