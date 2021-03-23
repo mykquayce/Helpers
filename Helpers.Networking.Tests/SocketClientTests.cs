@@ -59,5 +59,23 @@ namespace Helpers.Networking.Tests
 			var actual = Encoding.UTF8.GetString(bytesResult);
 			Assert.Equal(expected, actual);
 		}
+
+		[Theory]
+		[InlineData(
+			"sendir,1:1,3,40192,1,1,96,24,24,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+			"completeir,1:1,3\r")]
+		public async Task SendAndReceive(string message, string expected)
+		{
+			await Connect();
+
+			var count = 3;
+
+			while (count-- > 0)
+			{
+				var actual = await _sut.SendAndReceiveAsync(message);
+				Assert.Equal(expected, actual);
+				await Task.Delay(millisecondsDelay: 50);
+			}
+		}
 	}
 }
