@@ -2,106 +2,135 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Helpers.GlobalCache.Services.Concrete
 {
-	public sealed class GlobalCacheService : IGlobalCacheService
+	public class GlobalCacheService : IGlobalCacheService
 	{
-		public record Config(string BroadcastIPAddress, string PhysicalAddress, ushort Port, ushort ReceivePort)
+		public record Config(string BroadcastIPAddress, ushort Port)
 		{
-			public Config() : this("239.255.250.250", "000c1e059cad", 4_998, 9_131) { }
+			public Config() : this("239.255.250.250", 4_998) { }
 		}
 
-		private readonly static IDictionary<PhysicalAddress, IPAddress> _cache = new Dictionary<PhysicalAddress, IPAddress>();
-		private readonly static Encoding _encoding = Encoding.UTF8;
+		private readonly static IDictionary<string, IPAddress> _cache = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
 
 		private readonly ushort _port;
-		private readonly Networking.Clients.ISocketClient _socketClient;
-		private readonly Clients.IDiscoveryClient _udpClient;
+		private readonly Helpers.Networking.Clients.ISocketClient _socketClient;
 
-		public GlobalCacheService(IOptions<Config> options, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
-			: this(options.Value, socketClient, udpClient)
+		#region constructors
+		public GlobalCacheService(IOptions<Config> options)
+			: this(options.Value)
 		{ }
 
-		public GlobalCacheService(Config config, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
-			: this(config.Port, socketClient, udpClient)
+		public GlobalCacheService(Config config)
+			: this(config.BroadcastIPAddress, config.Port)
 		{ }
 
-		public GlobalCacheService(ushort port, Networking.Clients.ISocketClient socketClient, Clients.IDiscoveryClient udpClient)
+		public GlobalCacheService(string broadcastIPAddressString, ushort port)
 		{
 			_port = Guard.Argument(() => port).NotEqual((ushort)0).Value;
-			_socketClient = Guard.Argument(() => socketClient).NotNull().Value;
-			_udpClient = Guard.Argument(() => udpClient).NotNull().Value;
+			Guard.Argument(() => broadcastIPAddressString)
+				.NotNull()
+				.NotEmpty()
+				.NotWhiteSpace()
+				.Matches(@"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$");
+
+			var broadcastIPAddress = IPAddress.Parse(broadcastIPAddressString);
+
+			_socketClient = new Helpers.Networking.Clients.Concrete.SocketClient(1_024, AddressFamily.InterNetwork, ProtocolType.Tcp, SocketType.Stream);
+		}
+		#endregion constructors
+
+		public async Task ConnectAsync(string hostName, CancellationToken? cancellationToken = default)
+		{
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+
+			if (!_cache.TryGetValue(hostName, out var ipAddress))
+			{
+				ipAddress = await PingAsync(hostName);
+				_cache.Add(hostName, ipAddress);
+			}
+
+			var endPoint = new IPEndPoint(ipAddress, _port);
+
+			await _socketClient.ConnectAsync(endPoint, cancellationToken ?? CancellationToken.None);
 		}
 
-		public void Dispose() => _udpClient?.Dispose();
-
-		public async IAsyncEnumerable<PhysicalAddress> DiscoverAsync()
+		public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, int count, CancellationToken? cancellationToken = default)
 		{
-			var beacons = _udpClient.DiscoverAsync();
+			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => count).Positive();
 
-			await foreach (var beacon in beacons)
+			while (count-- > 0)
 			{
-				var mac = beacon.PhysicalAddress;
-				var ip = beacon.IPAddress;
-				_cache.TryAdd(mac, ip);
-				yield return mac;
+				yield return await _socketClient.SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
+				await Task.Delay(millisecondsDelay: 100, cancellationToken ?? CancellationToken.None);
 			}
 		}
 
-		public async Task SendMessageasync(PhysicalAddress mac, string message)
+		public async Task<string> ConnectSendReceiveAsync(string hostName, string message)
 		{
-			var ip = _cache[mac];
-			var ipEndPoint = new IPEndPoint(ip, _port);
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
 
-			var response = await ConnectSendReceiveAsync(ipEndPoint, message);
+			using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
 
-			if (response.StartsWith("completeir", StringComparison.InvariantCultureIgnoreCase))
+			await ConnectAsync(hostName, cts.Token);
+
+			var responses = await SendAndReceiveAsync(message, count: 3, cts.Token).ToListAsync();
+
+			if (responses.Distinct().Count() == 1) return responses.First();
+
+			throw new Exception("unexpected responses") { Data = { [nameof(responses)] = responses, }, };
+		}
+
+		private async static Task<IPAddress> PingAsync(string hostName)
+		{
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+
+			var (ipAddress, status) = await Helpers.Networking.NetworkHelpers.PingAsync(hostName);
+
+			if (status == IPStatus.Success)
 			{
-				return;
+				return ipAddress;
 			}
 
-			throw new InvalidOperationException("Unexpected response: " + response)
+			throw new Exception($"Pinging {hostName} failed with {nameof(status)}: {status}.")
 			{
 				Data =
 				{
-					[nameof(mac)] = mac.ToString(),
-					[nameof(ip)] = ip.ToString(),
-					[nameof(message)] = message,
+					[nameof(hostName)] = hostName,
+					[nameof(status)] = status,
 				},
 			};
 		}
 
-		private async Task<string> ConnectSendReceiveAsync(EndPoint endPoint, string message)
+		#region Dispose pattern
+		private bool _isDisposed;
+		protected virtual void Dispose(bool disposing)
 		{
-			var messageBytes = _encoding.GetBytes(message);
-			var responseBytes = await ConnectSendReceiveAsync(endPoint, messageBytes);
-			var response = _encoding.GetString(responseBytes);
-			return response;
-		}
-
-		private async Task<byte[]> ConnectSendReceiveAsync(EndPoint endPoint, byte[] message)
-		{
-			using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
-
-			await _socketClient.ConnectAsync(endPoint, cts.Token);
-
-			var count = 3;
-
-			while (--count >= 0)
+			if (!_isDisposed)
 			{
-				await _socketClient.SendAsync(message, cts.Token);
-				await Task.Delay(millisecondsDelay: 100, cts.Token);
+				if (disposing)
+				{
+					_socketClient.Dispose();
+				}
+
+				_isDisposed = true;
 			}
-
-			var bytes = await _socketClient.ReceiveAsync(cts.Token);
-
-			return bytes;
 		}
+
+		public void Dispose()
+		{
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
+		}
+		#endregion Dispose pattern
 	}
 }
