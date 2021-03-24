@@ -95,6 +95,18 @@ namespace Helpers.SSH.Services.Concrete
 			=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
 		#endregion blackhole
 
+		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync()
+		{
+			var output = await RunCommandAsync("cat /tmp/dhcp.leases");
+
+			var lines = output.Split(new[] { '\r', '\n', }, StringSplitOptions.RemoveEmptyEntries);
+
+			foreach (var line in lines)
+			{
+				yield return Helpers.Networking.Models.DhcpEntry.Parse(line);
+			}
+		}
+
 		#region Dispose pattern
 		private bool _disposed;
 

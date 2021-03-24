@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
@@ -77,6 +78,25 @@ namespace Helpers.SSH.Tests
 
 			Assert.NotNull(ipAddress);
 			Assert.Equal(expected, ipAddress!.AddressFamily);
+		}
+
+		[Fact]
+		public async Task GetDhcpLeases()
+		{
+			var now = DateTime.UtcNow;
+			var entries = await _sut.GetDhcpLeasesAsync().ToListAsync();
+
+			Assert.NotNull(entries);
+			Assert.NotEmpty(entries);
+
+			foreach (var (expiration, physicalAddress, ipAddress, hostName, identifier) in entries)
+			{
+				Assert.InRange(expiration, now, now.AddDays(7));
+				Assert.NotNull(physicalAddress);
+				Assert.NotNull(ipAddress);
+				if (hostName is not null) Assert.NotEmpty(hostName);
+				if (identifier is not null) Assert.NotEmpty(identifier);
+			}
 		}
 
 		#region destructive tests
