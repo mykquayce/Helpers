@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 using System;
 using Xunit;
 
@@ -14,7 +14,9 @@ namespace Helpers.DockerSecrets.Tests
 		{
 			try
 			{
+#pragma warning disable CA1806 // Do not ignore method results
 				new DockerSecretConfigurationSource(prefix);
+#pragma warning restore CA1806 // Do not ignore method results
 			}
 			catch (Exception ex)
 			{
@@ -33,7 +35,9 @@ namespace Helpers.DockerSecrets.Tests
 		{
 			try
 			{
+#pragma warning disable CA1806 // Do not ignore method results
 				new DockerSecretConfigurationSource(configKey);
+#pragma warning restore CA1806 // Do not ignore method results
 				Assert.True(false, "Exception should've been thrown");
 			}
 			catch (ArgumentException ex) when (ex.Source == "Dawn.Guard" && ex.ParamName == nameof(configKey))

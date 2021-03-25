@@ -1,9 +1,9 @@
 ﻿using Dawn;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.Configuration
 {
 	public class DockerSecretConfigurationProvider : FileConfigurationProvider
 	{
