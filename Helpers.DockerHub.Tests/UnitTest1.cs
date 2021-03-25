@@ -234,7 +234,7 @@ namespace Helpers.DockerHub.Tests
 		public string name { get; set; }
 		public string tag { get; set; }
 		public string architecture { get; set; }
-		public Dictionary<string, string> fsLayers { get; set; }
+		public Fslayer[] fsLayers { get; set; }
 		public History[] history { get; set; }
 		public Signature[] signatures { get; set; }
 	}
@@ -258,8 +258,17 @@ namespace Helpers.DockerHub.Tests
 
 	public class Header
 	{
-		public Dictionary<string, string> jwk { get; set; }
+		public Jwk jwk { get; set; }
 		public string alg { get; set; }
+	}
+
+	public class Jwk
+	{
+		public string crv { get; set; }
+		public string kid { get; set; }
+		public string kty { get; set; }
+		public string x { get; set; }
+		public string y { get; set; }
 	}
 
 }
