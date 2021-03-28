@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Helpers.Web.Tests
 {
-	public class WebClientBaseTests : IDisposable
+	public sealed class WebClientBaseTests : IDisposable
 	{
 		private readonly HttpClient _httpClient;
 		private readonly WebClient _client;
@@ -94,9 +94,7 @@ namespace Helpers.Web.Tests
 				await _client.SendAsync(HttpMethod.Get, uri);
 				Assert.True(false);
 			}
-#pragma warning disable CA1031 // Do not catch general exception types
 			catch (Exception exception)
-#pragma warning restore CA1031 // Do not catch general exception types
 			{
 				// Assert
 				Assert.IsType(expectedException, exception);

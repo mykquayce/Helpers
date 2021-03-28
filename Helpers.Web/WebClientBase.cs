@@ -20,7 +20,7 @@ namespace Helpers.Web
 {
 	public abstract class WebClientBase : IDisposable
 	{
-		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
 		{
 			AllowTrailingCommas = true,
 			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
@@ -66,6 +66,7 @@ namespace Helpers.Web
 		public void Dispose()
 		{
 			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -155,7 +156,7 @@ namespace Helpers.Web
 		protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
 		{
 			Guard.Argument(() => request).NotNull()
-				.Wrap(r => r.RequestUri).NotNull()
+				.Wrap(r => r.RequestUri).NotEqual(default)
 				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
 			HttpResponseMessage response;
