@@ -10,6 +10,22 @@ namespace Helpers.Elgato.Clients.Concrete
 {
 	public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 	{
+		public record Config(
+			string Scheme = Config.DefaultScheme,
+			string Host = Config.DefaultHost,
+			ushort Port = Config.DefaultPort)
+		{
+			public const string DefaultScheme = "http";
+			public const string DefaultHost = "localhost";
+			public const ushort DefaultPort = 9_123;
+
+			public Config() : this(DefaultScheme, DefaultHost, DefaultPort) { }
+
+			public Uri Uri => new UriBuilder(Scheme, Host, Port).Uri;
+
+			public override string ToString() => Uri.ToString();
+		}
+
 		public ElgatoClient(HttpClient httpClient, ILogger? logger = default, ITracer? tracer = default)
 			: base(httpClient, logger, tracer)
 		{ }

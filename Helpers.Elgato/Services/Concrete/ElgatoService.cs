@@ -23,7 +23,7 @@ namespace Helpers.Elgato.Services.Concrete
 		{
 			var old = await _client.GetLightAsync();
 
-			var @new = old with { on = old.on == 1 ? 0 : 1, };
+			var @new = old with { on = old.on == 1 ? (byte)0 : (byte)1, };
 
 			await _client.SetLightAsync(@new);
 		}

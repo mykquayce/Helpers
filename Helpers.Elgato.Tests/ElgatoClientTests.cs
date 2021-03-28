@@ -3,14 +3,13 @@ using Xunit;
 
 namespace Helpers.Elgato.Tests
 {
-	[Collection("httpclient collection")]
-	public sealed class ElgatoClientTests
+	public sealed class ElgatoClientTests : IClassFixture<Fixtures.ElgatoClientFixture>
 	{
 		private readonly Clients.IElgatoClient _sut;
 
-		public ElgatoClientTests(Fixtures.HttpClientFixture fixture)
+		public ElgatoClientTests(Fixtures.ElgatoClientFixture fixture)
 		{
-			_sut = new Clients.Concrete.ElgatoClient(fixture.HttpClient);
+			_sut = fixture.Client;
 		}
 
 		[Fact]

@@ -12,7 +12,7 @@ namespace Helpers.TPLink.Tests
 	public sealed class Class1
 	{
 		[Theory]
-		[InlineData("255.255.255.255", 20_002, "020000010000000000000000463cb5d3", "***REMOVED***")]
+		[InlineData("255.255.255.255", 20_002, "020000010000000000000000463cb5d3", "b09575e4f988")]
 		public async Task GetRecentlyUpdatedForks(string host, int port, string hex, string expectedPhysicalAddress)
 		{
 			using var udpClient = new UdpClient();
