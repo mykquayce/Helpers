@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.Networking.Clients.Concrete
@@ -41,7 +42,7 @@ namespace Helpers.Networking.Clients.Concrete
 			await tcpClient.ConnectAsync(_hostname, _port);
 			await using var stream = tcpClient.GetStream();
 			using var reader = new StreamReader(stream);
-			using var writer = new StreamWriter(stream)
+			using var writer = new StreamWriter(stream, Encoding.UTF8)
 			{
 				NewLine = "\n",
 			};
