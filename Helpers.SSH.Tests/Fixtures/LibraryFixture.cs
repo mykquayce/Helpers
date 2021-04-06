@@ -9,7 +9,7 @@ namespace Helpers.SSH.Tests.Fixtures
 			var config = base.Config;
 
 			var host = config.Host;
-			var port = config.Port!.Value;
+			var port = config.Port;
 			var username = config.Username;
 			var password = config.Password;
 
