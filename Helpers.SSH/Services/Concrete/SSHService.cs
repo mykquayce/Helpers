@@ -34,6 +34,9 @@ namespace Helpers.SSH.Services.Concrete
 			_sshClient = new Renci.SshNet.SshClient(host, port!.Value, username, password);
 		}
 
+		private string? _newline;
+		public string Newline => _newline ??= GetNewline().GetAwaiter().GetResult();
+
 		public async Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000)
 		{
 			Guard.Argument(() => commandText).NotNull().NotEmpty().NotWhiteSpace();
@@ -106,6 +109,8 @@ namespace Helpers.SSH.Services.Concrete
 				yield return Helpers.Networking.Models.DhcpEntry.Parse(line);
 			}
 		}
+
+		public Task<string> GetNewline() => RunCommandAsync("echo");
 
 		#region Dispose pattern
 		private bool _disposed;
