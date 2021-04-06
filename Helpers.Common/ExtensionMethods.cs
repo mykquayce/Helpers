@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Common
 {
-	public static class ExtensionMethods
+	public static partial class ExtensionMethods
 	{
 		public static string Truncate(this string? s) => s?.Substring(0, Math.Min(s.Length, 100)) ?? string.Empty;
 
