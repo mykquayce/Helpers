@@ -65,6 +65,12 @@ namespace Helpers.SSH.Tests
 			Assert.NotNull(results);
 			Assert.NotEmpty(results);
 			Assert.DoesNotContain(default, results);
+
+			foreach (var (ip, mask) in results)
+			{
+				Assert.NotNull(ip);
+				Assert.NotNull(mask);
+			}
 		}
 
 		[Theory]
