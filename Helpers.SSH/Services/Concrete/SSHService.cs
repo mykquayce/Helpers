@@ -74,25 +74,18 @@ namespace Helpers.SSH.Services.Concrete
 		#region blackhole
 		public async IAsyncEnumerable<Helpers.Networking.Models.SubnetAddress> GetBlackholesAsync()
 		{
-			var commands = new[]
+			var command = "(ip route show && ip -6 route show) | grep ^[Bb]lackhole | awk '{print($2)}'";
+
+			var response = await RunCommandAsync(command);
+
+			Guard.Argument(() => response).NotNull();
+
+			var lines = response.Split(Newline, StringSplitOptions.RemoveEmptyEntries);
+
+			foreach (var line in lines)
 			{
-				"ip route show | grep ^[Bb]lackhole | awk '{print($2)}'",
-				"ip -6 route show | grep ^[Bb]lackhole | awk '{print($2)}'",
-			};
-
-			foreach (var command in commands)
-			{
-				var response = await RunCommandAsync(command);
-
-				Guard.Argument(() => response).NotNull();
-
-				var lines = response.Split(new char[2] { '\r', '\n', }, StringSplitOptions.RemoveEmptyEntries);
-
-				foreach (var line in lines)
-				{
-					var subnetAddress = Helpers.Networking.Models.SubnetAddress.Parse(line);
-					yield return subnetAddress;
-				}
+				var subnetAddress = Helpers.Networking.Models.SubnetAddress.Parse(line);
+				yield return subnetAddress;
 			}
 		}
 
