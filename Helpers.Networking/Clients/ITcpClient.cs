@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Helpers.Networking.Clients
 {
 	public interface ITcpClient
 	{
-		Task<string> SendAndReceiveAsync(string message);
+		IAsyncEnumerable<string> SendAndReceiveAsync(string message);
 	}
 }

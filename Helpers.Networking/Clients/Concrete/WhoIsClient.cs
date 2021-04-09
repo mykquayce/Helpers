@@ -1,20 +1,12 @@
 ﻿using Dawn;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 
 namespace Helpers.Networking.Clients.Concrete
 {
 	public class WhoIsClient : TcpClient, IWhoIsClient
 	{
-		private const RegexOptions _regexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline;
-		private readonly static IEnumerable<Regex> _ipRegices = new Regex[2]
-		{
-			new (@"^\d+\t(\d+\.\d+\.\d+\.\d+)\/(\d+)\t\d+\r?$", _regexOptions),
-			new (@"^\d+\t((?:[0-9a-f]{1,4}:)+:)\/(\d+)\t\d+\r?$", _regexOptions),
-		};
-
 		public WhoIsClient() : base("riswhois.ripe.net", 43)
 		{ }
 
@@ -22,37 +14,39 @@ namespace Helpers.Networking.Clients.Concrete
 		{
 			Guard.Argument(() => asn).Positive();
 
-			var message = $"-F -K -i {asn:D}";
+			var message = $"-F -K -i {asn:D}\n";
 
-			var response = await base.SendAndReceiveAsync(message);
-			var tuples = Parse(response);
+			var lines = await SendAndReceiveAsync(message).ToListAsync();
 
-			foreach (var tuple in tuples)
+			foreach (var line in lines)
 			{
-				yield return tuple;
+				if (string.IsNullOrWhiteSpace(line)) continue;
+				if (line.StartsWith("% ERROR:", StringComparison.InvariantCultureIgnoreCase))
+				{
+					throw new WhoIsException(message, Hostname, Port, line[9..]);
+				}
+				if (line[0] == '%') continue;
+				var parts = line.Split('\t');
+				if (parts.Length < 2) continue;
+				var address = Models.SubnetAddress.Parse(parts[1]);
+				yield return address;
 			}
 		}
 
-		public static IEnumerable<Models.SubnetAddress> Parse(string response)
+		public class WhoIsException : Exception
 		{
-			Guard.Argument(() => response).NotNull();
-
-			return _ipRegices.Select(r => r.Matches(response)).SelectMany(Parse);
-		}
-
-		public static IEnumerable<Models.SubnetAddress> Parse(IEnumerable<Match> matches)
-		{
-			Guard.Argument(() => matches).NotNull();
-
-			foreach (var match in matches)
+			public WhoIsException(string message, string hostName, int port, string error)
+				: base($@"Error sending ""{message}"" to {hostName}:{port:D}: {error}")
 			{
-				var ipString = match.Groups[1].Value;
-				var subnetString = match.Groups[2].Value;
-
-				var ip = IPAddress.Parse(ipString);
-				var subnet = byte.Parse(subnetString);
-
-				yield return new Models.SubnetAddress(ip, subnet);
+				Data.Add(nameof(message), message);
+				Data.Add(nameof(hostName), hostName);
+				Data.Add(nameof(port), port);
+				Data.Add(nameof(error), error);
+			}
+			public WhoIsException(string error)
+				: base(error)
+			{
+				Data.Add(nameof(error), error);
 			}
 		}
 	}

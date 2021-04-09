@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -30,39 +26,9 @@ namespace Helpers.Networking.Tests
 			foreach (var (ip, mask) in subnetAddresses)
 			{
 				Assert.NotNull(ip);
-				Assert.NotEmpty(ip.ToString());
+				Assert.NotEmpty(ip!.ToString());
 				Assert.InRange(mask ?? -1, 0, 64);
 			}
-		}
-
-		[Theory]
-		[InlineData("riswhois.ripe.net", 43, "-F -K -i 32934\n")]
-		public async Task GetAsn(string host, int port, string command)
-		{
-			var encoding = Encoding.ASCII;
-			using var client = new TcpClient();
-			await client.ConnectAsync(host, port);
-			await using var stream = client.GetStream();
-			{
-				using var writer = new StreamWriter(stream, encoding, leaveOpen: true)
-				{
-					NewLine = "\n",
-				};
-				await writer.WriteLineAsync(command);
-				await writer.FlushAsync();
-			}
-
-			Assert.True(stream.CanRead);
-
-			string? response;
-			{
-				using var reader = new StreamReader(stream, encoding);
-				response = await reader.ReadToEndAsync();
-			}
-
-			Assert.False(stream.CanRead);
-			Assert.NotNull(response);
-			Assert.NotEmpty(response);
 		}
 
 		[Theory]
@@ -77,31 +43,6 @@ namespace Helpers.Networking.Tests
 				.ToList();
 
 			Assert.Equal(expected, actual);
-		}
-
-		[Theory]
-		[InlineData("facebook")]
-		[InlineData("instagram")]
-		//[InlineData("oculus")]//, "31.13.72.51")]
-		[InlineData("whatsapp")]
-		public async Task IpFromWebsite(string org)
-		{
-			var addresses = Dns.GetHostAddresses($"www.{org}.com");
-
-			Assert.NotNull(addresses);
-			Assert.NotEmpty(addresses);
-		}
-
-		[Theory]
-		[InlineData("31.13.72.174")]
-		public async Task IpLookup(string ipString)
-		{
-			var ip = IPAddress.Parse(ipString);
-			var command = $"-L {ip}\n";
-			var tcpClient = new Clients.Concrete.TcpClient("riswhois.ripe.net", 43);
-			var reply = await tcpClient.SendAndReceiveAsync(command);
-			Assert.NotNull(reply);
-			Assert.NotEmpty(reply);
 		}
 
 		[Theory]
