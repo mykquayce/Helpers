@@ -3,6 +3,48 @@ Save the Nuget Server API Key to a local variable with:
 ```bash
 export NUGET_SERVER_API_KEY=…
 ```
+### Hierarchies
+```
+                Common
+     +-----------+------------+
+    Jwt      RabbitMQ      Tracing
+                              |
+                             Web
+                              |                          TPLink.Models
+     +-----+-------+-----+----+------------+---+------+  |
+     |  Discord Elgato GitHub | PhilipsHue | Slack  TPLink
+     |                        |            |
+     |                        |            |  Steam.Models
+     |                        |           Steam
+     |  Cineworld.Models      |
+ Cineworld                    |  Networking.Models
+                              |  +-------+------+
+                            OpenWrt Networking SSH
+                                         |
+                                  +------+-------+
+                             GlobalCache XUnitClassFixtures
+
+Telegram.Models
+        |
+    Telegram
+```
+### Standalone
+```
+DawnGuard
+DockerSecrets
+Jaeger
+MySql
+Phasmophobia
+RabbitMQ
+Reddit.Models
+Tracing.Middleware
+Twitch
+```
+### Build order
+1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, MySql, Networking.Models, Phasmophobia, RabbitMQ, Reddit.Models, Steam.Models, Telegram.Models, TPLink.Models, Tracing.Middleware, and Twitch
+1. Jwt, Networking, RabbitMQ, SSH, Telegram, and Tracing
+1. GlobalCache, XUnitClassFixtures, and Web
+1. Cineworld, Discord, Elgato, GitHub, OpenWrt, Steam, Slack, and TPLink
 ### User Secrets
 #### Helpers.Discord.Tests
 ```powershell
