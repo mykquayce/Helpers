@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.17</Version>
+    <Version>1.1.18-preview3</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Cineworld.Models" Version="1.1.14" />
-    <PackageReference Include="Helpers.Web" Version="2.0.12" />
+    <PackageReference Include="Helpers.Cineworld.Models" Version="1.1.15-preview3" />
+    <PackageReference Include="Helpers.Web" Version="2.1.1-preview3" />
   </ItemGroup>
 
   <ItemGroup>
