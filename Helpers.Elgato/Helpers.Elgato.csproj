@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.1.2</Version>
+    <Version>1.1.3-preview3</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.1.0" />
+    <PackageReference Include="Helpers.Web" Version="2.1.1-preview3" />
   </ItemGroup>
 
 </Project>
