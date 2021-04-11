@@ -88,7 +88,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.XUnitClassFixtures"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{C071D73D-5A0E-497B-B5E7-2F816BB7C074}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Models.Tests", "Helpers.Reddit.Models.Tests\Helpers.Reddit.Models.Tests.csproj", "{32CC73C3-8195-4FC6-8EFB-84C195E6E22B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{673963F0-2942-4926-A67C-251C1EA00E79}"
 EndProject

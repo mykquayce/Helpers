@@ -121,3 +121,12 @@ dotnet user-secrets set Twitch:Client:Secret ... --id 8391cb70-d94f-4863-b7e4-56
 dotnet user-secrets set TPLink:UserName ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set TPLink:Password ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
+### Helpers.Reddit.Models
+- downloaded xml from https://old.reddit.com/r/worldnews/.rss
+- converted to xsd using https://www.freeformatter.com/xsd-generator.html and **Salami Slice**.
+- edit out the fields we don't care about
+- convert to .cs with:
+
+```powershell
+& 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\x64\xsd.exe' .\worldnews.xsd  /classes /fields /namespace:Helpers.Reddit.Models /out:.
+```

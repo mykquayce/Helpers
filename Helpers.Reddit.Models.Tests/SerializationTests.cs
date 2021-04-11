@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Xunit;
 
-namespace Helpers.Reddit.Tests
+namespace Helpers.Reddit.Models.Tests
 {
 	public class SerializationTests
 	{
