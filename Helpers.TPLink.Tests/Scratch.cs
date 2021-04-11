@@ -41,7 +41,7 @@ namespace Helpers.TPLink.Tests
 
 			await using var stream = client.GetStream();
 
-			stream.Write(encrypted, offset: 0, size: encrypted.Length);
+			stream.Write(encrypted, offset: 0, count: encrypted.Length);
 
 			var buffer = new byte[10_240];
 			var count = stream.Read(buffer);

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.6" />
+    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.7-preview3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0-release-20210330-02" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
