@@ -20,9 +20,9 @@ namespace Helpers.Reddit.Models.Tests
 
 			var factory = new XmlSerializerFactory();
 
-			var serializer = factory.CreateSerializer(typeof(Models.feed));
+			var serializer = factory.CreateSerializer(typeof(Generated.feed));
 
-			var feed = serializer.Deserialize(stream) as Models.feed;
+			var feed = serializer.Deserialize(stream) as Generated.feed;
 
 			Assert.NotNull(feed);
 			AssertNotMalformedString(feed!.title);

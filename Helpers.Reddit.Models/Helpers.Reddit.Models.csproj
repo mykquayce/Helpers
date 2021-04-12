@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <Version>1.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="worldnews.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="worldnews.xsd">
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Generated\worldnews.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
