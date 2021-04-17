@@ -122,11 +122,13 @@ dotnet user-secrets set TPLink:UserName ... --id 8391cb70-d94f-4863-b7e4-5659af1
 dotnet user-secrets set TPLink:Password ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 ### Helpers.Reddit.Models
-- downloaded xml from https://old.reddit.com/r/worldnews/.rss
-- converted to xsd using https://www.freeformatter.com/xsd-generator.html and **Salami Slice**.
-- edit out the fields we don't care about
-- convert to .cs with:
-
+1. download xml with:
+```powesrhell
+curl --user-agent "PostmanRuntime/7.26.10" --output .\worldnews.xml https://old.reddit.com/r/worldnews/.rss
+```
+2. converted to xsd using https://www.freeformatter.com/xsd-generator.html and **Salami Slice**.
+1. edit out the fields we don't care about
+1. convert to .cs with:
 ```powershell
 & 'C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\x64\xsd.exe' .\worldnews.xsd  /classes /fields /namespace:Helpers.Reddit.Models /out:.
 ```

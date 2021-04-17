@@ -3,12 +3,16 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.SSH.Services.Concrete
 {
 	public class SSHService : ISSHService
 	{
+		private readonly static Encoding _encoding = Encoding.UTF8;
+		private string? _newline;
+
 		#region config
 		public record Config(
 			string Host = Config.DefaultHost,
@@ -51,7 +55,6 @@ namespace Helpers.SSH.Services.Concrete
 		}
 		#endregion constructors
 
-		private string? _newline;
 		public string Newline => _newline ??= GetNewline().GetAwaiter().GetResult();
 
 		public async Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000)
@@ -61,7 +64,7 @@ namespace Helpers.SSH.Services.Concrete
 
 			if (!_sshClient.IsConnected) _sshClient.Connect();
 
-			using var command = _sshClient.CreateCommand(commandText);
+			using var command = _sshClient.CreateCommand(commandText, _encoding);
 
 			command.CommandTimeout = TimeSpan.FromMilliseconds(millisecondsTimeout);
 

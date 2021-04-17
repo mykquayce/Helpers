@@ -130,9 +130,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models.Tests", "Helpers.Networking.Models.Tests\Helpers.Networking.Models.Tests.csproj", "{5F895615-C2D7-4A25-B3AC-2B385BE3D700}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH.Tests", "Helpers.SSH.Tests\Helpers.SSH.Tests.csproj", "{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.SSH.Tests", "Helpers.SSH.Tests\Helpers.SSH.Tests.csproj", "{291F5228-B3C8-41B7-AD1F-B2EF4BBBA703}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{384FF8F0-5AD5-4015-BF54-BDA287744732}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{384FF8F0-5AD5-4015-BF54-BDA287744732}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{4DB4793F-7797-4E83-B525-78BA374DEBC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit", "Helpers.Reddit\Helpers.Reddit.csproj", "{A48CB3F4-3DC6-437D-A993-AFE148775490}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -388,6 +392,14 @@ Global
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DB4793F-7797-4E83-B525-78BA374DEBC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DB4793F-7797-4E83-B525-78BA374DEBC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DB4793F-7797-4E83-B525-78BA374DEBC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DB4793F-7797-4E83-B525-78BA374DEBC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A48CB3F4-3DC6-437D-A993-AFE148775490}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A48CB3F4-3DC6-437D-A993-AFE148775490}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A48CB3F4-3DC6-437D-A993-AFE148775490}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A48CB3F4-3DC6-437D-A993-AFE148775490}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
