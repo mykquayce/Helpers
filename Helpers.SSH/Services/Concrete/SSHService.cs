@@ -41,15 +41,15 @@ namespace Helpers.SSH.Services.Concrete
 		{ }
 
 		public SSHService(
-			string host = Config.DefaultHost,
-			ushort port = Config.DefaultPort,
-			string username = Config.DefaultUsername,
-			string password = Config.DefaultPassword)
+			string host,
+			ushort port,
+			string username,
+			string password)
 		{
-			Guard.Argument(() => host!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => port).Positive();
-			Guard.Argument(() => username!).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => password!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => username).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => password).NotNull().NotEmpty().NotWhiteSpace();
 
 			_sshClient = new Renci.SshNet.SshClient(host, port, username, password);
 		}
@@ -107,8 +107,11 @@ namespace Helpers.SSH.Services.Concrete
 			return RunCommandAsync("ip route delete blackhole " + subnetAddress);
 		}
 
-		public Task DeleteBlackholesAsec(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
 			=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
+
+		public Task DeleteBlackholesAsync()
+			=> RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{print(\"ip route delete blackhole \" $2)}'");
 		#endregion blackhole
 
 		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync()
