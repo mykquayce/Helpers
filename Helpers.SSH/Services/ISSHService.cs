@@ -11,7 +11,8 @@ namespace Helpers.SSH.Services
 		Task AddBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress);
 		Task AddBlackholesAsync(IEnumerable<Helpers.Networking.Models.SubnetAddress> subnetAddresses);
 		Task DeleteBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress);
-		Task DeleteBlackholesAsec(IEnumerable<Helpers.Networking.Models.SubnetAddress> subnetAddresses);
+		Task DeleteBlackholesAsync(IEnumerable<Helpers.Networking.Models.SubnetAddress> subnetAddresses);
+		Task DeleteBlackholesAsync();
 		IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync();
 		Task<string> GetNewline();
 	}
