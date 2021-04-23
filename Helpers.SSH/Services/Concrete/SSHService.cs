@@ -3,12 +3,16 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.SSH.Services.Concrete
 {
 	public class SSHService : ISSHService
 	{
+		private readonly static Encoding _encoding = Encoding.UTF8;
+		private string? _newline;
+
 		#region config
 		public record Config(
 			string Host = Config.DefaultHost,
@@ -37,21 +41,20 @@ namespace Helpers.SSH.Services.Concrete
 		{ }
 
 		public SSHService(
-			string host = Config.DefaultHost,
-			ushort port = Config.DefaultPort,
-			string username = Config.DefaultUsername,
-			string password = Config.DefaultPassword)
+			string host,
+			ushort port,
+			string username,
+			string password)
 		{
-			Guard.Argument(() => host!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => port).Positive();
-			Guard.Argument(() => username!).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => password!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => username).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => password).NotNull().NotEmpty().NotWhiteSpace();
 
 			_sshClient = new Renci.SshNet.SshClient(host, port, username, password);
 		}
 		#endregion constructors
 
-		private string? _newline;
 		public string Newline => _newline ??= GetNewline().GetAwaiter().GetResult();
 
 		public async Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000)
@@ -61,7 +64,7 @@ namespace Helpers.SSH.Services.Concrete
 
 			if (!_sshClient.IsConnected) _sshClient.Connect();
 
-			using var command = _sshClient.CreateCommand(commandText);
+			using var command = _sshClient.CreateCommand(commandText, _encoding);
 
 			command.CommandTimeout = TimeSpan.FromMilliseconds(millisecondsTimeout);
 
@@ -104,8 +107,11 @@ namespace Helpers.SSH.Services.Concrete
 			return RunCommandAsync("ip route delete blackhole " + subnetAddress);
 		}
 
-		public Task DeleteBlackholesAsec(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
 			=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
+
+		public Task DeleteBlackholesAsync()
+			=> RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{print(\"ip route delete blackhole \" $2)}'");
 		#endregion blackhole
 
 		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync()

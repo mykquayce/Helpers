@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
+using System.Numerics;
 using Xunit;
 
 namespace Helpers.Networking.Models.Tests
@@ -490,6 +491,33 @@ Interface: 172.22.192.1 --- 0x2b
 			Assert.NotNull(actual);
 			Assert.NotEmpty(actual);
 			Assert.Equal(ipAddressStrings.Length, actual.Count);
+		}
+
+		[Theory]
+		[InlineData("192.168.1.0/32", "1")]
+		[InlineData("192.168.1.0/31", "2")]
+		[InlineData("31.13.24.0/21", "2048")]
+		[InlineData("31.13.64.0/18", "16384")]
+		[InlineData("31.13.64.0/24", "256")]
+		[InlineData("2620:0:1c00::/40", "309485009821345068724781056")]
+		[InlineData("2a03:2880::/32", "79228162514264337593543950336")]
+		[InlineData("2a03:2880::/36", "4951760157141521099596496896")]
+		public void SubnetCount(string cidr, string expected)
+		{
+			var subnet = Models.SubnetAddress.Parse(cidr);
+			Assert.Equal(
+				BigInteger.Parse(expected),
+				subnet.Count);
+		}
+
+		[Theory]
+		[InlineData("192.168.1.0/31", "192.168.1.0", "192.168.1.1")]
+		[InlineData("192.168.1.0/30", "192.168.1.0", "192.168.1.1", "192.168.1.2", "192.168.1.3")]
+		public void Addresses(string cidr, params string[] expecteds)
+		{
+			var subnet = Models.SubnetAddress.Parse(cidr);
+			var actuals = subnet.Addresses.ToList();
+			Assert.Equal(expecteds.Select(IPAddress.Parse), actuals);
 		}
 	}
 }

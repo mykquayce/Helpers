@@ -7,7 +7,7 @@ namespace Helpers.Networking.Clients.Concrete
 {
 	public class WhoIsClient : TcpClient, IWhoIsClient
 	{
-		public WhoIsClient() : base("riswhois.ripe.net", 43)
+		public WhoIsClient() : base("riswhois.ripe.net", 43, "\n")
 		{ }
 
 		public async IAsyncEnumerable<Models.SubnetAddress> GetIpsAsync(int asn)
@@ -16,9 +16,9 @@ namespace Helpers.Networking.Clients.Concrete
 
 			var message = $"-F -K -i {asn:D}\n";
 
-			var lines = await SendAndReceiveAsync(message).ToListAsync();
+			var lines = SendAndReceiveAsync(message);
 
-			foreach (var line in lines)
+			await foreach (var line in lines)
 			{
 				if (string.IsNullOrWhiteSpace(line)) continue;
 				if (line.StartsWith("% ERROR:", StringComparison.InvariantCultureIgnoreCase))
