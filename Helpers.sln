@@ -134,6 +134,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH.Tests", "Helper
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{384FF8F0-5AD5-4015-BF54-BDA287744732}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.PeeringDB.Tests", "Helpers.PeeringDB.Tests\Helpers.PeeringDB.Tests.csproj", "{8BF4CBFB-B84D-4886-8A9E-DF3208751E6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -388,6 +390,10 @@ Global
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{384FF8F0-5AD5-4015-BF54-BDA287744732}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BF4CBFB-B84D-4886-8A9E-DF3208751E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BF4CBFB-B84D-4886-8A9E-DF3208751E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BF4CBFB-B84D-4886-8A9E-DF3208751E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BF4CBFB-B84D-4886-8A9E-DF3208751E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
