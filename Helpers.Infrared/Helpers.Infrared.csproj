@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Helpers.Networking" Version="1.5.0-preview3" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.3.21201.4" />
+  </ItemGroup>
+
+</Project>
