@@ -3,139 +3,146 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld.Models.Tests", "Helpers.Cineworld.Models.Tests\Helpers.Cineworld.Models.Tests.csproj", "{ED0737E8-3245-4136-A0C5-5A221F4FA10A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Models.Tests", "Helpers.Cineworld.Models.Tests\Helpers.Cineworld.Models.Tests.csproj", "{ED0737E8-3245-4136-A0C5-5A221F4FA10A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld.Models", "Helpers.Cineworld.Models\Helpers.Cineworld.Models.csproj", "{F91ECA6B-2FC8-434A-A7C7-AA56BEA1E5CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Models", "Helpers.Cineworld.Models\Helpers.Cineworld.Models.csproj", "{F91ECA6B-2FC8-434A-A7C7-AA56BEA1E5CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld.Tests", "Helpers.Cineworld.Tests\Helpers.Cineworld.Tests.csproj", "{52307A28-2EB6-4104-B1BD-6BA0DBE9FE54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld.Tests", "Helpers.Cineworld.Tests\Helpers.Cineworld.Tests.csproj", "{52307A28-2EB6-4104-B1BD-6BA0DBE9FE54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Cineworld", "Helpers.Cineworld\Helpers.Cineworld.csproj", "{C38EBBB0-7B64-41DC-8B03-9D64530CE9C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Cineworld", "Helpers.Cineworld\Helpers.Cineworld.csproj", "{C38EBBB0-7B64-41DC-8B03-9D64530CE9C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Common.Tests", "Helpers.Common.Tests\Helpers.Common.Tests.csproj", "{64042E2C-424D-4ED7-A87E-7351C5ADFBC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Common.Tests", "Helpers.Common.Tests\Helpers.Common.Tests.csproj", "{64042E2C-424D-4ED7-A87E-7351C5ADFBC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Common", "Helpers.Common\Helpers.Common.csproj", "{9BEE27D3-EBF0-4610-B82F-7EE9462CA635}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Common", "Helpers.Common\Helpers.Common.csproj", "{9BEE27D3-EBF0-4610-B82F-7EE9462CA635}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DawnGuard.Tests", "Helpers.DawnGuard.Tests\Helpers.DawnGuard.Tests.csproj", "{808CF008-BA66-46F4-807F-9DB01646BE10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DawnGuard.Tests", "Helpers.DawnGuard.Tests\Helpers.DawnGuard.Tests.csproj", "{808CF008-BA66-46F4-807F-9DB01646BE10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DawnGuard", "Helpers.DawnGuard\Helpers.DawnGuard.csproj", "{05866982-0317-42F8-A02B-2A2B4F5F085F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DawnGuard", "Helpers.DawnGuard\Helpers.DawnGuard.csproj", "{05866982-0317-42F8-A02B-2A2B4F5F085F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Discord.Tests", "Helpers.Discord.Tests\Helpers.Discord.Tests.csproj", "{47991D1C-7369-489A-8556-1B29456026B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord.Tests", "Helpers.Discord.Tests\Helpers.Discord.Tests.csproj", "{47991D1C-7369-489A-8556-1B29456026B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Discord", "Helpers.Discord\Helpers.Discord.csproj", "{EEC794E7-6F6B-4295-9CDF-3DC39FDF4239}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Discord", "Helpers.Discord\Helpers.Discord.csproj", "{EEC794E7-6F6B-4295-9CDF-3DC39FDF4239}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DockerHub.Tests", "Helpers.DockerHub.Tests\Helpers.DockerHub.Tests.csproj", "{154DFECD-5294-4356-A857-B5CA0C580B00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerHub.Tests", "Helpers.DockerHub.Tests\Helpers.DockerHub.Tests.csproj", "{154DFECD-5294-4356-A857-B5CA0C580B00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DockerSecrets.Tests", "Helpers.DockerSecrets.Tests\Helpers.DockerSecrets.Tests.csproj", "{5DE5BB9F-FA0B-4D0A-8263-FD22AF100CAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerSecrets.Tests", "Helpers.DockerSecrets.Tests\Helpers.DockerSecrets.Tests.csproj", "{5DE5BB9F-FA0B-4D0A-8263-FD22AF100CAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.DockerSecrets", "Helpers.DockerSecrets\Helpers.DockerSecrets.csproj", "{2867D7F2-4ED9-4539-A8EC-1D388FF7E1D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerSecrets", "Helpers.DockerSecrets\Helpers.DockerSecrets.csproj", "{2867D7F2-4ED9-4539-A8EC-1D388FF7E1D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Elgato.Tests", "Helpers.Elgato.Tests\Helpers.Elgato.Tests.csproj", "{58BE43D5-614A-4E3A-A1CB-B1CDC8B19477}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Elgato.Tests", "Helpers.Elgato.Tests\Helpers.Elgato.Tests.csproj", "{58BE43D5-614A-4E3A-A1CB-B1CDC8B19477}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Elgato", "Helpers.Elgato\Helpers.Elgato.csproj", "{3E070CAC-3DCB-44F7-84A9-74FD988E1836}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Elgato", "Helpers.Elgato\Helpers.Elgato.csproj", "{3E070CAC-3DCB-44F7-84A9-74FD988E1836}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.GitHub.Tests", "Helpers.GitHub.Tests\Helpers.GitHub.Tests.csproj", "{C0A49449-4FBA-42AE-8048-66263624C071}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.GitHub.Tests", "Helpers.GitHub.Tests\Helpers.GitHub.Tests.csproj", "{C0A49449-4FBA-42AE-8048-66263624C071}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.GitHub", "Helpers.GitHub\Helpers.GitHub.csproj", "{FBDBB826-6A4D-4C48-A700-26665FE34E78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.GitHub", "Helpers.GitHub\Helpers.GitHub.csproj", "{FBDBB826-6A4D-4C48-A700-26665FE34E78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.GlobalCache.Tests", "Helpers.GlobalCache.Tests\Helpers.GlobalCache.Tests.csproj", "{067DF17B-24F2-4C8B-999E-D93457EE3B5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.GlobalCache.Tests", "Helpers.GlobalCache.Tests\Helpers.GlobalCache.Tests.csproj", "{067DF17B-24F2-4C8B-999E-D93457EE3B5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.GlobalCache", "Helpers.GlobalCache\Helpers.GlobalCache.csproj", "{F334A6AE-098E-438F-9743-338E4AB3619B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.GlobalCache", "Helpers.GlobalCache\Helpers.GlobalCache.csproj", "{F334A6AE-098E-438F-9743-338E4AB3619B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Infrared.Tests", "Helpers.Infrared.Tests\Helpers.Infrared.Tests.csproj", "{D90DE20F-0C0C-45C2-8094-2D62E2CF58F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Infrared.Tests", "Helpers.Infrared.Tests\Helpers.Infrared.Tests.csproj", "{D90DE20F-0C0C-45C2-8094-2D62E2CF58F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Infrared", "Helpers.Infrared\Helpers.Infrared.csproj", "{BBD8EBB4-08D3-4689-A87E-5A6624107892}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Infrared", "Helpers.Infrared\Helpers.Infrared.csproj", "{BBD8EBB4-08D3-4689-A87E-5A6624107892}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jaeger.Tests", "Helpers.Jaeger.Tests\Helpers.Jaeger.Tests.csproj", "{C5AA02C1-290F-4E28-B5E1-7C2880794E3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jaeger.Tests", "Helpers.Jaeger.Tests\Helpers.Jaeger.Tests.csproj", "{C5AA02C1-290F-4E28-B5E1-7C2880794E3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jaeger", "Helpers.Jaeger\Helpers.Jaeger.csproj", "{A9FCB863-71F0-40E3-A41A-E7C0B6E558CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jaeger", "Helpers.Jaeger\Helpers.Jaeger.csproj", "{A9FCB863-71F0-40E3-A41A-E7C0B6E558CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jwt.Tests", "Helpers.Jwt.Tests\Helpers.Jwt.Tests.csproj", "{D821CA62-1ED1-46C2-930D-77AD1C2547A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt.Tests", "Helpers.Jwt.Tests\Helpers.Jwt.Tests.csproj", "{D821CA62-1ED1-46C2-930D-77AD1C2547A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Jwt", "Helpers.Jwt\Helpers.Jwt.csproj", "{390EE845-F62E-4704-B0C7-884B84F930B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Jwt", "Helpers.Jwt\Helpers.Jwt.csproj", "{390EE845-F62E-4704-B0C7-884B84F930B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.MySql.Tests", "Helpers.MySql.Tests\Helpers.MySql.Tests.csproj", "{5CA02A4D-5AC3-4930-AE0C-DE15DC40CCFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.MySql.Tests", "Helpers.MySql.Tests\Helpers.MySql.Tests.csproj", "{5CA02A4D-5AC3-4930-AE0C-DE15DC40CCFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.MySql", "Helpers.MySql\Helpers.MySql.csproj", "{5BFDAB16-D869-45DB-BE01-DCB11404C46F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.MySql", "Helpers.MySql\Helpers.MySql.csproj", "{5BFDAB16-D869-45DB-BE01-DCB11404C46F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking.Models.Tests", "Helpers.Networking.Models.Tests\Helpers.Networking.Models.Tests.csproj", "{A0A49FDF-4079-48D8-92EA-D62783BED24B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models.Tests", "Helpers.Networking.Models.Tests\Helpers.Networking.Models.Tests.csproj", "{A0A49FDF-4079-48D8-92EA-D62783BED24B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking.Models", "Helpers.Networking.Models\Helpers.Networking.Models.csproj", "{49FC833E-A974-479F-945D-ECBAE1D4E55A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Models", "Helpers.Networking.Models\Helpers.Networking.Models.csproj", "{49FC833E-A974-479F-945D-ECBAE1D4E55A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking.Tests", "Helpers.Networking.Tests\Helpers.Networking.Tests.csproj", "{58A992D6-D07D-4701-BC6F-AB0E151D5AA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking.Tests", "Helpers.Networking.Tests\Helpers.Networking.Tests.csproj", "{58A992D6-D07D-4701-BC6F-AB0E151D5AA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Networking", "Helpers.Networking\Helpers.Networking.csproj", "{FE36459A-A5E8-45F1-AC20-D72F65242149}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Networking", "Helpers.Networking\Helpers.Networking.csproj", "{FE36459A-A5E8-45F1-AC20-D72F65242149}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.OpenWrt.Tests", "Helpers.OpenWrt.Tests\Helpers.OpenWrt.Tests.csproj", "{CEC28CC2-8644-47EE-B2A3-7CDE21804A3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.OpenWrt.Tests", "Helpers.OpenWrt.Tests\Helpers.OpenWrt.Tests.csproj", "{CEC28CC2-8644-47EE-B2A3-7CDE21804A3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.OpenWrt", "Helpers.OpenWrt\Helpers.OpenWrt.csproj", "{DB63AA5F-2A25-4CF5-BFE4-C53D7908072E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.OpenWrt", "Helpers.OpenWrt\Helpers.OpenWrt.csproj", "{DB63AA5F-2A25-4CF5-BFE4-C53D7908072E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.PeeringDB.Tests", "Helpers.PeeringDB.Tests\Helpers.PeeringDB.Tests.csproj", "{0469960C-1E67-402B-89E7-E5B1B1F35EF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PeeringDB.Tests", "Helpers.PeeringDB.Tests\Helpers.PeeringDB.Tests.csproj", "{0469960C-1E67-402B-89E7-E5B1B1F35EF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Phasmophobia", "Helpers.Phasmophobia\Helpers.Phasmophobia.csproj", "{EBBB9442-7011-41A3-B360-050602DD2BD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Phasmophobia", "Helpers.Phasmophobia\Helpers.Phasmophobia.csproj", "{EBBB9442-7011-41A3-B360-050602DD2BD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.PhilipsHue.Tests", "Helpers.PhilipsHue.Tests\Helpers.PhilipsHue.Tests.csproj", "{EAD179AF-8D18-44AF-B7F0-C8E99A3F9C44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue.Tests", "Helpers.PhilipsHue.Tests\Helpers.PhilipsHue.Tests.csproj", "{EAD179AF-8D18-44AF-B7F0-C8E99A3F9C44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.PhilipsHue", "Helpers.PhilipsHue\Helpers.PhilipsHue.csproj", "{F6EF9F98-B0C5-4CAD-A69A-061A2E4E4CDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue", "Helpers.PhilipsHue\Helpers.PhilipsHue.csproj", "{F6EF9F98-B0C5-4CAD-A69A-061A2E4E4CDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{2534C949-DA7B-45C3-ACA4-D66029A48475}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{2534C949-DA7B-45C3-ACA4-D66029A48475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.RabbitMQ", "Helpers.RabbitMQ\Helpers.RabbitMQ.csproj", "{FE5648FB-1955-41BD-A2D7-4A2935AFC521}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ", "Helpers.RabbitMQ\Helpers.RabbitMQ.csproj", "{FE5648FB-1955-41BD-A2D7-4A2935AFC521}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit.Models.Tests", "Helpers.Reddit.Models.Tests\Helpers.Reddit.Models.Tests.csproj", "{761589D0-AB4A-4686-99F2-7256BBDF689E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Models.Tests", "Helpers.Reddit.Models.Tests\Helpers.Reddit.Models.Tests.csproj", "{761589D0-AB4A-4686-99F2-7256BBDF689E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{A9C7E22E-B277-469F-A459-52E85D1DFD3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Models", "Helpers.Reddit.Models\Helpers.Reddit.Models.csproj", "{A9C7E22E-B277-469F-A459-52E85D1DFD3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{68ACA767-B93D-4E45-A74A-96461FC939D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit.Tests", "Helpers.Reddit.Tests\Helpers.Reddit.Tests.csproj", "{68ACA767-B93D-4E45-A74A-96461FC939D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Reddit", "Helpers.Reddit\Helpers.Reddit.csproj", "{7BF4E43A-3629-4F2D-996A-D551082E545B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Reddit", "Helpers.Reddit\Helpers.Reddit.csproj", "{7BF4E43A-3629-4F2D-996A-D551082E545B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Slack.Tests", "Helpers.Slack.Tests\Helpers.Slack.Tests.csproj", "{11B2F0C7-0E42-421F-A139-6E2452420C7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Slack.Tests", "Helpers.Slack.Tests\Helpers.Slack.Tests.csproj", "{11B2F0C7-0E42-421F-A139-6E2452420C7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Slack", "Helpers.Slack\Helpers.Slack.csproj", "{E665588E-00BD-450D-A8BA-E99709B11649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Slack", "Helpers.Slack\Helpers.Slack.csproj", "{E665588E-00BD-450D-A8BA-E99709B11649}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH.Tests", "Helpers.SSH.Tests\Helpers.SSH.Tests.csproj", "{C2DD5731-4819-4DF2-980C-6AD423E809D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.SSH.Tests", "Helpers.SSH.Tests\Helpers.SSH.Tests.csproj", "{C2DD5731-4819-4DF2-980C-6AD423E809D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{BABF3D44-2DD0-4A59-9A08-DC966B97E18D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.SSH", "Helpers.SSH\Helpers.SSH.csproj", "{BABF3D44-2DD0-4A59-9A08-DC966B97E18D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Steam.Models", "Helpers.Steam.Models\Helpers.Steam.Models.csproj", "{227194EC-7191-4238-A5B2-A3D4F3D66459}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Steam.Models", "Helpers.Steam.Models\Helpers.Steam.Models.csproj", "{227194EC-7191-4238-A5B2-A3D4F3D66459}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Steam.Tests", "Helpers.Steam.Tests\Helpers.Steam.Tests.csproj", "{E2F279D9-15C9-4858-9E26-C3079ECF18FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Steam.Tests", "Helpers.Steam.Tests\Helpers.Steam.Tests.csproj", "{E2F279D9-15C9-4858-9E26-C3079ECF18FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Steam", "Helpers.Steam\Helpers.Steam.csproj", "{C4CDE029-43FB-4E61-8031-06C542E28D5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Steam", "Helpers.Steam\Helpers.Steam.csproj", "{C4CDE029-43FB-4E61-8031-06C542E28D5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Telegram.Models.Tests", "Helpers.Telegram.Models.Tests\Helpers.Telegram.Models.Tests.csproj", "{D174DA7D-8B54-4510-B6B9-2379696F895B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Models.Tests", "Helpers.Telegram.Models.Tests\Helpers.Telegram.Models.Tests.csproj", "{D174DA7D-8B54-4510-B6B9-2379696F895B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Telegram.Models", "Helpers.Telegram.Models\Helpers.Telegram.Models.csproj", "{1BFBA05B-A8BA-4F2F-930E-22F5568E36DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Models", "Helpers.Telegram.Models\Helpers.Telegram.Models.csproj", "{1BFBA05B-A8BA-4F2F-930E-22F5568E36DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Telegram.Tests", "Helpers.Telegram.Tests\Helpers.Telegram.Tests.csproj", "{4D0C760D-C6DD-4BF5-9D82-64B82DD75AEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram.Tests", "Helpers.Telegram.Tests\Helpers.Telegram.Tests.csproj", "{4D0C760D-C6DD-4BF5-9D82-64B82DD75AEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Telegram", "Helpers.Telegram\Helpers.Telegram.csproj", "{50832515-B39A-4726-B512-2B2CD319D77D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Telegram", "Helpers.Telegram\Helpers.Telegram.csproj", "{50832515-B39A-4726-B512-2B2CD319D77D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.TPLink.Models.Tests", "Helpers.TPLink.Models.Tests\Helpers.TPLink.Models.Tests.csproj", "{27797C54-F3C1-4B12-B19A-1797CB1C908C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink.Models.Tests", "Helpers.TPLink.Models.Tests\Helpers.TPLink.Models.Tests.csproj", "{27797C54-F3C1-4B12-B19A-1797CB1C908C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.TPLink.Models", "Helpers.TPLink.Models\Helpers.TPLink.Models.csproj", "{798D3846-2DB4-4FA6-985D-051FA09A368E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink.Models", "Helpers.TPLink.Models\Helpers.TPLink.Models.csproj", "{798D3846-2DB4-4FA6-985D-051FA09A368E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.TPLink.Tests", "Helpers.TPLink.Tests\Helpers.TPLink.Tests.csproj", "{6E6D0BEC-7635-4CE3-A185-545991EA1F18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink.Tests", "Helpers.TPLink.Tests\Helpers.TPLink.Tests.csproj", "{6E6D0BEC-7635-4CE3-A185-545991EA1F18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.TPLink", "Helpers.TPLink\Helpers.TPLink.csproj", "{2270784C-2D8A-41FD-B0EC-043A620354EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.TPLink", "Helpers.TPLink\Helpers.TPLink.csproj", "{2270784C-2D8A-41FD-B0EC-043A620354EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Middleware.Tests", "Helpers.Tracing.Middleware.Tests\Helpers.Tracing.Middleware.Tests.csproj", "{ECEE2E39-E9BB-44B7-B683-3E282B7D6F79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Middleware.Tests", "Helpers.Tracing.Middleware.Tests\Helpers.Tracing.Middleware.Tests.csproj", "{ECEE2E39-E9BB-44B7-B683-3E282B7D6F79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Middleware", "Helpers.Tracing.Middleware\Helpers.Tracing.Middleware.csproj", "{11C0CE55-D5F5-4649-BD7D-AE9A9B34740B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Middleware", "Helpers.Tracing.Middleware\Helpers.Tracing.Middleware.csproj", "{11C0CE55-D5F5-4649-BD7D-AE9A9B34740B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing.Tests", "Helpers.Tracing.Tests\Helpers.Tracing.Tests.csproj", "{2924F11E-4DF1-4EEA-9FAE-7B2F03B8215A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing.Tests", "Helpers.Tracing.Tests\Helpers.Tracing.Tests.csproj", "{2924F11E-4DF1-4EEA-9FAE-7B2F03B8215A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Tracing", "Helpers.Tracing\Helpers.Tracing.csproj", "{9D50192E-8109-4CD2-A7AE-4DD16EBD3FC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Tracing", "Helpers.Tracing\Helpers.Tracing.csproj", "{9D50192E-8109-4CD2-A7AE-4DD16EBD3FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Twitch.Tests", "Helpers.Twitch.Tests\Helpers.Twitch.Tests.csproj", "{022C41E1-E1F0-40AF-A5D6-95256C1BEDA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch.Tests", "Helpers.Twitch.Tests\Helpers.Twitch.Tests.csproj", "{022C41E1-E1F0-40AF-A5D6-95256C1BEDA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Twitch", "Helpers.Twitch\Helpers.Twitch.csproj", "{10EED570-DB8C-46F9-9938-A34407FB9CE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Twitch", "Helpers.Twitch\Helpers.Twitch.csproj", "{10EED570-DB8C-46F9-9938-A34407FB9CE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{A3147782-A8CC-4636-BFFF-31B74F08A542}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web.Tests", "Helpers.Web.Tests\Helpers.Web.Tests.csproj", "{A3147782-A8CC-4636-BFFF-31B74F08A542}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Web", "Helpers.Web\Helpers.Web.csproj", "{6FDA396C-1BE6-43D3-84B6-A5D36439CE88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Web", "Helpers.Web\Helpers.Web.csproj", "{6FDA396C-1BE6-43D3-84B6-A5D36439CE88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.XUnitClassFixtures", "Helpers.XUnitClassFixtures\Helpers.XUnitClassFixtures.csproj", "{C4E61948-F2A8-4D95-B57E-75FE47CFBD16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.XUnitClassFixtures", "Helpers.XUnitClassFixtures\Helpers.XUnitClassFixtures.csproj", "{C4E61948-F2A8-4D95-B57E-75FE47CFBD16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B5F6DEB-A07C-4346-8E82-BD215629EB4F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		build.sh = build.sh
+		readme.md = readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,9 +152,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{ED0737E8-3245-4136-A0C5-5A221F4FA10A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -954,5 +958,11 @@ Global
 		{C4E61948-F2A8-4D95-B57E-75FE47CFBD16}.Release|x64.Build.0 = Release|Any CPU
 		{C4E61948-F2A8-4D95-B57E-75FE47CFBD16}.Release|x86.ActiveCfg = Release|Any CPU
 		{C4E61948-F2A8-4D95-B57E-75FE47CFBD16}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E693FE8B-492A-4D51-BBFB-A581B2E9E198}
 	EndGlobalSection
 EndGlobal
