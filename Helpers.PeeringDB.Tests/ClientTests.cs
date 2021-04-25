@@ -22,44 +22,71 @@ namespace Helpers.PeeringDB.Tests
 
 		[Theory]
 		[InlineData(6_483, 2_906, 40_027, 55_095)]
-		public async Task Organisation(int id, params int[] expected)
+		public async Task GetAsnByOrganisationId(int orgId, params int[] expectedAsns)
 		{
-			var actual = await GetAsnByOrganisationIdAsync(id).ToListAsync();
-			Assert.Equal(expected, actual);
+			var actual = await GetAsnByOrganisationIdAsync(orgId).ToListAsync();
+			Assert.Equal(expectedAsns, actual);
 		}
 
-		private async IAsyncEnumerable<org> GetOrganisationsAsync(int id)
+		[Theory]
+		[InlineData("facebook", 9_660)]
+		[InlineData("netflix", 6_483)]
+		public async Task SearchOrganisations(string term, params int[] expectedIds)
 		{
-			await using var stream = await _client.GetStreamAsync($"/api/org/{id:D}?depth=2");
-			var response = await JsonSerializer.DeserializeAsync<OrganisationResponse>(stream);
-			foreach (var org in response!.data) yield return org;
+			// Act
+			var organisations = await SearchOrganisationsAsync(term).ToListAsync();
+
+			// Assert
+			Assert.NotNull(organisations);
+			Assert.NotEmpty(organisations);
+			Assert.Equal(expectedIds, organisations.Select(org => org.id));
+		}
+
+		[Theory]
+		[InlineData("facebook", 32_934, 63_293)]
+		[InlineData("netflix", 2_906, 40_027, 55_095)]
+		public async Task SearchNetworks(string term, params int[] expectedAsns)
+		{
+			// Act
+			var networks = await SearchNetworksAsync(term).ToListAsync();
+
+			// Assert
+			Assert.NotNull(networks);
+			Assert.NotEmpty(networks);
+			Assert.Equal(expectedAsns, networks.Select(net => net.asn));
 		}
 
 		private async IAsyncEnumerable<int> GetAsnByOrganisationIdAsync(int id)
 		{
-			await foreach (var org in GetOrganisationsAsync(id))
+			var org = await GetOrganisationAsync(id);
+			if (org is null) yield break;
+
+			foreach (var netId in org.net_set)
 			{
-				foreach (var net in org.net_set)
-				{
-					yield return net.asn;
-				}
+				var net = await GetNetworkAsync(netId);
+				if (net is not null) yield return net.asn;
 			}
 		}
 
-		private async IAsyncEnumerable<net> GetNetworksAsync(int id)
+		private ValueTask<org?> GetOrganisationAsync(int id) => GetAsync<org>($"/api/org/{id:D}?depth=1").FirstOrDefaultAsync();
+		private IAsyncEnumerable<org> SearchOrganisationsAsync(string name) => GetAsync<org>($"/api/org?name__contains={name}&depth=1");
+		private ValueTask<net?> GetNetworkAsync(int id) => GetAsync<net>($"/api/net/{id:D}?depth=0").FirstOrDefaultAsync();
+		private IAsyncEnumerable<net> SearchNetworksAsync(string name) => GetAsync<net>($"/api/net?name__contains={name}&depth=0");
+
+		private async IAsyncEnumerable<T> GetAsync<T>(string uri)
 		{
-			var uri = new Uri($"/api/net/{id:D}?depth=0", UriKind.Relative);
 			await using var stream = await _client.GetStreamAsync(uri);
-			var response = await JsonSerializer.DeserializeAsync<NetworkResponse>(stream);
-			foreach (var net in response!.data) yield return net;
+			var response = await JsonSerializer.DeserializeAsync<Wrapper<T>>(stream);
+			foreach (var t in response!.data) yield return t;
 		}
 	}
 
-
 #pragma warning disable IDE1006 // Naming Styles
-	public record OrganisationResponse(IList<org> data);
-	public record NetworkResponse(IList<net> data);
-	public record org(int id, string name, IList<net> net_set, DateTime created, DateTime updated, string status);
-	public record net(int id, string name, int asn, DateTime created, DateTime updated, string status);
+	public record Wrapper<T>(IList<T> data);
+	public record org(int id, string name, IList<int> net_set, DateTime created, DateTime updated, string status)
+		: @base(id, name, created, updated, status);
+	public record net(int id, string name, int asn, DateTime created, DateTime updated, string status)
+		: @base(id, name, created, updated, status);
+	public abstract record @base(int id, string name, DateTime created, DateTime updated, string status);
 #pragma warning restore IDE1006 // Naming Styles
 }
