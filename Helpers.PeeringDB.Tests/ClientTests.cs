@@ -56,22 +56,39 @@ namespace Helpers.PeeringDB.Tests
 			Assert.Equal(expectedAsns, networks.Select(net => net.asn));
 		}
 
+		[Theory]
+		[InlineData(714, "Apple Inc.")]
+		[InlineData(2_906, "Netflix")]
+		[InlineData(6_185, "Apple CDN")]
+		[InlineData(32_934, "Facebook Inc")]
+		[InlineData(40_027, "Netflix Streaming Services")]
+		[InlineData(55_095, "Netflix AS55095")]
+		[InlineData(63_293, "Facebook Inc AS63293")]
+		public async Task SearchAsn(int asn, string expected)
+		{
+			var net = await GetNetworkByAsnAsync(asn);
+			Assert.NotNull(net);
+			Assert.Equal(expected, net!.name);
+		}
+
 		private async IAsyncEnumerable<int> GetAsnByOrganisationIdAsync(int id)
 		{
-			var org = await GetOrganisationAsync(id);
+			var org = await GetOrganisationByIdAsync(id);
 			if (org is null) yield break;
 
 			foreach (var netId in org.net_set)
 			{
-				var net = await GetNetworkAsync(netId);
+				var net = await GetNetworkByIdAsync(netId);
 				if (net is not null) yield return net.asn;
 			}
 		}
 
-		private ValueTask<org?> GetOrganisationAsync(int id) => GetAsync<org>($"/api/org/{id:D}?depth=1").FirstOrDefaultAsync();
-		private IAsyncEnumerable<org> SearchOrganisationsAsync(string name) => GetAsync<org>($"/api/org?name__contains={name}&depth=1");
-		private ValueTask<net?> GetNetworkAsync(int id) => GetAsync<net>($"/api/net/{id:D}?depth=0").FirstOrDefaultAsync();
-		private IAsyncEnumerable<net> SearchNetworksAsync(string name) => GetAsync<net>($"/api/net?name__contains={name}&depth=0");
+		private ValueTask<org?> GetOrganisationByIdAsync(int id) => GetAsync<org>($"/api/org/{id:D}?depth=1").FirstOrDefaultAsync();
+		private IAsyncEnumerable<org> SearchOrganisationsAsync(string nameFragment) => GetAsync<org>($"/api/org?name__contains={nameFragment}&depth=1");
+		private ValueTask<net?> GetNetworkByIdAsync(int id) => GetAsync<net>($"/api/net/{id:D}?depth=0").FirstOrDefaultAsync();
+		private ValueTask<net?> GetNetworkByAsnAsync(int asn) => GetAsync<net>($"/api/net?asn={asn:D}&depth=0").FirstOrDefaultAsync();
+
+		private IAsyncEnumerable<net> SearchNetworksAsync(string nameFragment) => GetAsync<net>($"/api/net?name__contains={nameFragment}&depth=0");
 
 		private async IAsyncEnumerable<T> GetAsync<T>(string uri)
 		{
