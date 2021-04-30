@@ -1,0 +1,43 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="table" type="tableType"/>
+
+  <xs:complexType name="tableType">
+    <xs:sequence>
+      <xs:element type="theadType" name="thead"/>
+      <xs:element type="tbodyType" name="tbody"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="theadType">
+    <xs:sequence>
+      <xs:element type="trType" name="tr"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="tbodyType">
+    <xs:sequence>
+      <xs:element type="trType" name="tr" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="trType">
+    <xs:sequence>
+      <xs:element type="thType" name="th" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="tdType" name="td" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="thType" mixed="true">
+    <xs:sequence>
+      <xs:element type="xs:string" name="b" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="tdType" mixed="true">
+    <xs:sequence>
+      <xs:element type="xs:string" name="b" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
