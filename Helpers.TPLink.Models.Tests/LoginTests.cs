@@ -21,15 +21,8 @@ namespace Helpers.TPLink.Models.Tests
 }")]
 		public void BuildLoginRequestObject_IsAsExpecetd(string cloudUserName, string cloudPassword, string terminalUUID, string expected)
 		{
-			var before = new LoginRequestObject
-			{
-				@params = new LoginRequestObject.LoginParamsOjbect
-				{
-					cloudUserName = cloudUserName,
-					cloudPassword = cloudPassword,
-					terminalUUID = terminalUUID,
-				},
-			};
+			var before = new LoginRequestObject(cloudUserName, cloudPassword);
+			before = before with { @params = before.@params with { terminalUUID = new System.Guid(terminalUUID), }, };
 
 			var options = new JsonSerializerOptions { WriteIndented = true, };
 			var actual = JsonSerializer.Serialize(before, options);
@@ -61,6 +54,19 @@ namespace Helpers.TPLink.Models.Tests
 			Assert.Equal(regTimeString, actual.result.regTime);
 			Assert.Equal(email, actual.result.email);
 			Assert.Equal(token, actual.result.token);
+		}
+
+		[Theory]
+		[InlineData(
+			@"{""error_code"":-20103,""msg"":""The method does not exist or is not available""}",
+			Enums.ErrorCode.MethodError,
+			"The method does not exist or is not available")]
+		public void DeserializeErrorResponseJson_HasTheCorrectValues(string json, Enums.ErrorCode error_code, string msg)
+		{
+			var o = JsonSerializer.Deserialize<LoginResponseObject>(json);
+			Assert.NotNull(o);
+			Assert.Equal(error_code, o!.error_code);
+			Assert.Equal(msg, o.msg);
 		}
 	}
 }

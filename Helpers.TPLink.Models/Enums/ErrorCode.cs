@@ -8,6 +8,7 @@
 		DeviceIsOffline = -20_571,
 		AccountLoginInOtherPlaces = -20_675,
 		EmailFormatError = -20_200,
+		MethodError = -20_103,
 		Timeout = -20_002,
 		JsonFormatError = -10_100,
 		RequestMethodGetNotSupported = -10_000,

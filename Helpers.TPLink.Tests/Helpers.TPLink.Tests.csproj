@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Helpers.TPLink\Helpers.TPLink.csproj" />
+    <ProjectReference Include="..\Helpers.XUnitClassFixtures\Helpers.XUnitClassFixtures.csproj" />
   </ItemGroup>
 
 </Project>

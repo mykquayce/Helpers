@@ -1,18 +1,21 @@
-﻿namespace Helpers.TPLink.Models
-{
-	public class LoginRequestObject
-	{
-#pragma warning disable IDE1006 // Naming Styles
-		public string? method { get; } = "login";
-		public LoginParamsOjbect? @params { get; init; }
+﻿using System;
 
-		public class LoginParamsOjbect
+namespace Helpers.TPLink.Models
+{
+#pragma warning disable IDE1006 // Naming Styles
+	public record LoginRequestObject(string method, LoginRequestObject.ParamsObject @params)
+		: IRequest
+	{
+		public LoginRequestObject(string cloudUserName, string cloudPassword)
+			: this("login", new ParamsObject(cloudUserName, cloudPassword))
+		{ }
+
+		public record ParamsObject(string appType, string cloudUserName, string cloudPassword, Guid terminalUUID)
 		{
-			public string? appType { get; } = "Kasa_Android";
-			public string? cloudUserName { get; init; }
-			public string? cloudPassword { get; init; }
-			public string? terminalUUID { get; init; }
+			public ParamsObject(string cloudUserName, string cloudPassword)
+				: this("Kasa_Android", cloudUserName, cloudPassword, Guid.NewGuid())
+			{ }
 		}
-#pragma warning restore IDE1006 // Naming Styles
 	}
+#pragma warning restore IDE1006 // Naming Styles
 }

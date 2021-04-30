@@ -1,7 +1,4 @@
 ﻿namespace Helpers.TPLink.Models
 {
-	public class GetDeviceListRequestObject
-	{
-		public string? method { get; } = "getDeviceList";
-	}
+	public record GetDeviceListRequestObject(string method = "getDeviceList") : IRequest;
 }

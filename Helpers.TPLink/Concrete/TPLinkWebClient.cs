@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Helpers.Web.Extensions;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,11 +11,27 @@ namespace Helpers.TPLink.Concrete
 {
 	public class TPLinkWebClient : Helpers.Web.WebClientBase, ITPLinkWebClient
 	{
-		public async IAsyncEnumerable<Models.DeviceObject> GetDevicesAsync(string token)
+		public record Config(string UserName, string Password)
 		{
-			Guard.Argument(() => token).NotNull().NotEmpty().NotWhiteSpace().Matches("^6bdd39aa-[0-9A-Za-z]{23}$");
+			public Config() : this("admin", "admin") { }
+		}
 
-			var uri = new Uri("https://wap.tplinkcloud.com?token=" + token);
+		private readonly string _userName, _password;
+		private string? _token;
+
+		public TPLinkWebClient(IOptions<Config> options) : this(options.Value) { }
+		public TPLinkWebClient(Config config)
+		{
+			Guard.Argument(() => config).NotNull();
+			_userName = Guard.Argument(() => config.UserName).NotNull().NotEmpty().NotWhiteSpace().Value;
+			_password = Guard.Argument(() => config.Password).NotNull().NotEmpty().NotWhiteSpace().Value;
+		}
+
+		private string Token => _token ??= LoginAsync().GetAwaiter().GetResult();
+
+		public async IAsyncEnumerable<Models.DeviceObject> GetDevicesAsync()
+		{
+			var uri = new Uri("https://wap.tplinkcloud.com?token=" + Token);
 
 			var requestObject = new Models.GetDeviceListRequestObject();
 
@@ -28,14 +45,13 @@ namespace Helpers.TPLink.Concrete
 			}
 		}
 
-		public async Task<Models.ResponseDataObject.EmeterObject.RealtimeObject> GetRealtimeDataAsync(string token, string deviceId)
+		public async Task<Models.ResponseDataObject.EmeterObject.RealtimeObject> GetRealtimeDataAsync(string deviceId)
 		{
-			Guard.Argument(() => token).NotNull().NotEmpty().NotWhiteSpace().Matches("^6bdd39aa-[0-9A-Za-z]{23}$");
 			Guard.Argument(() => deviceId).NotNull().NotEmpty().NotWhiteSpace().Matches("^[0-9A-F]{40}$");
 
-			var uri = new Uri("https://wap.tplinkcloud.com?token=" + token);
+			var uri = new Uri("https://wap.tplinkcloud.com?token=" + Token);
 
-			var requestData = new Dictionary<string, IDictionary<string, object?>>
+			var requestData = new Dictionary<string, IDictionary<string, object?>>(StringComparer.InvariantCultureIgnoreCase)
 			{
 				["system"] = new Dictionary<string, object?> { ["get_sysinfo"] = default, },
 				["emeter"] = new Dictionary<string, object?> { ["get_realtime"] = default, },
@@ -45,39 +61,28 @@ namespace Helpers.TPLink.Concrete
 
 			var requestObject = new Models.GetSysInfoRequestObject
 			{
-				@params = new Dictionary<string, string>()
+				@params = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 				{
 					["deviceId"] = deviceId,
 					["requestData"] = requestDataJson,
-				}
+				},
 			};
 
 			var requestBody = Serialize(requestObject, writeIndented: true);
 
 			var (_, _, _, value) = await base.SendAsync<Models.GetSysInfoResponseObject>(HttpMethod.Post, uri, requestBody);
 
-			var responseData = JsonSerializer.Deserialize<Models.ResponseDataObject>(value!.result.responseData!);
+			var responseData = JsonSerializer.Deserialize<Models.ResponseDataObject>(value!.result!.responseData!);
 
 			return responseData?.emeter?.get_realtime
 				?? throw new ArgumentNullException();
 		}
 
-		public async Task<string> LoginAsync(string userName, string password)
+		public async Task<string> LoginAsync()
 		{
-			Guard.Argument(() => userName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => password).NotNull().NotEmpty().NotWhiteSpace();
-
 			var uri = new Uri("https://wap.tplinkcloud.com");
 
-			var requestObject = new Models.LoginRequestObject
-			{
-				@params = new Models.LoginRequestObject.LoginParamsOjbect
-				{
-					cloudUserName = userName,
-					cloudPassword = password,
-					terminalUUID = Guid.NewGuid().ToString("d"),
-				},
-			};
+			var requestObject = new Models.LoginRequestObject(_userName, _password);
 
 			var requestBody = Serialize(requestObject);
 
