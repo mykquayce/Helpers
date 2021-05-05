@@ -2,88 +2,71 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.SSH.Services.Concrete
 {
 	public class SSHService : ISSHService
 	{
-		private readonly static Encoding _encoding = Encoding.UTF8;
-		private string? _newline;
-
-		#region config
-		public record Config(
-			string Host = Config.DefaultHost,
-			ushort Port = Config.DefaultPort,
-			string Username = Config.DefaultUsername,
-			string Password = Config.DefaultPassword)
+		#region Config
+		public record Config(string Host, int Port, string Username, string? Password = default, string? PathToPublicKey = default, string? PathToPrivateKey = default)
 		{
 			public const string DefaultHost = "localhost";
-			public const ushort DefaultPort = 22;
+			public const int DefaultPort = 22;
 			public const string DefaultUsername = "root";
-			public const string DefaultPassword = "root";
 
-			public Config() : this(DefaultHost, DefaultPort, DefaultUsername, DefaultPassword) { }
+			public Config() : this(DefaultHost, DefaultPort, DefaultUsername) { }
 		}
-		#endregion config
+		#endregion Config
 
-		private readonly Renci.SshNet.SshClient _sshClient;
+		private readonly Clients.ISSHClient _sshClient;
+		private readonly string _newline;
 
-		#region constructors
-		public SSHService(IOptions<Config> options)
-			: this(options.Value)
-		{ }
+		public SSHService(IOptions<Config> options) : this(options.Value) { }
 
 		public SSHService(Config config)
-			: this(config.Host, config.Port, config.Username, config.Password)
-		{ }
-
-		public SSHService(
-			string host,
-			ushort port,
-			string username,
-			string password)
 		{
-			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => port).Positive();
-			Guard.Argument(() => username).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => password).NotNull().NotEmpty().NotWhiteSpace();
+			if (!string.IsNullOrWhiteSpace(config.Password))
+			{
+				_sshClient = new Clients.Concrete.SSHClient(config.Host, config.Port, config.Username, config.Password);
+			}
+			else if (!string.IsNullOrWhiteSpace(config.PathToPrivateKey))
+			{
+				var path = FixPath(config.PathToPrivateKey);
+				var privateKeyFileInfo = new FileInfo(path);
+				_sshClient = new Clients.Concrete.SSHClient(config.Host, config.Port, config.Username, privateKeyFileInfo);
+			}
+			else
+			{
+				_sshClient = new Clients.Concrete.SSHClient(config.Host, config.Port, config.Username);
+			}
 
-			_sshClient = new Renci.SshNet.SshClient(host, port, username, password);
-		}
-		#endregion constructors
-
-		public string Newline => _newline ??= GetNewline().GetAwaiter().GetResult();
-
-		public async Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000)
-		{
-			Guard.Argument(() => commandText).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => millisecondsTimeout).Positive();
-
-			if (!_sshClient.IsConnected) _sshClient.Connect();
-
-			using var command = _sshClient.CreateCommand(commandText, _encoding);
-
-			command.CommandTimeout = TimeSpan.FromMilliseconds(millisecondsTimeout);
-
-			return await Task.Factory.FromAsync(
-				beginMethod: (callback, state) => command.BeginExecute(callback, state),
-				endMethod: result => command.EndExecute(result),
-				state: commandText);
+			_newline = _sshClient.RunCommandAsync("echo").GetAwaiter().GetResult();
 		}
 
-		#region blackhole
+		public static string FixPath(string path)
+		{
+			Guard.Argument(() => path).NotNull().NotEmpty().NotWhiteSpace();
+
+			if (!path.StartsWith('~'))
+			{
+				return path;
+			}
+
+			var pwd = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.DoNotVerify);
+			var paths = (pwd + path[1..]).Split('/', '\\');
+			return Path.Combine(paths);
+		}
+
 		public async IAsyncEnumerable<Helpers.Networking.Models.SubnetAddress> GetBlackholesAsync()
 		{
 			var command = "(ip route show && ip -6 route show) | grep ^[Bb]lackhole | awk '{print($2)}'";
 
-			var response = await RunCommandAsync(command);
+			var response = await _sshClient.RunCommandAsync(command);
 
-			Guard.Argument(() => response).NotNull();
-
-			var lines = response.Split(Newline, StringSplitOptions.RemoveEmptyEntries);
+			var lines = response.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (var line in lines)
 			{
@@ -95,7 +78,7 @@ namespace Helpers.SSH.Services.Concrete
 		public Task AddBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
 		{
 			Guard.Argument(() => subnetAddress).NotNull();
-			return RunCommandAsync("ip route add blackhole " + subnetAddress);
+			return _sshClient.RunCommandAsync("ip route add blackhole " + subnetAddress);
 		}
 
 		public Task AddBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
@@ -104,29 +87,26 @@ namespace Helpers.SSH.Services.Concrete
 		public Task DeleteBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
 		{
 			Guard.Argument(() => subnetAddress).NotNull();
-			return RunCommandAsync("ip route delete blackhole " + subnetAddress);
+			return _sshClient.RunCommandAsync("ip route delete blackhole " + subnetAddress);
 		}
 
 		public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
 			=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
 
 		public Task DeleteBlackholesAsync()
-			=> RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{print(\"ip route delete blackhole \" $2)}'");
-		#endregion blackhole
+			=> _sshClient.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"ip route delete blackhole \" $2)}'");
 
 		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync()
 		{
-			var output = await RunCommandAsync("cat /tmp/dhcp.leases");
+			var output = await _sshClient.RunCommandAsync("cat /tmp/dhcp.leases");
 
-			var lines = output.Split(new[] { '\r', '\n', }, StringSplitOptions.RemoveEmptyEntries);
+			var lines = output.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach (var line in lines)
 			{
 				yield return Helpers.Networking.Models.DhcpEntry.Parse(line);
 			}
 		}
-
-		public Task<string> GetNewline() => RunCommandAsync("echo");
 
 		#region Dispose pattern
 		private bool _disposed;
@@ -137,7 +117,6 @@ namespace Helpers.SSH.Services.Concrete
 			{
 				if (disposing)
 				{
-					if (_sshClient?.IsConnected ?? false) _sshClient.Disconnect();
 					_sshClient?.Dispose();
 				}
 

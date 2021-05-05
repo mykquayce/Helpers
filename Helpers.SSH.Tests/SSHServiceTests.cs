@@ -16,16 +16,6 @@ namespace Helpers.SSH.Tests
 		}
 
 		[Theory]
-		[InlineData("echo Hello world", "Hello world\n")]
-		[InlineData("date --utc --rfc-2822", @"^\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2} UTC$")]
-		public async Task RunCommand(string command, string expected)
-		{
-			var actual = await _sut.RunCommandAsync(command);
-
-			Assert.Matches(expected, actual);
-		}
-
-		[Theory]
 		[InlineData("77.68.0.0/17")]
 		[InlineData("77.68.11.211")]
 		public async Task AddBlackhole(string s)
