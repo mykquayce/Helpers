@@ -8,11 +8,8 @@ namespace Helpers.SSH.Tests.Fixtures
 		public SSHServiceFixture()
 		{
 			var config = base.Config;
-
 			var options = Options.Create(config);
-
 			SSHService = new Helpers.SSH.Services.Concrete.SSHService(options);
-
 		}
 
 		public Helpers.SSH.Services.ISSHService SSHService { get; }
