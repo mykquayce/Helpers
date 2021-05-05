@@ -9,10 +9,8 @@ namespace Microsoft.Extensions.Configuration
 	public static class DockerSecretConfigurationExtensions
 	{
 		private static readonly string _path = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-			? Path.Combine("C:", "ProgramData", "Docker", "secrets")
-			: Path.Combine(Path.DirectorySeparatorChar.ToString(), "run", "secrets");
-
-		private static readonly IFileProvider _fileProvider = new PhysicalFileProvider(_path, ExclusionFilters.Sensitive);
+			? "C:\\ProgramData\\Docker\\secrets"
+			: "/run/secrets";
 
 		/// <summary>
 		/// Creates a config entry for each Docker secret
@@ -30,7 +28,18 @@ namespace Microsoft.Extensions.Configuration
 		{
 			Guard.Argument(() => configurationBuilder).NotNull();
 
-			var files = _fileProvider.GetDirectoryContents(string.Empty);
+			IFileProvider fileProvider;
+			try
+			{
+				fileProvider = new PhysicalFileProvider(_path, ExclusionFilters.Sensitive);
+			}
+			catch (DirectoryNotFoundException) when (optional)
+			{
+				return configurationBuilder;
+			}
+			catch { throw; }
+
+			var files = fileProvider.GetDirectoryContents(string.Empty);
 
 			foreach (var file in files)
 			{
@@ -43,7 +52,7 @@ namespace Microsoft.Extensions.Configuration
 
 				var source = new DockerSecretConfigurationSource(configKey)
 				{
-					FileProvider = _fileProvider,
+					FileProvider = fileProvider,
 					Optional = optional,
 					Path = file.Name,
 					ReloadOnChange = reloadOnChange,
