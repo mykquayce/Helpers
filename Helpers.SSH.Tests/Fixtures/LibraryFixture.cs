@@ -8,12 +8,20 @@ namespace Helpers.SSH.Tests.Fixtures
 		{
 			var config = base.Config;
 
-			var host = config.Host;
-			var port = config.Port;
-			var username = config.Username;
-			var password = config.Password;
-
-			Library = new Renci.SshNet.SshClient(host, port, username, password);
+			if (config.Password is not null)
+			{
+				Library = new(config.Host, config.Port, config.Username, config.Password);
+			}
+			else if (config.PathToPrivateKey is not null)
+			{
+				var path = Services.Concrete.SSHService.FixPath(config.PathToPrivateKey);
+				var privateKey = new Renci.SshNet.PrivateKeyFile(path);
+				Library = new(config.Host, config.Port, config.Username, privateKey);
+			}
+			else
+			{
+				Library = new(config.Host, config.Port, config.Username);
+			}
 
 			Library.Connect();
 		}
