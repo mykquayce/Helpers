@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
 	public static class DawnGuardExtensionMethods
 	{
 		private readonly static IReadOnlyList<char> _invalidFileNameChars = Path.GetInvalidFileNameChars();
-		private readonly static IReadOnlyList<char> _validConfigKeyChars = "-0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
+		private readonly static IReadOnlyList<char> _validConfigKeyChars = "-.0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".ToCharArray();
 
 		public static ref readonly Guard.ArgumentInfo<string> ValidFileName(
 			in this Guard.ArgumentInfo<string> argument)
@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				.NotEmpty()
 				.NotWhiteSpace()
 				.DoesNotContain(" ")
-				.Require(s => s.All(c => _invalidFileNameChars.Contains(c) == false), s => $"{s} must not consist of {_invalidFileNameChars}");
+				.Require(s => s.All(c => _invalidFileNameChars.Contains(c) == false), s => $"{s} must not consist of {string.Concat(_invalidFileNameChars)}");
 
 			return ref argument;
 		}
@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
 				.NotEmpty()
 				.NotWhiteSpace()
 				.DoesNotContain(" ")
-				.Require(s => s.All(c => _validConfigKeyChars.Contains(c)), s => $"{s} must consist of {_validConfigKeyChars}");
+				.Require(s => s.All(c => _validConfigKeyChars.Contains(c)), s => $"{s} must consist of {string.Concat(_validConfigKeyChars)}");
 
 			return ref argument;
 		}
