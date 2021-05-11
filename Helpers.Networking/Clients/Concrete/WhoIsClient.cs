@@ -10,7 +10,7 @@ namespace Helpers.Networking.Clients.Concrete
 		public WhoIsClient() : base("riswhois.ripe.net", 43, "\n")
 		{ }
 
-		public async IAsyncEnumerable<Models.SubnetAddress> GetIpsAsync(int asn)
+		public async IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn)
 		{
 			Guard.Argument(() => asn).Positive();
 
@@ -28,8 +28,7 @@ namespace Helpers.Networking.Clients.Concrete
 				if (line[0] == '%') continue;
 				var parts = line.Split('\t');
 				if (parts.Length < 2) continue;
-				var address = Models.SubnetAddress.Parse(parts[1]);
-				yield return address;
+				yield return new(parts[1]);
 			}
 		}
 
