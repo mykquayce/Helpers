@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
@@ -38,71 +37,6 @@ namespace Helpers.Networking
 			using var ping = new Ping();
 			var reply = await ping.SendPingAsync(hostName, timeout: 10_000);
 			return (reply.Address, reply.Status);
-		}
-
-		public static Models.ArpResultsDictionary RunArpCommand()
-		{
-			var output = RunCommand("arp", "-a");
-			return Models.ArpResultsDictionary.Parse(output);
-		}
-
-		public static string RunCommand(string fileName, string? arguments = default)
-		{
-			using var process = new Process
-			{
-				StartInfo = new ProcessStartInfo
-				{
-					FileName = fileName,
-					Arguments = arguments ?? string.Empty,
-					RedirectStandardOutput = true,
-					UseShellExecute = false,
-					WindowStyle = ProcessWindowStyle.Hidden,
-				},
-			};
-
-			process.Start();
-
-			return process.StandardOutput.ReadToEnd();
-		}
-
-		public static IPAddress IPAddressFromPhysicalAddress(PhysicalAddress physicalAddress)
-		{
-			foreach (var (_, results) in RunArpCommand())
-			{
-				foreach (var (mac, ip, _) in results)
-				{
-					if (mac.Equals(physicalAddress))
-					{
-						return ip;
-					}
-				}
-			}
-
-			throw new KeyNotFoundException($"{physicalAddress} not found in ARP table")
-			{
-				Data = { [nameof(physicalAddress)] = physicalAddress, },
-			};
-		}
-
-		public static PhysicalAddress PhysicalAddressFromIPAddress(IPAddress ipAddress)
-		{
-			PingAsync(ipAddress).GetAwaiter().GetResult();
-
-			foreach (var (_, results) in RunArpCommand())
-			{
-				foreach (var (mac, ip, _) in results)
-				{
-					if (ip.Equals(ipAddress))
-					{
-						return mac;
-					}
-				}
-			}
-
-			throw new KeyNotFoundException($"{ipAddress} not found in ARP table")
-			{
-				Data = { [nameof(ipAddress)] = ipAddress, },
-			};
 		}
 	}
 }
