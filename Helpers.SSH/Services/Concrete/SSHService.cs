@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
 namespace Helpers.SSH.Services.Concrete
@@ -60,7 +62,7 @@ namespace Helpers.SSH.Services.Concrete
 			return Path.Combine(paths);
 		}
 
-		public async IAsyncEnumerable<Helpers.Networking.Models.SubnetAddress> GetBlackholesAsync()
+		public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync()
 		{
 			var command = "(ip route show && ip -6 route show) | grep ^[Bb]lackhole | awk '{print($2)}'";
 
@@ -68,44 +70,82 @@ namespace Helpers.SSH.Services.Concrete
 
 			var lines = response.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
-			foreach (var line in lines)
-			{
-				var subnetAddress = Helpers.Networking.Models.SubnetAddress.Parse(line);
-				yield return subnetAddress;
-			}
+			foreach (var line in lines) yield return new(line);
 		}
 
-		public Task AddBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
+		public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
 		{
 			Guard.Argument(() => subnetAddress).NotNull();
 			return _sshClient.RunCommandAsync("ip route add blackhole " + subnetAddress);
 		}
 
-		public Task AddBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		public Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses)
 			=> Task.WhenAll(subnetAddresses.Select(AddBlackholeAsync));
 
-		public Task DeleteBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
+		public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
 		{
 			Guard.Argument(() => subnetAddress).NotNull();
 			return _sshClient.RunCommandAsync("ip route delete blackhole " + subnetAddress);
 		}
 
-		public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses)
 			=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
 
 		public Task DeleteBlackholesAsync()
 			=> _sshClient.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"ip route delete blackhole \" $2)}'");
 
-		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpEntry> GetDhcpLeasesAsync()
+		public async IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync()
 		{
 			var output = await _sshClient.RunCommandAsync("cat /tmp/dhcp.leases");
 
 			var lines = output.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
-			foreach (var line in lines)
+			foreach (var line in lines) yield return GetDhcpLease(line);
+		}
+
+		public static Helpers.Networking.Models.DhcpLease GetDhcpLease(string dhcpLeaseString)
+		{
+			Guard.Argument(() => dhcpLeaseString)
+				.NotNull()
+				.NotEmpty()
+				.NotWhiteSpace()
+				.Matches(@"^\d+ [\d\w:]+ [\d\.]+ .+? .+?$");
+
+			var values = dhcpLeaseString.Split(' ');
+
+			var expiration = DateTime.UnixEpoch.AddSeconds(int.Parse(values[0]));
+			var physicalAddress = PhysicalAddress.Parse(values[1]);
+			var ipAddress = IPAddress.Parse(values[2]);
+			var hostName = values[3] == "*" ? default : values[3];
+			var identifier = values[4] == "*" ? default : values[4];
+
+			return new(expiration, physicalAddress, ipAddress, hostName, identifier);
+		}
+
+		public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByIPAddressAsync(IPAddress ipAddress)
+		{
+			await foreach (var lease in GetDhcpLeasesAsync())
 			{
-				yield return Helpers.Networking.Models.DhcpEntry.Parse(line);
+				if (Equals(lease.IPAddress, ipAddress))
+				{
+					return lease;
+				}
 			}
+
+			throw new KeyNotFoundException($"{nameof(ipAddress)} {ipAddress} not found");
+		}
+
+		public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByPhysicalAddressAsync(PhysicalAddress physicalAddress)
+		{
+			await foreach (var lease in GetDhcpLeasesAsync())
+			{
+				if (Equals(lease.PhysicalAddress, physicalAddress))
+				{
+					return lease;
+				}
+			}
+
+			throw new KeyNotFoundException($"{nameof(physicalAddress)} {physicalAddress} not found");
 		}
 
 		#region Dispose pattern
