@@ -2,14 +2,7 @@
 
 dotnet restore --source https://api.nuget.org/v3/index.json --source http://nuget/v3/index.json
 
-dotnet build
-
-#for p in ./*/*.csproj
-#do
-	#dotnet pack $p --output ./nupkg
-#done
-
-dotnet pack --output ./nupkg
+dotnet pack --configuration Release --output ./nupkg
 
 if [ -n "$NuGetServerApiKey" ]
 then
