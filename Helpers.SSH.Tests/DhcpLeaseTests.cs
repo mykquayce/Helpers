@@ -3,9 +3,9 @@ using System.Net;
 using System.Net.NetworkInformation;
 using Xunit;
 
-namespace Helpers.Networking.Models.Tests
+namespace Helpers.SSH.Tests
 {
-	public class DhcpEntryTests
+	public class DhcpLeaseTests
 	{
 		[Theory]
 		[InlineData(
@@ -18,7 +18,7 @@ namespace Helpers.Networking.Models.Tests
 			string s,
 			string expectedExpiration, string expectedPhysicalAddress, string expectedIPAddress, string? expectedHostName, string? expectedIdentifier)
 		{
-			var actual = DhcpEntry.Parse(s);
+			var actual = Helpers.SSH.Services.Concrete.SSHService.GetDhcpLease(s);
 
 			Assert.NotEqual(default, actual.Expiration);
 			Assert.Equal(DateTime.Parse(expectedExpiration), actual.Expiration);
