@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Helpers.Json.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 
 namespace Microsoft.Extensions.Configuration
 {
@@ -13,26 +12,15 @@ namespace Microsoft.Extensions.Configuration
 		/// <typeparam name="T"></typeparam>
 		/// <param name="configuration"></param>
 		/// <returns></returns>
-		public static T GetType<T>(this IConfiguration configuration)
+		public static T JsonConfig<T>(this IConfiguration configuration)
+			=> configuration.ToDictionary().ToType<T>();
+
+		public static System.Collections.IDictionary ToDictionary(this IConfiguration configuration)
 		{
-			var dictionary = configuration
+			return configuration
 				.Get<Dictionary<string, string>>()
 				.ToStringObjectKeyValuePairs()
 				.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-			var json = JsonSerializer.Serialize(dictionary);
-
-			try
-			{
-				return JsonSerializer.Deserialize<T>(json)
-					?? throw new JsonException("Deserialize returned null");
-			}
-			catch (JsonException ex)
-			{
-				ex.Data.Add(nameof(json), json);
-				ex.Data.Add(nameof(Type), typeof(T));
-				throw;
-			}
 		}
 
 		public static IEnumerable<KeyValuePair<string, object>> ToStringObjectKeyValuePairs(this IEnumerable<KeyValuePair<string, string>> dictionary)
