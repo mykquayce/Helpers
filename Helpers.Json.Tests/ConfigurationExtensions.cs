@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
 
@@ -17,8 +14,6 @@ namespace Helpers.Json.Tests
 		[InlineData(@"{""DayOfWeek"":""Sunday"",""Number"":0,""Boolean"":false}", DayOfWeek.Sunday, 0, false)]
 		public void GetTypeTests(string json, DayOfWeek expectedDayOfWeek, int expectedNumber, bool expectedBoolean)
 		{
-			var a = JsonSerializer.Deserialize<Response>(json);
-
 			var bytes = Encoding.UTF8.GetBytes(json);
 			var stream = new MemoryStream(bytes);
 
@@ -26,7 +21,7 @@ namespace Helpers.Json.Tests
 				.AddJsonStream(stream)
 				.Build();
 
-			var response = configuration.GetType<Response>();
+			var response = configuration.JsonConfig<Response>();
 
 			Assert.NotNull(response);
 			Assert.Equal(expectedDayOfWeek, response!.DayOfWeek);
