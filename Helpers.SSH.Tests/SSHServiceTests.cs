@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -20,32 +21,52 @@ namespace Helpers.SSH.Tests
 		[InlineData("77.68.11.211")]
 		public async Task AddBlackhole(string s)
 		{
-			var subnetAddress = Networking.Models.SubnetAddress.Parse(s);
+			var prefix = Networking.Models.AddressPrefix.Parse(s);
 
 			// see if already exists
-			var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress);
+			var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
 
 			// if so, remove it
-			if (exists) await _sut.DeleteBlackholeAsync(subnetAddress);
+			if (exists) await _sut.DeleteBlackholeAsync(prefix);
 
 			// Assert it was removed
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// add it
-			await _sut.AddBlackholeAsync(subnetAddress);
+			await _sut.AddBlackholeAsync(prefix);
+
+			await Task.Delay(millisecondsDelay: 500);
+
+			var a = await _sut.GetBlackholesAsync().ToListAsync();
 
 			// Assert it was added
-			Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// delete it
-			await _sut.DeleteBlackholeAsync(subnetAddress);
+			await _sut.DeleteBlackholeAsync(prefix);
 
 			// Assert it was deleted
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// if it existed previously, put it back
-			if (exists) await _sut.AddBlackholeAsync(subnetAddress);
+			if (exists) await _sut.AddBlackholeAsync(prefix);
 		}
+
+		[Theory]
+		[InlineData("77.68.11.211", "77.68.11.211")]
+		public void Equality(string leftString, string rightString)
+		{
+			Helpers.Networking.Models.AddressPrefix left = new(leftString), right = new(rightString);
+			Assert.False(object.ReferenceEquals(left, right));
+			Assert.True(left == right);
+			Assert.True(object.Equals(left, right));
+			Assert.Equal(left, right);
+		}
+
+		[Theory]
+		[InlineData("77.68.0.0/17", "77.68.0.0/17")]
+		[InlineData("77.68.11.211", "77.68.11.211")]
+		public void String(string before, string expected) => Assert.Equal(expected, before.ToString());
 
 		[Fact]
 		public async Task GetBlackholes()
@@ -59,7 +80,7 @@ namespace Helpers.SSH.Tests
 			foreach (var (ip, mask) in results)
 			{
 				Assert.NotNull(ip);
-				Assert.NotNull(mask);
+				Assert.NotEqual(0, mask);
 			}
 		}
 
@@ -95,6 +116,24 @@ namespace Helpers.SSH.Tests
 			}
 		}
 
+		[Theory]
+		[InlineData("192.168.1.217", "3c6a9d14d765")]
+		public async Task GetLeaseByIPAddress(string ipAddressString, string physicalAddressString)
+		{
+			var ipAddress = IPAddress.Parse(ipAddressString);
+			var lease = await _sut.GetLeaseByIPAddressAsync(ipAddress);
+			Assert.Equal(physicalAddressString, lease.PhysicalAddress.ToString().ToLowerInvariant());
+		}
+
+		[Theory]
+		[InlineData("3c6a9d14d765", "192.168.1.217")]
+		public async Task GetLeaseByPhysicalAddress(string physicalAddressString, string ipAddressString)
+		{
+			var physicalAddress = PhysicalAddress.Parse(physicalAddressString);
+			var lease = await _sut.GetLeaseByPhysicalAddressAsync(physicalAddress);
+			Assert.Equal(ipAddressString, lease.IPAddress.ToString().ToLowerInvariant());
+		}
+
 		#region destructive tests
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable xUnit1004 // Test methods should not be skipped
@@ -118,7 +157,7 @@ namespace Helpers.SSH.Tests
 
 			foreach (var subnetAddressString in subnetAddresstrings)
 			{
-				var subnetAddress = Helpers.Networking.Models.SubnetAddress.Parse(subnetAddressString);
+				var subnetAddress = Helpers.Networking.Models.AddressPrefix.Parse(subnetAddressString);
 
 				await _sut.AddBlackholeAsync(subnetAddress);
 				actualCount++;

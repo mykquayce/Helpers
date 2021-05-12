@@ -18,16 +18,16 @@ namespace Helpers.Networking.Tests
 		{
 			var sut = new Helpers.Networking.Clients.Concrete.WhoIsClient();
 
-			var subnetAddresses = await sut.GetIpsAsync(asn).ToListAsync();
+			var addressPrefixes = await sut.GetIpsAsync(asn).ToListAsync();
 
-			Assert.NotNull(subnetAddresses);
-			Assert.NotEmpty(subnetAddresses);
+			Assert.NotNull(addressPrefixes);
+			Assert.NotEmpty(addressPrefixes);
 
-			foreach (var (ip, mask) in subnetAddresses)
+			foreach (var (ip, maskLength) in addressPrefixes)
 			{
 				Assert.NotNull(ip);
 				Assert.NotEmpty(ip!.ToString());
-				Assert.InRange(mask ?? -1, 0, 64);
+				Assert.InRange(maskLength, 0, 64);
 			}
 		}
 

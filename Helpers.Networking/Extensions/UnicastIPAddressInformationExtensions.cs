@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Dawn;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -8,7 +8,7 @@ namespace Helpers.Networking.Extensions
 	{
 		public static IPAddress GetBroadcastAddress(this UnicastIPAddressInformation unicast)
 		{
-			if (unicast is null) throw new ArgumentNullException(nameof(unicast));
+			Guard.Argument(() => unicast).NotNull();
 
 			var ip = unicast.Address.GetAddressBytes();
 			var mask = unicast.IPv4Mask.GetAddressBytes();
@@ -19,7 +19,7 @@ namespace Helpers.Networking.Extensions
 				broadcast[a] = (byte)(ip[a] | (byte)~mask[a]);
 			}
 
-			return new IPAddress(broadcast);
+			return new(broadcast);
 		}
 	}
 }

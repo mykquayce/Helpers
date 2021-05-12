@@ -1,21 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Elgato.Tests
 {
-	public sealed class ElgatoClientTests : IClassFixture<Fixtures.ElgatoClientFixture>
+	public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, IClassFixture<Fixtures.ElgatoClientFixture>
 	{
-		private readonly Clients.IElgatoClient _sut;
+		private readonly IPEndPoint _endPoint;
+		private readonly IElgatoClient _sut;
 
-		public ElgatoClientTests(Fixtures.ElgatoClientFixture fixture)
+		public ElgatoClientTests(Fixtures.ConfigFixture configFixture, Fixtures.ElgatoClientFixture clientFixture)
 		{
-			_sut = fixture.Client;
+			_endPoint = configFixture.EndPoint;
+			_sut = clientFixture.Client;
 		}
 
 		[Fact]
 		public async Task GetAccessoryInfo()
 		{
-			var info = await _sut.GetAccessoryInfoAsync();
+			var info = await _sut.GetAccessoryInfoAsync(_endPoint);
 
 			Assert.NotNull(info);
 
@@ -41,7 +44,7 @@ namespace Helpers.Elgato.Tests
 		[Fact]
 		public async Task GetLight()
 		{
-			var light = await _sut.GetLightAsync();
+			var light = await _sut.GetLightAsync(_endPoint);
 
 			Assert.NotNull(light);
 			Assert.NotNull(light.brightness);
@@ -59,7 +62,7 @@ namespace Helpers.Elgato.Tests
 		{
 			var light = new Models.MessageObject.LightObject((byte?)on, (byte?)brightness, (byte?)temperature);
 
-			return _sut.SetLightAsync(light);
+			return _sut.SetLightAsync(_endPoint, light);
 		}
 	}
 }
