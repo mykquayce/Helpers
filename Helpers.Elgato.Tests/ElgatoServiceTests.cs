@@ -1,22 +1,25 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Elgato.Tests
 {
-	public class ElgatoServiceTests : IClassFixture<Fixtures.ElgatoClientFixture>
+	public class ElgatoServiceTests : IClassFixture<Fixtures.SSHServiceFixture>
 	{
-		private readonly Services.IElgatoService _sut;
+		private readonly IElgatoService _sut;
 
-		public ElgatoServiceTests(Fixtures.ElgatoClientFixture fixture)
+		public ElgatoServiceTests(Fixtures.SSHServiceFixture ssHServiceFixture)
 		{
-			var client = fixture.Client;
-			_sut = new Services.Concrete.ElgatoService(client);
+			var sshService = ssHServiceFixture.SSHService;
+			_sut = new Concrete.ElgatoService(sshService);
 		}
 
-		[Fact]
-		public async Task GetAccessoryInfo()
+		[Theory]
+		[InlineData("3C6A9D14D765")]
+		public async Task GetAccessoryInfo(string physicalAddressString)
 		{
-			var info = await _sut.GetAccessoryInfoAsync();
+			var physicalAdddress = PhysicalAddress.Parse(physicalAddressString);
+			var info = await _sut.GetAccessoryInfoAsync(physicalAdddress);
 
 			Assert.NotNull(info);
 
@@ -39,10 +42,12 @@ namespace Helpers.Elgato.Tests
 			Assert.All(info.features, Assert.NotEmpty);
 		}
 
-		[Fact]
-		public async Task GetLight()
+		[Theory]
+		[InlineData("3C6A9D14D765")]
+		public async Task GetLight(string physicalAddressString)
 		{
-			var light = await _sut.GetLightAsync();
+			var physicalAdddress = PhysicalAddress.Parse(physicalAddressString);
+			var light = await _sut.GetLightAsync(physicalAdddress);
 
 			Assert.NotNull(light);
 			Assert.NotNull(light.brightness);
@@ -54,16 +59,22 @@ namespace Helpers.Elgato.Tests
 		}
 
 		[Theory]
-		[InlineData(1, 23, 343)]
-		[InlineData(0, 23, 343)]
-		public Task SetLight(int? on, int? brightness, int? temperature)
+		[InlineData("3C6A9D14D765", 1, 23, 343)]
+		[InlineData("3C6A9D14D765", 0, 23, 343)]
+		public Task SetLight(string physicalAddressString, int? on, int? brightness, int? temperature)
 		{
+			var physicalAdddress = PhysicalAddress.Parse(physicalAddressString);
 			var light = new Models.MessageObject.LightObject((byte?)on, (byte?)brightness, (byte?)temperature);
 
-			return _sut.SetLightAsync(light);
+			return _sut.SetLightAsync(physicalAdddress, light);
 		}
 
-		[Fact]
-		public Task ToggleLight() => _sut.ToggleLightPowerStateAsync();
+		[Theory]
+		[InlineData("3C6A9D14D765")]
+		public Task ToggleLight(string physicalAddressString)
+		{
+			var physicalAdddress = PhysicalAddress.Parse(physicalAddressString);
+			return _sut.ToggleLightPowerStateAsync(physicalAdddress);
+		}
 	}
 }
