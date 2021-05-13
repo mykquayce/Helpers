@@ -6,34 +6,28 @@ namespace Helpers.Elgato.Tests
 {
 	public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, IClassFixture<Fixtures.ElgatoClientFixture>
 	{
-		private readonly IPEndPoint _endPoint;
+		private readonly IPAddress _ipAddress;
 		private readonly IElgatoClient _sut;
 
-		public ElgatoClientTests(Fixtures.ConfigFixture configFixture, Fixtures.ElgatoClientFixture clientFixture)
+		public ElgatoClientTests(
+			Fixtures.ConfigFixture configFixture,
+			Fixtures.ElgatoClientFixture clientFixture)
 		{
-			_endPoint = configFixture.EndPoint;
+			_ipAddress = configFixture.Addresses.IPAddress;
 			_sut = clientFixture.Client;
 		}
 
 		[Fact]
 		public async Task GetAccessoryInfo()
 		{
-			var info = await _sut.GetAccessoryInfoAsync(_endPoint);
+			var info = await _sut.GetAccessoryInfoAsync(_ipAddress);
 
 			Assert.NotNull(info);
 
-			Assert.NotNull(info.productName);
-			Assert.NotNull(info.hardwareBoardType);
-			Assert.NotNull(info.firmwareBuildNumber);
-			Assert.NotNull(info.firmwareVersion);
-			Assert.NotNull(info.serialNumber);
-			Assert.NotNull(info.displayName);
-			Assert.NotNull(info.features);
-
 			Assert.NotEmpty(info.productName);
-			Assert.InRange(info.hardwareBoardType!.Value, 1, int.MaxValue);
-			Assert.InRange(info.firmwareBuildNumber!.Value, 1, int.MaxValue);
-			Assert.NotEmpty(info.firmwareVersion);
+			Assert.InRange(info.hardwareBoardType, 1, int.MaxValue);
+			Assert.InRange(info.firmwareBuildNumber, 1, int.MaxValue);
+			Assert.NotNull(info.firmwareVersion);
 			Assert.NotEmpty(info.serialNumber);
 			Assert.NotEmpty(info.displayName);
 			Assert.NotEmpty(info.features);
@@ -44,25 +38,48 @@ namespace Helpers.Elgato.Tests
 		[Fact]
 		public async Task GetLight()
 		{
-			var light = await _sut.GetLightAsync(_endPoint);
+			var light = await _sut.GetLightAsync(_ipAddress);
 
 			Assert.NotNull(light);
-			Assert.NotNull(light.brightness);
-			Assert.InRange(light.brightness!.Value, 0, 100);
-			Assert.NotNull(light.on);
-			Assert.Contains(light.on!.Value, new byte[2] { 0, 1, });
-			Assert.NotNull(light.temperature);
-			Assert.InRange(light.temperature!.Value, 140, 350);
+			Assert.InRange(light.brightness, 0, 100);
+			Assert.InRange(light.on, 0, 1);
+			Assert.InRange(light.temperature, 140, 350);
 		}
 
 		[Theory]
 		[InlineData(1, 23, 343)]
 		[InlineData(0, 23, 343)]
-		public Task SetLight(int? on, int? brightness, int? temperature)
+		public async Task SetLight(byte on, byte brightness, short temperature)
 		{
-			var light = new Models.MessageObject.LightObject((byte?)on, (byte?)brightness, (byte?)temperature);
+			var before = new Models.MessageObject.LightObject(on, brightness, temperature);
 
-			return _sut.SetLightAsync(_endPoint, light);
+			await _sut.SetLightAsync(_ipAddress, before);
+
+			var after = await _sut.GetLightAsync(_ipAddress);
+
+			Assert.Equal(on, after.on);
+			Assert.Equal(brightness, after.brightness);
+			Assert.Equal(temperature, after.temperature);
+		}
+
+		[Theory]
+		[InlineData(0, 1)]
+		[InlineData(1, 0)]
+		public async Task ToggleLight_OffOn(byte before, byte after)
+		{
+			// Arrange
+			var baseState = await _sut.GetLightAsync(_ipAddress);
+			await _sut.SetLightAsync(_ipAddress, baseState with { on = before, });
+
+			// Act
+			await _sut.ToggleLightAsync(_ipAddress);
+
+			// Assert
+			var currentState = await _sut.GetLightAsync(_ipAddress);
+			Assert.Equal(after, currentState.on);
+
+			// Arrange
+			await _sut.SetLightAsync(_ipAddress, baseState);
 		}
 	}
 }
