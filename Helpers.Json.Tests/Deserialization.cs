@@ -20,6 +20,8 @@ namespace Helpers.Json.Tests
 			Assert.Equal(expectedIPAddress, config.IPAddress.ToString());
 			Assert.NotNull(config!.PhysicalAddress);
 			Assert.Equal(expectedPhysicalAddress, config.PhysicalAddress.ToString().ToLowerInvariant());
+
+			Assert.Equal(json, JsonSerializer.Serialize(config));
 		}
 	}
 }
