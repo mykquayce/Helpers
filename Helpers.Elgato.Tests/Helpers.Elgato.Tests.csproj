@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.0.0" />
-    <PackageReference Include="Helpers.Networking" Version="1.6.1-preview3" />
+    <PackageReference Include="Helpers.Json" Version="1.1.2" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.2-preview3" />
     <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.7-preview3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0-preview.3.21201.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.3.21201.4" />
