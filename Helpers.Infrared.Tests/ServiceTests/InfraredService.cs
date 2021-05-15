@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -12,18 +10,21 @@ namespace Helpers.Infrared.Tests.ServiceTests
 
 		public InfraredService()
 		{
-			var devicesJson = @"{""amp"":""iTach059CAD""}";
+			var devices = new Services.Concrete.InfraredService.Devices
+			{
+				["amp"] = "iTach059CAD",
+			};
 
-			var signalsJson = @"{
-				""ToggleMute"":""sendir,1:1,3,40064,1,1,96,24,24,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,897\r"",
-				""TogglePower"":""sendir,1:1,3,40192,1,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r"",
-				""VolumeUp"":""sendir,1:1,3,40192,1,1,96,24,24,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r"",
-				""VolumeDown"":""sendir,1:1,3,40192,1,1,96,24,48,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r""
-			}";
+			var signals = new Services.Concrete.InfraredService.Signals
+			{
+				[Models.SignalTypes.ToggleMute]  = "sendir,1:1,3,40064,3,1,96,24,24,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,897\r",
+				[Models.SignalTypes.TogglePower] = "sendir,1:1,3,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+				[Models.SignalTypes.VolumeUp]    = "sendir,1:1,3,40192,3,1,96,24,24,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+				[Models.SignalTypes.VolumeDown]  = "sendir,1:1,3,40192,3,1,96,24,48,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+			};
 
-			var devices = JsonSerializer.Deserialize<Services.Concrete.InfraredService.Devices>(devicesJson) ?? throw new Exception();
-			var signals = JsonSerializer.Deserialize<Services.Concrete.InfraredService.Signals>(signalsJson) ?? throw new Exception();
-			var client = new Clients.Concrete.GlobalCacheClient();
+			var config = Clients.Concrete.GlobalCacheClient.Config.Defaults;
+			var client = new Clients.Concrete.GlobalCacheClient(config);
 
 			_sut = new Services.Concrete.InfraredService(client, Options.Create(devices), Options.Create(signals));
 		}
