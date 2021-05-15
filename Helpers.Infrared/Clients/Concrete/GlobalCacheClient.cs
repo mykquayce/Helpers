@@ -1,55 +1,44 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Dawn;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Helpers.Infrared.Clients.Concrete
 {
 	public class GlobalCacheClient : Clients.IClient
 	{
-		public record Config(ushort Port)
+		public record Config(ushort Port, string NewLine)
 		{
 			public const ushort DefaultPort = 4_998;
+			public const string DefaultNewLine = "\r";
 
-			public Config() : this(Port: DefaultPort) { }
+			public Config() : this(Defaults) { }
+
+			public static Config Defaults => new(DefaultPort, DefaultNewLine);
 		}
 
+		private readonly string _newLine;
 		private readonly ushort _port;
-		private readonly static Encoding _encoding = Encoding.UTF8;
 
 		#region constructors
 		public GlobalCacheClient(IOptions<Config> options) : this(options.Value) { }
-		public GlobalCacheClient(Config config) : this(config.Port) { }
-		public GlobalCacheClient(ushort port = Config.DefaultPort)
+		public GlobalCacheClient(Config config) : this(config.Port, config.NewLine) { }
+		public GlobalCacheClient(ushort port, string newLine)
 		{
-			_port = port;
+			_newLine = Guard.Argument(() => newLine).NotNull().NotEmpty().In("\r", "\n", "\r\n").Value;
+			_port = Guard.Argument(() => port).Positive().Value;
 		}
 		#endregion constructors
 
 		public async Task SendAsync(string host, string message)
 		{
-			var tcpClient = new Helpers.Networking.Clients.Concrete.TcpClient(host, _port, "\r");
+			var tcpClient = new Helpers.Networking.Clients.Concrete.TcpClient(host, _port, _newLine);
 
-			string? response;
-			response = await tcpClient.SendAndReceiveAsync(message).FirstAsync();
-			processResponse();
-			await Task.Delay(millisecondsDelay: 200);
-			response = await tcpClient.SendAndReceiveAsync(message).FirstAsync();
-			processResponse();
+			var response = await tcpClient.SendAndReceiveAsync(message).FirstAsync();
+			if (string.IsNullOrWhiteSpace(response)) throw new Exceptions.EmptyResponseException(host, message);
+			if (!response.StartsWith("completeir", StringComparison.InvariantCultureIgnoreCase)) throw new Exceptions.ErrorResponseException(host, message, response);
 
-			void processResponse()
-			{
-				if (string.IsNullOrWhiteSpace(response))
-				{
-					throw new Exceptions.EmptyResponseException(host, message);
-				}
-
-				if (!response.StartsWith("completeir", StringComparison.InvariantCultureIgnoreCase))
-				{
-					throw new Exceptions.ErrorResponseException(host, message, response);
-				}
-			}
 		}
 	}
 }
