@@ -23,4 +23,10 @@
     <ProjectReference Include="..\Helpers.Networking.Models\Helpers.Networking.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\-i 54115.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
