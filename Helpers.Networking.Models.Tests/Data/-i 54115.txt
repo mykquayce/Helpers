@@ -1,0 +1,189 @@
+﻿% This is RIPE NCC's Routing Information Service
+% whois gateway to collected BGP Routing Tables, version2.0
+% IPv4 or IPv6 address to origin prefix match
+%
+% For more information visit http://www.ripe.net/ris/riswhois.html
+%
+% Connected to backend ris-whois07.ripe.net
+
+route:        163.114.128.0/20
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-31 23:41Z  102.67.56.1@rrc00
+lastupd-last: 2021-05-15 07:00Z  195.208.209.109@rrc13
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 394
+source:       RISWHOIS
+
+route:        163.114.128.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-19 09:13Z  91.206.52.9@rrc20
+lastupd-last: 2021-05-15 03:04Z  86.104.125.53@rrc22
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 339
+source:       RISWHOIS
+
+route:        163.114.130.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-28 11:43Z  91.206.52.126@rrc20
+lastupd-last: 2021-05-15 04:00Z  200.40.162.202@rrc24
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 345
+source:       RISWHOIS
+
+route:        163.114.131.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-31 23:41Z  102.67.56.1@rrc00
+lastupd-last: 2021-05-15 07:00Z  27.111.230.35@rrc23
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 378
+source:       RISWHOIS
+
+route:        163.114.132.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-12 20:09Z  198.32.176.214@rrc14
+lastupd-last: 2021-05-15 03:04Z  86.104.125.53@rrc22
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 338
+source:       RISWHOIS
+
+route:        163.114.133.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-31 23:56Z  195.66.227.120@rrc01
+lastupd-last: 2021-05-15 06:39Z  86.104.125.53@rrc22
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 337
+source:       RISWHOIS
+
+route:        199.201.64.0/22
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-27 16:13Z  103.102.5.1@rrc00
+lastupd-last: 2021-05-15 07:00Z  195.208.209.109@rrc13
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 395
+source:       RISWHOIS
+
+route:        199.201.66.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-27 00:21Z  5.57.80.210@rrc01
+lastupd-last: 2021-05-15 05:00Z  202.249.2.185@rrc06
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 378
+source:       RISWHOIS
+
+route:        199.201.67.0/24
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-27 16:13Z  185.152.34.255@rrc00
+lastupd-last: 2021-05-15 04:01Z  200.23.206.67@rrc24
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 336
+source:       RISWHOIS
+
+route6:       2620:10d:c090::/44
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-01 02:52Z  2001:de8:4::19:9524:1@rrc23
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 378
+source:       RISWHOIS
+
+route6:       2620:10d:c090::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-12 20:09Z  2001:504:d::1:4907:1@rrc14
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 352
+source:       RISWHOIS
+
+route6:       2620:10d:c091::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-28 12:11Z  2001:7f8:24::7f@rrc20
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 352
+source:       RISWHOIS
+
+route6:       2620:10d:c092::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-27 00:21Z  2001:7f8:4::6248:1@rrc01
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 365
+source:       RISWHOIS
+
+route6:       2620:10d:c093::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-21 20:12Z  198.58.198.252@rrc00
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 365
+source:       RISWHOIS
+
+route6:       2620:10d:c094::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-23 22:53Z  2001:43f8:6d0::190@rrc19
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 345
+source:       RISWHOIS
+
+route6:       2620:10d:c095::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-27 16:13Z  2405:3200:0:23::@rrc00
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 345
+source:       RISWHOIS
+
+route6:       2620:10d:c096::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-19 12:29Z  2001:504:d::1:4907:1@rrc14
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 375
+source:       RISWHOIS
+
+route6:       2620:10d:c098::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-01 00:17Z  2607:fad8::1:9@rrc00
+lastupd-last: 2021-05-15 07:14Z  2001:7f8:2a:0:2:1:2:9680@rrc18
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc18,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 352
+source:       RISWHOIS
+
+route6:       2620:10d:c099::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-04-28 17:41Z  2405:3200:0:23::@rrc00
+lastupd-last: 2021-05-01 15:19Z  2001:504:1::a500:9304:1@rrc11
+seen-at:      rrc00,rrc11
+num-rispeers: 2
+source:       RISWHOIS
+
+route6:       2620:10d:c09a::/48
+origin:       AS54115
+descr:        FACEBOOK-CORP, US
+lastupd-frst: 2021-03-23 22:47Z  2001:43f8:6d0::190@rrc19
+lastupd-last: 2021-05-15 05:41Z  2001:504:d::46@rrc14
+seen-at:      rrc00,rrc01,rrc03,rrc04,rrc05,rrc06,rrc07,rrc10,rrc11,rrc12,rrc13,rrc14,rrc15,rrc16,rrc19,rrc20,rrc21,rrc22,rrc23,rrc24,rrc25
+num-rispeers: 230
+source:       RISWHOIS
+
+
