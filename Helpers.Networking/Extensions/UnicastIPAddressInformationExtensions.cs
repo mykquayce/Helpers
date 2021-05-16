@@ -1,8 +1,6 @@
 ﻿using Dawn;
-using System.Net;
-using System.Net.NetworkInformation;
 
-namespace Helpers.Networking.Extensions
+namespace System.Net.NetworkInformation
 {
 	public static class UnicastIPAddressInformationExtensions
 	{

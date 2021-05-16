@@ -1,5 +1,4 @@
-﻿using Helpers.Networking.Extensions;
-using Moq;
+﻿using Moq;
 using System.Net;
 using System.Net.NetworkInformation;
 using Xunit;
