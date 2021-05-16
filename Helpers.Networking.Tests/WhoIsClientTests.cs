@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -91,6 +92,29 @@ namespace Helpers.Networking.Tests
 			var value = s[column..];
 			var kvp = new KeyValuePair<string, string>(key, value);
 			return kvp;
+		}
+
+		[Theory]
+		[InlineData("157.240.3.0")]
+		public async Task GetWhoIsDetails(string ipAddressString)
+		{
+			var ipAddress = IPAddress.Parse(ipAddressString);
+			var sut = new Helpers.Networking.Clients.Concrete.WhoIsClient();
+
+			var responses = await sut.GetWhoIsDetailsAsync(ipAddress).ToListAsync();
+
+			Assert.NotNull(responses);
+			Assert.NotEmpty(responses);
+
+			foreach (var response in responses)
+			{
+				Assert.NotNull(response);
+				Assert.NotNull(response.Prefix);
+				Assert.InRange(response.ASN, 1, int.MaxValue);
+				Assert.NotNull(response.Description);
+				Assert.NotEmpty(response.Description);
+				Assert.InRange(response.NumRisPeers, 1, int.MaxValue);
+			}
 		}
 	}
 }
