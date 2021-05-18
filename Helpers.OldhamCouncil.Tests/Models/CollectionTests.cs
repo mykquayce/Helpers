@@ -3,7 +3,7 @@ using System.Text;
 using System.Xml.Serialization;
 using Xunit;
 
-namespace Helpers.OldhamCouncil.Models.Tests
+namespace Helpers.OldhamCouncil.Tests.Models
 {
 	public class CollectionTests
 	{
@@ -47,7 +47,7 @@ namespace Helpers.OldhamCouncil.Models.Tests
 </table>", "Brown Bin", "05/05/2021")]
 		public void DeserializeBinsHtml(string html, string expectedBin, string expectedDate)
 		{
-			var table = Deserialize<Models.Generated.tableType>(html);
+			var table = Deserialize<OldhamCouncil.Models.Generated.tableType>(html);
 
 			Assert.Equal(expectedBin, table.thead.tr.th[0].b);
 			Assert.Equal(expectedDate, table.tbody[0].td[1].Text[0].Trim());
