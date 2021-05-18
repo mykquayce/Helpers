@@ -5,19 +5,19 @@ namespace Helpers.OldhamCouncil.Tests
 	public class BinTypesTests
 	{
 		[Theory]
-		[InlineData("Blue Bin", Models.BinTypes.Blue)]
-		[InlineData("Grey Bin", Models.BinTypes.Grey)]
-		[InlineData("1100 Litre Bin", Models.BinTypes._1100)]
-		public void GetBin(string description, Models.BinTypes expected)
+		[InlineData("Blue Bin", OldhamCouncil.Models.BinTypes.Blue)]
+		[InlineData("Grey Bin", OldhamCouncil.Models.BinTypes.Grey)]
+		[InlineData("1100 Litre Bin", OldhamCouncil.Models.BinTypes._1100)]
+		public void GetBin(string description, OldhamCouncil.Models.BinTypes expected)
 		{
 			// Arrange
-			var table = new Models.Generated.tableType
+			var table = new OldhamCouncil.Models.Generated.tableType
 			{
-				thead = new Models.Generated.theadType
+				thead = new OldhamCouncil.Models.Generated.theadType
 				{
-					tr = new Models.Generated.trType
+					tr = new OldhamCouncil.Models.Generated.trType
 					{
-						th = new Models.Generated.thType[1]
+						th = new OldhamCouncil.Models.Generated.thType[1]
 						{
 							new()
 							{
@@ -42,13 +42,13 @@ namespace Helpers.OldhamCouncil.Tests
 		public void DateParse(string dateString, int year, int month, int day)
 		{
 			// Arrange
-			var table = new Models.Generated.tableType
+			var table = new OldhamCouncil.Models.Generated.tableType
 			{
-				tbody = new[]
+				tbody = new OldhamCouncil.Models.Generated.trType[1]
 				{
-					new Models.Generated.trType
+					new()
 					{
-						td = new Models.Generated.tdType?[2]
+						td = new OldhamCouncil.Models.Generated.tdType?[2]
 						{
 							default,
 							new()

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using Xunit;
 
-namespace Helpers.OldhamCouncil.Models.Tests
+namespace Helpers.OldhamCouncil.Tests.Models
 {
 	public class AddressTests
 	{

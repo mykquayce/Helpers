@@ -24,7 +24,7 @@ namespace Helpers.OldhamCouncil.Tests
 			Assert.NotNull(dictionary);
 			Assert.NotEmpty(dictionary);
 			Assert.All(dictionary.Keys, dt => Assert.NotEqual(default, dt));
-			Assert.All(dictionary.Values, e => Assert.NotEqual(Models.BinTypes.None, e));
+			Assert.All(dictionary.Values, e => Assert.NotEqual(OldhamCouncil.Models.BinTypes.None, e));
 		}
 
 		[Theory]
@@ -37,7 +37,7 @@ namespace Helpers.OldhamCouncil.Tests
 			Assert.NotNull(dictionary);
 			Assert.NotEmpty(dictionary);
 			Assert.All(dictionary.Keys, dt => Assert.NotEqual(default, dt));
-			Assert.All(dictionary.Values, e => Assert.NotEqual(Models.BinTypes.None, e));
+			Assert.All(dictionary.Values, e => Assert.NotEqual(OldhamCouncil.Models.BinTypes.None, e));
 		}
 	}
 }
