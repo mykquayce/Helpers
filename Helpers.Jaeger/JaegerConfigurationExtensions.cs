@@ -13,15 +13,11 @@ namespace Microsoft.Extensions.DependencyInjection
 		public static IServiceCollection AddJaegerTracing(
 			this IServiceCollection services,
 			string serviceName,
-			string? host = default,
-			int? port = default)
+			string host = Settings.DefaultHost,
+			ushort port = Settings.DefaultPort,
+			double samplingRate = Settings.DefaultSamplingRate)
 		{
-			var settings = new Settings
-			{
-				ServiceName = serviceName,
-				Host = host ?? Settings.DefaultHost,
-				Port = port ?? Settings.DefaultPort,
-			};
+			var settings = new Settings(serviceName, host, port, samplingRate);
 
 			return AddJaegerTracing(services, settings);
 		}
@@ -33,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			Guard.Argument(() => settings).NotNull();
 			Guard.Argument(() => settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
 			Guard.Argument(() => settings.Host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.Port).InRange(1, 65_535);
+			Guard.Argument(() => settings.SamplingRate).InRange(0, double.MaxValue);
 
 			var sender = new UdpSender(settings.Host, settings.Port, maxPacketSize: 0);
 

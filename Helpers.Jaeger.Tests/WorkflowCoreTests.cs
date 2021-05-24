@@ -1,8 +1,4 @@
 ﻿using Dawn;
-using Jaeger;
-using Jaeger.Reporters;
-using Jaeger.Samplers;
-using Jaeger.Senders.Thrift;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTracing;
 using System;
@@ -15,27 +11,23 @@ using Xunit;
 
 namespace Helpers.Jaeger.Tests
 {
-	public sealed class WorkflowCoreTests : IDisposable
+	public sealed class WorkflowCoreTests : IClassFixture<Fixtures.TracerFixture>, IDisposable
 	{
 		private readonly ITracer _tracer;
 		private readonly IServiceProvider _provider;
 		private readonly IWorkflowHost _workflowHost;
 
-		public WorkflowCoreTests()
+		public WorkflowCoreTests(Fixtures.TracerFixture fixture)
 		{
-			var sender = new UdpSender("localhost", 6_831, maxPacketSize: 0);
-			var reporter = new RemoteReporter.Builder().WithSender(sender).Build();
-			var sampler = new ConstSampler(sample: true);
-			_tracer = new Tracer.Builder("jaeger-tests").WithReporter(reporter).WithSampler(sampler).Build();
-
 			_provider = new ServiceCollection()
 				.AddLogging()
 				.AddWorkflow()
 				.AddOpenTracing()
-				.AddSingleton(_tracer)
+				.AddSingleton(fixture.Tracer)
 				.AddTransient<TestStep>()
 				.BuildServiceProvider();
 
+			_tracer = _provider.GetRequiredService<ITracer>();
 			_workflowHost = _provider.GetRequiredService<IWorkflowHost>();
 
 			_workflowHost.RegisterWorkflow<TestWorkflow, Data>();
@@ -65,7 +57,6 @@ namespace Helpers.Jaeger.Tests
 		public void Dispose()
 		{
 			_workflowHost.Stop();
-			(_tracer as IDisposable)?.Dispose();
 			(_provider as IDisposable)?.Dispose();
 		}
 		#endregion IDisposable implementation
