@@ -1,31 +1,15 @@
-﻿using Jaeger;
-using Jaeger.Reporters;
-using Jaeger.Samplers;
-using Jaeger.Senders.Thrift;
-using Jaeger.Thrift.Senders.Internal;
-using OpenTracing;
+﻿using OpenTracing;
 using Xunit;
 
 namespace Helpers.Jaeger.Tests
 {
-	public class BuildSpanTests
+	public class BuildSpanTests : IClassFixture<Fixtures.TracerFixture>
 	{
 		private readonly ITracer _tracer;
 
-		public BuildSpanTests()
+		public BuildSpanTests(Fixtures.TracerFixture fixture)
 		{
-			var sender = new UdpSender("localhost", 6_831, maxPacketSize: ThriftUdpClientTransport.MaxPacketSize);
-
-			var reporter = new RemoteReporter.Builder()
-				.WithSender(sender)
-				.Build();
-
-			var sampler = new ConstSampler(sample: true);
-
-			_tracer = new Tracer.Builder("testservice2")
-				.WithReporter(reporter)
-				.WithSampler(sampler)
-				.Build();
+			_tracer = fixture.Tracer;
 		}
 
 		[Fact]

@@ -1,14 +1,9 @@
 ﻿namespace Helpers.Jaeger.Models
 {
-	public class Settings
+	public record Settings(string? ServiceName, string Host, ushort Port, double SamplingRate)
 	{
-		public static string DefaultHost => "localhost";
-		public static int DefaultPort = 6_831;
-		public static double DefaultSamplingRate = 1f;
-
-		public string? ServiceName { get; set; }
-		public string Host { get; set; } = DefaultHost;
-		public int Port { get; set; } = DefaultPort;
-		public double SamplingRate { get; set; } = DefaultSamplingRate;
+		public const string DefaultHost = "localhost";
+		public const ushort DefaultPort = 6_831;
+		public const double DefaultSamplingRate = 1d;
 	}
 }

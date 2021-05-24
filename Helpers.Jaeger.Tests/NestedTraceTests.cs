@@ -1,25 +1,17 @@
-﻿using Jaeger;
-using Jaeger.Reporters;
-using Jaeger.Samplers;
-using Jaeger.Senders.Thrift;
-using OpenTracing;
-using System;
+﻿using OpenTracing;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Jaeger.Tests
 {
-	public sealed class NestedTraceTests : IDisposable
+	public sealed class NestedTraceTests : IClassFixture<Fixtures.TracerFixture>
 	{
 		private readonly ITracer _tracer;
 
-		public NestedTraceTests()
+		public NestedTraceTests(Fixtures.TracerFixture fixture)
 		{
-			var sender = new UdpSender("localhost", 6_831, maxPacketSize: 0);
-			var reporter = new RemoteReporter.Builder().WithSender(sender).Build();
-			var sampler = new ConstSampler(sample: true);
-			_tracer = new Tracer.Builder("jaeger-tests").WithReporter(reporter).WithSampler(sampler).Build();
+			_tracer = fixture.Tracer;
 		}
 
 		[Fact]
@@ -52,11 +44,6 @@ namespace Helpers.Jaeger.Tests
 		{
 			_tracer.ActiveSpan.Log(nameof(SomeMoreAsynchronousWork));
 			return Task.CompletedTask;
-		}
-
-		public void Dispose()
-		{
-			(_tracer as Tracer)?.Dispose();
 		}
 	}
 }
