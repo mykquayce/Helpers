@@ -19,31 +19,31 @@ namespace Helpers.OpenWrt.Tests
 		[InlineData("77.68.11.211")]
 		public async Task AddBlackhole(string s)
 		{
-			var subnetAddress = Networking.Models.SubnetAddress.Parse(s);
+			var prefix = Networking.Models.AddressPrefix.Parse(s);
 
 			// see if already exists
-			var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress);
+			var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
 
 			// if so, remove it
-			if (exists) await _sut.DeleteBlackholeAsync(subnetAddress);
+			if (exists) await _sut.DeleteBlackholeAsync(prefix);
 
 			// Assert it was removed
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// add it
-			await _sut.AddBlackholeAsync(subnetAddress);
+			await _sut.AddBlackholeAsync(prefix);
 
 			// Assert it was added
-			Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// delete it
-			await _sut.DeleteBlackholeAsync(subnetAddress);
+			await _sut.DeleteBlackholeAsync(prefix);
 
 			// Assert it was deleted
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == subnetAddress));
+			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
 			// if it existed previously, put it back
-			if (exists) await _sut.AddBlackholeAsync(subnetAddress);
+			if (exists) await _sut.AddBlackholeAsync(prefix);
 		}
 
 		[Theory]
@@ -57,12 +57,12 @@ namespace Helpers.OpenWrt.Tests
 			Assert.NotEmpty(lines);
 			Assert.DoesNotContain(default, lines);
 
-			var subnetAddresses = lines.Select(Helpers.Networking.Models.SubnetAddress.Parse).ToList();
+			var prefixes = lines.Select(Helpers.Networking.Models.AddressPrefix.Parse).ToList();
 
-			Assert.NotEmpty(subnetAddresses);
-			Assert.DoesNotContain(default, subnetAddresses);
+			Assert.NotEmpty(prefixes);
+			Assert.DoesNotContain(default, prefixes);
 
-			await _sut.AddBlackholesAsync(subnetAddresses);
+			await _sut.AddBlackholesAsync(prefixes);
 		}
 	}
 }

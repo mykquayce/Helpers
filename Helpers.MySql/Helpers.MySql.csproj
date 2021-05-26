@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.16-preview3</Version>
+    <Version>1.1.18-preview4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.78" />
+    <PackageReference Include="Dapper" Version="2.0.90" />
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.3.21201.4" />
-    <PackageReference Include="MySql.Data" Version="8.0.23" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.4.21253.7" />
+    <PackageReference Include="MySql.Data" Version="8.0.25" />
   </ItemGroup>
 
 </Project>

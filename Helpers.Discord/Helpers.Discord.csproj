@@ -4,11 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.15-preview3</Version>
+    <Version>1.0.16-preview4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.1.1-preview3" />
+    <PackageReference Include="Helpers.Web" Version="2.1.2-preview4" />
   </ItemGroup>
 
 </Project>
