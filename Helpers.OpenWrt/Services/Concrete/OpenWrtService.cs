@@ -17,23 +17,23 @@ namespace Helpers.OpenWrt.Services.Concrete
 			_openWrtClient = Guard.Argument(() => openWrtClient).NotNull().Value;
 		}
 
-		public Task AddBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
+		public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix prefix)
 		{
-			Guard.Argument(() => subnetAddress).NotNull();
-			return _openWrtClient.ExecuteCommandAsync("ip route add blackhole " + subnetAddress);
+			Guard.Argument(() => prefix).NotNull();
+			return _openWrtClient.ExecuteCommandAsync("ip route add blackhole " + prefix);
 		}
 
-		public async Task AddBlackholesAsync(IEnumerable<Networking.Models.SubnetAddress> subnetAddresses)
+		public async Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> prefixes)
 		{
-			Guard.Argument(() => subnetAddresses).NotNull();
+			Guard.Argument(() => prefixes).NotNull();
 
-			foreach (var subnetAddress in subnetAddresses)
+			foreach (var prefix in prefixes)
 			{
-				await AddBlackholeAsync(subnetAddress);
+				await AddBlackholeAsync(prefix);
 			}
 		}
 
-		public async IAsyncEnumerable<Helpers.Networking.Models.SubnetAddress> GetBlackholesAsync()
+		public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync()
 		{
 			var response = await _openWrtClient.ExecuteCommandAsync("ip route show");
 
@@ -45,15 +45,15 @@ namespace Helpers.OpenWrt.Services.Concrete
 			{
 				Guard.Argument(() => match).NotNull();
 				var s = match.Groups[1].Value;
-				var subnetAddress = Helpers.Networking.Models.SubnetAddress.Parse(s);
-				yield return subnetAddress;
+				var prefix = Helpers.Networking.Models.AddressPrefix.Parse(s);
+				yield return prefix;
 			}
 		}
 
-		public Task DeleteBlackholeAsync(Helpers.Networking.Models.SubnetAddress subnetAddress)
+		public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix blackhole)
 		{
-			Guard.Argument(() => subnetAddress).NotNull();
-			return _openWrtClient.ExecuteCommandAsync("ip route delete blackhole " + subnetAddress);
+			Guard.Argument(() => blackhole).NotNull();
+			return _openWrtClient.ExecuteCommandAsync("ip route delete blackhole " + blackhole);
 		}
 
 		#region IDisposable implementation
