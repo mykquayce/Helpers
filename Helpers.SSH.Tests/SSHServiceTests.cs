@@ -89,10 +89,9 @@ namespace Helpers.SSH.Tests
 		[InlineData("2620:0:1c00::", System.Net.Sockets.AddressFamily.InterNetworkV6)]
 		public void IPAddressVersionTest(string ipAddressString, System.Net.Sockets.AddressFamily expected)
 		{
-			var ipAddress = IPAddress.TryParse(ipAddressString, out var result)
-				? result
-				: default;
+			var ok = IPAddress.TryParse(ipAddressString, out var ipAddress);
 
+			Assert.True(ok);
 			Assert.NotNull(ipAddress);
 			Assert.Equal(expected, ipAddress!.AddressFamily);
 		}
@@ -100,7 +99,7 @@ namespace Helpers.SSH.Tests
 		[Fact]
 		public async Task GetDhcpLeases()
 		{
-			var now = DateTime.UtcNow;
+			DateTime now = DateTime.UtcNow, later = now.AddDays(7);
 			var entries = await _sut.GetDhcpLeasesAsync().ToListAsync();
 
 			Assert.NotNull(entries);
@@ -108,7 +107,8 @@ namespace Helpers.SSH.Tests
 
 			foreach (var (expiration, physicalAddress, ipAddress, hostName, identifier) in entries)
 			{
-				Assert.InRange(expiration, now, now.AddDays(7));
+				Assert.Equal(DateTimeKind.Utc, expiration.Kind);
+				Assert.InRange(expiration, now, later);
 				Assert.NotNull(physicalAddress);
 				Assert.NotNull(ipAddress);
 				if (hostName is not null) Assert.NotEmpty(hostName);
@@ -122,7 +122,16 @@ namespace Helpers.SSH.Tests
 		{
 			var ipAddress = IPAddress.Parse(ipAddressString);
 			var lease = await _sut.GetLeaseByIPAddressAsync(ipAddress);
-			Assert.Equal(physicalAddressString, lease.PhysicalAddress.ToString().ToLowerInvariant());
+			Assert.Equal(physicalAddressString, lease.PhysicalAddress.ToString(), StringComparer.InvariantCultureIgnoreCase);
+		}
+
+		[Theory]
+		[InlineData(@"C:\Users\bob\.ssh\id_rsa", @"C:\Users\bob\.ssh\id_rsa")]
+		[InlineData("~/.ssh/id_rsa", @"C:\Users\bob\.ssh\id_rsa")]
+		public void FixPath(string before, string expected)
+		{
+			var actual = Services.Concrete.SSHService.FixPath(before);
+			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
@@ -131,7 +140,7 @@ namespace Helpers.SSH.Tests
 		{
 			var physicalAddress = PhysicalAddress.Parse(physicalAddressString);
 			var lease = await _sut.GetLeaseByPhysicalAddressAsync(physicalAddress);
-			Assert.Equal(ipAddressString, lease.IPAddress.ToString().ToLowerInvariant());
+			Assert.Equal(ipAddressString, lease.IPAddress.ToString(), StringComparer.InvariantCultureIgnoreCase);
 		}
 
 		#region destructive tests

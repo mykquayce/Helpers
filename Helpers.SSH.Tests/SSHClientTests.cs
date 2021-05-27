@@ -4,35 +4,37 @@ using Xunit;
 
 namespace Helpers.SSH.Tests
 {
-	public class SSHClientTests
+	public class SSHClientTests : IClassFixture<Fixtures.UserSecretsFixture>
 	{
-		[Theory]
-		[InlineData("192.168.1.10", 22, "root", "***REMOVED***")]
-		public async Task ConnectViaPasswordTest(string host, ushort port, string username, string password)
+		private readonly Helpers.SSH.Services.Concrete.SSHService.Config _config;
+
+		public SSHClientTests(Fixtures.UserSecretsFixture fixture)
 		{
-			using var client = new Clients.Concrete.SSHClient(host, port, username, password);
-			var output = await client.RunCommandAsync("echo");
-			Assert.Equal("\n", output);
+			_config = fixture.Config;
+			Assert.NotNull(_config.Host);
+			Assert.InRange(_config.Port, 1, ushort.MaxValue);
+			Assert.NotNull(_config.Username);
+			Assert.NotNull(_config.Password);
+			Assert.NotNull(_config.PathToPrivateKey);
+			Assert.NotNull(_config.PathToPublicKey);
 		}
 
-		[Theory]
-		[InlineData("192.168.1.10", 22, "root", "~/.ssh/id_rsa")]
-		public async Task ConnectViaPrivateKey(string host, ushort port, string username, string pathToPrivateKey)
+		[Fact]
+		public async Task Connect_ViaPassword()
 		{
-			var path = Services.Concrete.SSHService.FixPath(pathToPrivateKey);
+			using var client = new Clients.Concrete.SSHClient(_config.Host, _config.Port, _config.Username, _config.Password!);
+			var output = await client.RunCommandAsync("echo");
+			Assert.Contains(output, new[] { "\r", "\n", "\r\n", });
+		}
+
+		[Fact]
+		public async Task Connect_ViaPrivateKey()
+		{
+			var path = Services.Concrete.SSHService.FixPath(_config.PathToPrivateKey!);
 			var file = new FileInfo(path);
-			using var client = new Clients.Concrete.SSHClient(host, port, username, file);
+			using var client = new Clients.Concrete.SSHClient(_config.Host, _config.Port, _config.Username, file);
 			var output = await client.RunCommandAsync("echo");
-			Assert.Equal("\n", output);
-		}
-
-		[Theory]
-		[InlineData(@"C:\Users\bob\.ssh\id_rsa", @"C:\Users\bob\.ssh\id_rsa")]
-		[InlineData("~/.ssh/id_rsa", @"C:\Users\bob\.ssh\id_rsa")]
-		public void FixPath(string before, string expected)
-		{
-			var actual = Services.Concrete.SSHService.FixPath(before);
-			Assert.Equal(expected, actual);
+			Assert.Contains(output, new[] { "\r", "\n", "\r\n", });
 		}
 	}
 }

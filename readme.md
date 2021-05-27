@@ -103,6 +103,8 @@ dotnet user-secrets set SSH:Host ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set SSH:Port ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set SSH:Username ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set SSH:Password ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set SSH:PathToPublicKey ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set SSH:PathToPrivateKey ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.Steam.Tests
 ```powershell
