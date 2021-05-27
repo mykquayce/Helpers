@@ -40,10 +40,10 @@ Tracing.Middleware
 Twitch
 ```
 ### Build order
-1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, MySql, Networking.Models, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, TPLink.Models, Tracing.Middleware, and Twitch
-1. Jwt, Networking, SSH, Telegram, and Tracing
-1. GlobalCache, RabbitMQ, XUnitClassFixtures, and Web
-1. Cineworld, Discord, Elgato, GitHub, OpenWrt, PhilipsHue, Steam, Slack, and TPLink
+1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, Json, MySql, OldhamCouncil, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, TPLink.Models, Tracing.Middleware, and Twitch
+1. Jwt, Networking.Models, Reddit, Telegram, and Tracing
+1. Networking, RabbitMQ, SSH, and Web
+1. Cineworld, Discord, Elgato, GitHub, GlobalCache, Infrared, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
 ### User Secrets
 #### Helpers.Discord.Tests
 ```powershell
