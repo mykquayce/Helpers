@@ -2,11 +2,6 @@
 {
 	public class EncryptionServiceFixture
 	{
-		public EncryptionServiceFixture()
-		{
-			EncryptionService = new Concrete.EncryptionService(0xAB);
-		}
-
-		public IEncryptionService EncryptionService { get; }
+		public IEncryptionService EncryptionService { get; } = new Concrete.EncryptionService();
 	}
 }

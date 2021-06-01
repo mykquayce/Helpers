@@ -5,24 +5,21 @@ namespace Helpers.TPLink.Concrete
 	public class EncryptionService : IEncryptionService
 	{
 		#region config poco
-		public class Config
+		public record Config(byte InitialKey)
 		{
-			public byte? InitialKey { get; init; } = 0xAB;
+			public const byte DefaultInitialKey = 0xAB;
 		}
 		#endregion config poco
 
 		private readonly byte _initialKey;
 
 		#region constructors
-		public EncryptionService(IOptions<Config> options)
-			: this(options.Value)
-		{ }
-
-		public EncryptionService(Config config)
-			: this(config.InitialKey ?? default)
-		{ }
-
-		public EncryptionService(byte initialKey) => _initialKey = initialKey;
+		public EncryptionService(IOptions<Config> options) : this(options.Value) { }
+		public EncryptionService(Config config) : this(config.InitialKey) { }
+		public EncryptionService(byte? initialKey = Config.DefaultInitialKey)
+		{
+			_initialKey = initialKey ?? Config.DefaultInitialKey;
+		}
 		#endregion constructors
 
 		public byte[] Decrypt(byte[] data)
