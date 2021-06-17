@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -30,8 +31,9 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async Task<Models.PacketLossResults> PacketLossTestAsync(IPAddress ip, int milliseconds = 10_000)
 		{
+			var now = DateTime.UtcNow;
 			var results = await PingsAsync(ip, milliseconds).ToListAsync();
-			return new(results);
+			return new(now, results);
 		}
 
 		public Task<PingReply> PingAsync(IPAddress ip) => PingsAsync(ip, _timeout).FirstAsync().AsTask();

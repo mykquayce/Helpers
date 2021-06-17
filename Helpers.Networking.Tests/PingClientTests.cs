@@ -39,9 +39,7 @@ namespace Helpers.Networking.Tests
 
 			var results = await _sut.PacketLossTestAsync(ip, timeToRun);
 
-			Assert.NotEmpty(results);
-			Assert.Matches(@"(Average|AverageJitter|Count|FailedCount|PacketLossPercentage)=([\d\.]+)", results.ToString());
-
+			Assert.NotEqual(0, results.Count);
 			Assert.Equal(0, results.PacketLossPercentage);
 		}
 	}
