@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.1.8-preview4</Version>
+    <Version>1.1.9-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.1.3-preview4" />
+    <PackageReference Include="Helpers.Json" Version="1.1.6-preview5" />
   </ItemGroup>
 
 </Project>
