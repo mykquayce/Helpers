@@ -1,16 +1,24 @@
 ﻿using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Helpers.TPLink.Tests
 {
-	public class EncryptionTests : IClassFixture<Fixtures.EncryptionServiceFixture>
+	public class ExtensionTests
 	{
-		private readonly IEncryptionService _sut;
-
-		public EncryptionTests(Fixtures.EncryptionServiceFixture fixture)
+		[Theory]
+		[InlineData(@"{""system"":{""get_sysinfo"":{""sw_ver"":""1.0.16 Build 210205 Rel.163735"",""hw_ver"":""1.0"",""model"":""KP115(UK)"",""deviceId"":""800695CFD4D150EEAA174159B79A2D581E27C285"",""oemId"":""C7A36E0C2D4BAB44DED6EF0870AC707F"",""hwId"":""39E8408ED974DD69D8A77D9F8781637E"",""rssi"":-57,""latitude_i"":535303,""longitude_i"":-21408,""alias"":""amp"",""status"":""new"",""obd_src"":""tplink"",""mic_type"":""IOT.SMARTPLUGSWITCH"",""feature"":""TIM:ENE"",""mac"":""00:31:92:E1:A4:74"",""updating"":0,""led_off"":0,""relay_state"":1,""on_time"":176019,""icon_hash"":"""",""dev_name"":""Smart Wi-Fi Plug Mini"",""active_mode"":""none"",""next_action"":{""type"":-1},""ntc_state"":0,""err_code"":0}}}")]
+		public void Deserialize_SystemInfo(string json)
 		{
-			_sut = fixture.EncryptionService;
+			var response = Helpers.TPLink.Extensions.Deserialize<Models.Generated.ResponseObject>(json);
+
+			Assert.NotNull(response);
+			Assert.NotNull(response!.system);
+			Assert.NotNull(response.system!.get_sysinfo);
+
+			var systemInfo = response.system.get_sysinfo;
+
+			Assert.NotNull(systemInfo!.alias);
+			Assert.NotNull(systemInfo.mac);
 		}
 
 		[Theory]
@@ -19,16 +27,15 @@ namespace Helpers.TPLink.Tests
 		public void EncryptAndDecrypt_IsReversible(string s)
 		{
 			// Arrange, Act
-			var one = Encoding.UTF8.GetBytes(s);
-			var two = _sut.Encrypt(one);
-			var three = _sut.Decrypt(two);
+			var one = s.Encode();
+			var two = one.Encrypt();
+			var three = two.Decrypt();
 
 			// Assert
 			Assert.NotEmpty(one);
 			Assert.NotEmpty(two);
 			Assert.NotEmpty(three);
 
-			Assert.Equal(one, one);
 			Assert.Equal(one, three);
 		}
 
@@ -37,9 +44,9 @@ namespace Helpers.TPLink.Tests
 		[InlineData("{\"system\":{\"get_sysinfo\":{}}}", new byte[] { 208, 242, 129, 248, 139, 255, 154, 247, 213, 239, 148, 182, 209, 180, 192, 159, 236, 149, 230, 143, 225, 135, 232, 202, 240, 139, 246, 139, 246, })]
 		public void EncryptTest(string message, byte[] expected)
 		{
-			var before = Encoding.UTF8.GetBytes(message);
+			var before = message.Encode();
 
-			var actual = _sut.Encrypt(before);
+			var actual = before.Encrypt();
 
 			Assert.NotEqual(before, actual);
 
@@ -102,8 +109,8 @@ namespace Helpers.TPLink.Tests
 		{
 			var bytes = ints.Select(i => (byte)i).ToArray();
 
-			var decrypted = _sut.Decrypt(bytes);
-			var actual = Encoding.UTF8.GetString(decrypted);
+			var decrypted = bytes.Decrypt();
+			var actual = decrypted.Decode();
 			Assert.Equal(expected, actual);
 		}
 	}
