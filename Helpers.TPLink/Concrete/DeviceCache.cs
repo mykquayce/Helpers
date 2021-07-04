@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -37,9 +36,9 @@ namespace Helpers.TPLink.Concrete
 		public void CopyTo(Models.Device[] array, int arrayIndex) => _devices.CopyTo(array, arrayIndex);
 		public bool Remove(Models.Device item) => _devices.Remove(item);
 
-		public bool TryGetValue(string key, [MaybeNullWhen(false)] out Models.Device value) => (value = _devices.SingleOrDefault(d => string.Equals(d.Alias, key, StringComparison.InvariantCultureIgnoreCase))) is not null;
-		public bool TryGetValue(IPAddress key, [MaybeNullWhen(false)] out Models.Device value) => (value = _devices.SingleOrDefault(d => Equals(d.IPAddress, key))) is not null;
-		public bool TryGetValue(PhysicalAddress key, [MaybeNullWhen(false)] out Models.Device value) => (value = _devices.SingleOrDefault(d => Equals(d.PhysicalAddress, key))) is not null;
+		public bool TryGetValue(string key, out Models.Device value) => (value = _devices.SingleOrDefault(d => string.Equals(d.Alias, key, StringComparison.InvariantCultureIgnoreCase))) is not null;
+		public bool TryGetValue(IPAddress key, out Models.Device value) => (value = _devices.SingleOrDefault(d => Equals(d.IPAddress, key))) is not null;
+		public bool TryGetValue(PhysicalAddress key, out Models.Device value) => (value = _devices.SingleOrDefault(d => Equals(d.PhysicalAddress, key))) is not null;
 
 		public IEnumerator<Models.Device> GetEnumerator() => _devices.GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => _devices.GetEnumerator();

@@ -1,13 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.0</Version>
+    <Version>1.1.2-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="Helpers.Web" Version="2.2.2-preview5" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0-preview.5.21301.5" />
   </ItemGroup>
 
 </Project>

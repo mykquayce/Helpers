@@ -1,5 +1,5 @@
 ﻿using Dawn;
-using Helpers.Web.Extensions;
+using Helpers.Web;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.OpenWrt.Clients.Concrete
 {
-	public class OpenWrtClient : Helpers.Web.WebClientBase, IOpenWrtClient
+	public class OpenWrtClient : WebClientBase, IOpenWrtClient
 	{
 		private readonly string _password;
 		private string? _token;
@@ -53,7 +53,7 @@ namespace Helpers.OpenWrt.Clients.Concrete
 			var requestJson = JsonSerializer.Serialize(requestObject);
 			var uri = new Uri(requestUri, UriKind.Relative);
 			var response = await base.SendAsync<Models.ResponseObject>(HttpMethod.Post, uri, requestJson);
-			var (_, _, _, @object) = response;
+			var (_, _, @object) = response;
 			return @object!.result!;
 		}
 	}

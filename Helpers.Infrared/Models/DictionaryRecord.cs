@@ -24,7 +24,7 @@ namespace Helpers.Infrared.Models
 		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Dictionary.GetEnumerator();
 		public bool Remove(TKey key) => Dictionary.Remove(key);
 		public bool Remove(KeyValuePair<TKey, TValue> item) => Dictionary.Remove(item);
-		public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => Dictionary.TryGetValue(key, out value);
+		public bool TryGetValue(TKey key, out TValue value) => Dictionary.TryGetValue(key, out value);
 		IEnumerator IEnumerable.GetEnumerator() => Dictionary.GetEnumerator();
 	}
 }

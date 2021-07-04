@@ -23,7 +23,7 @@ namespace Helpers.Networking.Tests
 		}
 
 		[Fact]
-		public ValueTask Connect() => _sut.ConnectAsync(_endPoint);
+		public Task Connect() => _sut.ConnectAsync(_endPoint);
 
 		[Theory]
 		[InlineData("sendir,1:1,4,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r")]

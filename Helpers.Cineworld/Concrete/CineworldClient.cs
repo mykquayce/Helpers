@@ -6,19 +6,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Xml.XPath;
 using System.Xml.Xsl;
 
 namespace Helpers.Cineworld.Concrete
 {
 	public class CineworldClient : Helpers.Web.WebClientBase, ICineworldClient
 	{
-		private static readonly XmlSerializerFactory _xmlSerializerFactory = new XmlSerializerFactory();
+		private static readonly XmlSerializerFactory _xmlSerializerFactory = new();
 
 		public CineworldClient(
 			ILogger? logger = default,

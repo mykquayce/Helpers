@@ -47,7 +47,7 @@ namespace Helpers.Networking.Clients.Concrete
 			await stream.WriteAsync(_encoding.GetBytes(message));
 			await stream.FlushAsync();
 
-			if (stream.Socket.DontFragment)
+			if (tcpClient.Client.DontFragment)
 			{
 				using var reader = new StreamReader(stream, _encoding);
 
