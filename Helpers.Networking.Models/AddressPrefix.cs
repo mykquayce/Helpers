@@ -43,9 +43,9 @@ namespace Helpers.Networking.Models
 		{
 			if (s is null) return new();
 			var strings = s.Split('/');
-			var ip = IPAddress.Parse(strings[0]);
+			if (!IPAddress.TryParse(strings[0], out var ip)) throw new ArgumentOutOfRangeException(nameof(s), s, "Failed to find an IP address in " + s);
 			var maskLength = strings.Length > 1
-				? byte.Parse(strings[1])
+				? byte.TryParse(strings[1], out var b) ? b : throw new ArgumentOutOfRangeException(nameof(s), s, "Failed to find a mask in " + s)
 				: GetMaxMaskLength(ip);
 
 			return new(ip, maskLength);
