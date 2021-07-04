@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.2.8-preview5</Version>
+    <Version>1.2.9-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.11-preview5" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.12-preview5" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>

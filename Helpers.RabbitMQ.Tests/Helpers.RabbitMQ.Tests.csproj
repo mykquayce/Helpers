@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.11-preview5" />
+    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.12-preview5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0-preview.5.21301.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.5.21301.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
