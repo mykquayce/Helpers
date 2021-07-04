@@ -6,16 +6,13 @@ using System.Threading.Tasks;
 
 namespace Helpers.Web.Models.Concrete
 {
-	public class Response : IResponse
-	{
-		public IReadOnlyDictionary<string, StringValues>? Headers { get; set; }
-		public HttpStatusCode? StatusCode { get; set; }
-		public Task<Stream>? TaskStream { get; set; }
-	}
+	public record ResponseBase(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode)
+		: IResponseBase;
 
-	public class Response<T> : Response, IResponse<T>
-		where T : class
-	{
-		public T? Object { get; set; }
-	}
+	public record Response(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode, Task<Stream> TaskStream)
+		: ResponseBase(Headers, StatusCode), IResponse;
+
+	public record Response<T>(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode, T Object)
+		: ResponseBase(Headers, StatusCode), IResponse<T>
+		where T : class;
 }

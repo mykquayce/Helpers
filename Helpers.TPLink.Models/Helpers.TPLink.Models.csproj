@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.4.1-preview3</Version>
+    <Version>1.4.3-preview3</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.1.6-preview5" />
+    <PackageReference Include="Helpers.Json" Version="1.1.7-preview5" />
   </ItemGroup>
 
 </Project>

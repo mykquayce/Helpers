@@ -25,7 +25,7 @@ namespace Helpers.GitHub.Services.Concrete
 		public IAsyncEnumerable<Models.ForkObject> GetForksAsync(string owner, string repo)
 			=> _client.GetForksAsync(owner, repo);
 
-		public ValueTask<Models.CommitObject> GetLastCommitForBranchAsync(string owner, string repo, string sha)
+		public ValueTask<Models.BranchObject.CommitObject> GetLastCommitForBranchAsync(string owner, string repo, string sha)
 			=> _client.GetLastCommitForBranchAsync(owner, repo, sha);
 
 		public async IAsyncEnumerable<(string branch, DateTime dateTime)> GetTimeStampsFromBranchesAsync(string owner, string repo)
@@ -37,7 +37,7 @@ namespace Helpers.GitHub.Services.Concrete
 				var branch = await _client.GetBranchAsync(owner, repo, branchSummary.name);
 
 				var name = branch.name ?? throw new ArgumentNullException(nameof(Models.BranchObject.name));
-				var date = branch.commit?.commit?.author?.date ?? throw new ArgumentNullException(nameof(Models.AuthorObject.date));
+				var date = branch.commit?.commit?.author?.date ?? throw new ArgumentNullException(nameof(Models.BranchObject.CommitObject.Commit1Object.AuthorObject.date));
 
 				yield return (name, date);
 			}

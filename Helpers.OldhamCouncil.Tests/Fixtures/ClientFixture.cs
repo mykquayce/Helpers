@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Text;
 
 namespace Helpers.OldhamCouncil.Tests.Fixtures
 {
@@ -13,7 +12,7 @@ namespace Helpers.OldhamCouncil.Tests.Fixtures
 		{
 			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
 			_httpClient = new HttpClient(handler) { BaseAddress = _baseAddress, };
-			Client = new Concrete.Client(_httpClient, Encoding.UTF8);
+			Client = new Concrete.Client(_httpClient);
 		}
 
 		public IClient Client { get; }

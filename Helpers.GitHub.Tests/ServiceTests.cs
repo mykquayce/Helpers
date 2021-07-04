@@ -44,11 +44,11 @@ namespace Helpers.GitHub.Tests
 			{
 				await foreach (var fork in _sut.GetForksAsync(owner, repo))
 				{
-					await foreach (var branchSummary in _sut.GetBranchesAsync(fork.owner!.login!, fork.name!))
+					await foreach (var branchSummary in _sut.GetBranchesAsync(fork.owner.login, fork.name))
 					{
-						var branch = await _sut.GetBranchAsync(fork.owner.login!, fork.name!, branchSummary.name!);
+						var branch = await _sut.GetBranchAsync(fork.owner.login, fork.name, branchSummary.name);
 
-						var tuple = (fork.owner.login!, fork.name!, branch.name!, branch.commit!.commit!.author!.date!.Value);
+						var tuple = (fork.owner.login, fork.name, branch.name, branch.commit.commit.author.date);
 
 						list.Add(tuple);
 					}

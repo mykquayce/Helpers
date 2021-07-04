@@ -47,7 +47,7 @@ namespace Helpers.GlobalCache.Services.Concrete
 		}
 		#endregion constructors
 
-		public async Task ConnectAsync(string hostName, CancellationToken? cancellationToken = default)
+		public async Task ConnectAsync(string hostName)
 		{
 			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
 
@@ -59,7 +59,7 @@ namespace Helpers.GlobalCache.Services.Concrete
 
 			var endPoint = new IPEndPoint(ipAddress, _port);
 
-			await _socketClient.ConnectAsync(endPoint, cancellationToken ?? CancellationToken.None);
+			await _socketClient.ConnectAsync(endPoint);
 		}
 
 		public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, int count, CancellationToken? cancellationToken = default)
@@ -81,7 +81,7 @@ namespace Helpers.GlobalCache.Services.Concrete
 
 			using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
 
-			await ConnectAsync(hostName, cts.Token);
+			await ConnectAsync(hostName);
 
 			var responses = await SendAndReceiveAsync(message, count: 3, cts.Token).ToListAsync();
 

@@ -40,11 +40,11 @@ namespace Helpers.Networking.Clients.Concrete
 		}
 		#endregion Constructors
 
-		public ValueTask ConnectAsync(EndPoint endPoint, CancellationToken? cancellationToken = default)
+		public Task ConnectAsync(EndPoint endPoint)
 		{
-			if (_socket.Connected) return ValueTask.CompletedTask;
+			if (_socket.Connected) return Task.CompletedTask;
 
-			return _socket.ConnectAsync(endPoint, cancellationToken ?? CancellationToken.None);
+			return _socket.ConnectAsync(endPoint);
 		}
 
 		public ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default)

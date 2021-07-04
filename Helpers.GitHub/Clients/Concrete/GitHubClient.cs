@@ -22,8 +22,8 @@ namespace Helpers.GitHub.Clients.Concrete
 		public Task<Models.BranchObject> GetBranchAsync(string owner, string repo, string branch)
 			=> GetAsync<Models.BranchObject>($"/repos/{owner}/{repo}/branches/{branch}");
 
-		public ValueTask<Models.CommitObject> GetLastCommitForBranchAsync(string owner, string repo, string sha)
-			=> GetCollectionAsync<Models.CommitObject>($"/repos/{owner}/{repo}/commits?per_page=1&sha={sha}")
+		public ValueTask<Models.BranchObject.CommitObject> GetLastCommitForBranchAsync(string owner, string repo, string sha)
+			=> GetCollectionAsync<Models.BranchObject.CommitObject>($"/repos/{owner}/{repo}/commits?per_page=1&sha={sha}")
 				.SingleAsync();
 
 		private async Task<T> GetAsync<T>(string requestUri)

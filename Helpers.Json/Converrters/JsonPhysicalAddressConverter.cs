@@ -9,9 +9,8 @@ namespace Helpers.Json.Converters
 	{
 		public override PhysicalAddress? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return PhysicalAddress.TryParse(reader.GetString(), out var result)
-				? result
-				: default;
+			try { return PhysicalAddress.Parse(reader.GetString()); }
+			catch (FormatException) { return default; }
 		}
 
 		public override void Write(Utf8JsonWriter writer, PhysicalAddress value, JsonSerializerOptions options)

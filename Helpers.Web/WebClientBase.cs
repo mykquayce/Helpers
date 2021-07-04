@@ -95,7 +95,7 @@ namespace Helpers.Web
 
 			using var stream = await response.TaskStream!;
 
-			T? o;
+			T o;
 
 			if (typeof(T) == typeof(string))
 			{
@@ -105,15 +105,11 @@ namespace Helpers.Web
 			}
 			else
 			{
-				o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions);
+				o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions)
+					?? throw new Exception();
 			}
 
-			return new Models.Concrete.Response<T>
-			{
-				Headers = response.Headers,
-				StatusCode = response.StatusCode,
-				Object = o,
-			};
+			return new Models.Concrete.Response<T>(response.Headers, response.StatusCode, o);
 		}
 
 		protected async Task<Models.IResponse> SendAsync(
@@ -201,12 +197,7 @@ namespace Helpers.Web
 				headers.Add(key, new StringValues(values.ToArray()));
 			}
 
-			return new Models.Concrete.Response
-			{
-				Headers = headers,
-				StatusCode = response.StatusCode,
-				TaskStream = response.Content.ReadAsStreamAsync(),
-			};
+			return new Models.Concrete.Response(headers, response.StatusCode, response.Content.ReadAsStreamAsync());
 		}
 	}
 }

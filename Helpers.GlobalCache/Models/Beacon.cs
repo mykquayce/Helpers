@@ -9,15 +9,15 @@ using System.Text.RegularExpressions;
 namespace Helpers.GlobalCache.Models
 {
 	public record Beacon(
-		string? ConfigUrl,
-		string? Make,
-		string? Model,
-		string? PackageLevel,
-		string? PCB_PN,
-		string? Revision,
-		string? SDKClass,
-		string? Status,
-		string? Uuid
+		string ConfigUrl,
+		string Make,
+		string Model,
+		string PackageLevel,
+		string PCB_PN,
+		string Revision,
+		string SDKClass,
+		string Status,
+		string Uuid
 		)
 	{
 		private const RegexOptions _regexOptions = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;

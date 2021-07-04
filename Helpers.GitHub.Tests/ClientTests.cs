@@ -30,7 +30,6 @@ namespace Helpers.GitHub.Tests
 			Assert.NotNull(branches);
 			Assert.NotEmpty(branches);
 			Assert.All(branches, Assert.NotNull);
-			Assert.All(branches, b => Assert.NotNull(b.@protected));
 		}
 
 		[Theory]
