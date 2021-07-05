@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Helpers.TPLink.Tests
 {
-	[Collection("Non-Parallel Collection")]
+	[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 	public class TPLinkServiceTests
 	{
 		private readonly ITPLinkClient _client = new Concrete.TPLinkClient();
@@ -25,15 +25,21 @@ namespace Helpers.TPLink.Tests
 				Assert.InRange(watts, .0001, double.MaxValue);
 				Assert.InRange(volts, .0001, double.MaxValue);
 
+				await Task.Delay(millisecondsDelay: 500);
+
 				(amps, watts, volts) = await _service.GetRealtimeDataAsync(ip);
 				Assert.InRange(amps, .0001, double.MaxValue);
 				Assert.InRange(watts, .0001, double.MaxValue);
 				Assert.InRange(volts, .0001, double.MaxValue);
 
+				await Task.Delay(millisecondsDelay: 500);
+
 				(amps, watts, volts) = await _service.GetRealtimeDataAsync(mac);
 				Assert.InRange(amps, .0001, double.MaxValue);
 				Assert.InRange(watts, .0001, double.MaxValue);
 				Assert.InRange(volts, .0001, double.MaxValue);
+
+				await Task.Delay(millisecondsDelay: 500);
 			}
 		}
 	}
