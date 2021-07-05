@@ -2,7 +2,7 @@
 
 namespace Helpers.TPLink.Tests.CollectionDefinitions
 {
-	[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+	[CollectionDefinition(nameof(NonParallelCollectionDefinitionClass), DisableParallelization = true)]
 	public class NonParallelCollectionDefinitionClass
 	{ }
 }

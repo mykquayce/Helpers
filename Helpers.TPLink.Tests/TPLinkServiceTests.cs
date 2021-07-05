@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Helpers.TPLink.Tests
 {
-	[Collection("Non-Parallel Collection")]
+	[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 	public class TPLinkServiceTests
 	{
 		private readonly ITPLinkClient _client = new Concrete.TPLinkClient();

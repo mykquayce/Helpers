@@ -9,7 +9,7 @@ namespace Helpers.TPLink.Concrete
 	public class TPLinkService : ITPLinkService
 	{
 		private readonly ITPLinkClient _client;
-		private readonly IDeviceCache _cache;
+		private readonly IDeviceCache _cache = new DeviceCache();
 		private delegate bool TryGetDelegate<T>(T value, [MaybeNullWhen(false)] out Models.Device device);
 
 		public TPLinkService() : this(new TPLinkClient()) { }
@@ -17,7 +17,6 @@ namespace Helpers.TPLink.Concrete
 		public TPLinkService(ITPLinkClient client)
 		{
 			_client = client;
-			_cache = new DeviceCache();
 		}
 
 		public Task<Models.RealtimeData> GetRealtimeDataAsync(string alias) => GetRealtimeDataAsync(_cache.TryGetValue, alias);
