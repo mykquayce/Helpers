@@ -1,18 +1,17 @@
 ﻿using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.GlobalCache.Tests
 {
-	[Collection("Non-Parallel Collection")]
-	public class DiscoveryClientTests : IClassFixture<Fixtures.DiscoveryClientFixture>
+	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
+	public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	{
-		private readonly Clients.IDiscoveryClient _sut;
+		private readonly IClient _sut;
 
-		public DiscoveryClientTests(Fixtures.DiscoveryClientFixture fixture)
+		public ClientTests(Fixtures.ClientFixture fixture)
 		{
-			_sut = fixture.DiscoveryClient;
+			_sut = fixture.Client;
 		}
 
 		[Theory]

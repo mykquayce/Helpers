@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Helpers.GlobalCache.Services
+namespace Helpers.GlobalCache
 {
-	public interface IGlobalCacheService : IDisposable
+	public interface IService : IDisposable
 	{
 		Task<string> ConnectSendReceiveAsync(string hostName, string message);
 	}

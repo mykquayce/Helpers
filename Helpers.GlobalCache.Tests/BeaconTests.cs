@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Helpers.GlobalCache.Tests
 {
-	[Collection("Non-Parallel Collection")]
+	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
 	public class BeaconTests
 	{
 		[Theory]
@@ -31,6 +31,7 @@ namespace Helpers.GlobalCache.Tests
 			DoAssert(beacon.Status);
 			DoAssert(beacon.Uuid);
 		}
+
 		[Theory]
 		[InlineData(
 			"AMXB<-UUID=GlobalCache_000C1E059CAD><-SDKClass=Utility><-Make=GlobalCache><-Model=iTachIP2IR><-Revision=710-1005-05><-Pkg_Level=GCPK002><-Config-URL=http://192.168.1.113><-PCB_PN=025-0028-03><-Status=Ready>\r",

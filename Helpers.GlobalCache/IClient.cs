@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Helpers.GlobalCache.Clients
+namespace Helpers.GlobalCache
 {
-	public interface IDiscoveryClient : IDisposable
+	public interface IClient
 	{
 		IAsyncEnumerable<Models.Beacon> DiscoverAsync();
 	}
