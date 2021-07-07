@@ -33,7 +33,7 @@ namespace Helpers.GlobalCache.Concrete
 
 		public async Task ConnectAsync(string uuid)
 		{
-			Guard.Argument(() => uuid).NotNull().NotEmpty().NotWhiteSpace().Matches("^GlobalCache_[0-9A-F]{12}$");
+			Guard.Argument(() => uuid).IsGlobalCacheUuid();
 
 			if (!_cache.TryGetValue(uuid, out var ipAddress))
 			{
@@ -72,7 +72,7 @@ namespace Helpers.GlobalCache.Concrete
 
 		public async Task<string> ConnectSendReceiveAsync(string uuid, string message)
 		{
-			Guard.Argument(() => uuid).NotNull().NotEmpty().NotWhiteSpace().Matches("^GlobalCache_[0-9A-F]{12}$");
+			Guard.Argument(() => uuid).IsGlobalCacheUuid();
 			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
 
 			await ConnectAsync(uuid);
