@@ -46,8 +46,13 @@ namespace Helpers.GlobalCache.Concrete
 				_cache.Add(uuid, ipAddress);
 			}
 
+			await ConnectAsync(ipAddress);
+		}
+
+		public Task ConnectAsync(IPAddress ipAddress)
+		{
 			var endPoint = new IPEndPoint(ipAddress, _broadcastPort);
-			await _socketClient.ConnectAsync(endPoint);
+			return _socketClient.ConnectAsync(endPoint);
 		}
 
 		public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, int count, CancellationToken? cancellationToken = default)
@@ -76,6 +81,20 @@ namespace Helpers.GlobalCache.Concrete
 			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
 
 			await ConnectAsync(uuid);
+
+			var responses = await SendAndReceiveAsync(message, count: 3).ToListAsync();
+
+			if (responses.Distinct().Count() == 1) return responses.First();
+
+			throw new Exception("unexpected responses") { Data = { [nameof(responses)] = responses, }, };
+		}
+
+		public async Task<string> ConnectSendReceiveAsync(IPAddress ipAddress, string message)
+		{
+			Guard.Argument(() => ipAddress).NotNull();
+			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
+
+			await ConnectAsync(ipAddress);
 
 			var responses = await SendAndReceiveAsync(message, count: 3).ToListAsync();
 

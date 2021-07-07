@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.GlobalCache.Tests
@@ -43,6 +47,40 @@ namespace Helpers.GlobalCache.Tests
 		{
 			var response = await _sut.ConnectSendReceiveAsync(uuid, message);
 			Assert.Equal(expected, response);
+		}
+
+		[Theory]
+		[InlineData(10, "GlobalCache_000C1E059CAD")]
+		public async Task ConnectionCacheTests(int count, string uuid)
+		{
+			var times = new List<long>();
+			while (count-- > 0)
+			{
+				var stopwatch = Stopwatch.StartNew();
+				await _sut.ConnectAsync(uuid);
+				stopwatch.Stop();
+				times.Add(stopwatch.ElapsedTicks);
+				await Task.Delay(millisecondsDelay: 500);
+			}
+
+			Assert.InRange(times[0], 10_000_000, 100_000_000); // first between 1 and 10 seconds.
+			Assert.All(times.Skip(1), t => Assert.InRange(t, 10, 10_000)); // remainder between 1 micro- and 1 milli-second.
+		}
+
+		[Theory]
+		[InlineData("192.168.1.117")]
+		public Task ConnectViaIP(string ipString)
+		{
+			var ip = IPAddress.Parse(ipString);
+			return _sut.ConnectAsync(ip);
+		}
+
+		[Theory]
+		[InlineData("192.168.1.117", "sendir,1:1,3,40064,1,1,96,24,24,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,897\r")]
+		public Task SendMessageViaIP(string ipString, string message)
+		{
+			var ip = IPAddress.Parse(ipString);
+			return _sut.ConnectSendReceiveAsync(ip, message);
 		}
 	}
 }
