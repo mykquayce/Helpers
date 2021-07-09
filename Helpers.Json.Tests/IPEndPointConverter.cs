@@ -40,7 +40,8 @@ namespace Helpers.Json.Tests
 			var ok = Converters.JsonIPEndPointConverter.TryParse(s, out var actual);
 
 			Assert.True(ok);
-			Assert.Equal(expectedBytes, actual.Address.GetAddressBytes());
+			Assert.NotNull(actual);
+			Assert.Equal(expectedBytes, actual!.Address.GetAddressBytes());
 			Assert.Equal(expectedPort, actual.Port);
 		}
 	}
