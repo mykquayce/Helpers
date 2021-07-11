@@ -5,9 +5,14 @@ using Xunit;
 namespace Helpers.TPLink.Tests
 {
 	[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
-	public class TPLinkClientTests
+	public class TPLinkClientTests : IClassFixture<Fixtures.Fixture>
 	{
-		private readonly ITPLinkClient _sut = new Concrete.TPLinkClient();
+		private readonly ITPLinkClient _sut;
+
+		public TPLinkClientTests(Fixtures.Fixture fixture)
+		{
+			_sut = fixture.Client;
+		}
 
 		[Fact]
 		public async Task DiscoverTests()

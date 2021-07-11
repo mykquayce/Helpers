@@ -10,22 +10,13 @@ namespace Helpers.TPLink.Concrete
 {
 	public class TPLinkClient : ITPLinkClient
 	{
-		public record Config(ushort Port)
-		{
-			public const ushort DefaultPort = 9_999;
-
-			public Config() : this(DefaultPort) { }
-
-			public static Config Defaults => new();
-		}
-
 		private readonly ushort _port;
 		private readonly static object _discoveryObject = new { system = new { get_sysinfo = new { }, }, };
 		private readonly static object _getRealtimeDataObject = new { system = new { get_sysinfo = new { }, }, emeter = new { get_realtime = new { }, }, };
 
 		public TPLinkClient(IOptions<Config> options) : this(options.Value) { }
 		public TPLinkClient(Config config) : this(config.Port) { }
-		public TPLinkClient(ushort port = Config.DefaultPort) => _port = port;
+		public TPLinkClient(ushort port) => _port = port;
 
 		public static IEnumerable<IPAddress> LocalIPAddresses => Helpers.Networking.NetworkHelpers.GetAllBroadcastAddresses().Select(ip => ip.Address);
 

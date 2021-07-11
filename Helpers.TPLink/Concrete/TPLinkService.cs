@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -12,7 +13,9 @@ namespace Helpers.TPLink.Concrete
 		private readonly IDeviceCache _cache = new DeviceCache();
 		private delegate bool TryGetDelegate<T>(T value, [MaybeNullWhen(false)] out Models.Device device);
 
-		public TPLinkService() : this(new TPLinkClient()) { }
+		public TPLinkService() : this(Config.Defaults) { }
+		public TPLinkService(IOptions<Config> options) : this(options.Value) { }
+		public TPLinkService(Config config) : this(new TPLinkClient(config)) { }
 
 		public TPLinkService(ITPLinkClient client)
 		{

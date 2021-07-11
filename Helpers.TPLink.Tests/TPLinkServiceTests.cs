@@ -5,10 +5,16 @@ using Xunit;
 namespace Helpers.TPLink.Tests
 {
 	[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
-	public class TPLinkServiceTests
+	public class TPLinkServiceTests : IClassFixture<Fixtures.Fixture>
 	{
-		private readonly ITPLinkClient _client = new Concrete.TPLinkClient();
-		private readonly ITPLinkService _service = new Concrete.TPLinkService();
+		private readonly ITPLinkClient _client;
+		private readonly ITPLinkService _service;
+
+		public TPLinkServiceTests(Fixtures.Fixture fixture)
+		{
+			_client = fixture.Client;
+			_service = fixture.Service;
+		}
 
 		[Fact]
 		public async Task GetRealtimeDataTests()
