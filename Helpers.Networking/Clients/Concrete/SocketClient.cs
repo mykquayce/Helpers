@@ -47,14 +47,8 @@ namespace Helpers.Networking.Clients.Concrete
 			return _socket.ConnectAsync(endPoint);
 		}
 
-		public ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default)
-		{
-			var bytes = _encoding.GetBytes(message);
-			return SendAsync(bytes, cancellationToken ?? CancellationToken.None);
-		}
-
-		public ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
-			=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None);
+		public Task<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
+			=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None).AsTask();
 
 		public async Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default)
 		{
@@ -63,12 +57,19 @@ namespace Helpers.Networking.Clients.Concrete
 			return buffer[..bytesRead];
 		}
 
-		public async Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = null)
+		public async Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
 		{
-			await SendAsync(message, cancellationToken ?? CancellationToken.None);
+			var bytes = _encoding.GetBytes(message);
+			await SendAsync(bytes, cancellationToken ?? CancellationToken.None);
 			var responseBytes = await ReceiveAsync(cancellationToken ?? CancellationToken.None);
 			var response = _encoding.GetString(responseBytes);
 			return response;
+		}
+
+		public async Task<string> ConnectSendAndReceive(EndPoint endPoint, string message, CancellationToken? cancellationToken = default)
+		{
+			await ConnectAsync(endPoint);
+			return await SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
 		}
 
 		#region IDisposable implementation
@@ -79,26 +80,15 @@ namespace Helpers.Networking.Clients.Concrete
 			{
 				if (disposing)
 				{
-					// TODO: dispose managed state (managed objects)
 					_socket?.Dispose();
 				}
 
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
 				_disposed = true;
 			}
 		}
 
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~SocketClient()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
-
 		public void Dispose()
 		{
-			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 			Dispose(disposing: true);
 			System.GC.SuppressFinalize(this);
 		}

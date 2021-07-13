@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Helpers.Networking.Tests
 {
-	[Collection("Non-Parallel Collection")]
+	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
 	public class SocketClientTests : IClassFixture<Fixtures.SocketClientFixture>
 	{
 		private readonly EndPoint _endPoint;
@@ -26,16 +26,17 @@ namespace Helpers.Networking.Tests
 		public Task Connect() => _sut.ConnectAsync(_endPoint);
 
 		[Theory]
-		[InlineData("sendir,1:1,4,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r")]
+		[InlineData("sendir,1:1,1,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r")]
 		public async Task Send(string message)
 		{
 			await Connect();
-			var response = await _sut.SendAsync(message);
+			var bytes = Encoding.UTF8.GetBytes(message);
+			var response = await _sut.SendAsync(bytes);
 			Assert.InRange(response, 1, int.MaxValue);
 		}
 
 		[Theory]
-		[InlineData("sendir,1:1,4,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r", "completeir,1:1,3\r")]
+		[InlineData("sendir,1:1,1,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r", "completeir,1:1,1\r")]
 		public async Task Receive(string message, string expected)
 		{
 			await Send(message);
@@ -49,8 +50,8 @@ namespace Helpers.Networking.Tests
 
 		[Theory]
 		[InlineData(
-			"sendir,1:1,3,40192,3,1,96,24,24,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
-			"completeir,1:1,4\r")]
+			"sendir,1:1,1,40192,3,1,96,24,24,24,48,24,24,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+			"completeir,1:1,1\r")]
 		public async Task SendAndReceive(string message, string expected)
 		{
 			await Connect();

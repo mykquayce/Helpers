@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Helpers.Networking.Tests
 {
-	[Collection("Non-Parallel Collection")]
+	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
 	public class UdpClientTests : IClassFixture<Fixtures.UdpClientFixture>
 	{
 		private readonly Clients.IUdpClient _sut;

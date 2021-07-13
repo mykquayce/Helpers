@@ -26,7 +26,6 @@ namespace Helpers.Networking.Tests
 		}
 
 		[Theory]
-		[InlineData(@"{}", 1_024, AddressFamily.InterNetwork, ProtocolType.Tcp, SocketType.Stream)]
 		[InlineData(@"{""BufferSize"":1023}", 1_023, AddressFamily.InterNetwork, ProtocolType.Tcp, SocketType.Stream)]
 		[InlineData(@"{""BufferSize"":1023,""AddressFamily"":8}", 1_023, AddressFamily.Ecma)]
 		[InlineData(@"{""BufferSize"":1023,""AddressFamily"":""Ecma""}", 1_023, AddressFamily.Ecma)]

@@ -8,9 +8,9 @@ namespace Helpers.Networking.Clients
 	public interface ISocketClient : IDisposable
 	{
 		Task ConnectAsync(EndPoint endPoint);
-		ValueTask<int> SendAsync(string message, CancellationToken? cancellationToken = default);
-		ValueTask<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default);
+		Task<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default);
 		Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default);
 		Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default);
+		Task<string> ConnectSendAndReceive(EndPoint endPoint, string message, CancellationToken? cancellationToken = default);
 	}
 }
