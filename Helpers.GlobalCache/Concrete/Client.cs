@@ -12,14 +12,12 @@ namespace Helpers.GlobalCache.Concrete
 		private readonly ushort _receivePort;
 
 		#region constructors
-		public Client() : this(Config.Defaults) { }
 		public Client(IOptions<Config> options) : this(options.Value) { }
-		public Client(Config config) : this(config.BroadcastIPAddress, config.ReceivePort) { }
-
-		public Client(IPAddress broadcastIPAddress, ushort receivePort)
+		public Client(Config config)
 		{
-			_broadcastIPAddress = Guard.Argument(() => broadcastIPAddress).NotNull().Value;
-			_receivePort = Guard.Argument(() => receivePort).Positive().Value;
+			Guard.Argument(() => config).NotNull();
+			_broadcastIPAddress = Guard.Argument(() => config.BroadcastIPAddress).NotNull().Value;
+			_receivePort = Guard.Argument(() => config.ReceivePort).Positive().Value;
 		}
 		#endregion constructors
 

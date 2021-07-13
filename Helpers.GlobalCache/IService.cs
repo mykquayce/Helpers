@@ -10,8 +10,6 @@ namespace Helpers.GlobalCache
 	{
 		Task ConnectAsync(string uuid);
 		Task ConnectAsync(IPAddress ipAddress);
-		IAsyncEnumerable<string> SendAndReceiveAsync(string message, int count, CancellationToken? cancellationToken = default);
-		Task<string> ConnectSendReceiveAsync(string uuid, string message);
-		Task<string> ConnectSendReceiveAsync(IPAddress ipAddress, string message);
+		Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default);
 	}
 }

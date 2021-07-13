@@ -20,14 +20,13 @@ namespace Helpers.GlobalCache.Concrete
 		private readonly IClient _client;
 
 		#region constructors
-		public Service() : this(Config.Defaults) { }
 		public Service(IOptions<Config> options) : this(options.Value) { }
-		public Service(Config config) : this(config.BroadcastIPAddress, config.BroadcastPort, config.ReceivePort) { }
-
-		public Service(IPAddress broadcastIPAddress, ushort broadcastPort, ushort receivePort)
+		public Service(Config config)
 		{
-			_broadcastPort = Guard.Argument(() => broadcastPort).Positive().Value;
-			_client = new Client(broadcastIPAddress, receivePort);
+			Guard.Argument(() => config).NotNull();
+
+			_broadcastPort = Guard.Argument(() => config.BroadcastPort).Positive().Value;
+			_client = new Client(config);
 		}
 		#endregion constructors
 
@@ -55,52 +54,10 @@ namespace Helpers.GlobalCache.Concrete
 			return _socketClient.ConnectAsync(endPoint);
 		}
 
-		public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, int count, CancellationToken? cancellationToken = default)
+		public Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
 		{
 			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => count).Positive();
-
-			while (count-- > 0)
-			{
-				var task = await Task.WhenAny(
-					_socketClient.SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None),
-					Task.Delay(millisecondsDelay: 1_000, cancellationToken ?? CancellationToken.None));
-
-				if (task is Task<string> myTask)
-				{
-					yield return await myTask;
-				}
-
-				await Task.Delay(millisecondsDelay: 100, cancellationToken ?? CancellationToken.None);
-			}
-		}
-
-		public async Task<string> ConnectSendReceiveAsync(string uuid, string message)
-		{
-			Guard.Argument(() => uuid).IsGlobalCacheUuid();
-			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
-
-			await ConnectAsync(uuid);
-
-			var responses = await SendAndReceiveAsync(message, count: 3).ToListAsync();
-
-			if (responses.Distinct().Count() == 1) return responses.First();
-
-			throw new Exception("unexpected responses") { Data = { [nameof(responses)] = responses, }, };
-		}
-
-		public async Task<string> ConnectSendReceiveAsync(IPAddress ipAddress, string message)
-		{
-			Guard.Argument(() => ipAddress).NotNull();
-			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
-
-			await ConnectAsync(ipAddress);
-
-			var responses = await SendAndReceiveAsync(message, count: 3).ToListAsync();
-
-			if (responses.Distinct().Count() == 1) return responses.First();
-
-			throw new Exception("unexpected responses") { Data = { [nameof(responses)] = responses, }, };
+			return _socketClient.SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
 		}
 
 		#region Dispose pattern

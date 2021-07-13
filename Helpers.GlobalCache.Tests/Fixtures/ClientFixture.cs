@@ -2,6 +2,6 @@
 {
 	public class ClientFixture
 	{
-		public IClient Client { get; } = new Concrete.Client();
+		public IClient Client { get; } = new Concrete.Client(Config.Defaults);
 	}
 }
