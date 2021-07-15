@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.4.0-preview5</Version>
+    <Version>1.4.1-preview6</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking" Version="1.6.11-preview5" />
-    <PackageReference Include="Helpers.TPLink.Models" Version="1.4.3-preview3" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.13-preview6" />
+    <PackageReference Include="Helpers.TPLink.Models" Version="1.4.4-preview6" />
   </ItemGroup>
 
 </Project>
