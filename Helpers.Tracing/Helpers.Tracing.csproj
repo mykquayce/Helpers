@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.0.25-preview5</Version>
+    <Version>1.0.26-preview6</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Common" Version="1.0.20-preview5" />
+    <PackageReference Include="Helpers.Common" Version="1.0.21-preview6" />
     <PackageReference Include="OpenTracing" Version="0.12.1" />
   </ItemGroup>
 

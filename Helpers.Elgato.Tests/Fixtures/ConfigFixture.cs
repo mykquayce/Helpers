@@ -1,5 +1,7 @@
 ﻿using Helpers.Json.Converters;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -10,7 +12,16 @@ namespace Helpers.Elgato.Tests.Fixtures
 		public ConfigFixture()
 		{
 			var @base = new Helpers.XUnitClassFixtures.UserSecretsFixture();
-			Addresses = @base.Configuration.GetSection("Elgato").GetSection("EndPoints").JsonConfig<Addresses>();
+
+			new ConfigurationBuilder()
+				.AddConfiguration(@base.Configuration)
+				.Build();
+
+			var provider = new ServiceCollection()
+				.JsonConfig<Addresses>(@base.Configuration.GetSection("Elgato"))
+				.BuildServiceProvider();
+
+			Addresses = provider.GetRequiredService<IOptions<Addresses>>().Value;
 		}
 
 		public Addresses Addresses { get; }
