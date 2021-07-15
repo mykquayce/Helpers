@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.1.15-preview5</Version>
+    <Version>1.1.16-preview6</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Common" Version="1.0.20-preview5" />
-    <PackageReference Include="Helpers.Tracing" Version="1.0.25-preview5" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.2.1" />
-    <PackageReference Include="System.Text.Json" Version="6.0.0-preview.5.21301.5" />
+    <PackageReference Include="Helpers.Common" Version="1.0.21-preview6" />
+    <PackageReference Include="Helpers.Tracing" Version="1.0.26-preview6" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.2.2" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0-preview.6.21352.12" />
   </ItemGroup>
 
 </Project>
