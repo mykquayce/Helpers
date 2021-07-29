@@ -157,6 +157,26 @@ namespace Helpers.Common
 			}
 		}
 
+		public static void EnsureExists(this DirectoryInfo dir)
+		{
+			Guard.Argument(() => dir).NotNull();
+			if (dir.Exists) return;
+
+			var stack = new Stack<DirectoryInfo>();
+			var curr = dir;
+
+			while (curr?.Exists == false)
+			{
+				stack.Push(curr);
+				curr = curr.Parent;
+			}
+
+			while (stack.TryPop(out curr))
+			{
+				curr.Parent!.CreateSubdirectory(curr.Name);
+			}
+		}
+
 		public async static Task<T> GetAsync<T>(this HttpClient client, Uri requestUri, CancellationToken? cancellationToken = default)
 		{
 			using var response = await client.GetAsync(requestUri, cancellationToken: cancellationToken ?? CancellationToken.None);
