@@ -59,6 +59,12 @@ dotnet user-secrets set DockerHub:Username ... --id 8391cb70-d94f-4863-b7e4-5659
 ```bash
 dotnet user-secrets set Elgato:EndPoint:IPAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
+#### Helpers.GlobalCache
+```bash
+dotnet user-secrets set GlobalCache:HostName ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set GlobalCache:IPAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set GlobalCache:UUID ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+```
 #### Helpers.MySql
 ```bash
 dotnet user-secrets set MySql:Username root --id 8391cb70-d94f-4863-b7e4-5659af167bc6

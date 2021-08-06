@@ -30,7 +30,27 @@ namespace Helpers.GlobalCache.Concrete
 		}
 		#endregion constructors
 
-		public async Task ConnectAsync(string uuid)
+		#region connect
+		public Task ConnectAsync(string uuidOrHostName)
+		{
+			Guard.Argument(() => uuidOrHostName).NotNull().NotEmpty().NotWhiteSpace();
+
+			if (DawnGuardExtensions.UuidRegex.IsMatch(uuidOrHostName))
+			{
+				return ConnectWithUuidAsync(uuidOrHostName);
+			}
+
+			return ConnectWithHostNameAsync(uuidOrHostName);
+		}
+
+		public Task ConnectAsync(IPAddress ipAddress)
+		{
+			Guard.Argument(() => ipAddress).NotNull();
+			var endPoint = new IPEndPoint(ipAddress, _broadcastPort);
+			return _socketClient.ConnectAsync(endPoint);
+		}
+
+		public async Task ConnectWithUuidAsync(string uuid)
 		{
 			Guard.Argument(() => uuid).IsGlobalCacheUuid();
 
@@ -48,11 +68,12 @@ namespace Helpers.GlobalCache.Concrete
 			await ConnectAsync(ipAddress);
 		}
 
-		public Task ConnectAsync(IPAddress ipAddress)
+		public Task ConnectWithHostNameAsync(string hostName)
 		{
-			var endPoint = new IPEndPoint(ipAddress, _broadcastPort);
-			return _socketClient.ConnectAsync(endPoint);
+			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+			return _socketClient.ConnectAsync(hostName, _broadcastPort);
 		}
+		#endregion connect
 
 		public Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
 		{
