@@ -66,10 +66,11 @@ dotnet user-secrets set MySql:Password ... --id 8391cb70-d94f-4863-b7e4-5659af16
 ```
 #### Helpers.Networking
 ```bash
-dotnet user-secrets set Networking:GlobalCache:BroadcastIPAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Networking:GlobalCache:BroadcastIPAddress 239.255.250.250 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Networking:GlobalCache:BroadcastPort 4998 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Networking:GlobalCache:HostName iTach059CAD --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 dotnet user-secrets set Networking:GlobalCache:PhysicalAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set Networking:GlobalCache:Port ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
-dotnet user-secrets set Networking:GlobalCache:ReceivePort ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Networking:GlobalCache:ReceivePort 9131 --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.OpenWrt
 ```bash

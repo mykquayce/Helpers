@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.NetworkInformation;
 
 namespace Helpers.Networking.Tests.Fixtures
 {
@@ -8,15 +11,24 @@ namespace Helpers.Networking.Tests.Fixtures
 		{
 			var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 
-			BroadcastIPAddress = IPAddress.Parse(userSecretsFixture["GlobalCache:BroadcastIPAddress"]);
-			HostName = userSecretsFixture["GlobalCache:HostName"];
-			Port = ushort.Parse(userSecretsFixture["GlobalCache:Port"]);
-			ReceivePort = ushort.Parse(userSecretsFixture["GlobalCache:ReceivePort"]);
+			T f<T>(string key, Func<string, T> parser)
+			{
+				var value = userSecretsFixture!["Networking:GlobalCache:" + key]
+					?? throw new KeyNotFoundException(key);
+				return parser(value);
+			}
+
+			BroadcastIPAddress = f("BroadcastIPAddress", IPAddress.Parse);
+			BroadcastPort = f("BroadcastPort", ushort.Parse);
+			HostName = f("HostName", s => s);
+			PhysicalAddress = f("PhysicalAddress", PhysicalAddress.Parse);
+			ReceivePort = f("ReceivePort", ushort.Parse);
 		}
 
 		public IPAddress BroadcastIPAddress { get; }
+		public ushort BroadcastPort { get; }
 		public string HostName { get; }
-		public ushort Port { get; }
+		public PhysicalAddress PhysicalAddress { get; }
 		public ushort ReceivePort { get; }
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Dawn;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -16,7 +17,14 @@ namespace Helpers.Networking.Clients.Concrete
 			[property: JsonConverter(typeof(JsonStringEnumConverter))] ProtocolType ProtocolType,
 			[property: JsonConverter(typeof(JsonStringEnumConverter))] SocketType SocketType)
 		{
-			public Config() : this(1_024, AddressFamily.InterNetwork, ProtocolType.Tcp, SocketType.Stream) { }
+			public const int DefaultBufferSize = 1_024;
+			public const AddressFamily DefaultAddressFamily = AddressFamily.InterNetwork;
+			public const ProtocolType DefaultProtocolType = ProtocolType.Tcp;
+			public const SocketType DefaultSocketType = SocketType.Stream;
+
+			public Config() : this(DefaultBufferSize, DefaultAddressFamily, DefaultProtocolType, DefaultSocketType) { }
+
+			public static Config Defaults => new();
 		}
 		#endregion Config
 
@@ -40,12 +48,33 @@ namespace Helpers.Networking.Clients.Concrete
 		}
 		#endregion Constructors
 
+		#region Connect
 		public Task ConnectAsync(EndPoint endPoint)
 		{
-			if (_socket.Connected) return Task.CompletedTask;
+			Guard.Argument(() => endPoint).NotNull();
 
+			if (_socket.Connected) return Task.CompletedTask;
 			return _socket.ConnectAsync(endPoint);
 		}
+
+		public Task ConnectAsync(IPAddress ipAddress, ushort port)
+		{
+			Guard.Argument(() => ipAddress).NotNull();
+			Guard.Argument(() => port).Positive();
+
+			if (_socket.Connected) return Task.CompletedTask;
+			return _socket.ConnectAsync(ipAddress, port);
+		}
+
+		public Task ConnectAsync(string host, ushort port)
+		{
+			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(() => port).Positive();
+
+			if (_socket.Connected) return Task.CompletedTask;
+			return _socket.ConnectAsync(host, port);
+		}
+		#endregion Connect
 
 		public Task<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
 			=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None).AsTask();

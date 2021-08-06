@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.6.13-preview6</Version>
+    <Version>1.6.14-preview6</Version>
   </PropertyGroup>
 
   <ItemGroup>

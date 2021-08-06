@@ -16,7 +16,7 @@ namespace Helpers.Networking.Tests
 			var (ipAddress, _) = Helpers.Networking.NetworkHelpers.PingAsync(socketClientFixture.HostName)
 				.GetAwaiter().GetResult();
 
-			var port = socketClientFixture.Port;
+			var port = socketClientFixture.BroadcastPort;
 
 			_endPoint = new IPEndPoint(ipAddress, port);
 			_sut = socketClientFixture.SocketClient;
