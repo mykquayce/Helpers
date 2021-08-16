@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.4.6-preview6</Version>
+    <Version>1.4.6-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Json" Version="1.2.1-preview6" />
-    <PackageReference Include="Helpers.Networking" Version="1.6.14-preview6" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.6.21352.12" />
+    <PackageReference Include="Helpers.Json" Version="1.2.1-preview7" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.14-preview7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.7.21377.19" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 

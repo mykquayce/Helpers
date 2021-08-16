@@ -4,13 +4,13 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.0.18-preview6</Version>
+    <Version>1.0.18-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Steam.Models" Version="1.1.11-preview6" />
-    <PackageReference Include="Helpers.Web" Version="2.2.3-preview6" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.6.21352.12" />
+    <PackageReference Include="Helpers.Steam.Models" Version="1.1.11-preview7" />
+    <PackageReference Include="Helpers.Web" Version="2.2.3-preview7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 
 </Project>

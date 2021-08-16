@@ -4,13 +4,13 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <UserSecretsId>8391cb70-d94f-4863-b7e4-5659af167bc6</UserSecretsId>
-    <Version>1.0.13-preview6</Version>
+    <Version>1.0.13-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking" Version="1.6.13-preview6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.6.21352.12" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.14-preview7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 
 </Project>

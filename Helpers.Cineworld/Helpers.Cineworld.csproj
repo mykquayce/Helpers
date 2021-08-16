@@ -5,12 +5,12 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.25-preview6</Version>
+    <Version>1.1.25-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Cineworld.Models" Version="1.1.18-preview6" />
-    <PackageReference Include="Helpers.Web" Version="2.2.3-preview6" />
+    <PackageReference Include="Helpers.Cineworld.Models" Version="1.1.18-preview7" />
+    <PackageReference Include="Helpers.Web" Version="2.2.3-preview7" />
   </ItemGroup>
 
   <ItemGroup>
