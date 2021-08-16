@@ -4,11 +4,11 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.18-preview6</Version>
+    <Version>1.1.18-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="6.0.0-preview.6.21352.12" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 
 </Project>
