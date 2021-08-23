@@ -1,40 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.25-preview7</Version>
+    <Version>1.2.0-preview7</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Cineworld.Models" Version="1.1.18-preview7" />
-    <PackageReference Include="Helpers.Web" Version="2.2.3-preview7" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\all-performances.xslt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\listings.xslt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="Helpers.Cineworld.Models" Version="1.2.0" />
+    <PackageReference Include="Helpers.Json" Version="1.2.1-preview7" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 
 </Project>
