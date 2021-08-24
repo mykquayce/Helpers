@@ -1,18 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Helpers.SSH.Tests.Fixtures
+namespace Helpers.SSH.Tests.Fixtures;
+
+public class UserSecretsFixture
 {
-	public class UserSecretsFixture
+	public UserSecretsFixture()
 	{
-		public UserSecretsFixture()
-		{
-			var fixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
+		var fixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 
-			Config = fixture.Configuration
-				.GetSection("SSH")
-				.Get<Helpers.SSH.Services.Concrete.SSHService.Config>();
-		}
-
-		public Helpers.SSH.Services.Concrete.SSHService.Config Config { get; }
+		Config = fixture.Configuration
+			.GetSection("SSH")
+			.Get<Config>()
+			?? throw new KeyNotFoundException();
 	}
+
+	public Config Config { get; }
 }
