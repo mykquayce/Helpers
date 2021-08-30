@@ -6,13 +6,10 @@ if [ $? -eq 1 ]; then exit 1; fi
 dotnet build --configuration Release --no-restore --verbosity minimal
 if [ $? -eq 1 ]; then exit 1; fi
 
-dotnet pack --configuration Release --no-build --no-restore --nologo --output ./nupkg --verbosity minimal
+dotnet pack --configuration Release --no-build --no-restore --nologo --output ./nupkg --runtime linux-x64 --verbosity minimal
 if [ $? -eq 1 ]; then exit 1; fi
 
 if [ -n "$NuGetServerApiKey" ]
 then
-	for f in ./nupkg/*.nupkg
-	do
-		dotnet nuget push $f --api-key $NuGetServerApiKey --source http://nuget | head --lines=3
-	done
+	dotnet nuget push ./nupkg/*.nupkg --api-key $NuGetServerApiKey --skip-duplicate --source http://nuget
 fi
