@@ -14,7 +14,8 @@ public class ClientTests
 	public async Task CacheTests()
 	{
 		var config = Concrete.Client.Config.Defaults with { CacheExpiration = TimeSpan.FromSeconds(10), };
-		using var httpClient = new HttpClient { BaseAddress = config.BaseAddressUri, };
+		using var httpClientHandler = new HttpClientHandler { AllowAutoRedirect = false, };
+		using var httpClient = new HttpClient(httpClientHandler) { BaseAddress = config.BaseAddressUri, };
 		var xmlSerializerFactory = new XmlSerializerFactory();
 		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
 
