@@ -17,7 +17,7 @@ public class Client : IClient
 		[property: JsonConverter(typeof(Helpers.Json.Converters.JsonTimeSpanConverter))] TimeSpan CacheExpiration)
 		: IOptions<Config>
 	{
-		public readonly static Uri DefaultBaseAddressUri = new("https://www.cineworld.co.uk", UriKind.Absolute);
+		public readonly static Uri DefaultBaseAddressUri = new("https://classic.cineworld.co.uk", UriKind.Absolute);
 		public readonly static Uri DefaultAllPerformancesUrii = new("/syndication/all-performances.xml", UriKind.Relative);
 		public readonly static Uri DefaultListingsUri = new("/syndication/listings.xml", UriKind.Relative);
 		public readonly static TimeSpan DefaultCacheExpiration = TimeSpan.FromHours(1);

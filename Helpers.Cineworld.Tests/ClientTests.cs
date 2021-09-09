@@ -1,90 +1,79 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
-using System.Diagnostics;
-using System.Xml.Serialization;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.Cineworld.Tests;
 
-public class ClientTests
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2252:This API requires opting into preview features", Justification = "<Pending>")]
+public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
-#pragma warning disable xUnit1004 // Test methods should not be skipped
+	private readonly IClient _sut;
+	public ClientTests(Fixtures.ClientFixture fixture)
+	{
+		_sut = fixture.Client;
+	}
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "calls 3rd party")]
 	[Fact(Skip = "calls 3rd party api")]
-#pragma warning restore xUnit1004 // Test methods should not be skipped
-	public async Task CacheTests()
+	public async Task GetAllPerformances()
 	{
-		var config = Concrete.Client.Config.Defaults with { CacheExpiration = TimeSpan.FromSeconds(10), };
-		using var httpClient = new HttpClient { BaseAddress = config.BaseAddressUri, };
-		var xmlSerializerFactory = new XmlSerializerFactory();
-		using var memoryCache = new MemoryCache(new MemoryCacheOptions());
+		var cinemas = await _sut.GetAllPerformancesAsync();
 
-		IClient client = new Concrete.Client(config, httpClient, xmlSerializerFactory, memoryCache);
+		Assert.NotNull(cinemas);
+		Assert.NotNull(cinemas.cinema);
+		Assert.NotEmpty(cinemas.cinema);
 
-		var stopwatch = Stopwatch.StartNew();
-		var times = new List<TimeSpan>();
-
-		using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
-
-		while (!cts.IsCancellationRequested)
+		foreach (var cinema in cinemas.cinema)
 		{
-			try
+			Assert.NotNull(cinema);
+			Assert.NotEqual(0, cinema.id);
+			Assert.NotNull(cinema.name);
+			Assert.NotEmpty(cinema.name);
+			Assert.NotNull(cinema.postcode);
+			Assert.NotEmpty(cinema.postcode);
+			Assert.NotNull(cinema.films);
+			Assert.NotEmpty(cinema.films);
+
+			foreach (var film in cinema.films)
 			{
-				stopwatch.Restart();
-				await client.GetAllPerformancesAsync(cts.Token);
-				times.Add(stopwatch.Elapsed);
-				await Task.Delay(millisecondsDelay: 1_000, cts.Token);
+				Assert.NotNull(film);
+				Assert.NotEqual(0, film.edi);
+				Assert.NotNull(film.title);
+				Assert.NotEmpty(film.title);
+				Assert.NotNull(film.length);
+				Assert.Matches(@"\d+ mins", film.length);
 			}
-			catch (TaskCanceledException) { break; }
 		}
-
-		stopwatch.Stop();
-
-		// Assert there's many requests
-		Assert.InRange(times.Count, 2, 20);
-		// Only two took more than a millisecond (i.e. the first, and when the cache expired)
-		Assert.Equal(2, times.Count(ts => ts.TotalMilliseconds > 1));
 	}
 
-	[Theory]
-	[InlineData("nreasthianhsret")]
-	public void ExpiryTests(string key)
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "calls 3rd party")]
+	[Fact(Skip = "calls 3rd party api")]
+	public async Task GetListings()
 	{
-		using IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+		var cinemas = await _sut.GetListingsAsync();
 
-		var times = new List<DateTime>();
+		Assert.NotNull(cinemas);
+		Assert.NotNull(cinemas.cinema);
+		Assert.NotEmpty(cinemas.cinema);
 
-		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
-
-		while (!cts.IsCancellationRequested)
+		foreach (var cinema in cinemas.cinema)
 		{
-			if (!cache.TryGetValue(key, out DateTime time))
+			Assert.NotNull(cinema);
+			Assert.NotEqual(0, cinema.id);
+			Assert.NotNull(cinema.listing);
+			Assert.NotEmpty(cinema.listing);
+
+			foreach (var film in cinema.listing)
 			{
-				time = DateTime.UtcNow;
+				Assert.NotNull(film);
+				Assert.NotEqual(0, film.edi);
+				Assert.NotNull(film.shows);
+				Assert.NotEmpty(film.shows);
 
-				var a = new CancellationTokenSource(millisecondsDelay: 1_000);
-				var changeToken = new CancellationChangeToken(a.Token);
-
-				var options = new MemoryCacheEntryOptions()
-					.AddExpirationToken(changeToken);
-
-				cache.Set(key, time, options);
+				foreach (var show in film.shows)
+				{
+					Assert.NotNull(show);
+					Assert.NotEqual(default, show.time);
+				}
 			}
-
-			times.Add(time);
-			Thread.Sleep(millisecondsTimeout: 200);
 		}
-
-		var grouped = times.GroupBy(ts => ts).ToList();
-
-		Assert.InRange(grouped.Count, 9, 11);
-		Assert.All(grouped, g => Assert.InRange(g.Count(), 1, 6));
-	}
-
-	[Theory]
-	[InlineData("00:10:00", 600_000)]
-	public void TimeSpanParseTests(string input, int expectedMilliseconds)
-	{
-		var actual = TimeSpan.Parse(input);
-		Assert.Equal(expectedMilliseconds, actual.TotalMilliseconds);
 	}
 }
