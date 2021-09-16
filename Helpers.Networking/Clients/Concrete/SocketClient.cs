@@ -51,7 +51,7 @@ namespace Helpers.Networking.Clients.Concrete
 		#region Connect
 		public Task ConnectAsync(EndPoint endPoint)
 		{
-			Guard.Argument(() => endPoint).NotNull();
+			Guard.Argument(endPoint).NotNull();
 
 			if (_socket.Connected) return Task.CompletedTask;
 			return _socket.ConnectAsync(endPoint);
@@ -59,8 +59,8 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public Task ConnectAsync(IPAddress ipAddress, ushort port)
 		{
-			Guard.Argument(() => ipAddress).NotNull();
-			Guard.Argument(() => port).Positive();
+			Guard.Argument(ipAddress).NotNull();
+			Guard.Argument(port).Positive();
 
 			if (_socket.Connected) return Task.CompletedTask;
 			return _socket.ConnectAsync(ipAddress, port);
@@ -68,8 +68,8 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public Task ConnectAsync(string host, ushort port)
 		{
-			Guard.Argument(() => host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => port).Positive();
+			Guard.Argument(host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(port).Positive();
 
 			if (_socket.Connected) return Task.CompletedTask;
 			return _socket.ConnectAsync(host, port);

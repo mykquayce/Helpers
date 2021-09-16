@@ -26,7 +26,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public PingClient(IOptions<Config> options)
 		{
-			_timeout = Guard.Argument(() => options).NotNull().Wrap(o => o.Value).NotNull().Wrap(c => c.Timeout).Positive().Value;
+			_timeout = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Wrap(c => c.Timeout).Positive().Value;
 		}
 
 		public async Task<Models.PacketLossResults> PacketLossTestAsync(IPAddress ip, int milliseconds = 10_000)
@@ -40,7 +40,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async IAsyncEnumerable<PingReply> PingsAsync(IPAddress ip, int milliseconds)
 		{
-			Guard.Argument(() => milliseconds).Positive();
+			Guard.Argument(milliseconds).Positive();
 
 			using var cts = new CancellationTokenSource(milliseconds);
 
@@ -52,8 +52,8 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async IAsyncEnumerable<PingReply> PingsAsync(IPAddress ip, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
-			Guard.Argument(() => ip).NotNull();
-			Guard.Argument(() => cancellationToken).NotDefault();
+			Guard.Argument(ip).NotNull();
+			Guard.Argument(cancellationToken).NotDefault();
 
 			using var ping = new Ping();
 

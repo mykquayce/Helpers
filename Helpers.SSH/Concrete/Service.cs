@@ -11,7 +11,7 @@ public class Service : IService
 
 	public Service(IClient client)
 	{
-		_client = Guard.Argument(() => client).NotNull().Value;
+		_client = Guard.Argument(client).NotNull().Value;
 		_newline = _client.RunCommandAsync("echo").GetAwaiter().GetResult();
 	}
 
@@ -28,7 +28,7 @@ public class Service : IService
 
 	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
 	{
-		Guard.Argument(() => subnetAddress).NotNull();
+		Guard.Argument(subnetAddress).NotNull();
 		return _client.RunCommandAsync("ip route add blackhole " + subnetAddress);
 	}
 
@@ -37,7 +37,7 @@ public class Service : IService
 
 	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
 	{
-		Guard.Argument(() => subnetAddress).NotNull();
+		Guard.Argument(subnetAddress).NotNull();
 		return _client.RunCommandAsync("ip route delete blackhole " + subnetAddress);
 	}
 
@@ -58,7 +58,7 @@ public class Service : IService
 
 	public static Helpers.Networking.Models.DhcpLease GetDhcpLease(string dhcpLeaseString)
 	{
-		Guard.Argument(() => dhcpLeaseString)
+		Guard.Argument(dhcpLeaseString)
 			.NotNull()
 			.NotEmpty()
 			.NotWhiteSpace()
