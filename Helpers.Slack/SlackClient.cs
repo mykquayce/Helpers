@@ -15,11 +15,6 @@ namespace Helpers.Slack
 {
 	public class SlackClient : Web.WebClientBase
 	{
-		private static readonly JsonSerializerOptions _options = new JsonSerializerOptions
-		{
-			PropertyNameCaseInsensitive = true,
-		};
-
 		private readonly string _token;
 		private readonly ICollection<string> _webhookSegments;
 
@@ -33,9 +28,9 @@ namespace Helpers.Slack
 				.Wrap(o => o.Value).NotNull()
 				.Wrap(o => o.Token!).NotNull().NotEmpty().NotWhiteSpace().Value;
 
-			/*_webhookSegments = Guard.Argument(() => settingsOptions).NotNull()
+			_webhookSegments = Guard.Argument(() => settingsOptions).NotNull()
 				.Wrap(o => o.Value).NotNull()
-				.Wrap(s => s.WebhookSegments!).NotNull().NotEmpty().DoesNotContainNull().Value;*/
+				.Wrap(s => s.WebhookSegments!).NotNull().NotEmpty().DoesNotContainNull().Value;
 		}
 
 		public async Task<bool> SendTextAsync(string text)

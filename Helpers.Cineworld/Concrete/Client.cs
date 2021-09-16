@@ -40,13 +40,13 @@ public class Client : IClient
 
 	public Client(IOptions<Config> options, HttpClient httpClient, XmlSerializerFactory xmlSerializerFactory, IMemoryCache cache)
 	{
-		var config = Guard.Argument(() => options).NotNull().Wrap(o => o.Value).NotNull().Value;
-		_allPerformancesUri = Guard.Argument(() => config.AllPerformancesUri).NotNull().Require(uri => uri.OriginalString is not null).Value;
-		_listingsUri = Guard.Argument(() => config.ListingsUri).NotNull().Require(uri => uri.OriginalString is not null).Value;
-		_cacheExpiration = Guard.Argument(() => config.CacheExpiration).Positive().Value;
-		_httpClient = Guard.Argument(() => httpClient).NotNull().Require(c => c.BaseAddress?.OriginalString is not null).Value;
-		_xmlSerializerFactory = Guard.Argument(() => xmlSerializerFactory).NotNull().Value;
-		_cache = Guard.Argument(() => cache).NotNull().Value;
+		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
+		_allPerformancesUri = Guard.Argument(config.AllPerformancesUri).NotNull().Require(uri => uri.OriginalString is not null).Value;
+		_listingsUri = Guard.Argument(config.ListingsUri).NotNull().Require(uri => uri.OriginalString is not null).Value;
+		_cacheExpiration = Guard.Argument(config.CacheExpiration).Positive().Value;
+		_httpClient = Guard.Argument(httpClient).NotNull().Require(c => c.BaseAddress?.OriginalString is not null).Value;
+		_xmlSerializerFactory = Guard.Argument(xmlSerializerFactory).NotNull().Value;
+		_cache = Guard.Argument(cache).NotNull().Value;
 	}
 
 	public Task<Models.Generated.AllPerformances.cinemas> GetAllPerformancesAsync(CancellationToken? cancellationToken = default)
@@ -58,7 +58,7 @@ public class Client : IClient
 	private async Task<T> GetAsync<T>(Uri relativeUri, CancellationToken? cancellationToken = default)
 		where T : class
 	{
-		Guard.Argument(() => relativeUri).NotNull().Require(u => !u.IsAbsoluteUri);
+		Guard.Argument(relativeUri).NotNull().Require(u => !u.IsAbsoluteUri);
 
 		// try the cache
 		if (_cache.TryGetValue<T>(relativeUri, out var result))
@@ -81,7 +81,7 @@ public class Client : IClient
 	private async Task<T> GetFromRemoteAsync<T>(Uri relativeUri, CancellationToken? cancellationToken = default)
 		where T : class
 	{
-		Guard.Argument(() => relativeUri)
+		Guard.Argument(relativeUri)
 			.NotNull()
 			.Require(uri => uri.OriginalString is not null)
 			.Require(u => !u.IsAbsoluteUri);

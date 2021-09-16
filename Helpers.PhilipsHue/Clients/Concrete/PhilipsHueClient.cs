@@ -29,7 +29,7 @@ namespace Helpers.PhilipsHue.Clients.Concrete
 		public PhilipsHueClient(HttpClient httpClient, string? username)
 			: base(httpClient)
 		{
-			_username = Guard.Argument(() => username!)
+			_username = Guard.Argument(username!)
 				.NotNull()
 				.NotEmpty()
 				.NotWhiteSpace()

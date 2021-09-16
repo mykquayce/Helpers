@@ -15,9 +15,9 @@ namespace Helpers.GlobalCache.Concrete
 		public Client(IOptions<Config> options) : this(options.Value) { }
 		public Client(Config config)
 		{
-			Guard.Argument(() => config).NotNull();
-			_broadcastIPAddress = Guard.Argument(() => config.BroadcastIPAddress).NotNull().Value;
-			_receivePort = Guard.Argument(() => config.ReceivePort).Positive().Value;
+			Guard.Argument(config).NotNull();
+			_broadcastIPAddress = Guard.Argument(config.BroadcastIPAddress).NotNull().Value;
+			_receivePort = Guard.Argument(config.ReceivePort).Positive().Value;
 		}
 		#endregion constructors
 

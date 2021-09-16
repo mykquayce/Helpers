@@ -70,7 +70,7 @@ namespace Helpers.GlobalCache.Models
 
 		public static Beacon Parse(IDictionary<string, string> dictionary)
 		{
-			var keys = Guard.Argument(() => dictionary).NotNull()
+			var keys = Guard.Argument(dictionary).NotNull()
 				.Wrap(d => d.Keys).NotNull().NotEmpty().Value;
 
 			var keysString = string.Join(',', keys!);

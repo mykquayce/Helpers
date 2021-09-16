@@ -9,7 +9,7 @@ public class Service : IService
 
 	public Service(IClient client)
 	{
-		_client = Guard.Argument(() => client).NotNull().Value;
+		_client = Guard.Argument(client).NotNull().Value;
 	}
 
 	public async IAsyncEnumerable<Models.Cinema> GetCinemasAsync()
