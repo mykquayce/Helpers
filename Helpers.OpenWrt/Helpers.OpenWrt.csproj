@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.8-rc1</Version>
+    <Version>1.1.9-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.14-rc1" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.15-rc1" />
     <PackageReference Include="Helpers.Web" Version="2.2.4-rc1" />
   </ItemGroup>
 
