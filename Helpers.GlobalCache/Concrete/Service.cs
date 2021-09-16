@@ -23,9 +23,7 @@ namespace Helpers.GlobalCache.Concrete
 		public Service(IOptions<Config> options) : this(options.Value) { }
 		public Service(Config config)
 		{
-			Guard.Argument(() => config).NotNull();
-
-			_broadcastPort = Guard.Argument(() => config.BroadcastPort).Positive().Value;
+			_broadcastPort = Guard.Argument(config).NotNull().Wrap(c => c.BroadcastPort).Positive().Value;
 			_client = new Client(config);
 		}
 		#endregion constructors
@@ -33,7 +31,7 @@ namespace Helpers.GlobalCache.Concrete
 		#region connect
 		public Task ConnectAsync(string uuidOrHostName)
 		{
-			Guard.Argument(() => uuidOrHostName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(uuidOrHostName).NotNull().NotEmpty().NotWhiteSpace();
 
 			if (DawnGuardExtensions.UuidRegex.IsMatch(uuidOrHostName))
 			{
@@ -45,21 +43,21 @@ namespace Helpers.GlobalCache.Concrete
 
 		public Task ConnectAsync(IPAddress ipAddress)
 		{
-			Guard.Argument(() => ipAddress).NotNull();
+			Guard.Argument(ipAddress).NotNull();
 			var endPoint = new IPEndPoint(ipAddress, _broadcastPort);
 			return _socketClient.ConnectAsync(endPoint);
 		}
 
 		public async Task ConnectWithUuidAsync(string uuid)
 		{
-			Guard.Argument(() => uuid).IsGlobalCacheUuid();
+			Guard.Argument(uuid).IsGlobalCacheUuid();
 
 			if (!_cache.TryGetValue(uuid, out var ipAddress))
 			{
 				var beacon = await _client.DiscoverAsync()
 					.FirstOrDefaultAsync(b => string.Equals(b.Uuid, uuid, StringComparison.OrdinalIgnoreCase));
 
-				Guard.Argument(() => beacon!).NotNull($"{nameof(uuid)} {uuid} not found on network");
+				Guard.Argument(beacon!).NotNull($"{nameof(uuid)} {uuid} not found on network");
 
 				ipAddress = beacon!.IPAddress;
 				_cache.Add(uuid, ipAddress);
@@ -70,14 +68,14 @@ namespace Helpers.GlobalCache.Concrete
 
 		public Task ConnectWithHostNameAsync(string hostName)
 		{
-			Guard.Argument(() => hostName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(hostName).NotNull().NotEmpty().NotWhiteSpace();
 			return _socketClient.ConnectAsync(hostName, _broadcastPort);
 		}
 		#endregion connect
 
 		public Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
 		{
-			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
 			return _socketClient.SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
 		}
 

@@ -41,7 +41,7 @@ namespace Helpers.OldhamCouncil.Concrete
 		public int Count => _dictionary.Count;
 		public bool ContainsKey(string key) => _dictionary.ContainsKey(key);
 		public IEnumerator<KeyValuePair<string, T>> GetEnumerator() => _dictionary.GetEnumerator();
-		public bool TryGetValue(string key, [MaybeNullWhen(false)] out T value) => _dictionary.TryGetValue(key, out value);
+		public bool TryGetValue(string key, out T value) => _dictionary.TryGetValue(key, out value);
 		IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
 		#endregion IReadOnlyDictionary implementation
 	}

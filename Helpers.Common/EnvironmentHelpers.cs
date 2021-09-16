@@ -17,7 +17,7 @@ namespace Helpers.Common
 
 		public static string GetEnvironmentVariable(string variable)
 		{
-			Guard.Argument(() => variable).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(variable).NotNull().NotEmpty().NotWhiteSpace();
 
 			foreach (var target in _targets)
 			{

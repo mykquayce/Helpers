@@ -26,10 +26,10 @@ namespace Microsoft.Extensions.DependencyInjection
 			this IServiceCollection services,
 			Settings settings)
 		{
-			Guard.Argument(() => settings).NotNull();
-			Guard.Argument(() => settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.Host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => settings.SamplingRate).InRange(0, double.MaxValue);
+			Guard.Argument(settings).NotNull();
+			Guard.Argument(settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(settings.Host).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(settings.SamplingRate).InRange(0, double.MaxValue);
 
 			var sender = new UdpSender(settings.Host, settings.Port, maxPacketSize: 0);
 

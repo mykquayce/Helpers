@@ -111,8 +111,8 @@ namespace Helpers.Jaeger.Tests
 
 		private static string GetOperationName(string callerMethodName, string callerFilePath)
 		{
-			Guard.Argument(() => callerMethodName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => callerFilePath).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(callerMethodName).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(callerFilePath).NotNull().NotEmpty().NotWhiteSpace();
 
 			var fileName = System.IO.Path.GetFileNameWithoutExtension(callerFilePath);
 

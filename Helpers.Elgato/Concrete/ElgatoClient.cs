@@ -26,12 +26,12 @@ namespace Helpers.Elgato.Concrete
 
 		public ElgatoClient(Config config)
 		{
-			_config = Guard.Argument(() => config).NotNull().Value;
+			_config = Guard.Argument(config).NotNull().Value;
 		}
 
 		public async Task<Models.AccessoryInfoObject> GetAccessoryInfoAsync(IPAddress ipAddress)
 		{
-			Guard.Argument(() => ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
+			Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 			var baseUri = new UriBuilder(_config.Scheme, ipAddress.ToString(), _config.Port).Uri;
 			var uri = new Uri(baseUri, "/elgato/accessory-info");
 			var response = await base.SendAsync<Models.AccessoryInfoObject>(HttpMethod.Get, uri);
@@ -40,7 +40,7 @@ namespace Helpers.Elgato.Concrete
 
 		public async Task<Models.MessageObject.LightObject> GetLightAsync(IPAddress ipAddress)
 		{
-			Guard.Argument(() => ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
+			Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 			var baseUri = new UriBuilder(_config.Scheme, ipAddress.ToString(), _config.Port).Uri;
 			var uri = new Uri(baseUri, "/elgato/lights");
 			var response = await base.SendAsync<Models.MessageObject>(HttpMethod.Get, uri);
@@ -50,7 +50,7 @@ namespace Helpers.Elgato.Concrete
 
 		public Task SetLightAsync(IPAddress ipAddress, Models.MessageObject.LightObject light)
 		{
-			Guard.Argument(() => ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
+			Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 			var baseUri = new UriBuilder(_config.Scheme, ipAddress.ToString(), _config.Port).Uri;
 			var uri = new Uri(baseUri, "/elgato/lights");
 			var messageObject = new Models.MessageObject(numberOfLights: 1, lights: new Models.MessageObject.LightObject[1] { light, });
@@ -60,7 +60,7 @@ namespace Helpers.Elgato.Concrete
 
 		public async Task ToggleLightAsync(IPAddress ipAddress)
 		{
-			Guard.Argument(() => ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
+			Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 			var before = await GetLightAsync(ipAddress);
 			var after = before with { on = before.on == 1 ? (byte)0 : (byte)1, };
 			await SetLightAsync(ipAddress, after);

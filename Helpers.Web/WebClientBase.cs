@@ -40,7 +40,7 @@ namespace Helpers.Web
 			ITracer? tracer = default)
 			: this(logger, tracer)
 		{
-			_httpMessageInvoker = Guard.Argument(() => httpClient).NotNull().Value;
+			_httpMessageInvoker = Guard.Argument(httpClient).NotNull().Value;
 		}
 
 		protected WebClientBase(
@@ -119,9 +119,9 @@ namespace Helpers.Web
 			[CallerMemberName] string? callerMemberName = default,
 			[CallerFilePath] string? callerFilePath = default)
 		{
-			Guard.Argument(() => httpMethod).NotNull()
+			Guard.Argument(httpMethod).NotNull()
 				.Wrap(m => m.Method).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => uri).NotNull()
+			Guard.Argument(uri).NotNull()
 				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 
 			using var scope = _tracer?.StartSpan(callerMemberName, callerFilePath);
@@ -151,7 +151,7 @@ namespace Helpers.Web
 
 		protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
 		{
-			Guard.Argument(() => request).NotNull()
+			Guard.Argument(request).NotNull()
 				.Wrap(r => r.RequestUri).NotEqual(default)
 				.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
 

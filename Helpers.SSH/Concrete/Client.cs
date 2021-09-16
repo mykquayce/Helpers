@@ -11,7 +11,7 @@ public class Client : IClient
 
 	public Client(IOptions<Config> options)
 	{
-		var config = Guard.Argument(() => options).NotNull().Wrap(o => o.Value).NotNull().Value;
+		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
 
 		if (!string.IsNullOrWhiteSpace(config.Password))
 		{
@@ -33,7 +33,7 @@ public class Client : IClient
 
 	public static string FixPath(string path)
 	{
-		Guard.Argument(() => path).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(path).NotNull().NotEmpty().NotWhiteSpace();
 
 		if (path[0] != '~')
 		{
@@ -47,8 +47,8 @@ public class Client : IClient
 
 	public async Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000)
 	{
-		Guard.Argument(() => commandText).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(() => millisecondsTimeout).Positive();
+		Guard.Argument(commandText).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(millisecondsTimeout).Positive();
 
 		if (!_sshClient.IsConnected) _sshClient.Connect();
 

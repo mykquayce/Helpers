@@ -17,7 +17,8 @@ namespace Helpers.Steam.Tests
 			Assert.True(File.Exists(path), path + " does not exist");
 
 			using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None);
-			return await JsonSerializer.DeserializeAsync<T>(stream);
+			return await JsonSerializer.DeserializeAsync<T>(stream)
+				?? throw new Exception();
 		}
 	}
 }

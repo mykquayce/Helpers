@@ -15,25 +15,25 @@ namespace Helpers.Reddit.Concrete
 
 		public RedditClient(HttpClient httpClient, XmlSerializerFactory xmlSerializerFactory)
 		{
-			Guard.Argument(() => httpClient).NotNull().Wrap(c => c.BaseAddress!)
+			Guard.Argument(httpClient).NotNull().Wrap(c => c.BaseAddress!)
 				.NotNull().Wrap(u => u.OriginalString)
 				.NotNull().NotEmpty().NotWhiteSpace();
 
 			_httpClient = httpClient;
-			_xmlSerializerFactory = Guard.Argument(() => xmlSerializerFactory).NotNull().Value;
+			_xmlSerializerFactory = Guard.Argument(xmlSerializerFactory).NotNull().Value;
 		}
 
 		public async Task<string> GetRandomSubredditAsync()
 		{
 			using var request = new HttpRequestMessage(HttpMethod.Head, "/r/random");
 			using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-			var location = Guard.Argument(() => response.Headers.Location!).NotNull().Value;
+			var location = Guard.Argument(response.Headers.Location!).NotNull().Value;
 			return SubredditFromuri(location!);
 		}
 
 		public static string SubredditFromuri(Uri uri)
 		{
-			Guard.Argument(() => uri).NotNull().Wrap(u => u.LocalPath)
+			Guard.Argument(uri).NotNull().Wrap(u => u.LocalPath)
 				.NotNull().NotEmpty().NotWhiteSpace().Matches(@"^\/r\/[0-9A-Z_a-z]{2,}\/$");
 
 			return uri.LocalPath[3..^1];
@@ -41,7 +41,7 @@ namespace Helpers.Reddit.Concrete
 
 		public IAsyncEnumerable<Models.Generated.entry> GetThreadsAsync(string subreddit)
 		{
-			Guard.Argument(() => subreddit).IsSubredditName();
+			Guard.Argument(subreddit).IsSubredditName();
 
 			var uri = new Uri($"/r/{subreddit}/.rss", UriKind.Relative);
 
@@ -50,8 +50,8 @@ namespace Helpers.Reddit.Concrete
 
 		public IAsyncEnumerable<Models.Generated.entry> GetCommentsAsync(string subreddit, string threadId)
 		{
-			Guard.Argument(() => subreddit).IsSubredditName();
-			Guard.Argument(() => threadId).IsThreadId();
+			Guard.Argument(subreddit).IsSubredditName();
+			Guard.Argument(threadId).IsThreadId();
 
 			var uri = new Uri($"/r/{subreddit}/comments/{threadId}/.rss", UriKind.Relative);
 

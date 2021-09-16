@@ -2,7 +2,6 @@
 
 namespace Helpers.SSH.Tests;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2252:This API requires opting into preview features", Justification = "<Pending>")]
 public class ClientTests : IClassFixture<Fixtures.UserSecretsFixture>
 {
 	private readonly Config _config;

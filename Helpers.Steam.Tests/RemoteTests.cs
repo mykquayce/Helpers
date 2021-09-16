@@ -17,13 +17,13 @@ namespace Helpers.Steam.Tests
 
 		public RemoteTests(Fixtures.HttpClientFixture httpClientFixture, Fixtures.UserSecretsFixture userSecretsFixture)
 		{
-			_httpClient = Guard.Argument(() => httpClientFixture).NotNull()
+			_httpClient = Guard.Argument(httpClientFixture).NotNull()
 				.Wrap(f => f.HttpClient).NotNull().Value;
 
-			_key = Guard.Argument(() => userSecretsFixture).NotNull()
+			_key = Guard.Argument(userSecretsFixture).NotNull()
 				.Wrap(f => f.SteamKey).NotNull().NotEmpty().NotWhiteSpace().Value;
 
-			_steamIds = Guard.Argument(() => userSecretsFixture).NotNull()
+			_steamIds = Guard.Argument(userSecretsFixture).NotNull()
 				.Wrap(f => f.SteamIds).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
 		}
 

@@ -105,7 +105,7 @@ namespace Helpers.DockerHub.Tests
 
 			var response = await JsonSerializer.DeserializeAsync<AuthResponseObject>(stream);
 
-			var token = response.token ?? throw new ArgumentNullException(nameof(response.token));
+			var token = response?.token ?? throw new Exception();
 			var expiry = DateTime.UtcNow.AddSeconds(response.expires_in ?? 0);
 
 			return (token, expiry);
@@ -129,7 +129,7 @@ namespace Helpers.DockerHub.Tests
 
 			var response = await JsonSerializer.DeserializeAsync<TagsResponseObject>(stream);
 
-			if (response.tags is null) yield break;
+			if (response?.tags is null) yield break;
 
 			foreach (var tag in response.tags!)
 			{
@@ -138,7 +138,7 @@ namespace Helpers.DockerHub.Tests
 		}
 
 		[Fact]
-		public async Task DeserializeManifestsTest()
+		public void DeserializeManifestsTest()
 		{
 			var json = @"{
    ""schemaVersion"": 1,
@@ -208,23 +208,21 @@ namespace Helpers.DockerHub.Tests
 		public static string ToBase64String(this string s) => s.ToUtf8Bytes().ToBase64String();
 	}
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable IDE1006 // Naming Styles
 	public class AuthResponseObject
 	{
-#pragma warning disable IDE1006 // Naming Styles
 		public string? token { get; set; }
 		public string? access_token { get; set; }
 		public int? expires_in { get; set; }
 		public DateTime? issued_at { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 	}
 
 
 	public class TagsResponseObject
 	{
-#pragma warning disable IDE1006 // Naming Styles
 		public string? name { get; set; }
 		public string[]? tags { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
 	}
 
 
@@ -270,5 +268,7 @@ namespace Helpers.DockerHub.Tests
 		public string x { get; set; }
 		public string y { get; set; }
 	}
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore IDE1006 // Naming Styles
 
 }

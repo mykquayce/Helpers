@@ -9,14 +9,14 @@ namespace Microsoft.Extensions.Configuration
 
 		public DockerSecretConfigurationSource(string? configKey = default)
 		{
-			_configKey = Guard.Argument(() => configKey)
+			_configKey = Guard.Argument(configKey)
 				.ValidConfigKey()
 				.Value;
 		}
 
 		public override IConfigurationProvider Build(IConfigurationBuilder builder)
 		{
-			Guard.Argument(() => builder).NotNull();
+			Guard.Argument(builder).NotNull();
 
 			if (base.FileProvider is null)
 			{

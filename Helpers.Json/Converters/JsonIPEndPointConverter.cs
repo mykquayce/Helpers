@@ -11,7 +11,7 @@ namespace Helpers.Json.Converters
 	{
 		public override IPEndPoint? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
-			return TryParse(reader.GetString(), out var endPoint)
+			return TryParse(reader.GetString()!, out var endPoint)
 				? endPoint
 				: default;
 		}

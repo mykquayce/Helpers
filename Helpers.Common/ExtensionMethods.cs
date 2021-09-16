@@ -17,7 +17,7 @@ namespace Helpers.Common
 
 		public static string ToKeyValuePairString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dictionary)
 		{
-			Guard.Argument(() => dictionary).NotNull();
+			Guard.Argument(dictionary).NotNull();
 
 			var sb = new StringBuilder();
 
@@ -37,8 +37,8 @@ namespace Helpers.Common
 			this IDictionary<TKey, TValue> dictionary,
 			IEnumerable<KeyValuePair<TKey, TValue>> range)
 		{
-			Guard.Argument(() => dictionary).NotNull();
-			Guard.Argument(() => range).NotNull();
+			Guard.Argument(dictionary).NotNull();
+			Guard.Argument(range).NotNull();
 
 			using var enumerator = range.GetEnumerator();
 
@@ -57,10 +57,10 @@ namespace Helpers.Common
 
 		public static Uri StripQuery(this Uri uri)
 		{
-			Guard.Argument(() => uri).NotNull().Wrap(u => u.IsAbsoluteUri)
+			Guard.Argument(uri).NotNull().Wrap(u => u.IsAbsoluteUri)
 				.Positive(_ => nameof(uri) + " must be absolute");
 
-			Guard.Argument(() => uri).NotNull().Wrap(u => u.OriginalString)
+			Guard.Argument(uri).NotNull().Wrap(u => u.OriginalString)
 				.NotNull().NotEmpty().NotWhiteSpace();
 
 			return new Uri(uri.GetLeftPart(UriPartial.Path), UriKind.Absolute);
@@ -159,7 +159,7 @@ namespace Helpers.Common
 
 		public static void EnsureExists(this DirectoryInfo dir)
 		{
-			Guard.Argument(() => dir).NotNull();
+			Guard.Argument(dir).NotNull();
 			if (dir.Exists) return;
 
 			var stack = new Stack<DirectoryInfo>();
@@ -181,21 +181,27 @@ namespace Helpers.Common
 		{
 			using var response = await client.GetAsync(requestUri, cancellationToken: cancellationToken ?? CancellationToken.None);
 
-			using var stream = await response.Content.ReadAsStreamAsync();
+			await using var stream = await response.Content.ReadAsStreamAsync();
 
 			try
 			{
-				return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken ?? CancellationToken.None);
+				return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken ?? CancellationToken.None)
+					?? throw new ArgumentOutOfRangeException(nameof(stream), stream, "failed to deserialize stream");
 			}
 			catch (Exception ex)
 			{
-				stream.Position = 0L;
+				ex.Data.Add("type", typeof(T).FullName);
 
-				using var reader = new StreamReader(stream);
+				if (stream.CanSeek)
+				{
+					stream.Position = 0L;
 
-				var text = await reader.ReadToEndAsync();
+					using var reader = new StreamReader(stream);
 
-				ex.Data.Add(nameof(text), text);
+					var json = await reader.ReadToEndAsync();
+
+					ex.Data.Add(nameof(json), json);
+				}
 
 				throw;
 			}

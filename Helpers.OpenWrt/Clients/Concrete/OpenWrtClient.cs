@@ -21,14 +21,14 @@ namespace Helpers.OpenWrt.Clients.Concrete
 		public OpenWrtClient(HttpClient httpClient, IOptions<Settings> options)
 			: base(httpClient)
 		{
-			_password = Guard.Argument(() => options).NotNull().Wrap(o => o.Value)
+			_password = Guard.Argument(options).NotNull().Wrap(o => o.Value)
 				.NotNull().Wrap(s => s.Password!)
 				.NotNull().NotEmpty().NotWhiteSpace().NotEqual("\u2026").Value;
 		}
 
 		public async Task<string> ExecuteCommandAsync(string command)
 		{
-			Guard.Argument(() => command).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(command).NotNull().NotEmpty().NotWhiteSpace();
 
 			_token ??= await LoginAsync();
 
@@ -45,9 +45,9 @@ namespace Helpers.OpenWrt.Clients.Concrete
 
 		public async Task<string> SendAsync(string requestUri, string method, params string[] @params)
 		{
-			Guard.Argument(() => requestUri).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => method).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(() => @params).NotNull().DoesNotContainNull().DoesNotContain(string.Empty);
+			Guard.Argument(requestUri).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(method).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(@params).NotNull().DoesNotContainNull().DoesNotContain(string.Empty);
 
 			var requestObject = new Models.RequestObject(1, method, @params);
 			var requestJson = JsonSerializer.Serialize(requestObject);

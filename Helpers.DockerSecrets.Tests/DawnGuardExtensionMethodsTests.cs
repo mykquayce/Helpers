@@ -13,7 +13,7 @@ namespace Helpers.DockerSecrets.Tests
 		{
 			try
 			{
-				Guard.Argument(() => configKey).ValidConfigKey();
+				Guard.Argument(configKey).ValidConfigKey();
 			}
 			catch (ArgumentException ex)
 			{

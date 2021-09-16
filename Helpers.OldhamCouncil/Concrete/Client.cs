@@ -23,7 +23,7 @@ namespace Helpers.OldhamCouncil.Concrete
 
 		public async IAsyncEnumerable<KeyValuePair<long, string>> GetAddressesAsync(string postcode, CancellationToken? cancellationToken = default)
 		{
-			Guard.Argument(() => postcode).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
 			var uri = new Uri("/Forms/Common/GetSelectAddressList?type=Postcode&convert=true&term=" + postcode, UriKind.Relative);
 			var (_, _, kvps) = await base.SendAsync<KeyValuePair<string, string>[]>(HttpMethod.Get, uri);
 			foreach (var kvp in kvps!)
@@ -42,7 +42,7 @@ namespace Helpers.OldhamCouncil.Concrete
 
 		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(long id, CancellationToken? cancellationToken = default)
 		{
-			Guard.Argument(() => id).Positive();
+			Guard.Argument(id).Positive();
 			var uri = new Uri("/Forms/EnvironmentalHealth/GetBinView?uprn=" + id, UriKind.Relative);
 			var (_, _, html) = await base.SendAsync<string>(HttpMethod.Get, uri);
 			var matches = regex.Matches(html);

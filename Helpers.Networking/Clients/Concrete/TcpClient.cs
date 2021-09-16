@@ -27,9 +27,9 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public TcpClient(string hostname, ushort port, string newLine)
 		{
-			Hostname = Guard.Argument(() => hostname).NotNull().NotEmpty().NotWhiteSpace().Value;
-			Port = Guard.Argument(() => port).Positive().Value;
-			NewLine = Guard.Argument(() => newLine).NotNull().NotEmpty().In("\r", "\n", "\r\n").Value;
+			Hostname = Guard.Argument(hostname).NotNull().NotEmpty().NotWhiteSpace().Value;
+			Port = Guard.Argument(port).Positive().Value;
+			NewLine = Guard.Argument(newLine).NotNull().NotEmpty().In("\r", "\n", "\r\n").Value;
 		}
 		#endregion Constructors
 
@@ -39,7 +39,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async IAsyncEnumerable<string> SendAndReceiveAsync(string message)
 		{
-			Guard.Argument(() => message).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
 
 			using var tcpClient = new System.Net.Sockets.TcpClient(Hostname, Port);
 			await using var stream = tcpClient.GetStream();

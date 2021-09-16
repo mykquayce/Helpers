@@ -30,10 +30,10 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public UdpClient(IPAddress broadcastIPAddress, ushort receivePort)
 		{
-			Guard.Argument(() => broadcastIPAddress).NotNull()
+			Guard.Argument(broadcastIPAddress).NotNull()
 				.Require(ip => !ip.Equals(default));
 
-			Guard.Argument(() => receivePort).Positive();
+			Guard.Argument(receivePort).Positive();
 
 			_udpClient = new System.Net.Sockets.UdpClient { ExclusiveAddressUse = false, };
 			_udpClient.JoinMulticastGroup(broadcastIPAddress);

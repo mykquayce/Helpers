@@ -16,7 +16,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn)
 		{
-			Guard.Argument(() => asn).Positive();
+			Guard.Argument(asn).Positive();
 
 			var message = $"-F -K -i {asn:D}\n";
 
@@ -38,7 +38,7 @@ namespace Helpers.Networking.Clients.Concrete
 
 		public async IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress)
 		{
-			Guard.Argument(() => ipAddress).NotNull();
+			Guard.Argument(ipAddress).NotNull();
 
 			var message = ipAddress.ToString() + "\n";
 

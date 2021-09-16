@@ -12,7 +12,7 @@ namespace Helpers.PhilipsHue.Services.Concrete
 
 		public PhilipsHueService(Clients.IPhilipsHueClient philipsHueClient)
 		{
-			_client = Guard.Argument(() => philipsHueClient).NotNull().Value;
+			_client = Guard.Argument(philipsHueClient).NotNull().Value;
 		}
 
 		public async Task SetLightStateAsync(string groupName, string lightName, Models.LightObject.StateObject state)

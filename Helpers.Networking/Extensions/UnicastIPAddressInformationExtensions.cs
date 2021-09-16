@@ -6,7 +6,7 @@ namespace System.Net.NetworkInformation
 	{
 		public static IPAddress GetBroadcastAddress(this UnicastIPAddressInformation unicast)
 		{
-			Guard.Argument(() => unicast).NotNull();
+			Guard.Argument(unicast).NotNull();
 
 			var ip = unicast.Address.GetAddressBytes();
 			var mask = unicast.IPv4Mask.GetAddressBytes();

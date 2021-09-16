@@ -39,7 +39,8 @@ namespace Helpers.Twitch.Tests
 
 			var response = await JsonSerializer.DeserializeAsync<Models.GetTokenResponseObject>(stream);
 
-			Assert.Matches("^[0-9a-z]{30}$", response.access_token);
+			Assert.NotNull(response);
+			Assert.Matches("^[0-9a-z]{30}$", response!.access_token);
 			Assert.NotNull(response.expires_in);
 			Assert.InRange(response.expires_in!.Value, 1, int.MaxValue);
 			Assert.Equal("bearer", response.token_type);
@@ -51,9 +52,9 @@ namespace Helpers.Twitch.Tests
 		{
 			var queryString = "https://api.twitch.tv/helix/users?" + string.Join('&', logins.Select(l => "login=" + l));
 
-			var requestMessage = new HttpRequestMessage(HttpMethod.Get, queryString);
+			using var requestMessage = new HttpRequestMessage(HttpMethod.Get, queryString);
 
-			requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
+			requestMessage.Headers.Authorization = new("Bearer", _bearerToken);
 			requestMessage.Headers.Add("Client-ID", _clientId);
 
 			//_httpClient.DefaultRequestHeaders.Clear();
@@ -63,7 +64,7 @@ namespace Helpers.Twitch.Tests
 
 			//requestMessage.Headers.Accept.Add( = "application/vnd.twitchtv.v5+json";
 
-			var responseMessage = await _httpClient.SendAsync(requestMessage);
+			using var responseMessage = await _httpClient.SendAsync(requestMessage);
 
 			using var stream = await responseMessage.Content!.ReadAsStreamAsync();
 
@@ -72,7 +73,7 @@ namespace Helpers.Twitch.Tests
 			var count = 0;
 
 			Assert.NotNull(response);
-			Assert.NotNull(response.data);
+			Assert.NotNull(response!.data);
 
 			foreach (var user in response.data!)
 			{
@@ -86,9 +87,9 @@ namespace Helpers.Twitch.Tests
 
 		[Theory]
 		[InlineData(59447699)]
-		public async Task GetFollowingTests(int id)
+		public void GetFollowingTests(int id)
 		{
-			var queryString = $"https://api.twitch.tv/helix/users/follows?first=100&from_id={id:D}";
+			_ = $"https://api.twitch.tv/helix/users/follows?first=100&from_id={id:D}";
 		}
 	}
 }

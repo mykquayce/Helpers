@@ -50,7 +50,7 @@ namespace Helpers.Reddit.Tests
 
 				try
 				{
-					Guard.Argument(() => subreddit).IsSubredditName();
+					Guard.Argument(subreddit).IsSubredditName();
 				}
 				catch (Exception ex)
 				{

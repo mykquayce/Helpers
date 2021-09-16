@@ -13,7 +13,7 @@ namespace Helpers.RabbitMQ.Concrete
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
 			AllowTrailingCommas = true,
-			IgnoreNullValues = false,
+			DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
 			PropertyNameCaseInsensitive = true,
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			WriteIndented = true,
@@ -156,7 +156,7 @@ namespace Helpers.RabbitMQ.Concrete
 
 			scope?.Span.Log(value);
 
-			return (value, deliveryTag);
+			return (value!, deliveryTag);
 		}
 		#endregion Consume
 

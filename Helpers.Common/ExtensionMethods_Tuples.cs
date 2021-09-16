@@ -7,9 +7,9 @@ namespace Helpers.Common
 	{
 		public static IEnumerator<(T, T)> GetEnumerator<T>(this (IEnumerable<T>, IEnumerable<T>) tuple)
 		{
-			Guard.Argument(() => tuple).NotDefault();
-			var first = Guard.Argument(() => tuple.Item1).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
-			var second = Guard.Argument(() => tuple.Item2).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
+			Guard.Argument(tuple).NotDefault();
+			var first = Guard.Argument(tuple.Item1).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
+			var second = Guard.Argument(tuple.Item2).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
 
 			return new DoubleEnumerator<T>(first, second);
 		}

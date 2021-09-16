@@ -10,14 +10,14 @@ namespace Helpers.Telegram
 {
 	public static class Client
 	{
-		private static readonly Regex _apiKeyRegex = new Regex(@"^\d+:[-\w]+$", RegexOptions.Compiled);
-		private static readonly Uri _baseAddress = new Uri("https://api.telegram.org/", UriKind.Absolute);
+		private static readonly Regex _apiKeyRegex = new(@"^\d+:[-\w]+$", RegexOptions.Compiled);
+		private static readonly Uri _baseAddress = new("https://api.telegram.org/", UriKind.Absolute);
 		private static readonly HttpMessageInvoker _httpClient;// = new HttpClient { BaseAddress = _baseAddress, };
 
-		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+		private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
 		{
 			AllowTrailingCommas = true,
-			IgnoreNullValues = false,
+			DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
 			PropertyNameCaseInsensitive = true,
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 			WriteIndented = true,
@@ -57,7 +57,7 @@ namespace Helpers.Telegram
 
 			if (!_apiKeyRegex.IsMatch(apiKey))
 			{
-				throw new ArgumentOutOfRangeException(nameof(apiKey), apiKey, $"Unexpected API key {apiKey}, should match: {_apiKeyRegex.ToString()}")
+				throw new ArgumentOutOfRangeException(nameof(apiKey), apiKey, $"Unexpected API key {apiKey}, should match: {_apiKeyRegex}")
 				{
 					Data = { [nameof(apiKey)] = apiKey, },
 				};
@@ -88,8 +88,8 @@ namespace Helpers.Telegram
 			{
 				var response = await JsonSerializer.DeserializeAsync<Models.Generated.Response>(content, _jsonSerializerOptions);
 
-				if (response.Ok
-					&& response.Result is null)
+				if (response?.Ok == true
+					&& response!.Result is not null)
 				{
 					return response.Result.MessageId;
 				}
