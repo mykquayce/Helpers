@@ -47,12 +47,12 @@ namespace Helpers.Reddit.Concrete
 
 		public RedditService(IRedditClient client)
 		{
-			_client = Guard.Argument(() => client).NotNull().Value;
+			_client = Guard.Argument(client).NotNull().Value;
 		}
 
 		public async IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit)
 		{
-			Guard.Argument(() => subreddit).IsSubredditName();
+			Guard.Argument(subreddit).IsSubredditName();
 
 			await foreach (var thread in _client.GetThreadsAsync(subreddit))
 			{
@@ -73,9 +73,9 @@ namespace Helpers.Reddit.Concrete
 
 		public async IAsyncEnumerable<Models.IComment> GetCommentsAsync(Models.IThread thread)
 		{
-			Guard.Argument(() => thread).NotNull();
-			Guard.Argument(() => thread.Subreddit).IsSubredditName();
-			Guard.Argument(() => thread.Id).IsThreadId();
+			Guard.Argument(thread).NotNull();
+			Guard.Argument(thread.Subreddit).IsSubredditName();
+			Guard.Argument(thread.Id).IsThreadId();
 
 			await foreach (var entry in _client.GetCommentsAsync(thread.Subreddit, thread.Id))
 			{
