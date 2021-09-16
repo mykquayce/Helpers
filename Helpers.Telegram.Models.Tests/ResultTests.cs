@@ -41,7 +41,7 @@ namespace Helpers.Telegram.Models.Tests
 
 			// Assert
 			Assert.NotNull(actual);
-			Assert.True(actual.Ok);
+			Assert.True(actual!.Ok);
 			Assert.NotNull(actual.Result);
 			Assert.Equal(4, actual.Result!.MessageId);
 			Assert.NotNull(actual.Result.From);

@@ -4,7 +4,6 @@ using Xunit;
 
 namespace Helpers.SSH.Tests;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2252:This API requires opting into preview features", Justification = "<Pending>")]
 public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 {
 	private readonly IService _sut;

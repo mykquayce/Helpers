@@ -72,7 +72,7 @@ namespace Helpers.DawnGuard.Tests
 
 		private static bool? Test<T>(T obj, Func<Guard.ArgumentInfo<T>, Guard.ArgumentInfo<T>> f)
 		{
-			var sut = Guard.Argument(() => obj);
+			var sut = Guard.Argument(obj);
 
 			try
 			{

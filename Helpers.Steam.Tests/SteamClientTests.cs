@@ -16,10 +16,10 @@ namespace Helpers.Steam.Tests
 
 		public SteamClientTests(Fixtures.SteamClientFixture steamClientFixture, Fixtures.UserSecretsFixture userSecretsFixture)
 		{
-			_steamClient = Guard.Argument(() => steamClientFixture).NotNull()
+			_steamClient = Guard.Argument(steamClientFixture).NotNull()
 				.Wrap(f => f.SteamClient).NotNull().Value;
 
-			_steamIds = Guard.Argument(() => userSecretsFixture).NotNull()
+			_steamIds = Guard.Argument(userSecretsFixture).NotNull()
 				.Wrap(f => f.SteamIds).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
 		}
 

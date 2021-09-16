@@ -12,7 +12,7 @@ namespace Helpers.Slack.Tests
 {
 	public class UnitTest1 : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
 	{
-		private static readonly JsonSerializerOptions _options = new JsonSerializerOptions
+		private static readonly JsonSerializerOptions _options = new()
 		{
 			PropertyNameCaseInsensitive = true,
 		};
@@ -23,7 +23,7 @@ namespace Helpers.Slack.Tests
 
 		public UnitTest1(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
 		{
-			_token = fixture[_slackTokenKey] ?? throw new ArgumentNullException(nameof(_slackTokenKey));
+			_token = fixture[_slackTokenKey];
 		}
 
 		[Theory]
@@ -33,7 +33,7 @@ namespace Helpers.Slack.Tests
 			var response = JsonSerializer.Deserialize<Models.ChannelsResponse>(json, _options);
 
 			Assert.NotNull(response);
-			Assert.NotNull(response.Channels);
+			Assert.NotNull(response!.Channels);
 			Assert.NotEmpty(response.Channels);
 
 			foreach (var channel in response.Channels!)
