@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Configuration
 		public DockerSecretConfigurationProvider(FileConfigurationSource source, string? configKey = default)
 			: base(source)
 		{
-			_configKey = Guard.Argument(() => configKey)
+			_configKey = Guard.Argument(configKey)
 				.ValidConfigKey()
 				.Value;
 		}
@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.Configuration
 
 		public override void Load(Stream stream)
 		{
-			Guard.Argument(() => stream)
+			Guard.Argument(stream)
 				.NotNull()
 				.Require(s => s is FileStream)
 				.Require(s => s.CanRead, _ => nameof(stream) + " is readonly")

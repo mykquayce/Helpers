@@ -15,12 +15,12 @@ namespace Helpers.OldhamCouncil.Concrete
 
 		public Service(IClient client)
 		{
-			_client = Guard.Argument(() => client).NotNull().Value;
+			_client = Guard.Argument(client).NotNull().Value;
 		}
 
 		public async IAsyncEnumerable<KeyValuePair<string, long>> GetAddressesAsync(string postcode, CancellationToken? cancellationToken = default)
 		{
-			Guard.Argument(() => postcode).NotNull().NotEmpty().NotWhiteSpace();
+			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
 
 			var kvps = _client.GetAddressesAsync(postcode, cancellationToken ?? CancellationToken.None);
 
@@ -33,7 +33,7 @@ namespace Helpers.OldhamCouncil.Concrete
 
 		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(long id, CancellationToken? cancellationToken = default)
 		{
-			Guard.Argument(() => id).Positive();
+			Guard.Argument(id).Positive();
 
 			var dictionary = new Dictionary<DateTime, Models.BinTypes>();
 

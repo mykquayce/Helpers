@@ -11,7 +11,7 @@ namespace Helpers.Reddit.Models.Concrete
 
 		public static explicit operator Entry(Generated.entry entry)
 		{
-			Guard.Argument(() => entry).NotNull().Wrap(e => e.id)
+			Guard.Argument(entry).NotNull().Wrap(e => e.id)
 				.NotNull().NotEmpty().NotWhiteSpace().Matches("^t[13]_[0-9a-z]{6,7}$");
 
 			var id = entry.id[3..];

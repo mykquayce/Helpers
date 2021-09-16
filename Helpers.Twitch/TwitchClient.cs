@@ -68,7 +68,7 @@ namespace Helpers.Twitch
 
 			var o = await JsonSerializer.DeserializeAsync<Models.GetUsersResponseObject>(stream);
 
-			foreach (var user in o.data!)
+			foreach (var user in o!.data!)
 			{
 				var id = int.Parse(user.id);
 

@@ -11,8 +11,8 @@ namespace Helpers.Common
 
 		public DoubleEnumerator(IEnumerator<T> first, IEnumerator<T> second)
 		{
-			_first = Guard.Argument(() => first).NotNull().Value;
-			_second = Guard.Argument(() => second).NotNull().Value;
+			_first = Guard.Argument(first).NotNull().Value;
+			_second = Guard.Argument(second).NotNull().Value;
 		}
 
 		public (T, T) Current => (_first.Current, _second.Current);

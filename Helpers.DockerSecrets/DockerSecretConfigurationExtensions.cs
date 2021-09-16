@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.Configuration
 			bool reloadOnChange = false,
 			params char[] filenameCharsToSwapWithColons)
 		{
-			Guard.Argument(() => configurationBuilder).NotNull();
+			Guard.Argument(configurationBuilder).NotNull();
 
 			IFileProvider fileProvider;
 			try
