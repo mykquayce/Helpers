@@ -10,19 +10,19 @@ export NUGET_SERVER_API_KEY=...
     Jwt          |    Tracing
                  |  +-----+---+
               RabbitMQ       Web
-                              |                          TPLink.Models
-     +-----+-------+-----+----+------------+---+------+  |
-     |  Discord Elgato GitHub | PhilipsHue | Slack  TPLink
+                              |
+     +-----+-------+-----+----+------------+---+
+     |  Discord Elgato GitHub | PhilipsHue | Slack  
      |                        |            |
      |                        |            |  Steam.Models
      |                        |           Steam
      |  Cineworld.Models      |
  Cineworld                    |  Networking.Models
                               |  +-------+------+
-                            OpenWrt Networking SSH
-                                         |
-                                  +------+-------+
-                             GlobalCache XUnitClassFixtures
+                            OpenWrt Networking SSH           TPLink.Models
+                                         |                       |
+                                  +------+-------+-------------+ |
+                             GlobalCache XUnitClassFixtures TPLink
 
 Telegram.Models
         |
@@ -40,10 +40,10 @@ Tracing.Middleware
 Twitch
 ```
 ### Build order
-1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, Json, MySql, OldhamCouncil, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, TPLink.Models, Tracing.Middleware, and Twitch
-1. Jwt, Networking.Models, Reddit, Telegram, and Tracing
+1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, Json, MySql, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, Tracing.Middleware, and Twitch
+1. Jwt, Networking.Models, Reddit, Telegram, TPLink.Models, and Tracing
 1. Networking, RabbitMQ, SSH, and Web
-1. Cineworld, Discord, Elgato, GitHub, GlobalCache, Infrared, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
+1. Cineworld, Discord, Elgato, GitHub, GlobalCache, OldhamCouncil, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
 ### User Secrets
 #### Helpers.Discord.Tests
 ```powershell
