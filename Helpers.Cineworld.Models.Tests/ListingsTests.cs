@@ -37,7 +37,7 @@ public class ListingsTests
 			}
 		}
 
-		var shows = cinemas.ToShows().ToList();
+		var shows = (Shows)cinemas;
 
 		Assert.NotEmpty(shows);
 

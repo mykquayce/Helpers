@@ -5,7 +5,7 @@ namespace Dawn;
 
 public static class DawnGuardExtensions
 {
-	private const string _postcodePattern = @"\w{1,2}\d{1,2}\w?\s?\d\w{2}";
+	private const string _postcodePattern = @"^\w{1,2}\d{1,2}\w?\s?\d\w{2}$";
 
 	public static ref readonly ArgumentInfo<short> IsCinemaId(in this ArgumentInfo<short> argument)
 	{
