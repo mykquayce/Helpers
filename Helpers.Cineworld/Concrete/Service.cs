@@ -12,19 +12,21 @@ public class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	public async IAsyncEnumerable<Models.Cinema> GetCinemasAsync()
+	public async IAsyncEnumerable<Models.Cinema> GetCinemasAsync(CancellationToken? cancellationToken = default)
 	{
-		var cinemas = await _client.GetAllPerformancesAsync();
+		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken ?? CancellationToken.None);
 
-		foreach (var cinema in cinemas.cinema)
+		var enumerator = cinemas.cinema.GetEnumerator();
+		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
 		{
+			var cinema = (Models.Generated.AllPerformances.cinema)enumerator.Current;
 			yield return (Models.Cinema)cinema;
 		}
 	}
 
-	public async IAsyncEnumerable<Models.Film> GetFilmsAsync()
+	public async IAsyncEnumerable<Models.Film> GetFilmsAsync(CancellationToken? cancellationToken = default)
 	{
-		var cinemas = await _client.GetAllPerformancesAsync();
+		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken ?? CancellationToken.None);
 
 		var films = (
 			from c in cinemas.cinema
@@ -32,21 +34,28 @@ public class Service : IService
 			select (Models.Film)f
 			).Distinct();
 
-		foreach (var film in films)
+		var enumerator = films.GetEnumerator();
+		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
 		{
-			yield return film;
+			var film = enumerator.Current;
+			yield return enumerator.Current;
 		}
 	}
 
-	public async IAsyncEnumerator<Models.Show> GetShowsAsync()
+	public async IAsyncEnumerable<Models.Show> GetShowsAsync(CancellationToken? cancellationToken = default)
 	{
-		var cinemas = await _client.GetListingsAsync();
+		var cinemas = await _client.GetListingsAsync(cancellationToken ?? CancellationToken.None);
 
-		var shows = cinemas.ToShows();
+		var shows = from c in cinemas.cinema
+					from f in c.listing
+					from s in f.shows
+					let time = s.time.ToUniversalTime()
+					select new Show(c.id, f.edi, time);
 
-		foreach (var show in shows)
+		var enumerator = shows.GetEnumerator();
+		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
 		{
-			yield return show;
+			yield return enumerator.Current;
 		}
 	}
 }

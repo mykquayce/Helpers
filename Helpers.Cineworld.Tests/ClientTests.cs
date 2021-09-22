@@ -5,9 +5,10 @@ namespace Helpers.Cineworld.Tests;
 public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
 	private readonly IClient _sut;
-	public ClientTests(Fixtures.ClientFixture fixture)
+
+	public ClientTests(Fixtures.ClientFixture clientFixture)
 	{
-		_sut = fixture.Client;
+		_sut = clientFixture.Client;
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "calls 3rd party")]
