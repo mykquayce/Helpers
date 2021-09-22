@@ -6,18 +6,18 @@ public class CastTests
 {
 	[Theory]
 	[InlineData(1, "Cineworld Aberdeen - Queens Links", "AB24 5EN")]
-	public void CastToRecord(ushort id, string name, string postcode)
+	public void CastToRecord(short id, string name, string postcode)
 	{
 		var cinema = new Models.Generated.AllPerformances.cinema
 		{
-			id = (short)id,
+			id = id,
 			name = name,
 			postcode = postcode,
 		};
 
 		var actual = (Models.Cinema)cinema;
 
-		Assert.Equal((int)actual.Id, (int)id);
+		Assert.Equal(actual.Id, id);
 		Assert.Equal(actual.Name, name);
 		Assert.Equal(actual.Postcode, postcode);
 	}

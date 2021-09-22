@@ -36,17 +36,5 @@ public class ListingsTests
 				}
 			}
 		}
-
-		var shows = (Shows)cinemas;
-
-		Assert.NotEmpty(shows);
-
-		foreach (var show in shows)
-		{
-			Assert.NotNull(show);
-			Assert.InRange(show.CinemaId, 1, short.MaxValue);
-			Assert.InRange(show.FilmEdi, 1, int.MaxValue);
-			Assert.NotEqual(default, show.DateTime);
-		}
 	}
 }
