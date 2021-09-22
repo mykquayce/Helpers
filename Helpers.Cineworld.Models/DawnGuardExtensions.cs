@@ -15,8 +15,8 @@ public static class DawnGuardExtensions
 
 	public static ref readonly ArgumentInfo<int> IsFilmEdi(in this ArgumentInfo<int> argument)
 	{
-		var message = argument.Name + " must be positive";
-		return ref argument.Positive(_ => message);
+		var message = argument.Name + " must be >= 0";
+		return ref argument.NotNegative(_ => message);
 	}
 
 	public static ref readonly ArgumentInfo<string> IsPostcode(in this ArgumentInfo<string> argument)
