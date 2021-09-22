@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Dawn;
+using Xunit;
 
 namespace Helpers.Cineworld.Tests;
 
@@ -21,12 +22,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		foreach (var cinema in cinemas)
 		{
-			Assert.NotNull(cinema);
-			Assert.NotEqual(0, cinema.Id);
-			Assert.NotNull(cinema.Name);
-			Assert.NotEmpty(cinema.Name);
-			Assert.NotNull(cinema.Postcode);
-			Assert.NotEmpty(cinema.Postcode);
+			Guard.Argument(cinema).IsCinema();
 		}
 	}
 
@@ -40,11 +36,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		foreach (var film in films)
 		{
-			Assert.NotNull(film);
-			Assert.InRange(film.Edi, 0, int.MaxValue);
-			Assert.NotNull(film.Title);
-			Assert.NotEmpty(film.Title);
-			Assert.InRange(film.Length, 1, short.MaxValue);
+			Guard.Argument(film).IsFilm();
 		}
 	}
 
@@ -58,10 +50,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		foreach (var show in shows)
 		{
-			Assert.NotNull(show);
-			Assert.InRange(show.CinemaId, 0, short.MaxValue);
-			Assert.InRange(show.FilmEdi, 0, int.MaxValue);
-			Assert.NotEqual(default, show.DateTime);
+			Guard.Argument(show).IsShow();
 		}
 	}
 }

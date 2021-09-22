@@ -35,7 +35,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 			foreach (var film in cinema.films)
 			{
 				Assert.NotNull(film);
-				Assert.NotEqual(0, film.edi);
+				Assert.InRange(film.edi, 0, int.MaxValue);
 				Assert.NotNull(film.title);
 				Assert.NotEmpty(film.title);
 				Assert.NotNull(film.length);
@@ -64,7 +64,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 			foreach (var film in cinema.listing)
 			{
 				Assert.NotNull(film);
-				Assert.NotEqual(0, film.edi);
+				Assert.InRange(film.edi, 0, int.MaxValue);
 				Assert.NotNull(film.shows);
 				Assert.NotEmpty(film.shows);
 
