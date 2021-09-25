@@ -3,11 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>1.0.0.1</Version>
+    <Version>1.1.0</Version>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Helpers.Reddit.Models" Version="1.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-rc.1.21451.13" />
   </ItemGroup>
 
 </Project>
