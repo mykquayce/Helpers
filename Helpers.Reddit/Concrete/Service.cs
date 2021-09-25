@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Reddit.Concrete
 {
-	public class RedditService : IRedditService
+	public class Service : IService
 	{
 		private const RegexOptions _regexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant;
 
@@ -43,9 +43,9 @@ namespace Helpers.Reddit.Concrete
 
 		public Task<string> GetRandomSubredditAsync() => _client.GetRandomSubredditAsync();
 
-		private readonly IRedditClient _client;
+		private readonly IClient _client;
 
-		public RedditService(IRedditClient client)
+		public Service(IClient client)
 		{
 			_client = Guard.Argument(client).NotNull().Value;
 		}

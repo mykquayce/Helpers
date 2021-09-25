@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Reddit
 {
-	public interface IRedditClient : IDisposable
+	public interface IClient : IDisposable
 	{
 		IAsyncEnumerable<Models.Generated.entry> GetCommentsAsync(string subreddit, string threadId);
 		Task<string> GetRandomSubredditAsync();

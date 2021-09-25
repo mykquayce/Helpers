@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Reddit
 {
-	public interface IRedditService : IDisposable
+	public interface IService : IDisposable
 	{
 		Task<string> GetRandomSubredditAsync();
 		IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit);

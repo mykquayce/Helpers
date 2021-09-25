@@ -8,12 +8,12 @@ using System.Xml.Serialization;
 
 namespace Helpers.Reddit.Concrete
 {
-	public class RedditClient : IRedditClient
+	public class Client : IClient
 	{
 		private readonly HttpClient _httpClient;
 		private readonly XmlSerializerFactory _xmlSerializerFactory;
 
-		public RedditClient(HttpClient httpClient, XmlSerializerFactory xmlSerializerFactory)
+		public Client(HttpClient httpClient, XmlSerializerFactory xmlSerializerFactory)
 		{
 			Guard.Argument(httpClient).NotNull().Wrap(c => c.BaseAddress!)
 				.NotNull().Wrap(u => u.OriginalString)

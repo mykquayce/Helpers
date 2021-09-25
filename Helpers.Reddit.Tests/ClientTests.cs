@@ -11,11 +11,11 @@ using Xunit;
 
 namespace Helpers.Reddit.Tests
 {
-	public class RedditClientTests : IClassFixture<Fixtures.RedditClientFixture>
+	public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	{
-		public readonly Helpers.Reddit.IRedditClient _sut;
+		public readonly Helpers.Reddit.IClient _sut;
 
-		public RedditClientTests(Fixtures.RedditClientFixture redditClientFixture)
+		public ClientTests(Fixtures.ClientFixture redditClientFixture)
 		{
 			_sut = redditClientFixture.RedditClient;
 		}
@@ -137,7 +137,7 @@ namespace Helpers.Reddit.Tests
 		{
 			var uri = new Uri(uriString, UriKind.Absolute);
 
-			var actual = Concrete.RedditClient.SubredditFromuri(uri);
+			var actual = Concrete.Client.SubredditFromuri(uri);
 			Assert.Equal(expected, actual);
 		}
 	}

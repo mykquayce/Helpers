@@ -7,13 +7,13 @@ using Xunit;
 
 namespace Helpers.Reddit.Tests
 {
-	public class RedditServiceTests : IClassFixture<Fixtures.RedditServiceFixture>
+	public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	{
-		private readonly IRedditService _sut;
+		private readonly IService _sut;
 
-		public RedditServiceTests(Fixtures.RedditServiceFixture redditServiceFixture)
+		public ServiceTests(Fixtures.ServiceFixture redditServiceFixture)
 		{
-			_sut = redditServiceFixture.RedditService;
+			_sut = redditServiceFixture.Service;
 		}
 
 		[Theory]
