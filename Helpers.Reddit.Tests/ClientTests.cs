@@ -4,78 +4,78 @@ using System.Text;
 using System.Xml.Serialization;
 using Xunit;
 
-namespace Helpers.Reddit.Tests
+namespace Helpers.Reddit.Tests;
+
+public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
-	public class ClientTests : IClassFixture<Fixtures.ClientFixture>
+	public readonly Helpers.Reddit.IClient _sut;
+
+	public ClientTests(Fixtures.ClientFixture redditClientFixture)
 	{
-		public readonly Helpers.Reddit.IClient _sut;
+		_sut = redditClientFixture.RedditClient;
+	}
 
-		public ClientTests(Fixtures.ClientFixture redditClientFixture)
+	[Theory]
+	[InlineData("worldnews")]
+	public async Task GetThreads(string subredditName)
+	{
+		var threads = await _sut.GetThreadsAsync(subredditName).ToListAsync();
+
+		Assert.NotEmpty(threads);
+		Assert.DoesNotContain(default, threads);
+	}
+
+	[Theory]
+	[InlineData("euphoria", "cm3ryv")]
+	public async Task GetComments(string thread, string id)
+	{
+		var comments = await _sut.GetCommentsAsync(thread, id).ToListAsync();
+
+		Assert.NotEmpty(comments);
+		Assert.DoesNotContain(default, comments);
+	}
+
+	[Theory]
+	[InlineData(10)]
+	public async Task TestSubredditNames(int count)
+	{
+		while (count-- > 0)
 		{
-			_sut = redditClientFixture.RedditClient;
-		}
+			var subreddit = await _sut.GetRandomSubredditAsync();
 
-		[Theory]
-		[InlineData("worldnews")]
-		public async Task GetThreads(string subredditName)
-		{
-			var threads = await _sut.GetThreadsAsync(subredditName).ToListAsync();
-
-			Assert.NotEmpty(threads);
-			Assert.DoesNotContain(default, threads);
-		}
-
-		[Theory]
-		[InlineData("euphoria", "cm3ryv")]
-		public async Task GetComments(string thread, string id)
-		{
-			var comments = await _sut.GetCommentsAsync(thread, id).ToListAsync();
-
-			Assert.NotEmpty(comments);
-			Assert.DoesNotContain(default, comments);
-		}
-
-		[Theory]
-		[InlineData(10)]
-		public async Task TestSubredditNames(int count)
-		{
-			while (count-- > 0)
+			try
 			{
-				var subreddit = await _sut.GetRandomSubredditAsync();
-
-				try
-				{
-					Guard.Argument(subreddit).IsSubredditName();
-				}
-				catch (Exception ex)
-				{
-					Assert.True(false, ex.Message);
-				}
+				Guard.Argument(subreddit).IsSubredditName();
+			}
+			catch (Exception ex)
+			{
+				Assert.True(false, ex.Message);
 			}
 		}
+	}
 
-		[Theory]
-		[InlineData("/r/worldnews/.rss")]
-		[InlineData("/r/worldnews/comments/mplu2s/.rss")]
-		[InlineData("/r/worldnews/comments/mplu2s/guaobq4/.rss")]
-		[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/.rss")]
-		[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/guaobq4/.rss")]
-		public async Task TimeoutTests(string uriString)
-		{
-			var uri = new Uri(uriString, UriKind.Relative);
-			var baseAddress = new Uri("https://old.reddit.com", UriKind.Absolute);
+	[Theory]
+	[InlineData("/r/worldnews/.rss")]
+	[InlineData("/r/worldnews/comments/mplu2s/.rss")]
+	[InlineData("/r/worldnews/comments/mplu2s/guaobq4/.rss")]
+	[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/.rss")]
+	[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/guaobq4/.rss")]
+	public async Task TimeoutTests(string uriString)
+	{
+		var uri = new Uri(uriString, UriKind.Relative);
+		var baseAddress = new Uri("https://old.reddit.com", UriKind.Absolute);
 
-			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-			using var client = new HttpClient(handler) { BaseAddress = baseAddress, };
+		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+		using var client = new HttpClient(handler) { BaseAddress = baseAddress, };
 
-			var stopwatch = Stopwatch.StartNew();
-			var s = await client.GetStringAsync(uri);
-			stopwatch.Stop();
-			Console.WriteLine(stopwatch.ElapsedTicks / (double)TimeSpan.TicksPerSecond);
-		}
+		var stopwatch = Stopwatch.StartNew();
+		var s = await client.GetStringAsync(uri);
+		stopwatch.Stop();
+		Console.WriteLine(stopwatch.ElapsedTicks / (double)TimeSpan.TicksPerSecond);
+	}
 
-		[Theory]
-		[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+	[Theory]
+	[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <entry xmlns=""http://www.w3.org/2005/Atom"">
 	<author>
 		<name>/u/dookiea</name>
@@ -89,7 +89,7 @@ namespace Helpers.Reddit.Tests
 	<published>2021-04-13T01:06:17+00:00</published>
 	<title>Citing grave threat, Scientific American replaces 'climate change' with 'climate emergency'</title>
 </entry>", "worldnews", "worldnews,mprsni")]
-		[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+	[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <entry xmlns=""http://www.w3.org/2005/Atom"">
 	<author>
 		<name>/u/Sleepybystander</name>
@@ -102,53 +102,52 @@ namespace Helpers.Reddit.Tests
 	<updated>2021-04-13T05:20:06+00:00</updated>
 	<title>/u/Sleepybystander on Citing grave threat, Scientific American replaces 'climate change' with 'climate emergency'</title>
 </entry>", "worldnews,mprsni", "worldnews,mprsni,guc9zyq")]
-		public void ProcessChildren(string xml, string tagsCsv, string expectedCsv)
+	public void ProcessChildren(string xml, string tagsCsv, string expectedCsv)
+	{
+		var entry = xml.Deserialize<Models.Generated.entry>();
+		var tags = tagsCsv.Split(',').ToList();
+		var expected = expectedCsv.Split(',').ToList();
+
+		switch (entry.id[..3])
 		{
-			var entry = xml.Deserialize<Models.Generated.entry>();
-			var tags = tagsCsv.Split(',').ToList();
-			var expected = expectedCsv.Split(',').ToList();
-
-			switch (entry.id[..3])
-			{
-				case "t1_":
-					tags.Add(entry.id[3..]);
-					break;
-				case "t3_":
-					tags.Add(entry.id[3..]);
-					break;
-				default:
-					Assert.True(false, entry.id + " should've started with t3_");
-					break;
-			}
-
-			Assert.Equal(expected, tags);
+			case "t1_":
+				tags.Add(entry.id[3..]);
+				break;
+			case "t3_":
+				tags.Add(entry.id[3..]);
+				break;
+			default:
+				Assert.True(false, entry.id + " should've started with t3_");
+				break;
 		}
 
-		[Theory]
-		[InlineData(
-			"https://old.reddit.com/r/subaru/?utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit",
-			"subaru")]
-		public void SubredditFromLocationUri(string uriString, string expected)
-		{
-			var uri = new Uri(uriString, UriKind.Absolute);
-
-			var actual = Concrete.Client.SubredditFromuri(uri);
-			Assert.Equal(expected, actual);
-		}
+		Assert.Equal(expected, tags);
 	}
 
-	public static class Extensions
+	[Theory]
+	[InlineData(
+		"https://old.reddit.com/r/subaru/?utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit",
+		"subaru")]
+	public void SubredditFromLocationUri(string uriString, string expected)
 	{
-		private readonly static Encoding _encoding = Encoding.UTF8;
-		private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
+		var uri = new Uri(uriString, UriKind.Absolute);
 
-		public static T Deserialize<T>(this string xml)
-			where T : class
-		{
-			using var stream = new MemoryStream(_encoding.GetBytes(xml));
-			return _xmlSerializerFactory.CreateSerializer(typeof(T))
-				.Deserialize(stream) as T
-				?? throw new ArgumentOutOfRangeException($"{typeof(T).Name} could not be deserialized from {xml}");
-		}
+		var actual = Concrete.Client.SubredditFromuri(uri);
+		Assert.Equal(expected, actual);
+	}
+}
+
+public static class Extensions
+{
+	private readonly static Encoding _encoding = Encoding.UTF8;
+	private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
+
+	public static T Deserialize<T>(this string xml)
+		where T : class
+	{
+		using var stream = new MemoryStream(_encoding.GetBytes(xml));
+		return _xmlSerializerFactory.CreateSerializer(typeof(T))
+			.Deserialize(stream) as T
+			?? throw new ArgumentOutOfRangeException($"{typeof(T).Name} could not be deserialized from {xml}");
 	}
 }

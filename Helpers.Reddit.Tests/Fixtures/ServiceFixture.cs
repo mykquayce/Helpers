@@ -1,16 +1,15 @@
-﻿namespace Helpers.Reddit.Tests.Fixtures
+﻿namespace Helpers.Reddit.Tests.Fixtures;
+
+public sealed class ServiceFixture : IDisposable
 {
-	public sealed class ServiceFixture : IDisposable
+	public ServiceFixture()
 	{
-		public ServiceFixture()
-		{
-			var clientFixture = new ClientFixture();
-			var client = clientFixture.RedditClient;
-			Service = new Concrete.Service(client);
-		}
-
-		public Helpers.Reddit.IService Service { get; }
-
-		public void Dispose() => Service.Dispose();
+		var clientFixture = new ClientFixture();
+		var client = clientFixture.RedditClient;
+		Service = new Concrete.Service(client);
 	}
+
+	public Helpers.Reddit.IService Service { get; }
+
+	public void Dispose() => Service.Dispose();
 }
