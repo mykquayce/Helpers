@@ -1,6 +1,6 @@
 ﻿namespace Helpers.Reddit;
 
-public interface IClient : IDisposable
+public interface IClient
 {
 	IAsyncEnumerable<Models.Generated.entry> GetCommentsAsync(string subreddit, string threadId);
 	Task<string> GetRandomSubredditAsync();

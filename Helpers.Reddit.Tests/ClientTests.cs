@@ -10,9 +10,9 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
 	public readonly Helpers.Reddit.IClient _sut;
 
-	public ClientTests(Fixtures.ClientFixture redditClientFixture)
+	public ClientTests(Fixtures.ClientFixture clientFixture)
 	{
-		_sut = redditClientFixture.RedditClient;
+		_sut = clientFixture.Client;
 	}
 
 	[Theory]

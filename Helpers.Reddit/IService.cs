@@ -1,6 +1,6 @@
 ﻿namespace Helpers.Reddit;
 
-public interface IService : IDisposable
+public interface IService
 {
 	Task<string> GetRandomSubredditAsync();
 	IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit);

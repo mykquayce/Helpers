@@ -67,26 +67,4 @@ public class Client : IClient
 
 	private T? Deserialize<T>(Stream stream) where T : class
 		=> _xmlSerializerFactory.CreateSerializer(typeof(T)).Deserialize(stream) as T;
-
-	#region dispose
-	private bool _disposed;
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!_disposed)
-		{
-			if (disposing)
-			{
-				_httpClient.Dispose();
-			}
-
-			_disposed = true;
-		}
-	}
-
-	public void Dispose()
-	{
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
-	#endregion dispose
 }

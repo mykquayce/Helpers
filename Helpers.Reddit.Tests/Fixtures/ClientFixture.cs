@@ -2,20 +2,44 @@
 
 namespace Helpers.Reddit.Tests.Fixtures;
 
-public sealed class ClientFixture : IDisposable
+public class ClientFixture : IDisposable
 {
+	private readonly HttpClientHandler _httpClientHandler;
+	private readonly HttpClient _httpClient;
+
 	public ClientFixture()
 	{
 		var baseAddress = new Uri("https://old.reddit.com", UriKind.Absolute);
-		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		var httpClient = new HttpClient(handler) { BaseAddress = baseAddress, };
+		_httpClientHandler = new HttpClientHandler { AllowAutoRedirect = false, };
+		_httpClient = new HttpClient(_httpClientHandler) { BaseAddress = baseAddress, };
 
 		var xmlSerializerFactory = new XmlSerializerFactory();
 
-		RedditClient = new Helpers.Reddit.Concrete.Client(httpClient, xmlSerializerFactory);
+		Client = new Helpers.Reddit.Concrete.Client(_httpClient, xmlSerializerFactory);
 	}
 
-	public Helpers.Reddit.IClient RedditClient { get; }
+	public Helpers.Reddit.IClient Client { get; }
 
-	public void Dispose() => RedditClient.Dispose();
+	#region disposing
+	private bool _disposed;
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_disposed)
+		{
+			if (disposing)
+			{
+				_httpClient.Dispose();
+				_httpClientHandler.Dispose();
+			}
+
+			_disposed = true;
+		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+	#endregion disposing
 }

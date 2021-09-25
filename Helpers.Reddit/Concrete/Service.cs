@@ -125,26 +125,4 @@ public class Service : IService
 			}
 		}
 	}
-
-	#region dispose
-	private bool _disposed;
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!_disposed)
-		{
-			if (disposing)
-			{
-				_client.Dispose();
-			}
-
-			_disposed = true;
-		}
-	}
-
-	public void Dispose()
-	{
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
-	#endregion dispose
 }

@@ -7,9 +7,9 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 {
 	private readonly IService _sut;
 
-	public ServiceTests(Fixtures.ServiceFixture redditServiceFixture)
+	public ServiceTests(Fixtures.ServiceFixture serviceFixture)
 	{
-		_sut = redditServiceFixture.Service;
+		_sut = serviceFixture.Service;
 	}
 
 	[Theory]
