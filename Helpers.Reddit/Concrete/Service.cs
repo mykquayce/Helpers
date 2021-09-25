@@ -1,50 +1,40 @@
 ﻿using Dawn;
+using Microsoft.Extensions.Options;
+using System.Collections;
 using System.Text.RegularExpressions;
 
 namespace Helpers.Reddit.Concrete;
 
 public class Service : IService
 {
+	#region config
+	public record Config(IReadOnlyCollection<string> Blacklist) : IOptions<Config>, IReadOnlyCollection<string>
+	{
+		#region IOptions implementation
+		public Config Value => this;
+		#endregion IOptions implementation
+
+		#region IReadOnlyCollection implementation
+		public int Count => Blacklist.Count;
+		public IEnumerator<string> GetEnumerator() => Blacklist.GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		#endregion IReadOnlyCollection implementation
+	}
+	#endregion config
+
 	private const RegexOptions _regexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-
-	private readonly static IEnumerable<string> _blacklist = new[]
-	{
-			"redd.it",
-			"reddit.com",
-			"redditmedia.com",
-			"redditsave.com",
-
-			"amazon.com",
-			"apple.com",
-			"discord.gg",
-			"discordapp.com",
-			"discordapp.net",
-			"giphy.com",
-			"google.com",
-			"gfycat.com",
-			"imgflip.com",
-			"imgur.com",
-			"spotify.com",
-			"twimg.com",
-			"twitch.tv",
-			"twitter.com",
-			"youtube.com",
-			"youtu.be",
-		};
-
-	private readonly static IEnumerable<Regex> _regices = new Regex[1]
-	{
-			new("(?:href|src)=\"(.+?)\"", _regexOptions),
-	};
-
-	public Task<string> GetRandomSubredditAsync() => _client.GetRandomSubredditAsync();
-
+	private readonly static Regex _linkRegex = new("(?:href|src)=\"(.+?)\"", _regexOptions);
 	private readonly IClient _client;
+	private readonly IEnumerable<string> _blacklist;
 
-	public Service(IClient client)
+	public Service(IClient client, IOptions<Config> blacklistOptions)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
+		_blacklist = Guard.Argument(blacklistOptions).NotNull().Wrap(o => o.Value)
+			.NotNull().NotEmpty().DoesNotContainNull().Value;
 	}
+
+	public Task<string> GetRandomSubredditAsync() => _client.GetRandomSubredditAsync();
 
 	public async IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit)
 	{
@@ -103,25 +93,22 @@ public class Service : IService
 
 	public IEnumerable<Uri> GetUris(Models.IComment comment)
 	{
-		foreach (var regex in _regices)
+		var matches = _linkRegex.Matches(comment.Content);
+
+		foreach (Match match in matches)
 		{
-			var matches = regex.Matches(comment.Content);
+			var uriString = match.Groups[1].Value;
 
-			foreach (Match match in matches)
+			var ok = Uri.TryCreate(uriString, UriKind.Absolute, out var result);
+
+			if (ok)
 			{
-				var uriString = match.Groups[1].Value;
-
-				var ok = Uri.TryCreate(uriString, UriKind.Absolute, out var result);
-
-				if (ok)
+				if (_blacklist.Any(s => result!.Host.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
 				{
-					if (_blacklist.Any(s => result!.Host.EndsWith(s, StringComparison.InvariantCultureIgnoreCase)))
-					{
-						continue;
-					}
-
-					yield return result!;
+					continue;
 				}
+
+				yield return result!;
 			}
 		}
 	}

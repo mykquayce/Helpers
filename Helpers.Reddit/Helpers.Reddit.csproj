@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Reddit.Models" Version="1.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0-rc.1.21451.13" />
   </ItemGroup>
 
 </Project>

@@ -22,6 +22,7 @@ public class Client : IClient
 	{
 		using var request = new HttpRequestMessage(HttpMethod.Head, "/r/random");
 		using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+		Guard.Argument(response).NotNull().Require(r => r.StatusCode == System.Net.HttpStatusCode.Redirect);
 		var location = Guard.Argument(response.Headers.Location!).NotNull().Value;
 		return SubredditFromuri(location!);
 	}
@@ -65,6 +66,27 @@ public class Client : IClient
 		}
 	}
 
-	private T? Deserialize<T>(Stream stream) where T : class
-		=> _xmlSerializerFactory.CreateSerializer(typeof(T)).Deserialize(stream) as T;
+	private T Deserialize<T>(Stream stream)
+	{
+		Guard.Argument(stream).NotNull().Require(s => s.CanRead, _ => "unreadable stream");
+
+		try
+		{
+			return (T)_xmlSerializerFactory.CreateSerializer(typeof(T)).Deserialize(stream)!;
+		}
+		catch (Exception ex)
+		{
+			ex.Data.Add("type", typeof(T).FullName);
+
+			if (stream.CanSeek)
+			{
+				stream.Position = 0;
+				using var reader = new StreamReader(stream);
+				var xml = reader.ReadToEnd();
+				ex.Data.Add(nameof(xml), xml);
+			}
+
+			throw;
+		}
+	}
 }
