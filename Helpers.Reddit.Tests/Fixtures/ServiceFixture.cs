@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Helpers.Reddit.Tests.Fixtures
+﻿namespace Helpers.Reddit.Tests.Fixtures
 {
 	public sealed class ServiceFixture : IDisposable
 	{

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace Helpers.Reddit.Tests.Fixtures
 {
