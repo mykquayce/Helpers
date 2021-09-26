@@ -1,8 +1,7 @@
-﻿namespace Helpers.Reddit.Models
+﻿namespace Helpers.Reddit.Models;
+
+public interface IThread
 {
-	public interface IThread
-	{
-		string Subreddit { get; }
-		string Id { get; }
-	}
+	string Subreddit { get; }
+	string Id { get; }
 }

@@ -1,14 +1,13 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Serialization;
 using Xunit;
 
-namespace Helpers.Reddit.Models.Tests
+namespace Helpers.Reddit.Models.Tests;
+
+public class CastTests
 {
-	public class CastTests
-	{
-		[Theory]
-		[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+	[Theory]
+	[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <entry xmlns=""http://www.w3.org/2005/Atom"">
     <author>
         <name>/u/europhilic</name>
@@ -21,22 +20,21 @@ namespace Helpers.Reddit.Models.Tests
     <updated>2019-08-05T03:47:51+00:00</updated>
     <title>/u/europhilic on Euphoria: S1 E8 &quot;And Salt the Earth Behind You&quot; - Post-Episode Discussion</title>
 </entry>")]
-		public void Thread(string xml)
-		{
-			var serializer = new XmlSerializer(typeof(Generated.entry));
-			var bytes = Encoding.UTF8.GetBytes(xml);
-			using var stream = new MemoryStream(bytes);
+	public void Thread(string xml)
+	{
+		var serializer = new XmlSerializer(typeof(Generated.entry));
+		var bytes = Encoding.UTF8.GetBytes(xml);
+		using var stream = new MemoryStream(bytes);
 
-			var entry = serializer.Deserialize(stream) as Generated.entry;
+		var entry = serializer.Deserialize(stream) as Generated.entry;
 
-			Assert.NotNull(entry);
+		Assert.NotNull(entry);
 
-			var thread = (IThread)(Concrete.Entry)entry!;
+		var thread = (IThread)(Concrete.Entry)entry!;
 
-			Assert.NotNull(thread);
-			Assert.NotNull(thread.Id);
-			Assert.NotEqual("t1_ew061lo", thread.Id);
-			Assert.Equal("ew061lo", thread.Id);
-		}
+		Assert.NotNull(thread);
+		Assert.NotNull(thread.Id);
+		Assert.NotEqual("t1_ew061lo", thread.Id);
+		Assert.Equal("ew061lo", thread.Id);
 	}
 }
