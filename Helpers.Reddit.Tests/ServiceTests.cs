@@ -101,20 +101,4 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		Assert.NotEmpty(uris);
 	}
-
-	[Fact]
-	public async Task FindACommentWithThirdPartyLinks()
-	{
-		var subreddit = await _sut.GetRandomSubredditAsync();
-
-		await foreach (var comment in _sut.GetCommentsAsync(subreddit))
-		{
-			var uris = _sut.GetUris(comment).ToList();
-
-			if (uris.Count > 3)
-			{
-
-			}
-		}
-	}
 }

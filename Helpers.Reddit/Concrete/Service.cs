@@ -42,7 +42,7 @@ public class Service : IService
 
 		await foreach (var thread in _client.GetThreadsAsync(subreddit))
 		{
-			yield return (Models.Concrete.Entry)thread;
+			yield return thread;
 		}
 	}
 
@@ -65,7 +65,7 @@ public class Service : IService
 
 		await foreach (var entry in _client.GetCommentsAsync(thread.Subreddit, thread.Id))
 		{
-			yield return (Models.Concrete.Entry)entry;
+			yield return entry;
 		}
 	}
 
