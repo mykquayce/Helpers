@@ -14,12 +14,17 @@ namespace Helpers.Networking.Clients.Concrete
 	public class PingClient : IPingClient
 	{
 		public record Config(int Timeout)
+			: IOptions<Config>
 		{
 			public const int DefaultTimeout = 1_000;
 
 			public Config() : this(DefaultTimeout) { }
 
 			public static Config Defaults => new(DefaultTimeout);
+
+			#region ioptions implementation
+			public Config Value => this;
+			#endregion ioptions implementation
 		}
 
 		private readonly int _timeout;
