@@ -39,4 +39,34 @@ public class CastTests
 		Assert.Equal(title, actual.Title);
 		Assert.Equal(expected, actual.Length);
 	}
+
+	[Theory]
+	[InlineData("Fri 01 Oct", "11:00", 2021, 10, 1, 10, 0)]
+	[InlineData("Mon 01 Nov", "11:00", 2021, 11, 1, 11, 0)]
+	public void ParseDateTime(string date, string time, int year, int month, int day, int hour, int minute)
+	{
+		var expected = new DateTime(year, month, day, hour, minute, 0, 0, DateTimeKind.Utc);
+		var show = new Helpers.Cineworld.Models.Generated.AllPerformances.show
+		{
+			date = date,
+			time = time,
+		};
+
+		Assert.Equal(expected, show.DateTime);
+	}
+
+	[Theory]
+	[InlineData("1 mins", 1)]
+	[InlineData("10 mins", 10)]
+	[InlineData("100 mins", 100)]
+	[InlineData("1000 mins", 1_000)]
+	public void ParseLength(string length, short expected)
+	{
+		var film = new Helpers.Cineworld.Models.Generated.AllPerformances.film
+		{
+			length = length,
+		};
+
+		Assert.Equal(expected, film.Length);
+	}
 }
