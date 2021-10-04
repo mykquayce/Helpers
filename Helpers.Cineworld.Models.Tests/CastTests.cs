@@ -43,8 +43,11 @@ public class CastTests
 	[Theory]
 	[InlineData("Fri 01 Oct", "11:00", 2021, 10, 1, 10, 0)]
 	[InlineData("Mon 01 Nov", "11:00", 2021, 11, 1, 11, 0)]
+	[InlineData("Sun 23 Jan", "11:00", 2022, 1, 23, 11, 0)]
 	public void ParseDateTime(string date, string time, int year, int month, int day, int hour, int minute)
 	{
+		Generated.AllPerformances.show.GetTodayFunc = () => new DateTime(2021, 9, 30, 0, 0, 0, DateTimeKind.Utc);
+
 		var expected = new DateTime(year, month, day, hour, minute, 0, 0, DateTimeKind.Utc);
 		var show = new Helpers.Cineworld.Models.Generated.AllPerformances.show
 		{
