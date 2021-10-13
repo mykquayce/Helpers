@@ -1,5 +1,4 @@
-﻿using Helpers.MySql.Models;
-using Helpers.Steam.Models;
+﻿using Helpers.Steam.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ namespace Helpers.Steam.Tests
 {
 	public class Repository : Helpers.MySql.RepositoryBase
 	{
-		public Repository(DbSettings dbSettings)
+		public Repository(MySql.Config dbSettings)
 			: base(dbSettings)
 		{ }
 
