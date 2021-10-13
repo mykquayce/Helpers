@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Json" Version="1.2.4-rc2" />
-    <PackageReference Include="Helpers.Networking" Version="1.6.17-rc1" />
-    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.15-rc1" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.17-rc2" />
+    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.15-rc2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
