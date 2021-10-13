@@ -144,7 +144,7 @@ namespace Helpers.Steam.Tests
 				: default;
 
 			// Assert
-			Assert.Equal(expected, actual);
+			Assert.Equal(expected, actual!);
 		}
 
 		[Theory]
