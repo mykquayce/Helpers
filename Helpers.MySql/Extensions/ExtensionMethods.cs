@@ -1,4 +1,4 @@
-﻿namespace Helpers.MySql;
+﻿namespace System.Collections.Generic;
 
 public static class ExtensionMethods
 {

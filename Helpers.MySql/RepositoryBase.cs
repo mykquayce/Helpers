@@ -161,7 +161,7 @@ public abstract class RepositoryBase : IDisposable
 	}
 	#endregion Databases
 
-	private static readonly IDictionary<ExceptionTypes, int> _exceptions = new ExceptionDictionary();
+	private static readonly IDictionary<ExceptionTypes, int> _exceptions = new Collections.ExceptionDictionary();
 
 	private async Task<T> SafeExecuteAsync<T>(Func<Task<T>> func)
 	{

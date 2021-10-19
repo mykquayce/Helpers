@@ -5,21 +5,22 @@ namespace Helpers.MySql.Tests;
 
 public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
 {
-	private readonly string _username, _password;
+	private readonly string _username, _password, _passwordFile;
 
 	public RepositoryBaseTests(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
 	{
 		_username = fixture["MySql:Username"];
 		_password = fixture["MySql:Password"];
+		_passwordFile = fixture["MySql:PasswordFIle"];
 	}
 
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
 	[Theory(Skip = "requires db access")]
 	[InlineData("localhost", 3_306, "test", "table1")]
-	public async Task RepositoryBaseTests_EndToEnd(string server, uint port, string database, string tableName)
+	public async Task RepositoryBaseTests_EndToEnd(string server, ushort port, string database, string tableName)
 	{
 		// Arrange, Act
-		var config = new Config(server, port, database, _username, _password);
+		var config = new Config(server, port, database, _username, _password, _passwordFile);
 
 		using var sut = new TestRepository(config);
 
@@ -74,9 +75,9 @@ public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.User
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
 	[Theory(Skip = "requires db access")]
 	[InlineData("localhost", 3_306, "test", "table2")]
-	public async Task RepositoryBaseTests_TransactionTest(string server, uint port, string database, string tableName)
+	public async Task RepositoryBaseTests_TransactionTest(string server, ushort port, string database, string tableName)
 	{
-		var config = new Config(server, port, database, _username, _password);
+		var config = new Config(server, port, database, _username, _password, _passwordFile);
 		using var sut = new TestRepository(config);
 
 		await sut.SafeDropTableAsync(tableName);
@@ -131,9 +132,9 @@ public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.User
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
 	[Theory(Skip = "requires db access")]
 	[InlineData("localhost", 3_306)]
-	public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, uint port, string? database = default)
+	public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, ushort port, string? database = default)
 	{
-		var config = new Config(server, port, database!, _username, _password);
+		var config = new Config(server, port, database!, _username, _password, _passwordFile);
 		using var sut = new TestRepository(config);
 
 		using (var transaction = sut.BeginTransaction())
@@ -150,9 +151,9 @@ public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.User
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
 	[Theory(Skip = "requires db access")]
 	[InlineData("localhost", 3_306)]
-	public async Task RepositoryBaseTests_ReturnDateTime(string server, uint port, string? database = default)
+	public async Task RepositoryBaseTests_ReturnDateTime(string server, ushort port, string? database = default)
 	{
-		var config = new Config(server, port, database!, _username, _password);
+		var config = new Config(server, port, database!, _username, _password, _passwordFile);
 		using var sut = new TestRepository(config);
 
 		var results = sut.QueryAsync<DateTimeResult>("select now() now union all select now();");
