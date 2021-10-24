@@ -30,7 +30,6 @@ namespace Helpers.Web.Tests
 		public void Dispose()
 		{
 			_httpClient?.Dispose();
-			_client?.Dispose();
 		}
 
 		[Theory]

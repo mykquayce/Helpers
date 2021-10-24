@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Web
 {
-	public abstract class WebClientBase : IDisposable
+	public abstract class WebClientBase
 	{
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
 		{
@@ -60,28 +60,6 @@ namespace Helpers.Web
 			_tracer = tracer;
 			_httpMessageInvoker = new HttpClient();
 		}
-
-		#region IDisposable implementation
-		private bool _disposedValue;
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposedValue)
-			{
-				if (disposing)
-				{
-					_httpMessageInvoker?.Dispose();
-				}
-
-				_disposedValue = true;
-			}
-		}
-		#endregion IDisposable implementation
 
 		protected async Task<Models.IResponse<T>> SendAsync<T>(
 			HttpMethod httpMethod,
