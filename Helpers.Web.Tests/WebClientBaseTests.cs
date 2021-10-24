@@ -1,11 +1,5 @@
 ﻿using Helpers.Web.Models;
-using System;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Web.Tests
