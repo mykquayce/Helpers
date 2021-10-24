@@ -1,8 +1,7 @@
-﻿using Helpers.Web.Models;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
 using System.Net;
 
-namespace Helpers.Web;
+namespace Helpers.Web.Models;
 
 public static class ResponseExtensions
 {

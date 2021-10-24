@@ -5,23 +5,11 @@ using Microsoft.Extensions.Primitives;
 using OpenTracing;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Helpers.Web;
 
 public abstract class WebClientBase
 {
-	private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
-	{
-		AllowTrailingCommas = true,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-		DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-		PropertyNameCaseInsensitive = true,
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		WriteIndented = true,
-	};
-
 	private readonly HttpMessageInvoker _httpMessageInvoker;
 	private readonly ILogger? _logger;
 	private readonly ITracer? _tracer;
@@ -75,7 +63,7 @@ public abstract class WebClientBase
 		}
 		else
 		{
-			o = await JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions)
+			o = await stream.DeserializeAsync<T>()
 				?? throw new Exception();
 		}
 
