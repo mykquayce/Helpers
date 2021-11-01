@@ -1,14 +1,13 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Serialization;
 using Xunit;
 
-namespace Helpers.Reddit.Models.Tests
+namespace Helpers.Reddit.Models.Tests;
+
+public class CastTests
 {
-	public class CastTests
-	{
-		[Theory]
-		[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+	[Theory]
+	[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <entry xmlns=""http://www.w3.org/2005/Atom"">
     <author>
         <name>/u/europhilic</name>
@@ -21,22 +20,54 @@ namespace Helpers.Reddit.Models.Tests
     <updated>2019-08-05T03:47:51+00:00</updated>
     <title>/u/europhilic on Euphoria: S1 E8 &quot;And Salt the Earth Behind You&quot; - Post-Episode Discussion</title>
 </entry>")]
-		public void Thread(string xml)
-		{
-			var serializer = new XmlSerializer(typeof(Generated.entry));
-			var bytes = Encoding.UTF8.GetBytes(xml);
-			using var stream = new MemoryStream(bytes);
+	public void Comment(string xml)
+	{
+		var entry = Deserialize<Generated.entry>(xml);
 
-			var entry = serializer.Deserialize(stream) as Generated.entry;
+		Assert.NotNull(entry);
 
-			Assert.NotNull(entry);
+		var comment = (IComment)entry!;
 
-			var thread = (IThread)(Concrete.Entry)entry!;
+		Assert.NotNull(comment);
+		Assert.NotNull(comment.Id);
+		Assert.NotEqual("t1_ew061lo", comment.Id);
+		Assert.Equal("ew061lo", comment.Id);
+	}
 
-			Assert.NotNull(thread);
-			Assert.NotNull(thread.Id);
-			Assert.NotEqual("t1_ew061lo", thread.Id);
-			Assert.Equal("ew061lo", thread.Id);
-		}
+	[Theory]
+	[InlineData(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:media=""http://search.yahoo.com/mrss/"">
+	<author>
+		<name>/u/Beateride</name>
+		<uri>https://old.reddit.com/user/Beateride</uri>
+	</author>
+	<category term=""xbox"" label=""r/xbox""/>
+	<content type=""html"">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://old.reddit.com/r/xbox/comments/izrg6u/external_drive_on_xbox_series/&quot;&gt; &lt;img src=&quot;https://b.thumbs.redditmedia.com/t0-yb8QzTk34UUkajHkwsHUk9nnt4afSEZyvRejUlcY.jpg&quot; alt=&quot;External Drive on Xbox Series&quot; title=&quot;External Drive on Xbox Series&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://old.reddit.com/user/Beateride&quot;&gt; /u/Beateride &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://i.imgur.com/U69zbXb.jpg&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://old.reddit.com/r/xbox/comments/izrg6u/external_drive_on_xbox_series/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content>
+	<id>t3_izrg6u</id>
+	<media:thumbnail url=""https://b.thumbs.redditmedia.com/t0-yb8QzTk34UUkajHkwsHUk9nnt4afSEZyvRejUlcY.jpg"" />
+	<link href=""https://old.reddit.com/r/xbox/comments/izrg6u/external_drive_on_xbox_series/"" />
+	<updated>2020-09-25T20:34:21+00:00</updated>
+	<title>External Drive on Xbox Series</title>
+</entry>")]
+	public void Thread(string xml)
+	{
+		var entry = Deserialize<Generated.entry>(xml);
+
+		Assert.NotNull(entry);
+
+		var thread = (IThread)entry!;
+
+		Assert.NotNull(thread);
+		Assert.NotNull(thread.Id);
+		Assert.NotEqual("t3_izrg6u", thread.Id);
+		Assert.Equal("izrg6u", thread.Id);
+	}
+
+	private static T Deserialize<T>(string s)
+	{
+		var serializer = new XmlSerializer(typeof(T));
+		var bytes = Encoding.UTF8.GetBytes(s);
+		using var stream = new MemoryStream(bytes);
+		return (T)serializer.Deserialize(stream)!;
 	}
 }

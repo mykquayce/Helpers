@@ -1,7 +1,6 @@
-﻿namespace Helpers.Reddit.Models
+﻿namespace Helpers.Reddit.Models;
+
+public interface IComment : IEntry
 {
-	public interface IComment
-	{
-		string Content { get; }
-	}
+	string Content { get; }
 }
