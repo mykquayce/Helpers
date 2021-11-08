@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.OpenWrt.Services
 {
-	public interface IOpenWrtService : IDisposable
+	public interface IOpenWrtService
 	{
 		Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix prefix);
 		Task AddBlackholesAsync(IEnumerable<Helpers.Networking.Models.AddressPrefix> prefixes);

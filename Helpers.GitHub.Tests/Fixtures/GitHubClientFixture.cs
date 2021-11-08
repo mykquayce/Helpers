@@ -2,7 +2,7 @@
 
 namespace Helpers.GitHub.Tests.Fixtures
 {
-	public sealed class GitHubClientFixture : IDisposable
+	public class GitHubClientFixture
 	{
 		public GitHubClientFixture()
 		{
@@ -10,8 +10,6 @@ namespace Helpers.GitHub.Tests.Fixtures
 
 			GitHubClient = new Clients.Concrete.GitHubClient(fixture.HttpClient);
 		}
-
-		public void Dispose() => GitHubClient?.Dispose();
 
 		public Clients.IGitHubClient GitHubClient { get; }
 	}

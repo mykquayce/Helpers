@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.7</Version>
+    <Version>1.1.8</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Web" Version="2.3.2" />
+    <PackageReference Include="Helpers.Web" Version="2.3.3" />
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
 
