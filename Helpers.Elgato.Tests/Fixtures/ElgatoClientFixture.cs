@@ -2,10 +2,8 @@
 
 namespace Helpers.Elgato.Tests.Fixtures
 {
-	public sealed class ElgatoClientFixture : IDisposable
+	public sealed class ElgatoClientFixture
 	{
 		public IElgatoClient Client { get; } = new Concrete.ElgatoClient();
-
-		public void Dispose() => Client?.Dispose();
 	}
 }

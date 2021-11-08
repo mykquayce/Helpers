@@ -5,7 +5,7 @@ using System.Net.Http;
 
 namespace Helpers.PhilipsHue.Tests.Fixtures
 {
-	public sealed class ClientFixture : IDisposable
+	public class ClientFixture
 	{
 		private const string _section = "PhilipsHue";
 
@@ -18,8 +18,6 @@ namespace Helpers.PhilipsHue.Tests.Fixtures
 			var httpClient = new HttpClient { BaseAddress = baseAddress, };
 			Client = new PhilipsHueClient(httpClient, config);
 		}
-
-		public void Dispose() => Client.Dispose();
 
 		public IPhilipsHueClient Client { get; }
 	}

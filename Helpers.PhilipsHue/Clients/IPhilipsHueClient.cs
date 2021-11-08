@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.PhilipsHue.Clients
 {
-	public interface IPhilipsHueClient : IDisposable
+	public interface IPhilipsHueClient
 	{
 		Task<AllObject> GetAllAsync();
 		Task<ConfigObject> GetConfigAsync();

@@ -14,8 +14,6 @@ namespace Helpers.GitHub.Services.Concrete
 				?? throw new ArgumentNullException(nameof(client));
 		}
 
-		public void Dispose() => _client?.Dispose();
-
 		public Task<Models.BranchObject> GetBranchAsync(string owner, string repo, string branch)
 			=> _client.GetBranchAsync(owner, repo, branch);
 

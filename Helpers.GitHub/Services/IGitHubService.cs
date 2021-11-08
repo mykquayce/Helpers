@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.GitHub.Services
 {
-	public interface IGitHubService : IDisposable
+	public interface IGitHubService
 	{
 		Task<Models.BranchObject> GetBranchAsync(string owner, string repo, string branch);
 		IAsyncEnumerable<Models.BranchSummaryObject> GetBranchesAsync(string owner, string repo);

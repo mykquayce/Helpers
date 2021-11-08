@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Helpers.Discord
 {
-	public interface IDiscordClient : IDisposable
+	public interface IDiscordClient
 	{
 		Task SendMessageAsync(string message);
 	}

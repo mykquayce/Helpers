@@ -2,21 +2,13 @@
 
 namespace Helpers.GitHub.Tests.Fixtures
 {
-	public sealed class GitHubServiceFixture : IDisposable
+	public class GitHubServiceFixture
 	{
-		private readonly GitHubClientFixture _fixture;
-
 		public GitHubServiceFixture()
 		{
-			_fixture = new GitHubClientFixture();
+			var fixture = new GitHubClientFixture();
 
-			GitHubService = new Services.Concrete.GitHubService(_fixture.GitHubClient);
-		}
-
-		public void Dispose()
-		{
-			GitHubService?.Dispose();
-			_fixture?.Dispose();
+			GitHubService = new Services.Concrete.GitHubService(fixture.GitHubClient);
 		}
 
 		public Services.IGitHubService GitHubService { get; }

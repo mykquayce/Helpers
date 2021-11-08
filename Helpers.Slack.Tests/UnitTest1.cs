@@ -48,7 +48,7 @@ namespace Helpers.Slack.Tests
 		{
 			var settings = new Models.Settings { Token = _token, };
 
-			using var client = new SlackClient(Options.Create(settings));
+			var client = new SlackClient(Options.Create(settings));
 
 			var channels = client.GetChannelsAsync();
 

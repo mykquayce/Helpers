@@ -3,7 +3,7 @@ using System;
 
 namespace Helpers.Steam.Tests.Fixtures
 {
-	public class SteamClientFixture : IDisposable
+	public class SteamClientFixture
 	{
 		public SteamClientFixture()
 		{
@@ -17,7 +17,5 @@ namespace Helpers.Steam.Tests.Fixtures
 		}
 
 		public ISteamClient SteamClient { get; }
-
-		public void Dispose() => SteamClient?.Dispose();
 	}
 }

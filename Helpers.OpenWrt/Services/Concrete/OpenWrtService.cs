@@ -55,38 +55,5 @@ namespace Helpers.OpenWrt.Services.Concrete
 			Guard.Argument(blackhole).NotNull();
 			return _openWrtClient.ExecuteCommandAsync("ip route delete blackhole " + blackhole);
 		}
-
-		#region IDisposable implementation
-		private bool _disposed;
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposed)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects)
-					_openWrtClient.Dispose();
-				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
-				_disposed = true;
-			}
-		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~OpenWrtService()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
-
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-			Dispose(disposing: true);
-			System.GC.SuppressFinalize(this);
-		}
-		#endregion IDisposable implementation
 	}
 }
