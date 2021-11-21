@@ -15,6 +15,6 @@ public static class StreamExtensions
 		WriteIndented = true,
 	};
 
-	public static Task<T?> DeserializeAsync<T>(this Stream stream)
-		=> JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions).AsTask();
+	public static Task<T?> DeserializeAsync<T>(this Stream stream, CancellationToken? cancellationToken = default)
+		=> JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None).AsTask();
 }
