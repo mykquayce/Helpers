@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 using Xunit;
 
 namespace Helpers.Json.Tests
@@ -22,6 +25,41 @@ namespace Helpers.Json.Tests
 			Assert.Equal(expectedPhysicalAddress, config.PhysicalAddress.ToString().ToLowerInvariant());
 
 			Assert.Equal(json, JsonSerializer.Serialize(config));
+		}
+
+		[Theory]
+		[InlineData(@"{""0"":""first"",""1"":""second""}", "first", "second")]
+		[InlineData(@"{""1"":""first"",""2"":""second""}", "first", "second")]
+		[InlineData(@"{""-821936492"":""first"",""-3483"":""second"",""6498273"":""third""}", "first", "second", "third")]
+		public void ConfigurationArrayTests(string json, params string[] expected)
+		{
+			IServiceProvider serviceProvider;
+			{
+				IConfiguration configuration;
+				{
+					var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+					using var stream = new MemoryStream(bytes);
+					configuration = new ConfigurationBuilder()
+						.AddJsonStream(stream)
+						.Build();
+				}
+
+				serviceProvider = new ServiceCollection()
+					.Configure<List<string>>(configuration)
+					.BuildServiceProvider();
+			}
+
+			var options = serviceProvider.GetService<IOptions<List<string>>>();
+
+			Assert.NotNull(options);
+			Assert.NotNull(options.Value);
+
+			var actual = options.Value;
+
+			Assert.NotNull(actual);
+			Assert.NotEmpty(actual);
+			Assert.DoesNotContain(default, actual);
+			Assert.Equal(expected, actual);
 		}
 	}
 }
