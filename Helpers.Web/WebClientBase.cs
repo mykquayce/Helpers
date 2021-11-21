@@ -14,6 +14,7 @@ public abstract class WebClientBase
 	private readonly ILogger? _logger;
 	private readonly ITracer? _tracer;
 
+	#region constructors
 	protected WebClientBase(
 		HttpClient httpClient,
 		ILogger? logger = default,
@@ -40,49 +41,66 @@ public abstract class WebClientBase
 		_tracer = tracer;
 		_httpMessageInvoker = new HttpClient();
 	}
+	#endregion constructors
 
+	#region protected methods
 	protected async Task<Models.IResponse<T>> SendAsync<T>(
 		HttpMethod httpMethod,
 		Uri uri,
 		string? body = default,
+		CancellationToken? cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 		where T : class
 	{
-		var response = await SendAsync(httpMethod, uri, body, callerMemberName, callerFilePath);
-
-		using var stream = await response.TaskStream!;
-
-		T o;
-
-		if (typeof(T) == typeof(string))
-		{
-			using var reader = new StreamReader(stream);
-			var s = await reader.ReadToEndAsync();
-			o = (T)Convert.ChangeType(s, TypeCode.String);
-		}
-		else
-		{
-			o = await stream.DeserializeAsync<T>()
-				?? throw new Exception();
-		}
-
-		return new Models.Concrete.Response<T>(response.Headers, response.StatusCode, o);
+		using var scope = LogAndTrace(callerMemberName, callerFilePath, httpMethod, uri, body);
+		var request = BuildRequest(httpMethod, uri, body);
+		var response = await SendRequestAsync(request, cancellationToken);
+		return await ProcessResponseMessageAsync<T>(response, cancellationToken);
 	}
 
 	protected async Task<Models.IResponse> SendAsync(
 		HttpMethod httpMethod,
 		Uri uri,
 		string? body = default,
+		CancellationToken? cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 	{
-		Guard.Argument(httpMethod).NotNull()
-			.Wrap(m => m.Method).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(uri).NotNull()
-			.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
+		using var scope = LogAndTrace(callerMemberName, callerFilePath, httpMethod, uri, body);
+		var request = BuildRequest(httpMethod, uri, body);
+		var response = await SendRequestAsync(request, cancellationToken);
+		return ProcessResponseMessage(response);
+	}
 
-		using var scope = _tracer?.StartSpan(callerMemberName, callerFilePath);
+	protected async Task<Models.IResponse> SendAsync(
+		HttpRequestMessage requestMessage,
+		CancellationToken? cancellationToken = default,
+		[CallerMemberName] string? callerMemberName = default,
+		[CallerFilePath] string? callerFilePath = default)
+	{
+		using var scope = LogAndTrace(callerMemberName, callerFilePath, requestMessage);
+		var response = await SendRequestAsync(requestMessage, cancellationToken);
+		return ProcessResponseMessage(response);
+	}
+
+	protected async Task<Models.IResponse<T>> SendAsync<T>(
+		HttpRequestMessage requestMessage,
+		CancellationToken? cancellationToken = default,
+		[CallerMemberName] string? callerMemberName = default,
+		[CallerFilePath] string? callerFilePath = default)
+		where T : class
+	{
+		using var scope = LogAndTrace(callerMemberName, callerFilePath, requestMessage);
+		var response = await SendRequestAsync(requestMessage, cancellationToken);
+		return await ProcessResponseMessageAsync<T>(response, cancellationToken);
+	}
+	#endregion protected methods
+
+	#region private methods
+	private IScope? LogAndTrace(string? callerMemberName, string? callerFilePath, HttpMethod httpMethod, Uri uri, string? body)
+	{
+		var scope = LogAndTrace(callerMemberName, callerFilePath);
 		scope?.Span.SetTag(nameof(httpMethod), httpMethod.Method);
 		scope?.Span.SetTag(nameof(uri), uri.OriginalString);
 		scope?.Span.SetTag(nameof(body), body);
@@ -95,7 +113,22 @@ public abstract class WebClientBase
 				[nameof(body)] = body?.Truncate(),
 			}.ToKeyValuePairString());
 
-		var httpRequestMessage = new HttpRequestMessage(httpMethod, uri);
+		return scope;
+	}
+
+	private IScope? LogAndTrace(string? callerMemberName, string? callerFilePath, HttpRequestMessage requestMessage)
+	{
+		return LogAndTrace(callerMemberName, callerFilePath, requestMessage.Method, requestMessage.RequestUri, default);
+	}
+
+	private IScope? LogAndTrace(string? callerMemberName, string? callerFilePath)
+	{
+		return _tracer?.StartSpan(callerMemberName, callerFilePath);
+	}
+
+	private HttpRequestMessage BuildRequest(HttpMethod method, Uri uri, string? body = default)
+	{
+		var httpRequestMessage = new HttpRequestMessage(method, uri);
 
 		if (!string.IsNullOrWhiteSpace(body))
 		{
@@ -104,20 +137,14 @@ public abstract class WebClientBase
 			httpRequestMessage.Content = requestContent;
 		}
 
-		return await SendAsync(httpRequestMessage);
+		return httpRequestMessage;
 	}
 
-	protected async Task<Models.IResponse> SendAsync(HttpRequestMessage request)
+	private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(request).NotNull()
-			.Wrap(r => r.RequestUri).NotEqual(default)
-			.Wrap(u => u.OriginalString).NotNull().NotEmpty().NotWhiteSpace();
-
-		HttpResponseMessage response;
-
 		try
 		{
-			response = await _httpMessageInvoker.SendAsync(request, CancellationToken.None);
+			return await _httpMessageInvoker.SendAsync(request, cancellationToken ?? CancellationToken.None);
 		}
 		catch (Exception exception)
 		{
@@ -142,19 +169,47 @@ public abstract class WebClientBase
 
 			throw;
 		}
+	}
 
-		var headers = new Dictionary<string, StringValues>(StringComparer.InvariantCultureIgnoreCase);
+	private Models.IResponse ProcessResponseMessage(HttpResponseMessage response)
+	{
+		var headers = new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var (key, values) in response.Headers)
 		{
-			headers.Add(key, new StringValues(values.ToArray()));
+			headers.Add(key, values.ToArray());
 		}
 
 		foreach (var (key, values) in response.Content.Headers)
 		{
-			headers.Add(key, new StringValues(values.ToArray()));
+			headers.Add(key, values.ToArray());
 		}
 
 		return new Models.Concrete.Response(headers, response.StatusCode, response.Content.ReadAsStreamAsync());
 	}
+
+	private async Task<Models.IResponse<T>> ProcessResponseMessageAsync<T>(HttpResponseMessage response, CancellationToken? cancellationToken = default)
+		where T : class
+	{
+		var (headers, statusCode, taskStream) = ProcessResponseMessage(response);
+
+		await using var stream = await taskStream!;
+
+		T o;
+
+		if (typeof(T) == typeof(string))
+		{
+			using var reader = new StreamReader(stream);
+			var s = await reader.ReadToEndAsync();
+			o = (T)Convert.ChangeType(s, TypeCode.String);
+		}
+		else
+		{
+			o = await stream.DeserializeAsync<T>(cancellationToken)
+				?? throw new Exception();
+		}
+
+		return new Models.Concrete.Response<T>(headers, statusCode, o);
+	}
+	#endregion private methods
 }
