@@ -12,6 +12,9 @@ public record Config(
 {
 	public readonly static Uri DefaultAuthApiBaseAddress = new("https://auth.docker.io", UriKind.Absolute);
 	public readonly static Uri DefaultRegistryApiBaseAddress = new("https://registry-1.docker.io", UriKind.Absolute);
+	public const string DefaultUsername = "admin", DefaultPassword = "admin";
+
+	public Config() : this(DefaultAuthApiBaseAddress, DefaultRegistryApiBaseAddress, DefaultUsername, DefaultPassword) { }
 
 	public Config(string username, string password)
 		: this(DefaultAuthApiBaseAddress, DefaultRegistryApiBaseAddress, username, password)
