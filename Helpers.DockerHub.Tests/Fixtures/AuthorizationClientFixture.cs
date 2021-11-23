@@ -15,7 +15,7 @@ public sealed class AuthorizationClientFixture : IDisposable
 		var username = userSecretsFixture["DockerHub:Username"];
 		var password = userSecretsFixture["DockerHub:Password"];
 
-		var config = new Config(username, password, "pihole", "pihole", Config.Scopes.Pull);
+		var config = new Config(username, password);
 		_httpMessageHandler = new HttpClientHandler { AllowAutoRedirect = false, };
 		_httpClient = new HttpClient(_httpMessageHandler) { BaseAddress = config.AuthApiBaseAddress, };
 		_memoryCache = new MemoryCache(new MemoryCacheOptions());

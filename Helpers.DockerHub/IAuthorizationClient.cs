@@ -2,8 +2,6 @@
 
 public interface IAuthorizationClient
 {
-	string Organization { get; }
-	string Repository { get; }
-	Task<string> GetTokenAsync(CancellationToken? cancellationToken = default);
-	Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(CancellationToken? cancellationToken = default);
+	Task<string> GetTokenAsync(string organization, string repository, CancellationToken? cancellationToken = default);
+	Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken? cancellationToken = default);
 }

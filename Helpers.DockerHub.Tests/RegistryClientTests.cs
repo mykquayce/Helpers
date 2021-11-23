@@ -11,10 +11,11 @@ public class RegistryClientTests : IClassFixture<Fixtures.RegistryClientFixture>
 		_sut = fixture.RegistryClient;
 	}
 
-	[Fact]
-	public async Task GetTagsTests()
+	[Theory]
+	[InlineData("pihole", "pihole")]
+	public async Task GetTagsTests(string organization, string repository)
 	{
-		var tags = await _sut.GetTagsAsync().ToListAsync();
+		var tags = await _sut.GetTagsAsync(organization, repository).ToListAsync();
 
 		Assert.NotNull(tags);
 		Assert.NotEmpty(tags);

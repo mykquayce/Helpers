@@ -8,46 +8,49 @@ namespace Helpers.DockerHub.Concrete;
 
 public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClient
 {
-	private const string _cacheKey = "cache-key";
 	private readonly IMemoryCache _memoryCache;
-	private readonly string _credentials, _repositoryScope;
+	private readonly string _credentials;
 
 	public AuthorizationClient(IOptions<Config> options, HttpClient httpClient, IMemoryCache memoryCache)
 		: base(httpClient)
 	{
 		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
 		_credentials = Guard.Argument(config.Credentials).NotNull().Value;
-		_repositoryScope = Guard.Argument(config.RepositoryScope).NotNull().Value;
 		_memoryCache = Guard.Argument(memoryCache).NotNull().Value;
-		Organization = config.Organization;
-		Repository = config.Repository;
 	}
 
-	public string Organization { get; }
-	public string Repository { get; }
-
-	public async Task<string> GetTokenAsync(CancellationToken? cancellationToken = default)
+	public async Task<string> GetTokenAsync(string organization, string repository, CancellationToken? cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue<string>(_cacheKey, out var token))
+		Guard.Argument(organization).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(repository).NotNull().NotEmpty().NotWhiteSpace();
+
+		var cacheKey = BuildCacheKey(organization, repository);
+
+		if (_memoryCache.TryGetValue<string>(cacheKey, out var token))
 		{
 			return token;
 		}
 
-		(token, var expiry) = await GetTokenFromRemoteAsync(cancellationToken);
+		(token, var expiry) = await GetTokenFromRemoteAsync(organization, repository, cancellationToken);
 
 		// cache
-		var millisecondsDelay = (int)(expiry - DateTime.UtcNow).Add(-TimeSpan.FromSeconds(10)).TotalMilliseconds;
-		var expirationTokenSource = new CancellationTokenSource(millisecondsDelay);
+		var timeoutDelay = (int)(expiry - DateTime.UtcNow).Add(-TimeSpan.FromSeconds(10)).TotalMilliseconds;
+		var expirationTokenSource = new CancellationTokenSource(timeoutDelay);
 		var expirationToken = new CancellationChangeToken(expirationTokenSource.Token);
-		_memoryCache.Set(_cacheKey, token, expirationToken);
+		_memoryCache.Set(cacheKey, token, expirationToken);
 
 		// return
 		return token;
 	}
 
-	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(CancellationToken? cancellationToken = default)
+	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken? cancellationToken = default)
 	{
-		var uriString = "/token?offline_token=1&client_id=shell&service=registry.docker.io&scope=" + _repositoryScope;
+		Guard.Argument(organization).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(repository).NotNull().NotEmpty().NotWhiteSpace();
+		
+		var repositoryScope = $"repository:{organization}/{repository}:pull";
+
+		var uriString = "/token?offline_token=1&client_id=shell&service=registry.docker.io&scope=" + repositoryScope;
 
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, uriString)
 		{
@@ -63,4 +66,6 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 
 		return (token, expiry);
 	}
+
+	private static string BuildCacheKey(params string[] values) => string.Join('/', values).ToLowerInvariant();
 }
