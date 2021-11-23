@@ -15,6 +15,8 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 
 	public async IAsyncEnumerable<string> GetTagsAsync(string organization, string repository, CancellationToken? cancellationToken = default)
 	{
+		Guard.Argument(organization).IsTagName();
+		Guard.Argument(repository).IsTagName();
 		var uri = new Uri($"/v2/{organization}/{repository}/tags/list", UriKind.Relative);
 		var responseObject = await SendAsync<Models.TagsResponseObject>(organization, repository, uri, cancellationToken);
 
@@ -29,6 +31,9 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 
 	public Task<Models.ManifestsResponseObject> GetManifestsAsync(string organization, string repository, string tag, CancellationToken? cancellationToken = default)
 	{
+		Guard.Argument(organization).IsTagName();
+		Guard.Argument(repository).IsTagName();
+		Guard.Argument(tag).IsTagName();
 		var uri = new Uri($"/v2/{organization}/{repository}/manifests/{tag}", UriKind.Relative);
 		return SendAsync<Models.ManifestsResponseObject>(organization, repository, uri, cancellationToken);
 	}
@@ -36,6 +41,8 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 	private async Task<T> SendAsync<T>(string organization, string repository, Uri uri, CancellationToken? cancellationToken = default)
 		where T : class
 	{
+		Guard.Argument(organization).IsTagName();
+		Guard.Argument(repository).IsTagName();
 		var token = await _authorizationClient.GetTokenAsync(organization, repository, cancellationToken);
 
 		var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri)

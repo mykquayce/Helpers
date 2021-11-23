@@ -21,8 +21,8 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 
 	public async Task<string> GetTokenAsync(string organization, string repository, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(organization).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(repository).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(organization).IsTagName();
+		Guard.Argument(repository).IsTagName();
 
 		var cacheKey = BuildCacheKey(organization, repository);
 
@@ -45,8 +45,8 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 
 	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(organization).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(repository).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(organization).IsTagName();
+		Guard.Argument(repository).IsTagName();
 		
 		var repositoryScope = $"repository:{organization}/{repository}:pull";
 
