@@ -57,7 +57,7 @@ dotnet user-secrets set DockerHub:Username ... --id 8391cb70-d94f-4863-b7e4-5659
 ```
 #### Helpers.Elgato.Tests
 ```bash
-dotnet user-secrets set Elgato:EndPoint:IPAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
+dotnet user-secrets set Elgato:IPAddress ... --id 8391cb70-d94f-4863-b7e4-5659af167bc6
 ```
 #### Helpers.GlobalCache
 ```bash
