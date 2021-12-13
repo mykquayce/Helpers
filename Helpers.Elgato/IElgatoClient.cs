@@ -1,14 +1,11 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Net;
 
-namespace Helpers.Elgato
+namespace Helpers.Elgato;
+
+public interface IElgatoClient
 {
-	public interface IElgatoClient
-	{
-		Task<Models.AccessoryInfoObject> GetAccessoryInfoAsync(IPAddress ipAddress);
-		Task<Models.MessageObject.LightObject> GetLightAsync(IPAddress ipAddress);
-		Task SetLightAsync(IPAddress ipAddress, Models.MessageObject.LightObject light);
-		Task ToggleLightAsync(IPAddress ipAddress);
-	}
+	Task<Models.AccessoryInfoObject> GetAccessoryInfoAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default);
+	Task<Models.MessageObject.LightObject> GetLightAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default);
+	Task SetLightAsync(IPAddress ipAddress, Models.MessageObject.LightObject light, CancellationToken? cancellationToken = default);
+	Task ToggleLightAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default);
 }
