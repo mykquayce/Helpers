@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
+﻿namespace Helpers.Elgato.Models;
 
-namespace Helpers.Elgato.Models
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd-party")]
+public record MessageObject(int numberOfLights, IReadOnlyCollection<MessageObject.LightObject> lights)
 {
-#pragma warning disable IDE1006 // Naming Styles
-	public record MessageObject(int numberOfLights, IList<MessageObject.LightObject> lights)
-	{
-		public record LightObject(byte on, byte brightness, short temperature);
-	}
-#pragma warning restore IDE1006 // Naming Styles
+	public record LightObject(byte on, byte brightness, short temperature);
 }

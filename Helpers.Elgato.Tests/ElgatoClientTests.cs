@@ -37,7 +37,7 @@ public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, I
 	[Fact]
 	public async Task GetLight()
 	{
-		var light = await _sut.GetLightAsync(_ipAddress);
+		var light = await _sut.GetLightAsync(_ipAddress).FirstAsync();
 
 		Assert.NotNull(light);
 		Assert.InRange(light.brightness, 0, 100);
@@ -54,30 +54,10 @@ public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, I
 
 		await _sut.SetLightAsync(_ipAddress, before);
 
-		var after = await _sut.GetLightAsync(_ipAddress);
+		var after = await _sut.GetLightAsync(_ipAddress).FirstAsync();
 
 		Assert.Equal(on, after.on);
 		Assert.Equal(brightness, after.brightness);
 		Assert.Equal(temperature, after.temperature);
-	}
-
-	[Theory]
-	[InlineData(0, 1)]
-	[InlineData(1, 0)]
-	public async Task ToggleLight_OffOn(byte before, byte after)
-	{
-		// Arrange
-		var baseState = await _sut.GetLightAsync(_ipAddress);
-		await _sut.SetLightAsync(_ipAddress, baseState with { on = before, });
-
-		// Act
-		await _sut.ToggleLightAsync(_ipAddress);
-
-		// Assert
-		var currentState = await _sut.GetLightAsync(_ipAddress);
-		Assert.Equal(after, currentState.on);
-
-		// Arrange
-		await _sut.SetLightAsync(_ipAddress, baseState);
 	}
 }

@@ -14,7 +14,7 @@ public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 		public const string DefaultScheme = "http";
 		public const int DefaultPort = 9_123;
 
-		public Config():this(DefaultScheme, DefaultPort) { }
+		public Config() : this(DefaultScheme, DefaultPort) { }
 
 		public static Config Defaults => new();
 
@@ -28,7 +28,7 @@ public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 
 	public ElgatoClient(IOptions<Config> options)
 	{
-		_config = Guard.Argument(options).NotNull().Wrap(o=>o.Value)
+		_config = Guard.Argument(options).NotNull().Wrap(o => o.Value)
 			.NotNull().Value;
 	}
 
@@ -37,18 +37,17 @@ public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 		Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 		var baseUri = new UriBuilder(_config.Scheme, ipAddress.ToString(), _config.Port).Uri;
 		var uri = new Uri(baseUri, "/elgato/accessory-info");
-		var response = await base.SendAsync<Models.AccessoryInfoObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
-		return response.Object ?? throw new Exception();
+		var (_, _, info) = await base.SendAsync<Models.AccessoryInfoObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
+		return info ?? throw new Exception();
 	}
 
-	public async Task<Models.MessageObject.LightObject> GetLightAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.MessageObject.LightObject> GetLightAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
 		var baseUri = new UriBuilder(_config.Scheme, ipAddress.ToString(), _config.Port).Uri;
 		var uri = new Uri(baseUri, "/elgato/lights");
-		var response = await base.SendAsync<Models.MessageObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
-		return response.Object?.lights?.FirstOrDefault()
-			?? throw new Exception();
+		var (_, _, message) = await base.SendAsync<Models.MessageObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
+		foreach (var light in message.lights) yield return light;
 	}
 
 	public Task SetLightAsync(IPAddress ipAddress, Models.MessageObject.LightObject light, CancellationToken? cancellationToken = default)
@@ -59,13 +58,5 @@ public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 		var messageObject = new Models.MessageObject(numberOfLights: 1, lights: new Models.MessageObject.LightObject[1] { light, });
 		var json = JsonSerializer.Serialize(messageObject);
 		return base.SendAsync<Models.MessageObject>(HttpMethod.Put, uri, json, cancellationToken: cancellationToken);
-	}
-
-	public async Task ToggleLightAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default)
-	{
-		Guard.Argument(ipAddress).NotNull().Wrap(ip => ip.GetAddressBytes()).NotEmpty();
-		var before = await GetLightAsync(ipAddress, cancellationToken);
-		var after = before with { on = before.on == 1 ? (byte)0 : (byte)1, };
-		await SetLightAsync(ipAddress, after, cancellationToken);
 	}
 }
