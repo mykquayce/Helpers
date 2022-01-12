@@ -42,4 +42,14 @@ public class CollectionExtensionTests
 			Assert.Equal(l, r);
 		}
 	}
+
+	[Theory]
+	[InlineData(.5d, new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, }, new[] { 0, 2, 4, 6, 8, })]
+	[InlineData(.25d, new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, }, new[] { 0, 4, 8, })]
+	public void TakeSampleTests(double ratio, int[] before, int[] expected)
+	{
+		var actual = before.TakeSample(ratio).ToList();
+
+		Assert.Equal(expected, actual);
+	}
 }

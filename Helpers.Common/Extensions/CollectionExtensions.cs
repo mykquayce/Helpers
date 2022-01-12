@@ -52,4 +52,10 @@ public static class CollectionExtensions
 
 		return string.Empty;
 	}
+
+	public static IEnumerable<T> TakeSample<T>(this IEnumerable<T> item, double ratio = .01d)
+	{
+		var d = 1 / ratio;
+		return item.Where((_, index) => (index % d) == 0);
+	}
 }
