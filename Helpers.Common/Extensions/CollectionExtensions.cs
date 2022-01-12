@@ -53,9 +53,21 @@ public static class CollectionExtensions
 		return string.Empty;
 	}
 
-	public static IEnumerable<T> TakeSample<T>(this IEnumerable<T> item, double ratio = .01d)
+	public static IEnumerable<T> TakeSample<T>(this IEnumerable<T> items, double ratio = .01d)
 	{
 		var d = 1 / ratio;
-		return item.Where((_, index) => (index % d) == 0);
+		var value = 0d;
+
+		foreach (var item in items)
+		{
+			value %= d;
+
+			if (value < 1)
+			{
+				yield return item;
+			}
+
+			value++;
+		}
 	}
 }
