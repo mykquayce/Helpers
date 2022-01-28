@@ -22,7 +22,7 @@ namespace Helpers.Networking.Models
 				var bytes = IPAddress!.GetAddressBytes();
 				var start = new BigInteger(bytes, isUnsigned: true, isBigEndian: true);
 
-				for (BigInteger a = 0; a < Count; a++)
+				for (BigInteger a = 0; a < count; a++)
 				{
 					var adjustedBytes = (start + a).ToByteArray().Reverse().SkipWhile(b => b == 0).ToArray();
 					yield return new IPAddress(adjustedBytes);
@@ -34,8 +34,8 @@ namespace Helpers.Networking.Models
 		{
 			get
 			{
-				var length = IPAddress.GetAddressBytes().Length;
-				return BigInteger.Pow(2, length * 8 - MaskLength);
+				var length = IPAddress.GetAddressBytes().Length * 8;
+				return BigInteger.Pow(2, length - MaskLength);
 			}
 		}
 
