@@ -1,54 +1,53 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
+using System.Data;
+using System.Data.Common;
 
 namespace Helpers.MySql;
 
 public record Config(
 	string Server,
-	ushort Port,
-	string Database,
+	uint Port,
+	string? Database,
 	string UserId,
-	string? Password,
-	string? PasswordFile,
-	MySqlSslMode SslMode = Config.DefaultSslMode)
+	string Password,
+	bool Secure = false)
 	: IOptions<Config>
 {
-	public const MySqlSslMode DefaultSslMode = MySqlSslMode.None;
+	public const string DefaultServer = "localhost", DefaultUserId = "Root";
+	public const string? DefaultDatabase = default;
+	public const uint DefaultPort = 3_306;
+	public const string DefaultPassword = default;
+	public const bool DefaultSecure = false;
+
+	public Config() : this(DefaultServer, DefaultPort, DefaultDatabase, DefaultUserId, DefaultPassword, DefaultSecure) { }
+
+	public static Config Defaults => new();
 
 	#region ioptions implementation
 	public Config Value => this;
 	#endregion ioptions implementation
 
-	public string ConnectionString
+	public DbConnectionStringBuilder ConnectionStringBuilder
 	{
 		get
 		{
-			string? password = (Password, PasswordFile) switch
-			{
-				(null, null) => null,
-				(_, null) => Password!,
-				(null, _) => GetContents(PasswordFile!),
-				(_, _) => throw new ArgumentException("Password and PasswordFile specified.  Please specify just one."),
-			};
+			var sslMode = Secure ? MySqlSslMode.Required : MySqlSslMode.Preferred;
 
-			var builder = new MySqlConnectionStringBuilder
+			return new MySqlConnectionStringBuilder
 			{
 				Server = Guard.Argument(Server).NotNull().NotEmpty().NotWhiteSpace().Value,
 				Port = Guard.Argument(Port).InRange((ushort)1, ushort.MaxValue).Value,
-				Database = Guard.Argument(Database).NotNull().NotEmpty().NotWhiteSpace().Value,
+				Database = Guard.Argument(Database).NotEmpty().NotWhiteSpace().Value,
 				UserID = Guard.Argument(UserId).NotNull().NotEmpty().NotWhiteSpace().Value,
-				Password = Guard.Argument(password).NotEmpty().NotWhiteSpace().Value,
-				SslMode = Guard.Argument(SslMode).Defined().Value,
+				Password = Guard.Argument(Password).NotEmpty().NotWhiteSpace().Value,
+				SslMode = Guard.Argument(sslMode).Defined().Value,
 			};
-
-			return builder.ConnectionString;
 		}
 	}
 
-	private static string GetContents(string path)
-	{
-		Guard.Argument(path).NotNull().NotEmpty().NotWhiteSpace();
-		return File.ReadAllText(path);
-	}
+	public string ConnectionString => ConnectionStringBuilder.ConnectionString;
+
+	public IDbConnection DbConnection => new MySqlConnection(ConnectionString);
 }

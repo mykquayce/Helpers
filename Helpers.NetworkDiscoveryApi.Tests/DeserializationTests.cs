@@ -21,8 +21,16 @@ public class DeserializationTests
 		Assert.NotEmpty(leases);
 		Assert.DoesNotContain(default, leases);
 
-		foreach (var (expiration, mac, ip, hostName, identifier) in leases)
+		using var enumerator = leases.GetEnumerator();
+
+		while (enumerator.MoveNext())
 		{
+			var dhcpDetails = enumerator.Current;
+
+			Assert.NotNull(dhcpDetails);
+
+			var (expiration, mac, ip, hostName, identifier) = dhcpDetails;
+
 			Assert.NotEqual(default, expiration);
 			Assert.NotEqual(default, mac);
 			Assert.NotEqual(default, ip);
