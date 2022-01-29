@@ -2,21 +2,26 @@
 
 namespace System.Collections.Generic;
 
-public class DoubleEnumerator<T> : IEnumerator<(T, T)>
+public class DoubleEnumerator<TFirst, TSecond> : IEnumerator<(TFirst, TSecond)>
 {
-	private readonly IEnumerator<T> _first, _second;
+	private readonly IEnumerator<TFirst> _first;
+	private readonly IEnumerator<TSecond> _second;
 
-	public DoubleEnumerator(IEnumerator<T> first, IEnumerator<T> second)
+	public DoubleEnumerator(IEnumerator<TFirst> first, IEnumerator<TSecond> second)
 	{
 		_first = Guard.Argument(first).NotNull().Value;
 		_second = Guard.Argument(second).NotNull().Value;
 	}
 
-	public (T, T) Current => (_first.Current, _second.Current);
+	public (TFirst, TSecond) Current => (_first.Current, _second.Current);
 
 	object IEnumerator.Current => Current;
 
-	public bool MoveNext() => _first.MoveNext() && _second.MoveNext();
+	public bool MoveNext()
+	{
+		var ok = new bool[2] { _first.MoveNext(), _second.MoveNext(), };
+		return ok[0] && ok[1];
+	}
 
 	public void Reset()
 	{

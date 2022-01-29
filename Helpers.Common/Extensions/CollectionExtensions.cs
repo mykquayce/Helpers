@@ -5,13 +5,13 @@ namespace System.Collections.Generic;
 
 public static class CollectionExtensions
 {
-	public static IEnumerator<(T, T)> GetEnumerator<T>(this (IEnumerable<T>, IEnumerable<T>) tuple)
+	public static IEnumerator<(TFirst, TSecond)> GetEnumerator<TFirst, TSecond>(this (IEnumerable<TFirst>, IEnumerable<TSecond>) tuple)
 	{
 		Guard.Argument(tuple).NotDefault();
 		var first = Guard.Argument(tuple.Item1).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
 		var second = Guard.Argument(tuple.Item2).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
 
-		return new DoubleEnumerator<T>(first, second);
+		return new DoubleEnumerator<TFirst, TSecond>(first, second);
 	}
 
 	public static string ToKeyValuePairString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dictionary)
