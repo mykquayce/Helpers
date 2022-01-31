@@ -2,7 +2,7 @@
 
 namespace Helpers.Reddit.Tests.Fixtures;
 
-public class ClientFixture : IDisposable
+public sealed class ClientFixture : IDisposable
 {
 	private readonly HttpClientHandler _httpClientHandler;
 	private readonly HttpClient _httpClient;
@@ -15,31 +15,14 @@ public class ClientFixture : IDisposable
 
 		var xmlSerializerFactory = new XmlSerializerFactory();
 
-		Client = new Helpers.Reddit.Concrete.Client(_httpClient, xmlSerializerFactory);
+		Client = new Concrete.Client(_httpClient, xmlSerializerFactory);
 	}
 
-	public Helpers.Reddit.IClient Client { get; }
-
-	#region disposing
-	private bool _disposed;
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!_disposed)
-		{
-			if (disposing)
-			{
-				_httpClient.Dispose();
-				_httpClientHandler.Dispose();
-			}
-
-			_disposed = true;
-		}
-	}
+	public IClient Client { get; }
 
 	public void Dispose()
 	{
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
+		_httpClient.Dispose();
+		_httpClientHandler.Dispose();
 	}
-	#endregion disposing
 }

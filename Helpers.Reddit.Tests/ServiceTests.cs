@@ -1,5 +1,4 @@
-﻿using Moq;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.Reddit.Tests;
 
@@ -24,13 +23,10 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		"https://www.icewarehouse.com/True_TF7/descpage-TF7SK.html",
 		"https://www.thehockeyshop.com/products/true-tf7-senior-hockey-skates"
 		)]
-	public void GetUris(string content, params string[] expected)
+	public void GetUris(string comment, params string[] expected)
 	{
-		// Arrange
-		var comment = Mock.Of<Models.IComment>(c => c.Content == content);
-
 		// Act
-		var uris = _sut.GetUris(comment).ToList();
+		var uris = _sut.GetLinksFromComment(comment).ToList();
 
 		// Assert
 		Assert.NotNull(uris);
@@ -44,55 +40,38 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	public async Task GetThreads(string subredditName)
 	{
 		// Act
-		var threads = await _sut.GetThreadsAsync(subredditName).ToListAsync();
+		var threadIds = await _sut.GetThreadIdsForSubredditAsync(subredditName).ToListAsync();
 
 		// Assert
-		Assert.NotEmpty(threads);
-
-		foreach (var thread in threads)
-		{
-			Assert.NotNull(thread);
-			Assert.NotNull(thread.Id);
-			Assert.NotEmpty(thread.Id);
-			Assert.NotNull(thread.Subreddit);
-			Assert.NotEmpty(thread.Subreddit);
-		}
+		Assert.NotEmpty(threadIds);
+		Assert.DoesNotContain(default, threadIds);
 	}
 
 	[Theory]
 	[InlineData("euphoria", "cm3ryv")]
-	public async Task GetComments(string subreddit, string id)
+	public async Task GetComments(string subreddit, string threadId)
 	{
-		// Arrange
-		var thread = Mock.Of<Models.IThread>(t => t.Subreddit == subreddit && t.Id == id);
-
 		// Act
-		var comments = await _sut.GetCommentsAsync(thread).ToListAsync();
+		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).ToListAsync();
 
 		// Assert
 		Assert.NotEmpty(comments);
-
-		foreach (var comment in comments)
-		{
-			Assert.NotNull(comment);
-			Assert.NotNull(comment.Content);
-			Assert.NotEmpty(comment.Content);
-		}
+		Assert.DoesNotContain(default, comments);
 	}
 
 	[Fact]
 	public async Task EndToEndTests()
 	{
 		var uris = new List<Uri>();
-		var subreddit = await _sut.GetRandomSubredditAsync();
+		var subredditName = await _sut.GetRandomSubredditNameAsync();
 
-		Assert.NotNull(subreddit);
+		Assert.NotNull(subredditName);
 
-		await foreach (var thread in _sut.GetThreadsAsync(subreddit))
+		await foreach (var threadId in _sut.GetThreadIdsForSubredditAsync(subredditName))
 		{
-			await foreach (var comment in _sut.GetCommentsAsync(thread))
+			await foreach (var comment in _sut.GetCommentsForThreadIdAsync(subredditName, threadId))
 			{
-				foreach (var uri in _sut.GetUris(comment))
+				foreach (var uri in _sut.GetLinksFromComment(comment))
 				{
 					uris.Add(uri);
 				}

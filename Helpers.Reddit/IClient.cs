@@ -2,7 +2,7 @@
 
 public interface IClient
 {
-	IAsyncEnumerable<Models.Generated.entry> GetCommentsAsync(string subreddit, string threadId);
-	Task<string> GetRandomSubredditAsync();
-	IAsyncEnumerable<Models.Generated.entry> GetThreadsAsync(string subreddit);
+	IAsyncEnumerable<string> GetCommentsFromThreadAsync(string subreddit, string threadId, CancellationToken? cancellationToken = default);
+	Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default);
+	IAsyncEnumerable<Models.Generated.entryType> GetThreadsFromSubredditAsync(string subredditName, CancellationToken? cancellationToken = default);
 }

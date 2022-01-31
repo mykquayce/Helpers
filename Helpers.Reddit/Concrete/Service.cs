@@ -1,115 +1,58 @@
 ﻿using Dawn;
-using Microsoft.Extensions.Options;
-using System.Collections;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Helpers.Reddit.Concrete;
 
 public class Service : IService
 {
-	#region config
-	public record Config(IReadOnlyCollection<string> Blacklist) : IOptions<Config>, IReadOnlyCollection<string>
-	{
-		#region IOptions implementation
-		public Config Value => this;
-		#endregion IOptions implementation
-
-		#region IReadOnlyCollection implementation
-		public int Count => Blacklist.Count;
-		public IEnumerator<string> GetEnumerator() => Blacklist.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-		#endregion IReadOnlyCollection implementation
-	}
-	#endregion config
-
-	private const RegexOptions _regexOptions = RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-	private readonly static Regex _linkRegex = new("(?:href|src)=\"(.+?)\"", _regexOptions);
+	private static readonly Regex _threadRegex = new(@"^https:\/\/old\.reddit\.com\/r\/(\w+)\/comments\/(\w+)\/(\w+)\/$");
+	private static readonly Regex _linkRegex = new(@"\""(https?:\/\/.+?)\""");
 	private readonly IClient _client;
-	private readonly IEnumerable<string> _blacklist;
+	private readonly IReadOnlyCollection<string> _blacklist;
 
-	public Service(IClient client, IOptions<Config> blacklistOptions)
+	public Service(IClient client, IReadOnlyCollection<string> blacklist)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
-		_blacklist = Guard.Argument(blacklistOptions).NotNull().Wrap(o => o.Value)
-			.NotNull().NotEmpty().DoesNotContainNull().Value;
+		_blacklist = Guard.Argument(blacklist).NotNull().Value;
 	}
 
-	public Task<string> GetRandomSubredditAsync() => _client.GetRandomSubredditAsync();
+	public Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default)
+		=> _client.GetRandomSubredditNameAsync(cancellationToken);
 
-	public async IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit)
+	public async IAsyncEnumerable<string> GetThreadIdsForSubredditAsync(string subredditName, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(subreddit).IsSubredditName();
+		var threads = _client.GetThreadsFromSubredditAsync(subredditName, cancellationToken);
 
-		await foreach (var thread in _client.GetThreadsAsync(subreddit))
+		await using var enumerator = threads.GetAsyncEnumerator(cancellationToken ?? CancellationToken.None);
+
+		while (cancellationToken?.IsCancellationRequested != true
+			&& await enumerator.MoveNextAsync())
 		{
-			yield return thread;
+			var thread = enumerator.Current;
+			var match = _threadRegex.Match(thread.link.href);
+			var (_, _, threadId, _) = match;
+			yield return threadId!;
 		}
 	}
 
-	public async IAsyncEnumerable<Models.IComment> GetCommentsAsync(string subreddit)
+	public IAsyncEnumerable<string> GetCommentsForThreadIdAsync(string subredditName, string threadId, CancellationToken? cancellationToken = default)
+		=> _client.GetCommentsFromThreadAsync(subredditName, threadId, cancellationToken);
+
+	public IEnumerable<Uri> GetLinksFromComment(string comment, CancellationToken? cancellationToken = default)
 	{
-		await foreach (var thread in GetThreadsAsync(subreddit))
+		Guard.Argument(comment).NotNull().NotEmpty().NotWhiteSpace();
+
+		var matches = _linkRegex.Matches(comment);
+		var enumerator = matches.GetEnumerator();
+
+		while (cancellationToken?.IsCancellationRequested != true
+			&& enumerator.MoveNext())
 		{
-			await foreach (var comment in GetCommentsAsync(thread))
-			{
-				yield return comment;
-			}
-		}
-	}
-
-	public async IAsyncEnumerable<Models.IComment> GetCommentsAsync(Models.IThread thread)
-	{
-		Guard.Argument(thread).NotNull();
-		Guard.Argument(thread.Subreddit).IsSubredditName();
-		Guard.Argument(thread.Id).IsThreadId();
-
-		await foreach (var entry in _client.GetCommentsAsync(thread.Subreddit, thread.Id))
-		{
-			yield return entry;
-		}
-	}
-
-	public async IAsyncEnumerable<Uri> GetUrisAsync(string subreddit)
-	{
-		await foreach (var thread in GetThreadsAsync(subreddit))
-		{
-			await foreach (var uri in GetUrisAsync(thread))
-			{
-				yield return uri;
-			}
-		}
-	}
-
-	public async IAsyncEnumerable<Uri> GetUrisAsync(Models.IThread thread)
-	{
-		await foreach (var comment in GetCommentsAsync(thread))
-		{
-			foreach (var uri in GetUris(comment))
-			{
-				yield return uri;
-			}
-		}
-	}
-
-	public IEnumerable<Uri> GetUris(Models.IComment comment)
-	{
-		var matches = _linkRegex.Matches(comment.Content);
-
-		foreach (Match match in matches)
-		{
-			var uriString = match.Groups[1].Value;
-
-			var ok = Uri.TryCreate(uriString, UriKind.Absolute, out var result);
-
-			if (ok)
-			{
-				if (_blacklist.Any(s => result!.Host.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
-				{
-					continue;
-				}
-
-				yield return result!;
-			}
+			var uriString = ((Match)enumerator.Current).Groups[1].Value;
+			if (!Uri.TryCreate(uriString, UriKind.Absolute, out var uri)) continue;
+			if (_blacklist.Any(s => uri.Host.EndsWith(s, StringComparison.OrdinalIgnoreCase))) continue;
+			yield return uri;
 		}
 	}
 }

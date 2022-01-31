@@ -2,8 +2,8 @@
 
 public interface IService
 {
-	Task<string> GetRandomSubredditAsync();
-	IAsyncEnumerable<Models.IThread> GetThreadsAsync(string subreddit);
-	IAsyncEnumerable<Models.IComment> GetCommentsAsync(Models.IThread thread);
-	IEnumerable<Uri> GetUris(Models.IComment comment);
+	IAsyncEnumerable<string> GetCommentsForThreadIdAsync(string subredditName, string threadId, CancellationToken? cancellationToken = default);
+	IEnumerable<Uri> GetLinksFromComment(string comment, CancellationToken? cancellationToken = default);
+	Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default);
+	IAsyncEnumerable<string> GetThreadIdsForSubredditAsync(string subredditName, CancellationToken? cancellationToken = default);
 }
