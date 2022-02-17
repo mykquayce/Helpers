@@ -1,14 +1,11 @@
-﻿using System;
+﻿namespace Helpers.RabbitMQ.Exceptions;
 
-namespace Helpers.RabbitMQ.Exceptions
+[Serializable]
+public class QueueNotFoundException : Exception
 {
-	[Serializable]
-	public class QueueNotFoundException : Exception
+	public QueueNotFoundException(string queueName)
+		: base("Queue not found: " + queueName)
 	{
-		public QueueNotFoundException(string queueName)
-			: base("Queue not found: " + queueName)
-		{
-			base.Data.Add(nameof(queueName), queueName);
-		}
+		base.Data.Add(nameof(queueName), queueName);
 	}
 }
