@@ -59,6 +59,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	}
 
 	private class Class { public string? String { get; set; } }
+
 	[Theory]
 	[InlineData("first-queue", "second-queue")]
 	public void MultipleQueueTests(params string[] queues)
@@ -90,5 +91,52 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		// acknowledge
 		_service.Acknowledge(tag);
+	}
+
+	[Theory]
+	[InlineData("test-queue", "hello world")]
+	public void DisposingTests(string queueName, string message)
+	{
+		{
+			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			service.Enqueue(queueName, message);
+		}
+
+		{
+			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			var (actual, tag) = service.Dequeue<string>(queueName);
+			service.Acknowledge(tag);
+			Assert.Equal(message, actual);
+		}
+
+		{
+			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			service.PurgeQueue(queueName);
+		}
+
+		{
+			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			service.DeleteQueue(queueName);
+		}
+	}
+
+	[Theory]
+	[InlineData("test-queue", "hello world")]
+	public void PurgeTests(string queue, string message)
+	{
+		_service.Enqueue(queue, message);
+		_service.PurgeQueue(queue);
+		void testCode() => _service.Dequeue(queue);
+		Assert.Throws<Exceptions.QueueEmptyException>(testCode);
+	}
+
+	[Theory]
+	[InlineData("test-queue", "hello world")]
+	public void DeleteEmptyQueueTests(string queue, string message)
+	{
+		_service.Enqueue(queue, message);
+		_service.DeleteQueue(queue);
+		void testCode() => _service.Dequeue(queue);
+		Assert.Throws<Exceptions.QueueNotFoundException>(testCode);
 	}
 }

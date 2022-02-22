@@ -23,4 +23,8 @@ public interface IService : IDisposable
 		var body = _encoding.GetBytes(json);
 		Enqueue(queue, body);
 	}
+	void PurgeQueue(string queue);
+	void PurgeQueues();
+	void DeleteQueue(string queue);
+	void DeleteQueues();
 }

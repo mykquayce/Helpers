@@ -20,5 +20,9 @@ public sealed class ServiceFixture : IDisposable
 
 	public IService Service { get; }
 
-	public void Dispose() => Service?.Dispose();
+	public void Dispose()
+	{
+		Service?.DeleteQueues();
+		Service?.Dispose();
+	}
 }

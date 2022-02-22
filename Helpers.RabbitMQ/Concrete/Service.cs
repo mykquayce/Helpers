@@ -46,6 +46,8 @@ public class Service : IDisposable, IService
 
 	private void Connect(params string[] queues)
 	{
+		Guard.Argument(queues).NotEmpty().DoesNotContainNull().DoesNotContain(string.Empty);
+
 		if (_connection?.IsOpen != true)
 		{
 			_connection = _connectionFactory.CreateConnection();
@@ -109,10 +111,6 @@ public class Service : IDisposable, IService
 		{
 			if (disposing)
 			{
-				foreach (var queue in _queues)
-				{
-					_channel?.QueueDelete(queue, ifUnused: true, ifEmpty: true);
-				}
 				_channel?.Dispose();
 				_connection?.Dispose();
 			}
@@ -125,6 +123,28 @@ public class Service : IDisposable, IService
 	{
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
+	}
+
+	public void PurgeQueue(string queue)
+	{
+		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
+		while (_channel?.BasicGet(queue, autoAck: true) is not null) { }
+	}
+
+	public void PurgeQueues()
+	{
+		foreach (var queue in _queues) PurgeQueue(queue);
+	}
+
+	public void DeleteQueue(string queue)
+	{
+		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
+		_channel?.QueueDelete(queue, ifEmpty: false);
+	}
+
+	public void DeleteQueues()
+	{
+		foreach (var queue in _queues) DeleteQueue(queue);
 	}
 	#endregion idisposable implementation
 }
