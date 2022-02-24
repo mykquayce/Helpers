@@ -1,5 +1,5 @@
 ﻿using Dawn;
-using System.Linq;
+using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
 
 namespace Helpers.Reddit.Concrete;
@@ -9,12 +9,14 @@ public class Service : IService
 	private static readonly Regex _threadRegex = new(@"^https:\/\/old\.reddit\.com\/r\/(\w+)\/comments\/(\w+)\/(\w+)\/$");
 	private static readonly Regex _linkRegex = new(@"\""(https?:\/\/.+?)\""");
 	private readonly IClient _client;
-	private readonly IReadOnlyCollection<string> _blacklist;
+	private readonly IReadOnlyCollection<string> _denylist;
 
-	public Service(IClient client, IReadOnlyCollection<string> blacklist)
+	public Service(IClient client, IOptions<List<string>> denylistOptions)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
-		_blacklist = Guard.Argument(blacklist).NotNull().Value;
+		_denylist = Guard.Argument(denylistOptions).NotNull().Wrap(o => o.Value)
+			.NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate()
+			.Value;
 	}
 
 	public Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default)
@@ -51,7 +53,7 @@ public class Service : IService
 		{
 			var uriString = ((Match)enumerator.Current).Groups[1].Value;
 			if (!Uri.TryCreate(uriString, UriKind.Absolute, out var uri)) continue;
-			if (_blacklist.Any(s => uri.Host.EndsWith(s, StringComparison.OrdinalIgnoreCase))) continue;
+			if (_denylist.Any(s => uri.Host.EndsWith(s, StringComparison.OrdinalIgnoreCase))) continue;
 			yield return uri;
 		}
 	}

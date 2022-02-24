@@ -1,8 +1,10 @@
-﻿namespace Helpers.Reddit.Tests.Fixtures;
+﻿using Microsoft.Extensions.Options;
+
+namespace Helpers.Reddit.Tests.Fixtures;
 
 public sealed class ServiceFixture : IDisposable
 {
-	private static readonly IReadOnlyCollection<string> _blacklist = new[]
+	private static readonly List<string> _denylist = new()
 	{
 		"redd.it",
 		"reddit.com",
@@ -32,7 +34,7 @@ public sealed class ServiceFixture : IDisposable
 	public ServiceFixture()
 	{
 		var client = _clientFixture.Client;
-		Service = new Concrete.Service(client, _blacklist);
+		Service = new Concrete.Service(client, Options.Create(_denylist));
 	}
 
 	public IService Service { get; }
