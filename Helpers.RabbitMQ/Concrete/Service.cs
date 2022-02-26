@@ -7,17 +7,17 @@ namespace Helpers.RabbitMQ.Concrete;
 
 public class Service : IDisposable, IService
 {
-	public record Config(string Hostname, ushort Port, string Username, string Password, string VirtualHost = Config._defaultVirtualHost)
+	public record Config(string Hostname, ushort Port, string Username, string Password, string VirtualHost = Config.DefaultVirtualHost)
 		: IOptions<Config>
 	{
-		private const string _defaultHostname = "localhost";
-		private const ushort _defaultPort = 5_672;
-		private const string _defaultUsername = ConnectionFactory.DefaultUser;
-		private const string _defaultPassword = ConnectionFactory.DefaultPass;
-		private const string _defaultVirtualHost = ConnectionFactory.DefaultVHost;
+		public const string DefaultHostname = "localhost";
+		public const ushort DefaultPort = 5_672;
+		public const string DefaultUsername = ConnectionFactory.DefaultUser;
+		public const string DefaultPassword = ConnectionFactory.DefaultPass;
+		public const string DefaultVirtualHost = ConnectionFactory.DefaultVHost;
 
 		public Config()
-			: this(_defaultHostname, _defaultPort, _defaultUsername, _defaultPassword, _defaultVirtualHost)
+			: this(DefaultHostname, DefaultPort, DefaultUsername, DefaultPassword, DefaultVirtualHost)
 		{ }
 
 		public static Config Defaults => new();
@@ -32,7 +32,8 @@ public class Service : IDisposable, IService
 
 	public Service(IOptions<Config> configOptions)
 	{
-		var config = configOptions.Value;
+		var config = Guard.Argument(configOptions).NotNull().Wrap(o => o.Value)
+			.NotNull().Value;
 
 		_connectionFactory = new ConnectionFactory
 		{
