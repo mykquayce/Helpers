@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
 		{
 			var path = configuration[property.Name + "_File"];
 			if (string.IsNullOrWhiteSpace(path)) continue;
-			var contents = File.ReadAllText(path);
+			var contents = File.ReadAllText(path.FixPaths());
 			if (string.IsNullOrWhiteSpace(contents)) continue;
 			additionals.Add(property.Name, contents);
 		}
@@ -32,9 +32,7 @@ public static class ServiceCollectionExtensions
 			.AddInMemoryCollection(additionals)
 			.Build();
 
-		var t = augmentedConfiguration.Get<TOptions>();
-		var options = Options.Options.Create(t);
-		services.AddSingleton(options);
+		services.Configure<TOptions>(augmentedConfiguration);
 
 		return services;
 	}

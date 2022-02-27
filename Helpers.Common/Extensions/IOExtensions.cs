@@ -70,4 +70,6 @@ public static class IOExtensions
 			yield return fsi;
 		}
 	}
+
+	public static string FixPaths(this string s) => Path.Combine(s.Split('/', '\\'));
 }

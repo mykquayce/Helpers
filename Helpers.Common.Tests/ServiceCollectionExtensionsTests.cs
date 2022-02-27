@@ -51,4 +51,36 @@ public class ServiceCollectionExtensionsTests
 	{
 		public Config() : this(default(string)) { }
 	}
+
+	public record Config2(string? Username)
+	{
+		public Config2() : this(default(string)) { }
+	}
+
+	[Fact]
+	public void FileConfig_NullData()
+	{
+		IServiceProvider serviceProvider;
+		{
+			IConfiguration configuration;
+			{
+				configuration = new ConfigurationBuilder()
+					.Build();
+			}
+
+			serviceProvider = new ServiceCollection()
+				.Configure<Config>(configuration)
+				.FileConfigure<Config2>(configuration)
+					.BuildServiceProvider();
+		}
+
+		var options1 = serviceProvider.GetService<IOptions<Config>>();
+		var options2 = serviceProvider.GetService<IOptions<Config2>>();
+
+		Assert.NotNull(options1);
+		Assert.NotNull(options2);
+
+		Assert.NotNull(options1.Value);
+		Assert.NotNull(options2.Value);
+	}
 }
