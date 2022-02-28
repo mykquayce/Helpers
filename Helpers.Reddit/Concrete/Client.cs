@@ -63,6 +63,7 @@ public class Client : IClient
 		{
 			var entry = (Models.Generated.entryType)enumerator.Current;
 			var comment = entry.content.Value;
+			if (string.IsNullOrWhiteSpace(comment)) continue;
 			yield return System.Web.HttpUtility.HtmlDecode(comment);
 		}
 	}

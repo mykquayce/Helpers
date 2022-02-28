@@ -71,4 +71,16 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 		stopwatch.Stop();
 		Console.WriteLine(stopwatch.ElapsedTicks / (double)TimeSpan.TicksPerSecond);
 	}
+
+	[Theory]
+	[InlineData("Superstonk", "ptvaka")]
+	public async Task ThreadWithNullCommentTests(string subreddit, string threadId)
+	{
+		var comments = await _sut.GetCommentsFromThreadAsync(subreddit, threadId)
+			.ToListAsync();
+
+		Assert.NotNull(comments);
+		Assert.NotEmpty(comments);
+		Assert.DoesNotContain(default, comments);
+	}
 }
