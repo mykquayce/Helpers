@@ -80,4 +80,17 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		Assert.NotEmpty(uris);
 	}
+
+	[Theory]
+	[InlineData("Superstonk", "ptvaka")]
+	public async Task GetLinksForThreadIdTests(string subredditName, string threadId)
+	{
+		var links = await _sut.GetLinksForThreadIdAsync(subredditName, threadId)
+			.ToListAsync();
+
+		Assert.NotNull(links);
+		Assert.NotEmpty(links);
+		Assert.DoesNotContain(default, links);
+		Assert.All(links, uri => Assert.NotNull(uri.OriginalString));
+	}
 }
