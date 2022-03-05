@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
 		{
 			var path = configuration[property.Name + "_File"];
 			if (string.IsNullOrWhiteSpace(path)) continue;
-			var contents = File.ReadAllText(path.FixPaths());
+			var contents = File.ReadAllText(path);
 			if (string.IsNullOrWhiteSpace(contents)) continue;
 			additionals.Add(property.Name, contents);
 		}

@@ -214,13 +214,4 @@ public class IOExtensionsTests
 
 		public static explicit operator StreamWrapper(MemoryStream stream) => new(stream);
 	}
-
-	[Theory]
-	[InlineData("./data/username", ".", "data", "username")]
-	[InlineData(@".\data\username", ".", "data", "username")]
-	public void FixPathTests(string before, params string[] expected)
-	{
-		var actual = before.Split('/', '\\');
-		Assert.Equal(expected, actual);
-	}
 }
