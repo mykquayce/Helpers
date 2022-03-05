@@ -51,12 +51,22 @@ public class Service : IDisposable, IService
 
 		if (_connection?.IsOpen != true)
 		{
-			_connection = _connectionFactory.CreateConnection();
+			var count = 10;
+			while (_connection is null
+				&& count-- >= 0)
+			{
+				try { _connection = _connectionFactory.CreateConnection(); }
+				catch (BrokerUnreachableException)
+				{
+					if (count <= 0) throw;
+					Thread.Sleep(millisecondsTimeout: 3_000);
+				}
+			}
 		}
 
 		if (_channel?.IsOpen != true)
 		{
-			_channel = _connection.CreateModel();
+			_channel = _connection!.CreateModel();
 		}
 
 		foreach (var queue in queues.Except(_queues))
