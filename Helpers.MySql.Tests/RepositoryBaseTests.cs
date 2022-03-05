@@ -1,28 +1,26 @@
-﻿using System.Data;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.MySql.Tests;
 
 public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
 {
-	private readonly string _username, _password, _passwordFile;
+	private readonly string _username, _password;
 
 	public RepositoryBaseTests(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
 	{
 		_username = fixture["MySql:Username"];
 		_password = fixture["MySql:Password"];
-		_passwordFile = fixture["MySql:PasswordFIle"];
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
-	[Theory(Skip = "requires db access")]
-	[InlineData("localhost", 3_306, "test", "table1")]
-	public async Task RepositoryBaseTests_EndToEnd(string server, ushort port, string database, string tableName)
+	[Theory]
+	[InlineData("localhost", 3_306, "new_schema", "table1", true)]
+	public async Task RepositoryBaseTests_EndToEnd(string server, ushort port, string database, string tableName, bool secure)
 	{
 		// Arrange, Act
-		var config = new Config(server, port, database, _username, _password, _passwordFile);
+		var config = new Config(server, port, default, _username, _password, secure);
+		using var connection = config.DbConnection;
 
-		using var sut = new TestRepository(config);
+		var sut = new TestRepository(connection);
 
 		// Act
 		var now = DateTime.UtcNow;
@@ -30,148 +28,83 @@ public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.User
 
 		// Assert
 		Assert.InRange(dateTime, now.AddMinutes(-1), now.AddMinutes(1));
-		Assert.Equal(ConnectionState.Closed, sut.ConnectionState);
 
 		// Act
-		await sut.SafeCreateTableAsync(
-			tableName,
-			$@"CREATE TABLE `{database}`.`{tableName}` (
+		try
+		{
+			await sut.ExecuteAsync($"CREATE DATABASE `{database}`;");
+
+			await sut.ExecuteAsync(
+				$@"CREATE TABLE `{database}`.`{tableName}` (
 					`id` SMALLINT(2) UNSIGNED NOT NULL,
 					`name` VARCHAR(100) NOT NULL,
 					PRIMARY KEY (`id`)
 				);");
 
-		// Assert
-		Assert.True(await sut.CheckTableExistsAsync(tableName));
+			// Assert
+			Assert.Equal(1,
+				await sut.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_NAME` = @tableName LIMIT 1;", new { tableName, }));
 
-		// Act
-		await sut.ExecuteAsync($"DELETE FROM `{database}`.`{tableName}` WHERE id>=0;");
+			// Act
+			var @params = new { id = 1, name = "test", };
+			await sut.ExecuteAsync($"INSERT `{database}`.`{tableName}` (id, name) VALUES (@id, @name);", @params);
 
-		await sut.ExecuteAsync($"INSERT `{database}`.`{tableName}`(id, name) VALUES (@id, @name);", new[]
-		{
-				new { id = 1, name = "test", },
-			});
+			var results = await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;")
+				.ToListAsync();
 
-		var results = await sut.QueryAsync<(short, string)>($"SELECT * FROM `{database}`.`{tableName}`;").ToListAsync();
-
-		// Assert
-		Assert.NotEmpty(results);
-		Assert.Single(results);
-		Assert.Equal(1, results[0].Item1);
-		Assert.Equal("test", results[0].Item2);
-
-		// Act
-		await sut.SafeDropTableAsync(tableName);
-
-		// Assert
-		Assert.False(await sut.CheckTableExistsAsync(tableName));
-
-		await sut.SafeDropDatabaseAsync(database);
-
-		// Arrange
-		sut.Dispose();
-	}
-
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
-	[Theory(Skip = "requires db access")]
-	[InlineData("localhost", 3_306, "test", "table2")]
-	public async Task RepositoryBaseTests_TransactionTest(string server, ushort port, string database, string tableName)
-	{
-		var config = new Config(server, port, database, _username, _password, _passwordFile);
-		using var sut = new TestRepository(config);
-
-		await sut.SafeDropTableAsync(tableName);
-
-		Assert.False(await sut.CheckTableExistsAsync(tableName));
-
-		// make a table
-		await sut.SafeCreateTableAsync(
-			tableName,
-			$@"CREATE TABLE `test`.`{tableName}` (
-					`id` SMALLINT NOT NULL,
-					`name` VARCHAR(100) NOT NULL,
-					PRIMARY KEY (`id`)
-				);");
-
-		IEnumerable<(short id, string name)> results;
-
-		using var transaction = sut.BeginTransaction();
-
-		// check it's empty
-		results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
-
-		Assert.Empty(results);
-
-		// add to it
-		await sut.ExecuteAsync(
-			$@"insert `test`.`{tableName}` (id, name) values (@id, @name);",
-			new { id = 1, name = "test", },
-			transaction);
-
-		// check it's not empty
-		results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
-
-		Assert.NotEmpty(results);
-
-		// rollback the transaction
-		transaction.Rollback();
-
-		// check the table is empty
-		results = await sut.QueryAsync<(short id, string name)>($"select * from `test`.`{tableName}`").ToListAsync();
-
-		Assert.Empty(results);
-
-		await sut.SafeDropTableAsync(tableName);
-
-		// drop the table
-		Assert.False(await sut.CheckTableExistsAsync(tableName));
-
-		await sut.SafeDropDatabaseAsync("test");
-	}
-
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
-	[Theory(Skip = "requires db access")]
-	[InlineData("localhost", 3_306)]
-	public async Task RepositoryBaseTests_OpenAnOpenConnection(string server, ushort port, string? database = default)
-	{
-		var config = new Config(server, port, database!, _username, _password, _passwordFile);
-		using var sut = new TestRepository(config);
-
-		using (var transaction = sut.BeginTransaction())
-		{
-			await sut.GetDateTimeAsync();
+			// Assert
+			Assert.NotEmpty(results);
+			Assert.Single(results);
+			Assert.Equal(1, results[0].Item1);
+			Assert.Equal("test", results[0].Item2);
 		}
-
-		using (var transaction = sut.BeginTransaction())
+		finally
 		{
+			await sut.ExecuteAsync($"DROP TABLE `{database}`.`{tableName}`;");
+			await sut.ExecuteAsync($"DROP DATABASE `{database}`;");
+		}
+	}
+
+	[Theory]
+	[InlineData(3, "localhost", 3_306)]
+	public async Task RepositoryBaseTests_OpenAnOpenConnection(int count, string server, ushort port)
+	{
+		var config = new Config(server, port, default, _username, _password);
+		using var connection = config.DbConnection;
+
+		var sut = new TestRepository(connection);
+
+		while (count-- > 0)
+		{
+			using var transaction = sut.BeginTransaction();
 			await sut.GetDateTimeAsync();
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
-	[Theory(Skip = "requires db access")]
+	[Theory]
 	[InlineData("localhost", 3_306)]
-	public async Task RepositoryBaseTests_ReturnDateTime(string server, ushort port, string? database = default)
+	public async Task RepositoryBaseTests_ReturnDateTime(string server, ushort port)
 	{
-		var config = new Config(server, port, database!, _username, _password, _passwordFile);
-		using var sut = new TestRepository(config);
+		var config = new Config(server, port, default, _username, _password);
+		using var connection = config.DbConnection;
 
-		var results = sut.QueryAsync<DateTimeResult>("select now() now union all select now();");
+		var sut = new TestRepository(connection);
+
+		var results = await sut.QueryAsync<DateTime>("select now() union all select now();")
+			.ToListAsync();
 
 		var now = DateTime.UtcNow;
-		var count = 0;
 
-		await foreach (var result in results)
+		Assert.NotNull(results);
+		Assert.NotEmpty(results);
+		Assert.Equal(2, results.Count);
+		Assert.DoesNotContain(default, results);
+
+		foreach (var result in results)
 		{
-			count++;
-			Assert.NotNull(result);
-			Assert.NotEqual(default, result.Now);
-			Assert.Equal(DateTimeKind.Unspecified, result.Now.Kind);
-			Assert.InRange(result.Now, now.AddSeconds(-3), now.AddSeconds(3));
+			Assert.NotEqual(default, result);
+			Assert.Equal(DateTimeKind.Unspecified, result.Kind);
+			Assert.InRange(result, now.AddSeconds(-3), now.AddSeconds(3));
 		}
-
-		Assert.Equal(2, count);
 	}
-
-	private record DateTimeResult(DateTime Now);
 }
