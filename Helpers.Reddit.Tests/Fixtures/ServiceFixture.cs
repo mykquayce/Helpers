@@ -1,8 +1,10 @@
-﻿namespace Helpers.Reddit.Tests.Fixtures;
+﻿using Microsoft.Extensions.Options;
 
-public class ServiceFixture : ClientFixture
+namespace Helpers.Reddit.Tests.Fixtures;
+
+public sealed class ServiceFixture : IDisposable
 {
-	private readonly static IReadOnlyCollection<string> _blacklist = new[]
+	private static readonly List<string> _denylist = new()
 	{
 		"redd.it",
 		"reddit.com",
@@ -27,11 +29,15 @@ public class ServiceFixture : ClientFixture
 		"youtu.be",
 	};
 
+	private readonly ClientFixture _clientFixture = new();
+
 	public ServiceFixture()
 	{
-		var config = new Concrete.Service.Config(_blacklist);
-		Service = new Concrete.Service(base.Client, config);
+		var client = _clientFixture.Client;
+		Service = new Concrete.Service(client, Options.Create(_denylist));
 	}
 
-	public Helpers.Reddit.IService Service { get; }
+	public IService Service { get; }
+
+	public void Dispose() => _clientFixture.Dispose();
 }
