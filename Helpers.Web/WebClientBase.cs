@@ -95,6 +95,11 @@ public abstract class WebClientBase
 		var response = await SendRequestAsync(requestMessage, cancellationToken);
 		return await ProcessResponseMessageAsync<T>(response, cancellationToken);
 	}
+
+	protected virtual Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken? cancellationToken = default)
+	{
+		return _httpMessageInvoker.SendAsync(request, cancellationToken ?? CancellationToken.None);
+	}
 	#endregion protected methods
 
 	#region private methods
@@ -144,7 +149,7 @@ public abstract class WebClientBase
 	{
 		try
 		{
-			return await _httpMessageInvoker.SendAsync(request, cancellationToken ?? CancellationToken.None);
+			return await InvokeAsync(request, cancellationToken);
 		}
 		catch (Exception exception)
 		{
