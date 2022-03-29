@@ -9,16 +9,23 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddIdentityClient(this IServiceCollection services, IConfiguration configuration)
 	{
-		Guard.Argument(configuration).NotNull();
-		var authority = configuration[nameof(Helpers.Identity.Config.Authority)];
-		Guard.Argument(authority!).NotNull().NotEmpty().NotWhiteSpace();
-
+		var config = Helpers.Identity.Config.Defaults;
+		configuration.Bind(config);
 		return services
 			.Configure<Helpers.Identity.Config>(configuration)
+			.AddIdentityClient(config);
+	}
+
+	public static IServiceCollection AddIdentityClient(this IServiceCollection services, IOptions<Helpers.Identity.Config> options)
+	{
+		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value)
+			.NotNull().Value;
+
+		return services
 			.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
 			.AddHttpClient<Helpers.Identity.Clients.IIdentityClient, Helpers.Identity.Clients.Concrete.IdentityClient>(client =>
 			{
-				client.BaseAddress = new Uri(authority!, UriKind.Absolute);
+				client.BaseAddress = config.Authority;
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 			.Services;
