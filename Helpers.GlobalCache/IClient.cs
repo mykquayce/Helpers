@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Helpers.GlobalCache;
 
-namespace Helpers.GlobalCache
+public interface IClient
 {
-	public interface IClient
-	{
-		IAsyncEnumerable<Models.Beacon> DiscoverAsync();
-	}
+	IAsyncEnumerable<Models.Beacon> DiscoverAsync();
 }

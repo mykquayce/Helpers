@@ -1,37 +1,32 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+﻿using System.Diagnostics;
 
-namespace Helpers.GlobalCache.Tests
+namespace Helpers.GlobalCache.Tests;
+
+[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
+public class CacheTests : IClassFixture<Fixtures.ServiceFixture>
 {
-	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
-	public class CacheTests : IClassFixture<Fixtures.ServiceFixture>
+	private readonly IService _sut;
+
+	public CacheTests(Fixtures.ServiceFixture fixture)
 	{
-		private readonly IService _sut;
+		_sut = fixture.Service;
+	}
 
-		public CacheTests(Fixtures.ServiceFixture fixture)
+	[Theory]
+	[InlineData(10, "GlobalCache_000C1E059CAD")]
+	public async Task ConnectionCacheTests(int count, string uuid)
+	{
+		var times = new List<long>();
+		while (count-- > 0)
 		{
-			_sut = fixture.Service;
+			var stopwatch = Stopwatch.StartNew();
+			await _sut.ConnectAsync(uuid);
+			stopwatch.Stop();
+			times.Add(stopwatch.ElapsedTicks);
+			await Task.Delay(millisecondsDelay: 500);
 		}
 
-		[Theory]
-		[InlineData(10, "GlobalCache_000C1E059CAD")]
-		public async Task ConnectionCacheTests(int count, string uuid)
-		{
-			var times = new List<long>();
-			while (count-- > 0)
-			{
-				var stopwatch = Stopwatch.StartNew();
-				await _sut.ConnectAsync(uuid);
-				stopwatch.Stop();
-				times.Add(stopwatch.ElapsedTicks);
-				await Task.Delay(millisecondsDelay: 500);
-			}
-
-			Assert.InRange(times[0], 10_000_000, 100_000_000); // first between 1 and 10 seconds.
-			Assert.All(times.Skip(1), t => Assert.InRange(t, 10, 10_000)); // remainder between 1 micro- and 1 milli-second.
-		}
+		Assert.InRange(times[0], 10_000_000, 100_000_000); // first between 1 and 10 seconds.
+		Assert.All(times.Skip(1), t => Assert.InRange(t, 10, 10_000)); // remainder between 1 micro- and 1 milli-second.
 	}
 }
