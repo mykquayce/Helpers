@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 using System.Net;
 
 namespace Helpers.GlobalCache.Concrete;
@@ -22,7 +23,9 @@ public partial class Client : IClient
 	public async IAsyncEnumerable<Models.Beacon> DiscoverAsync()
 	{
 		using var udpClient = new Helpers.Networking.Clients.Concrete.UdpClient(_broadcastIPAddress, _receivePort);
-		var beacons = udpClient.DiscoverAsync().Select(Models.Beacon.Parse).Distinct();
+		var beacons = udpClient.DiscoverAsync().Select(parse).Distinct();
 		await foreach (var beacon in beacons) yield return beacon;
+
+		static Models.Beacon parse(string s) => Models.Beacon.Parse(s, CultureInfo.InvariantCulture);
 	}
 }

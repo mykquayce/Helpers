@@ -18,7 +18,7 @@ public class BeaconTests
 			Assert.NotEqual(' ', s[^1]);
 		}
 
-		var beacon = Models.Beacon.Parse(s);
+		var beacon = Models.Beacon.Parse(s, System.Globalization.CultureInfo.InvariantCulture);
 
 		DoAssert(beacon.ConfigUrl);
 		DoAssert(beacon.Make);
@@ -39,7 +39,7 @@ public class BeaconTests
 		)]
 	public void GetAddresses(string s, string expectedPhysicalAddressString, string expectedIPAddressString)
 	{
-		var beacon = Models.Beacon.Parse(s);
+		var beacon = Models.Beacon.Parse(s, System.Globalization.CultureInfo.InvariantCulture);
 
 		var expectedPhysicalAddress = PhysicalAddress.Parse(expectedPhysicalAddressString);
 		var expectedIPAddress = IPAddress.Parse(expectedIPAddressString);
