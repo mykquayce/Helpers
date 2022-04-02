@@ -1,11 +1,8 @@
-﻿using System;
+﻿namespace Helpers.GlobalCache.Tests.Fixtures;
 
-namespace Helpers.GlobalCache.Tests.Fixtures
+public sealed class ServiceFixture : IDisposable
 {
-	public sealed class ServiceFixture : IDisposable
-	{
-		public IService Service { get; } = new Concrete.Service(Config.Defaults);
+	public IService Service { get; } = new Concrete.Service(Config.Defaults);
 
-		public void Dispose() => Service.Dispose();
-	}
+	public void Dispose() => Service.Dispose();
 }
