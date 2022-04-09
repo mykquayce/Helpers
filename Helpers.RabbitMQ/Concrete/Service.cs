@@ -7,7 +7,7 @@ namespace Helpers.RabbitMQ.Concrete;
 
 public class Service : IDisposable, IService
 {
-	public record Config(string Hostname, ushort Port, string Username, string Password, string VirtualHost = Config.DefaultVirtualHost)
+	public record Config(string Hostname, ushort Port, string Username, string Password, string VirtualHost = Config.DefaultVirtualHost, bool SslEnabled = false)
 		: IOptions<Config>
 	{
 		public const string DefaultHostname = "localhost";
@@ -15,9 +15,10 @@ public class Service : IDisposable, IService
 		public const string DefaultUsername = ConnectionFactory.DefaultUser;
 		public const string DefaultPassword = ConnectionFactory.DefaultPass;
 		public const string DefaultVirtualHost = ConnectionFactory.DefaultVHost;
+		public const bool DefaultSslEnabled = false;
 
 		public Config()
-			: this(DefaultHostname, DefaultPort, DefaultUsername, DefaultPassword, DefaultVirtualHost)
+			: this(DefaultHostname, DefaultPort, DefaultUsername, DefaultPassword, DefaultVirtualHost, DefaultSslEnabled)
 		{ }
 
 		public static Config Defaults => new();
@@ -42,6 +43,12 @@ public class Service : IDisposable, IService
 			UserName = config.Username,
 			Password = config.Password,
 			VirtualHost = config.VirtualHost,
+			Ssl = new SslOption
+			{
+				Enabled = config.SslEnabled,
+				ServerName = config.Hostname,
+				AcceptablePolicyErrors = System.Net.Security.SslPolicyErrors.None,
+			},
 		};
 	}
 
@@ -114,28 +121,6 @@ public class Service : IDisposable, IService
 
 	public void Acknowledge(ulong tag) => _channel?.BasicAck(tag, multiple: false);
 
-	#region idisposable implementation
-	private bool _disposed;
-	protected virtual void Dispose(bool disposing)
-	{
-		if (!_disposed)
-		{
-			if (disposing)
-			{
-				_channel?.Dispose();
-				_connection?.Dispose();
-			}
-
-			_disposed = true;
-		}
-	}
-
-	public void Dispose()
-	{
-		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
-
 	public void PurgeQueue(string queue)
 	{
 		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
@@ -156,6 +141,28 @@ public class Service : IDisposable, IService
 	public void DeleteQueues()
 	{
 		foreach (var queue in _queues) DeleteQueue(queue);
+	}
+
+	#region idisposable implementation
+	private bool _disposed;
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!_disposed)
+		{
+			if (disposing)
+			{
+				_channel?.Dispose();
+				_connection?.Dispose();
+			}
+
+			_disposed = true;
+		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
 	}
 	#endregion idisposable implementation
 }

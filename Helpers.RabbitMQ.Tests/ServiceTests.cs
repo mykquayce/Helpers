@@ -139,4 +139,21 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		void testCode() => _service.Dequeue(queue);
 		Assert.Throws<Exceptions.QueueNotFoundException>(testCode);
 	}
+
+	[Theory]
+	[InlineData("rabbitmq", 5_671, "ssl-test", "hello world")]
+	public void Test2(string hostName, ushort port, string queueName, string message)
+	{
+		var config = Concrete.Service.Config.Defaults with { Hostname = hostName, Port = port, SslEnabled = true, };
+		using IService service = new Concrete.Service(config);
+		service.Enqueue(queueName, message);
+		var (actual, tag) = service.Dequeue<string>(queueName);
+
+		Assert.NotNull(actual);
+		Assert.Equal(message, actual);
+		Assert.InRange(tag, 1ul, ulong.MaxValue);
+
+		service.Acknowledge(tag);
+		service.DeleteQueue(queueName);
+	}
 }
