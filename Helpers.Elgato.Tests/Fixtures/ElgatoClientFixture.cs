@@ -1,15 +1,26 @@
-﻿namespace Helpers.Elgato.Tests.Fixtures;
+﻿using System.Net;
 
-public class ElgatoClientFixture : Helpers.XUnitClassFixtures.UserSecretsFixture
+namespace Helpers.Elgato.Tests.Fixtures;
+
+public class ElgatoClientFixture
 {
 	private readonly HttpClient _httpClient;
 
 	public ElgatoClientFixture()
 	{
+		Uri baseAddress;
+		{
+			var @base = new XUnitClassFixtures.UserSecretsFixture();
+			var scheme = Concrete.ElgatoClient.Config.DefaultScheme;
+			var ip = IPAddress.Parse(@base["Elgato:IPAddress"]);
+			var port = Concrete.ElgatoClient.Config.DefaultPort;
+			baseAddress = new Uri($"{scheme}://{ip}:{port}");
+		}
+
 		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
 		_httpClient = new HttpClient(handler)
 		{
-			BaseAddress = new Uri(base.Configuration["Elgato:IPAddress"]),
+			BaseAddress = baseAddress,
 		};
 
 		Client = new Helpers.Elgato.Concrete.ElgatoClient(_httpClient);
