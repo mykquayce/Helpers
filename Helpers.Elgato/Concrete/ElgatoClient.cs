@@ -1,28 +1,10 @@
 ﻿using Dawn;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace Helpers.Elgato.Concrete;
 
 public class ElgatoClient : Helpers.Web.WebClientBase, IElgatoClient
 {
-	#region config
-	public record Config(string Scheme, int Port)
-		: IOptions<Config>
-	{
-		public const string DefaultScheme = "http";
-		public const int DefaultPort = 9_123;
-
-		public Config() : this(DefaultScheme, DefaultPort) { }
-
-		public static Config Defaults => new();
-
-		#region ioptions implementation
-		public Config Value => this;
-		#endregion ioptions implementation
-	}
-	#endregion config
-
 	public ElgatoClient(HttpClient httpClient)
 		: base(httpClient)
 	{ }

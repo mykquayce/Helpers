@@ -11,9 +11,9 @@ public class ElgatoClientFixture
 		Uri baseAddress;
 		{
 			var @base = new XUnitClassFixtures.UserSecretsFixture();
-			var scheme = Concrete.ElgatoClient.Config.DefaultScheme;
+			var scheme = Config.DefaultScheme;
 			var ip = IPAddress.Parse(@base["Elgato:IPAddress"]);
-			var port = Concrete.ElgatoClient.Config.DefaultPort;
+			var port = Config.DefaultPort;
 			baseAddress = new Uri($"{scheme}://{ip}:{port}");
 		}
 
