@@ -3,17 +3,16 @@
 namespace Helpers.NetworkDiscoveryApi.Tests;
 
 [Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
-public class ClientTests : IClassFixture<Fixtures.ClientFixture>
+public class SecureClientTests : IClassFixture<Fixtures.SecureClientFixture>
 {
 	private readonly IClient _client;
 
-	public ClientTests(Fixtures.ClientFixture fixture)
+	public SecureClientTests(Fixtures.SecureClientFixture fixture)
 	{
 		_client = fixture.Client;
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "non-authorized communications no longer allowed")]
-	[Theory(Skip = "non-authorized communications no longer allowed")]
+	[Theory]
 	[InlineData(5_000)]
 	public async Task Test1(int millisecondsDelay)
 	{

@@ -29,7 +29,7 @@ public class DeserializationTests
 
 			Assert.NotNull(dhcpDetails);
 
-			var (expiration, mac, ip, hostName, identifier) = dhcpDetails;
+			var (expiration, mac, ip, hostName, identifier) = dhcpDetails!;
 
 			Assert.NotEqual(default, expiration);
 			Assert.NotEqual(default, mac);

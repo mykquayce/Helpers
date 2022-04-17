@@ -1,9 +1,9 @@
 ﻿namespace Helpers.NetworkDiscoveryApi.Concrete;
 
-public class Client : Helpers.Web.WebClientBase, IClient
+public class SecureClient : Helpers.Identity.SecureWebClientBase, IClient
 {
-	public Client(HttpClient httpClient)
-		: base(httpClient)
+	public SecureClient(HttpClient httpClient, Helpers.Identity.Clients.IIdentityClient identityClient)
+		: base(httpClient, identityClient)
 	{ }
 
 	public async IAsyncEnumerable<Models.DhcpResponseObject> GetLeasesAsync(CancellationToken? cancellationToken = default)
