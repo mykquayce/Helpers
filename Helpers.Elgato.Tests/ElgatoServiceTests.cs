@@ -3,14 +3,12 @@ using Xunit;
 
 namespace Helpers.Elgato.Tests;
 
-public class ElgatoServiceTests : IClassFixture<Fixtures.ConfigFixture>, IClassFixture<Fixtures.ElgatoServiceFixture>
+public class ElgatoServiceTests : IClassFixture<Fixtures.ElgatoServiceFixture>
 {
-	private readonly IPAddress _ipAddress;
 	private readonly IElgatoService _sut;
 
-	public ElgatoServiceTests(Fixtures.ConfigFixture configFixture, Fixtures.ElgatoServiceFixture serviceFixture)
+	public ElgatoServiceTests(Fixtures.ElgatoServiceFixture serviceFixture)
 	{
-		_ipAddress = configFixture.Addresses.IPAddress;
 		_sut = serviceFixture.Service;
 	}
 
@@ -20,8 +18,8 @@ public class ElgatoServiceTests : IClassFixture<Fixtures.ConfigFixture>, IClassF
 	public async Task SetPowerStateTests(bool on)
 	{
 		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetPowerStateAsync(_ipAddress, on, cts.Token);
-		var (actual, _, _) = await _sut.GetLightSettingsAsync(_ipAddress, cts.Token);
+		await _sut.SetPowerStateAsync( on, cts.Token);
+		var (actual, _, _) = await _sut.GetLightSettingsAsync(cts.Token);
 		Assert.Equal(on, actual);
 	}
 
@@ -35,8 +33,8 @@ public class ElgatoServiceTests : IClassFixture<Fixtures.ConfigFixture>, IClassF
 		while (count-- > 0
 			&& !cts.IsCancellationRequested)
 		{
-			await _sut.TogglePowerStateAsync(_ipAddress, cts.Token);
-			var (on, _, _) = await _sut.GetLightSettingsAsync(_ipAddress, cts.Token);
+			await _sut.TogglePowerStateAsync(cts.Token);
+			var (on, _, _) = await _sut.GetLightSettingsAsync(cts.Token);
 			states.Add(on);
 		}
 
@@ -51,8 +49,8 @@ public class ElgatoServiceTests : IClassFixture<Fixtures.ConfigFixture>, IClassF
 	public async Task SetBrightnessTests(double brightness)
 	{
 		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetBrightnessAsync(_ipAddress, brightness, cts.Token);
-		var (_, actual, _) = await _sut.GetLightSettingsAsync(_ipAddress, cts.Token);
+		await _sut.SetBrightnessAsync(brightness, cts.Token);
+		var (_, actual, _) = await _sut.GetLightSettingsAsync(cts.Token);
 		Assert.Equal(brightness, actual, precision: 2);
 	}
 
@@ -64,8 +62,8 @@ public class ElgatoServiceTests : IClassFixture<Fixtures.ConfigFixture>, IClassF
 	public async Task SetTemperatureTests(short temperature)
 	{
 		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetTemperatureAsync(_ipAddress, temperature, cts.Token);
-		var (_, _, actual) = await _sut.GetLightSettingsAsync(_ipAddress, cts.Token);
+		await _sut.SetTemperatureAsync(temperature, cts.Token);
+		var (_, _, actual) = await _sut.GetLightSettingsAsync(cts.Token);
 		Assert.InRange(temperature - actual, -10, 10);
 	}
 }

@@ -1,25 +1,21 @@
-﻿using System.Net;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.Elgato.Tests;
 
-public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, IClassFixture<Fixtures.ElgatoClientFixture>
+public sealed class ElgatoClientTests : IClassFixture<Fixtures.ElgatoClientFixture>
 {
-	private readonly IPAddress _ipAddress;
 	private readonly IElgatoClient _sut;
 
 	public ElgatoClientTests(
-		Fixtures.ConfigFixture configFixture,
 		Fixtures.ElgatoClientFixture clientFixture)
 	{
-		_ipAddress = configFixture.Addresses.IPAddress;
 		_sut = clientFixture.Client;
 	}
 
 	[Fact]
 	public async Task GetAccessoryInfo()
 	{
-		var info = await _sut.GetAccessoryInfoAsync(_ipAddress);
+		var info = await _sut.GetAccessoryInfoAsync();
 
 		Assert.NotNull(info);
 
@@ -37,7 +33,7 @@ public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, I
 	[Fact]
 	public async Task GetLight()
 	{
-		var light = await _sut.GetLightAsync(_ipAddress).FirstAsync();
+		var light = await _sut.GetLightAsync().FirstAsync();
 
 		Assert.NotNull(light);
 		Assert.InRange(light.brightness, 0, 100);
@@ -52,9 +48,9 @@ public sealed class ElgatoClientTests : IClassFixture<Fixtures.ConfigFixture>, I
 	{
 		var before = new Models.MessageObject.LightObject(on, brightness, temperature);
 
-		await _sut.SetLightAsync(_ipAddress, before);
+		await _sut.SetLightAsync(before);
 
-		var after = await _sut.GetLightAsync(_ipAddress).FirstAsync();
+		var after = await _sut.GetLightAsync().FirstAsync();
 
 		Assert.Equal(on, after.on);
 		Assert.Equal(brightness, after.brightness);

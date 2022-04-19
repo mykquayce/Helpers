@@ -1,5 +1,4 @@
 ﻿using Dawn;
-using System.Net;
 
 namespace Helpers.Elgato.Concrete;
 
@@ -12,15 +11,12 @@ public class ElgatoService : IElgatoService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	public Task<Models.AccessoryInfoObject> GetLightInfoAsync(IPAddress ip, CancellationToken? cancellationToken = default)
-	{
-		Guard.Argument(ip).NotNull();
-		return _client.GetAccessoryInfoAsync(ip, cancellationToken);
-	}
+	public Task<Models.AccessoryInfoObject> GetLightInfoAsync(CancellationToken? cancellationToken = default)
+		=> _client.GetAccessoryInfoAsync(cancellationToken);
 
-	public async Task<(bool on, double brightness, short kelvins)> GetLightSettingsAsync(IPAddress ip, CancellationToken? cancellationToken = default)
+	public async Task<(bool on, double brightness, short kelvins)> GetLightSettingsAsync(CancellationToken? cancellationToken = default)
 	{
-		var light = await _client.GetLightAsync(ip, cancellationToken)
+		var light = await _client.GetLightAsync(cancellationToken)
 			.FirstAsync(cancellationToken ?? CancellationToken.None);
 
 		var o = light.on == 1;
@@ -31,22 +27,21 @@ public class ElgatoService : IElgatoService
 		return (o, b, k);
 	}
 
-	public Task SetBrightnessAsync(IPAddress ip, double brightness, CancellationToken? cancellationToken = default)
+	public Task SetBrightnessAsync(double brightness, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(ip).NotNull();
 		Guard.Argument(brightness).InRange(0, 1);
 		var range = new Range(0, 100);
 		var b = (byte)range.IncreaseValueFromFraction(brightness);
-		return SetLightSettingsAsync(ip, brightness: b, cancellationToken: cancellationToken);
+		return SetLightSettingsAsync(brightness: b, cancellationToken: cancellationToken);
 	}
 
-	public async Task SetLightSettingsAsync(IPAddress ip, byte? on = default, byte? brightness = default, short? temperature = default, CancellationToken? cancellationToken = default)
+	public async Task SetLightSettingsAsync(byte? on = default, byte? brightness = default, short? temperature = default, CancellationToken? cancellationToken = default)
 	{
 		if (on is null
 			|| brightness is null
 			|| temperature is null)
 		{
-			var current = await _client.GetLightAsync(ip, cancellationToken)
+			var current = await _client.GetLightAsync(cancellationToken)
 				.FirstAsync(cancellationToken ?? CancellationToken.None);
 
 			on ??= current.on;
@@ -56,29 +51,24 @@ public class ElgatoService : IElgatoService
 
 		var light = new Models.MessageObject.LightObject(on!.Value, brightness!.Value, temperature!.Value);
 
-		await _client.SetLightAsync(ip, light, cancellationToken);
+		await _client.SetLightAsync(light, cancellationToken);
 	}
 
-	public Task SetPowerStateAsync(IPAddress ip, bool on, CancellationToken? cancellationToken = default)
-	{
-		Guard.Argument(ip).NotNull();
-		return SetLightSettingsAsync(ip, on: on ? (byte)1 : (byte)0, cancellationToken: cancellationToken);
-	}
+	public Task SetPowerStateAsync(bool on, CancellationToken? cancellationToken = default)
+		=> SetLightSettingsAsync(on: on ? (byte)1 : (byte)0, cancellationToken: cancellationToken);
 
-	public Task SetTemperatureAsync(IPAddress ip, int kelvins, CancellationToken? cancellationToken = default)
+	public Task SetTemperatureAsync(int kelvins, CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(ip).NotNull();
 		Guard.Argument(kelvins).InRange(2_900, 7_000);
 		var temperature = (short)kelvins.ConvertFromKelvinToElgato();
-		return SetLightSettingsAsync(ip, temperature: temperature, cancellationToken: cancellationToken);
+		return SetLightSettingsAsync(temperature: temperature, cancellationToken: cancellationToken);
 	}
 
-	public async Task TogglePowerStateAsync(IPAddress ip, CancellationToken? cancellationToken = default)
+	public async Task TogglePowerStateAsync(CancellationToken? cancellationToken = default)
 	{
-		Guard.Argument(ip).NotNull();
-		var light = await _client.GetLightAsync(ip, cancellationToken)
+		var light = await _client.GetLightAsync(cancellationToken)
 			.FirstAsync(cancellationToken ?? CancellationToken.None);
 		light = light with { on = light.on == 1 ? (byte)0 : (byte)1, };
-		await _client.SetLightAsync(ip, light, cancellationToken);
+		await _client.SetLightAsync(light, cancellationToken);
 	}
 }
