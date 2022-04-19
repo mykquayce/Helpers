@@ -1,8 +1,8 @@
 ﻿using Helpers.PhilipsHue.Models;
 
-namespace Helpers.PhilipsHue.Clients;
+namespace Helpers.PhilipsHue;
 
-public interface IPhilipsHueClient
+public interface IClient
 {
 	Task<AllObject> GetAllAsync();
 	Task<ConfigObject> GetConfigAsync();

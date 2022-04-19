@@ -1,13 +1,12 @@
-﻿using Helpers.PhilipsHue.Clients;
-using Xunit;
+﻿using Xunit;
 
 namespace Helpers.PhilipsHue.Tests;
 
-public sealed class PhilipsHueClientTests : IClassFixture<Fixtures.ClientFixture>
+public sealed class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
-	private readonly IPhilipsHueClient _sut;
+	private readonly IClient _sut;
 
-	public PhilipsHueClientTests(Fixtures.ClientFixture clientFixture)
+	public ClientTests(Fixtures.ClientFixture clientFixture)
 	{
 		_sut = clientFixture.Client;
 	}

@@ -1,12 +1,12 @@
 ﻿using Dawn;
 
-namespace Helpers.PhilipsHue.Services.Concrete;
+namespace Helpers.PhilipsHue.Concrete;
 
-public class PhilipsHueService : IPhilipsHueService
+public class Service : IService
 {
-	private readonly Clients.IPhilipsHueClient _client;
+	private readonly IClient _client;
 
-	public PhilipsHueService(Clients.IPhilipsHueClient philipsHueClient)
+	public Service(IClient philipsHueClient)
 	{
 		_client = Guard.Argument(philipsHueClient).NotNull().Value;
 	}

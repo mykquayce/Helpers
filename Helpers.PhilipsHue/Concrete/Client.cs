@@ -2,54 +2,49 @@
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace Helpers.PhilipsHue.Clients.Concrete;
+namespace Helpers.PhilipsHue.Concrete;
 
-public class PhilipsHueClient : Helpers.Web.WebClientBase, IPhilipsHueClient
+public class Client : Helpers.Web.WebClientBase, IClient
 {
-	public record Config(string? BridgePhysicalAddress, string? Username)
-	{
-		// needed for deserialization
-		public Config() : this(default, default) { }
-	}
-
 	private readonly string _username;
 
-	public PhilipsHueClient(HttpClient httpClient, IOptions<Config> config)
-		: this(httpClient, config.Value)
-	{ }
-
-	public PhilipsHueClient(HttpClient httpClient, Config config)
-		: this(httpClient, config?.Username)
-	{ }
-
-	public PhilipsHueClient(HttpClient httpClient, string? username)
+	public Client(HttpClient httpClient, IOptions<Config> config)
 		: base(httpClient)
 	{
-		_username = Guard.Argument(username!)
-			.NotNull()
-			.NotEmpty()
-			.NotWhiteSpace()
-			.Matches(@"^[0-9A-Za-z]{40}$")
+		Guard.Argument(httpClient).NotNull().Wrap(c => c.BaseAddress)
+			.NotNull().Wrap(uri => uri.OriginalString)
+			.NotNull().NotEmpty().NotWhiteSpace();
+
+		_username = Guard.Argument(config).NotNull().Wrap(o => o.Value)
+			.NotNull().Wrap(c => c.Username)
+			.NotNull().NotEmpty().NotWhiteSpace().Matches("^[0-9A-Za-z]{40}$")
 			.Value;
 	}
 
-	private async Task<T> SendAsync<T>(HttpMethod method, string uriSuffix, object? body = default) where T : class
+	private async Task<T> GetAsync<T>(string uriSuffix)
+		where T : class
 	{
 		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
-		string? json = body is not null ? JsonSerializer.Serialize(body) : default;
-		var response = await base.SendAsync<T>(method, uri, json);
-		return response.Object!;
+		(_, _, var t) = await base.SendAsync<T>(HttpMethod.Get, uri);
+		return t;
 	}
 
-	private async IAsyncEnumerable<KeyValuePair<TKey, TValue>> SendAsync<TKey, TValue>(HttpMethod method, string uriSuffix, object? body = default)
+	private async IAsyncEnumerable<KeyValuePair<TKey, TValue>> GetAsync<TKey, TValue>(string uriSuffix)
+		where TKey : notnull
 	{
-		var dictionary = await SendAsync<IDictionary<TKey, TValue>>(method, uriSuffix, body);
-		foreach (var kvp in dictionary!) yield return kvp;
+		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
+		(_, _, var dictionary) = await base.SendAsync<IDictionary<TKey, TValue>>(HttpMethod.Get, uri);
+		foreach (var kvp in dictionary) yield return kvp;
 	}
 
-	private Task<T> GetAsync<T>(string uriSuffix) where T : class => SendAsync<T>(HttpMethod.Get, uriSuffix);
-	private Task<T> PutAsync<T>(string uriSuffix, object body) where T : class => SendAsync<T>(HttpMethod.Put, uriSuffix, body);
-	private IAsyncEnumerable<KeyValuePair<TKey, TValue>> GetAsync<TKey, TValue>(string uriSuffix) => SendAsync<TKey, TValue>(HttpMethod.Get, uriSuffix);
+	private async Task<T> PutAsync<T>(string uriSuffix, object body)
+		where T : class
+	{
+		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
+		var json = JsonSerializer.Serialize(body);
+		(_, _, var t) = await base.SendAsync<T>(HttpMethod.Put, uri, json);
+		return t;
+	}
 
 	#region all
 	public Task<Models.AllObject> GetAllAsync() => GetAsync<Models.AllObject>(string.Empty);
@@ -90,7 +85,6 @@ public class PhilipsHueClient : Helpers.Web.WebClientBase, IPhilipsHueClient
 	public Task<Models.SensorObject> GetSensorAsync(string id) => GetAsync<Models.SensorObject>("sensor/" + id);
 	public IAsyncEnumerable<KeyValuePair<string, Models.SensorObject>> GetSensorsAsync() => GetAsync<string, Models.SensorObject>("sensor");
 	#endregion sensor
-
 
 	#region resourcelinks
 	public Task<Models.ResourceLinkObject> GetResourceLinkObjectAsync(string id) => GetAsync<Models.ResourceLinkObject>("resourcelinks/" + id);

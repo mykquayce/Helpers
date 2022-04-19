@@ -2,13 +2,13 @@
 
 namespace Helpers.PhilipsHue.Tests;
 
-public class PhilipsHueServiceTests : IClassFixture<Fixtures.ClientFixture>
+public class ServiceTests : IClassFixture<Fixtures.ClientFixture>
 {
-	private readonly Services.IPhilipsHueService _sut;
+	private readonly IService _sut;
 
-	public PhilipsHueServiceTests(Fixtures.ClientFixture clientFixture)
+	public ServiceTests(Fixtures.ClientFixture clientFixture)
 	{
-		_sut = new Services.Concrete.PhilipsHueService(clientFixture.Client);
+		_sut = new Concrete.Service(clientFixture.Client);
 	}
 
 	[Theory]

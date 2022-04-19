@@ -1,21 +1,22 @@
-﻿using Helpers.PhilipsHue.Clients;
-using Helpers.PhilipsHue.Clients.Concrete;
+﻿namespace Helpers.PhilipsHue.Tests.Fixtures;
 
-namespace Helpers.PhilipsHue.Tests.Fixtures;
-
-public class ClientFixture
+public sealed class ClientFixture : IDisposable
 {
 	private const string _section = "PhilipsHue";
+
+	private readonly HttpClient _httpClient;
 
 	public ClientFixture()
 	{
 		var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
-		var config = userSecretsFixture.GetSection<PhilipsHueClient.Config>(_section);
-		var bridgeHostName = userSecretsFixture["PhilipsHue:BridgeHostName"];
-		var baseAddress = new Uri("http://" + bridgeHostName);
-		var httpClient = new HttpClient { BaseAddress = baseAddress, };
-		Client = new PhilipsHueClient(httpClient, config);
+		var config = userSecretsFixture.GetSection<Config>(_section);
+		var baseAddress = new Uri("http://" + config.Hostname);
+		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+		_httpClient = new HttpClient(handler) { BaseAddress = baseAddress, };
+		Client = new Concrete.Client(_httpClient, config);
 	}
 
-	public IPhilipsHueClient Client { get; }
+	public IClient Client { get; }
+
+	public void Dispose() => _httpClient.Dispose();
 }

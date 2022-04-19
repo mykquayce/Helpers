@@ -74,12 +74,12 @@ public class ConfigurationTests
 		Assert.NotEmpty(section["BridgePhysicalAddress"]);
 		Assert.NotEmpty(section["Username"]);
 
-		var poco = section.Get<Helpers.PhilipsHue.Clients.Concrete.PhilipsHueClient.Config>();
+		var poco = section.Get<Config>();
 
 		Assert.NotNull(poco);
-		Assert.NotNull(poco.BridgePhysicalAddress);
+		Assert.NotNull(poco.Hostname);
 		Assert.NotNull(poco.Username);
-		Assert.NotEmpty(poco.BridgePhysicalAddress!);
+		Assert.NotEmpty(poco.Hostname);
 		Assert.NotEmpty(poco.Username);
 	}
 }

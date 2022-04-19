@@ -1,8 +1,8 @@
 ﻿using Helpers.PhilipsHue.Models;
 
-namespace Helpers.PhilipsHue.Services;
+namespace Helpers.PhilipsHue;
 
-public interface IPhilipsHueService
+public interface IService
 {
 	IAsyncEnumerable<KeyValuePair<string, GroupObject>> GetGroupsByNamesAsync(params string[] names);
 	IAsyncEnumerable<KeyValuePair<string, LightObject>> GetLightsByNamesAsync(params string[] names);
