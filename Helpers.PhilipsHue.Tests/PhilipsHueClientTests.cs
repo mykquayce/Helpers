@@ -23,14 +23,14 @@ public sealed class PhilipsHueClientTests : IClassFixture<Fixtures.ClientFixture
 
 	[Theory]
 	[InlineData("3")]
-	public async Task GetLight(string id)
+	public async Task<Models.LightObject> GetLight(string id)
 	{
 		var light = await _sut.GetLightAsync(id);
 
 		Assert.NotNull(light);
 		Assert.NotNull(light.state);
-		Assert.NotNull(light.state!.on);
-		Assert.NotNull(light.state.reachable);
+
+		return light;
 	}
 
 	[Fact]
@@ -47,30 +47,34 @@ public sealed class PhilipsHueClientTests : IClassFixture<Fixtures.ClientFixture
 			Assert.NotEmpty(id);
 			Assert.NotNull(light);
 			Assert.NotNull(light.state);
-			Assert.NotNull(light.state!.on);
-			Assert.NotNull(light.state.reachable);
 		}
 	}
 
 	[Theory]
 	[InlineData("3", true)]
 	[InlineData("3", false)]
-	public Task SetLightState(string id, bool on)
+	public async Task SetLightState(string id, bool on)
 	{
-		var state = on
-			? Models.LightObject.StateObject.On
-			: Models.LightObject.StateObject.Off;
+		var light = await GetLight(id);
+		var state = light.state with { on = on, };
 
-		return _sut.SetLightStateAsync(id, state);
+		await _sut.SetLightStateAsync(id, state);
 	}
 
 	[Theory]
 	[InlineData("3")]
 	public async Task BrightestThenOff(string id)
 	{
-		await _sut.SetLightStateAsync(id, Models.LightObject.StateObject.On + Models.LightObject.StateObject.Brightest);
+		var light = await GetLight(id);
+		{
+			var brightest = light.state.On().Brightest();
+			await _sut.SetLightStateAsync(id, brightest);
+		}
 		await Task.Delay(millisecondsDelay: 2_000);
-		await _sut.SetLightStateAsync(id, Models.LightObject.StateObject.Off);
+		{
+			var off = light.state.Off();
+			await _sut.SetLightStateAsync(id, off);
+		}
 	}
 
 	[Theory]

@@ -15,14 +15,14 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		await foreach (var (_, group) in from kvp in _client.GetGroupsAsync()
 										 let @group = kvp.Value
-										 where @group.name?.Equals(groupName, StringComparison.InvariantCultureIgnoreCase) == true
+										 where @group.name.Equals(groupName, StringComparison.OrdinalIgnoreCase)
 										 select kvp)
 		{
-			foreach (var lightId in group.lights!)
+			foreach (var lightId in group.lights)
 			{
 				var light = await _client.GetLightAsync(lightId);
 
-				if (light.name?.Equals(lightName, StringComparison.InvariantCultureIgnoreCase) != true)
+				if (light.name.Equals(lightName, StringComparison.OrdinalIgnoreCase))
 				{
 					continue;
 				}
@@ -36,7 +36,7 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		await foreach (var (id, light) in GetLightsByNamesAsync(names))
 		{
-			var state = light.state! with { on = light.state.on == false, };
+			var state = light.state with { on = !light.state.on, };
 			await _client.SetLightStateAsync(id, state);
 		}
 	}
@@ -53,10 +53,10 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		await foreach (var (_, group) in GetGroupsByNamesAsync(groupNames))
 		{
-			foreach (var id in group.lights!)
+			foreach (var id in group.lights)
 			{
 				var light = await _client.GetLightAsync(id);
-				var state = light.state! with { on = light.state.on == false, };
+				var state = light.state with { on = !light.state.on, };
 				await _client.SetLightStateAsync(id, state);
 			}
 		}
@@ -66,7 +66,7 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		await foreach (var (_, group) in GetGroupsByNamesAsync(names))
 		{
-			foreach (var id in group.lights!)
+			foreach (var id in group.lights)
 			{
 				await _client.SetLightStateAsync(id, state);
 			}
@@ -77,7 +77,7 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		return from kvp in _client.GetLightsAsync()
 			   let light = kvp.Value
-			   where names.Contains(light.name, StringComparer.InvariantCultureIgnoreCase)
+			   where names.Contains(light.name, StringComparer.OrdinalIgnoreCase)
 			   select kvp;
 	}
 
@@ -85,7 +85,7 @@ public class PhilipsHueService : IPhilipsHueService
 	{
 		return from kvp in _client.GetGroupsAsync()
 			   let light = kvp.Value
-			   where names.Contains(light.name, StringComparer.InvariantCultureIgnoreCase)
+			   where names.Contains(light.name, StringComparer.OrdinalIgnoreCase)
 			   select kvp;
 	}
 }

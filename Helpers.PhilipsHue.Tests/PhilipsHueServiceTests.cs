@@ -18,24 +18,26 @@ public class PhilipsHueServiceTests : IClassFixture<Fixtures.ClientFixture>
 	[InlineData("wall left", "strip")]
 	public Task ToggleLight(params string[] names) => _sut.ToggleLightsAsync(names);
 
-	[Fact]
-	public Task SetLightsOnBrightRed()
+	[Theory]
+	[InlineData("wall left", "wall right", "strip")]
+	public async Task SetLightsOnBrightRed(params string[] names)
 	{
-		var state = Models.LightObject.StateObject.On
-			+ Models.LightObject.StateObject.Bright
-			+ Models.LightObject.StateObject.Red;
+		(_, var light) = await _sut.GetLightsByNamesAsync(names.First()).FirstAsync();
 
-		return _sut.SetLightsStateAsync(state, "wall left", "wall right", "strip");
+		var state = light.state.On().Bright().Red();
+
+		await _sut.SetLightsStateAsync(state, names);
 	}
 
-	[Fact]
-	public Task SetLightsOnBrightWarm()
+	[Theory]
+	[InlineData("wall left", "wall right", "strip")]
+	public async Task SetLightsOnBrightWarm(params string[] names)
 	{
-		var state = Models.LightObject.StateObject.On
-			+ Models.LightObject.StateObject.Bright
-			+ Models.LightObject.StateObject.Warm;
+		(_, var light) = await _sut.GetLightsByNamesAsync(names.First()).FirstAsync();
 
-		return _sut.SetLightsStateAsync(state, "wall left", "wall right", "strip");
+		var state = light.state.On().Bright().Warm();
+
+		await _sut.SetLightsStateAsync(state, names);
 	}
 
 	[Theory]
@@ -45,22 +47,23 @@ public class PhilipsHueServiceTests : IClassFixture<Fixtures.ClientFixture>
 	[Theory]
 	[InlineData("bedroom", "main", true)]
 	[InlineData("bedroom", "main", false)]
-	public Task SetLightState(string groupName, string lightName, bool on)
+	public async Task SetLightState(string groupName, string lightName, bool on)
 	{
-		var state = on
-			? Models.LightObject.StateObject.On
-			: Models.LightObject.StateObject.Off;
+		(_, var light) = await _sut.GetLightsByNamesAsync(lightName).FirstAsync();
 
-		return _sut.SetLightStateAsync(groupName, lightName, state);
+		var state = light.state with { on = on, };
+
+		await _sut.SetLightStateAsync(groupName, lightName, state);
 	}
 
-	[Fact]
-	public Task SetBedroomMainLightOnColdestBrightest()
+	[Theory]
+	[InlineData("bedroom", "main")]
+	public async Task SetBedroomMainLightOnColdestBrightest(string groupName, string lightName)
 	{
-		var state = Models.LightObject.StateObject.On
-			+ Models.LightObject.StateObject.Coldest
-			+ Models.LightObject.StateObject.Brightest;
+		(_, var light) = await _sut.GetLightsByNamesAsync(lightName).FirstAsync();
 
-		return _sut.SetLightStateAsync("bedroom", "main", state);
+		var state = light.state.On().Coldest().Brightest();
+
+		await _sut.SetLightStateAsync(groupName, lightName, state);
 	}
 }
