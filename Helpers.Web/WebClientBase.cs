@@ -153,7 +153,7 @@ public abstract class WebClientBase
 		}
 		catch (Exception exception)
 		{
-			var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress.OriginalString;
+			var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress?.OriginalString;
 
 			string? body = request.Content is null
 				? null
