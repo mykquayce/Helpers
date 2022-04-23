@@ -47,25 +47,12 @@ namespace Helpers.Networking.Clients.Concrete
 			await stream.WriteAsync(_encoding.GetBytes(message));
 			await stream.FlushAsync();
 
-			if (tcpClient.Client.DontFragment)
-			{
-				using var reader = new StreamReader(stream, _encoding);
+			using var reader = new StreamReader(stream, _encoding);
 
-				while (!reader.EndOfStream)
-				{
-					var line = await reader.ReadLineAsync();
-					if (line is not null) yield return line;
-				}
-			}
-			else
+			while (!reader.EndOfStream)
 			{
-				var buffer = new byte[1_024];
-				var count = await stream.ReadAsync(buffer);
-				var lines = _encoding.GetString(buffer[..count]);
-				foreach (var line in lines.Split(NewLine))
-				{
-					if (line is not null) yield return line;
-				}
+				var line = await reader.ReadLineAsync();
+				if (line is not null) yield return line;
 			}
 		}
 	}
