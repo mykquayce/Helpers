@@ -2,13 +2,13 @@
 
 namespace Helpers.OpenWrt.Tests;
 
-public sealed class OpenWrtServiceTests : IClassFixture<Fixtures.OpenWrtServiceFixture>
+public sealed class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 {
-	private readonly Services.IOpenWrtService _sut;
+	private readonly IService _sut;
 
-	public OpenWrtServiceTests(Fixtures.OpenWrtServiceFixture fixture)
+	public ServiceTests(Fixtures.ServiceFixture fixture)
 	{
-		_sut = fixture.OpenWrtService;
+		_sut = fixture.Service;
 	}
 
 	[Theory]
