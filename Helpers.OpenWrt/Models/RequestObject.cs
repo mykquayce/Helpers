@@ -1,9 +1,7 @@
-﻿namespace Helpers.OpenWrt.Models
+﻿namespace Helpers.OpenWrt.Models;
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
+public record RequestObject(int? id, string? method, params string[]? @params)
 {
-#pragma warning disable IDE1006 // Naming Styles
-	public record RequestObject(int? id, string? method, params string[]? @params)
-	{
-		public RequestObject() : this(default, default, default) { }
-	}
-#pragma warning restore IDE1006 // Naming Styles
+	public RequestObject() : this(default, default, default) { }
 }

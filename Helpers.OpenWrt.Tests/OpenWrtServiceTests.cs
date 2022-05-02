@@ -1,68 +1,64 @@
-﻿using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 
-namespace Helpers.OpenWrt.Tests
+namespace Helpers.OpenWrt.Tests;
+
+public sealed class OpenWrtServiceTests : IClassFixture<Fixtures.OpenWrtServiceFixture>
 {
-	public sealed class OpenWrtServiceTests : IClassFixture<Fixtures.OpenWrtServiceFixture>
+	private readonly Services.IOpenWrtService _sut;
+
+	public OpenWrtServiceTests(Fixtures.OpenWrtServiceFixture fixture)
 	{
-		private readonly Services.IOpenWrtService _sut;
+		_sut = fixture.OpenWrtService;
+	}
 
-		public OpenWrtServiceTests(Fixtures.OpenWrtServiceFixture fixture)
-		{
-			_sut = fixture.OpenWrtService;
-		}
+	[Theory]
+	[InlineData("77.68.0.0/17")]
+	[InlineData("77.68.11.211")]
+	public async Task AddBlackhole(string s)
+	{
+		var prefix = Networking.Models.AddressPrefix.Parse(s);
 
-		[Theory]
-		[InlineData("77.68.0.0/17")]
-		[InlineData("77.68.11.211")]
-		public async Task AddBlackhole(string s)
-		{
-			var prefix = Networking.Models.AddressPrefix.Parse(s);
+		// see if already exists
+		var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
 
-			// see if already exists
-			var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
+		// if so, remove it
+		if (exists) await _sut.DeleteBlackholeAsync(prefix);
 
-			// if so, remove it
-			if (exists) await _sut.DeleteBlackholeAsync(prefix);
+		// Assert it was removed
+		Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
-			// Assert it was removed
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
+		// add it
+		await _sut.AddBlackholeAsync(prefix);
 
-			// add it
-			await _sut.AddBlackholeAsync(prefix);
+		// Assert it was added
+		Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
-			// Assert it was added
-			Assert.True(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
+		// delete it
+		await _sut.DeleteBlackholeAsync(prefix);
 
-			// delete it
-			await _sut.DeleteBlackholeAsync(prefix);
+		// Assert it was deleted
+		Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
 
-			// Assert it was deleted
-			Assert.False(await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix));
+		// if it existed previously, put it back
+		if (exists) await _sut.AddBlackholeAsync(prefix);
+	}
 
-			// if it existed previously, put it back
-			if (exists) await _sut.AddBlackholeAsync(prefix);
-		}
+	[Theory]
+	[InlineData("IPAddresses.csv")]
+	public async Task AddManyBlackholes(string filename)
+	{
+		var path = Path.Combine(".", "Data", filename);
+		var lines = await File.ReadAllLinesAsync(path);
 
-		[Theory]
-		[InlineData("IPAddresses.csv")]
-		public async Task AddManyBlackholes(string filename)
-		{
-			var path = Path.Combine(".", "Data", filename);
-			var lines = await File.ReadAllLinesAsync(path);
+		Assert.NotNull(lines);
+		Assert.NotEmpty(lines);
+		Assert.DoesNotContain(default, lines);
 
-			Assert.NotNull(lines);
-			Assert.NotEmpty(lines);
-			Assert.DoesNotContain(default, lines);
+		var prefixes = lines.Select(Helpers.Networking.Models.AddressPrefix.Parse).ToList();
 
-			var prefixes = lines.Select(Helpers.Networking.Models.AddressPrefix.Parse).ToList();
+		Assert.NotEmpty(prefixes);
+		Assert.DoesNotContain(default, prefixes);
 
-			Assert.NotEmpty(prefixes);
-			Assert.DoesNotContain(default, prefixes);
-
-			await _sut.AddBlackholesAsync(prefixes);
-		}
+		await _sut.AddBlackholesAsync(prefixes);
 	}
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace Helpers.OpenWrt.Clients;
 
-namespace Helpers.OpenWrt.Clients
+public interface IOpenWrtClient
 {
-	public interface IOpenWrtClient
-	{
-		Task<string> ExecuteCommandAsync(string command);
-		Task<string> LoginAsync();
-	}
+	Task<string> ExecuteCommandAsync(string command);
+	Task<string> LoginAsync();
 }

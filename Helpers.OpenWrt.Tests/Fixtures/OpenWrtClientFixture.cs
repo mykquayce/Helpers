@@ -1,28 +1,26 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using System;
 
-namespace Helpers.OpenWrt.Tests.Fixtures
+namespace Helpers.OpenWrt.Tests.Fixtures;
+
+public class OpenWrtClientFixture
 {
-	public class OpenWrtClientFixture
+	public OpenWrtClientFixture()
 	{
-		public OpenWrtClientFixture()
-		{
-			var httpClientFixture = new XUnitClassFixtures.HttpClientFixture();
-			var userSecretsFixture = new XUnitClassFixtures.UserSecretsFixture();
-			Settings = userSecretsFixture.Configuration
-				.GetSection("OpenWrt")
-				.Get<Clients.Concrete.OpenWrtClient.Settings>()
-				?? throw new ArgumentNullException("missing config");
+		var httpClientFixture = new XUnitClassFixtures.HttpClientFixture();
+		var userSecretsFixture = new XUnitClassFixtures.UserSecretsFixture();
+		Settings = userSecretsFixture.Configuration
+			.GetSection("OpenWrt")
+			.Get<Clients.Concrete.OpenWrtClient.Settings>()
+			?? throw new ArgumentNullException("missing config");
 
-			httpClientFixture.HttpClient.BaseAddress = new Uri("http://" + Settings.EndPoint);
+		httpClientFixture.HttpClient.BaseAddress = new Uri("http://" + Settings.EndPoint);
 
-			var options = Options.Create(Settings);
+		var options = Options.Create(Settings);
 
-			OpenWrtClient = new Clients.Concrete.OpenWrtClient(httpClientFixture.HttpClient, options);
-		}
-
-		public Clients.Concrete.OpenWrtClient.Settings Settings { get; }
-		public Clients.IOpenWrtClient OpenWrtClient { get; }
+		OpenWrtClient = new Clients.Concrete.OpenWrtClient(httpClientFixture.HttpClient, options);
 	}
+
+	public Clients.Concrete.OpenWrtClient.Settings Settings { get; }
+	public Clients.IOpenWrtClient OpenWrtClient { get; }
 }

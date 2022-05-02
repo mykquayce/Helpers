@@ -1,16 +1,13 @@
-﻿using System;
+﻿namespace Helpers.OpenWrt.Tests.Fixtures;
 
-namespace Helpers.OpenWrt.Tests.Fixtures
+public class OpenWrtServiceFixture
 {
-	public class OpenWrtServiceFixture
+	public OpenWrtServiceFixture()
 	{
-		public OpenWrtServiceFixture()
-		{
-			var clientFixture = new OpenWrtClientFixture();
+		var clientFixture = new OpenWrtClientFixture();
 
-			OpenWrtService = new Services.Concrete.OpenWrtService(clientFixture.OpenWrtClient);
-		}
-
-		public Services.IOpenWrtService OpenWrtService { get; }
+		OpenWrtService = new Services.Concrete.OpenWrtService(clientFixture.OpenWrtClient);
 	}
+
+	public Services.IOpenWrtService OpenWrtService { get; }
 }
