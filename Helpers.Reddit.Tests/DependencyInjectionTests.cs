@@ -9,7 +9,7 @@ public class DependencyInjectionTests
 {
 	[Theory]
 	[InlineData(@"{
-  ""Blacklist"": [
+  ""Denylist"": [
     ""redd.it"",
     ""reddit.com"",
     ""redditmedia.com"",
@@ -25,7 +25,7 @@ public class DependencyInjectionTests
 				IConfiguration configuration;
 				{
 					var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-					using var stream = new MemoryStream(bytes);
+					await using var stream = new MemoryStream(bytes);
 
 					configuration = new ConfigurationBuilder()
 						.AddJsonStream(stream)
@@ -40,7 +40,7 @@ public class DependencyInjectionTests
 						return new HttpClientHandler { AllowAutoRedirect = false, };
 					})
 					.Services
-					.AddSingleton(configuration.GetSection("Blacklist").Get<IReadOnlyCollection<string>>())
+					.Configure<List<string>>(configuration.GetSection("Denylist"))
 					.AddTransient<IService, Concrete.Service>()
 					.BuildServiceProvider();
 			}
