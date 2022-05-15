@@ -40,7 +40,7 @@ public class DependencyInjectionTests
 						return new HttpClientHandler { AllowAutoRedirect = false, };
 					})
 					.Services
-					.AddSingleton(configuration.GetSection("Blacklist").Get<IReadOnlyCollection<string>>())
+					.Configure<List<string>>(configuration.GetSection("Blacklist"))
 					.AddTransient<IService, Concrete.Service>()
 					.BuildServiceProvider();
 			}
