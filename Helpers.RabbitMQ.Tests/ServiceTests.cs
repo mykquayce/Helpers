@@ -39,9 +39,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 			_service.Dequeue(queue);
 			Assert.True(false);
 		}
-		catch (Exceptions.QueueEmptyException)
-		{ }
-		catch (Exceptions.QueueNotFoundException)
+		catch (Exceptions.QueueNotFoundOrEmptyException)
 		{ }
 
 		_service.Enqueue(queue, bytes);
@@ -74,7 +72,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		// consume a message from queue 2 (fails)
 		try { _service.Dequeue(queues[1]); Assert.True(false); }
-		catch (Exceptions.QueueEmptyException) { }
+		catch (Exceptions.QueueNotFoundOrEmptyException) { }
 
 		// publish the message to queue 2
 		_service.Enqueue(queues[1], result1.body);
@@ -84,7 +82,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		// consume a message from queue 1 (fails)
 		try { _service.Dequeue(queues[0]); Assert.True(false); }
-		catch (Exceptions.QueueEmptyException) { }
+		catch (Exceptions.QueueNotFoundOrEmptyException) { }
 
 		// consume a message from queue 2
 		var (_, tag) = _service.Dequeue(queues[1]);
@@ -127,7 +125,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		_service.Enqueue(queue, message);
 		_service.PurgeQueue(queue);
 		void testCode() => _service.Dequeue(queue);
-		Assert.Throws<Exceptions.QueueEmptyException>(testCode);
+		Assert.Throws<Exceptions.QueueNotFoundOrEmptyException>(testCode);
 	}
 
 	[Theory]
@@ -137,7 +135,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		_service.Enqueue(queue, message);
 		_service.DeleteQueue(queue);
 		void testCode() => _service.Dequeue(queue);
-		Assert.Throws<Exceptions.QueueNotFoundException>(testCode);
+		Assert.Throws<Exceptions.QueueNotFoundOrEmptyException>(testCode);
 	}
 
 	[Theory]
@@ -155,5 +153,13 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		service.Acknowledge(tag);
 		service.DeleteQueue(queueName);
+	}
+
+	[Theory]
+	[InlineData("fpidhaiudthlriaulpdhapr")]
+	public void DequeueNonExistentQueue(string queue)
+	{
+		void testCode() => _service.Dequeue(queue);
+		Assert.Throws<Helpers.RabbitMQ.Exceptions.QueueNotFoundOrEmptyException>(testCode);
 	}
 }

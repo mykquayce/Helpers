@@ -101,19 +101,11 @@ public class Service : IDisposable, IService
 	{
 		Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 		Connect(queue);
-		BasicGetResult result;
-		try
-		{
-			result = _channel!.BasicGet(queue, autoAck: false);
-		}
-		catch (OperationInterruptedException exception) when (exception.ShutdownReason?.ReplyCode == 404)
-		{
-			throw new Exceptions.QueueNotFoundException(queue);
-		}
+		BasicGetResult result = _channel!.BasicGet(queue, autoAck: false);
 
 		if (result is null)
 		{
-			throw new Exceptions.QueueEmptyException(queue);
+			throw new Exceptions.QueueNotFoundOrEmptyException(queue);
 		}
 
 		return (result.Body.ToArray(), result.DeliveryTag);
