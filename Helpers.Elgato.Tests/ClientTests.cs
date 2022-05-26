@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Helpers.Elgato.Tests.Comparers;
 using System.Drawing;
 using System.Net;
 using Xunit;
@@ -129,22 +129,4 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<
 		Assert.Equal(before.hue!.Value, after.hue!.Value, comparer);
 		Assert.Equal(before.saturation!.Value, after.saturation!.Value, comparer);
 	}
-}
-
-public class TolerantEqualityComparer<T> : IEqualityComparer<T>
-	where T : IComparable<T>
-{
-	private readonly int _tolerance;
-
-	private TolerantEqualityComparer(int tolerance)
-	{
-		_tolerance = tolerance;
-	}
-
-	public bool Equals(T? x, T? y) => x?.CompareTo(y) <= _tolerance;
-	public int GetHashCode([DisallowNull] T obj) => obj?.GetHashCode() ?? 0;
-
-	public static TolerantEqualityComparer<T> Zero => new(0);
-	public static TolerantEqualityComparer<T> One => new(1);
-	public static TolerantEqualityComparer<T> Two => new(2);
 }
