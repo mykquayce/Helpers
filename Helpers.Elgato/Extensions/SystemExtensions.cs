@@ -3,7 +3,7 @@
 public static class SystemExtensions
 {
 	private readonly static Range _elgatoRange = new(143, 344);
-	private readonly static Range _kelvinRange = new(2_900, 7_000);
+	private readonly static Range _kelvinRange = new(7_000, 2_900);
 
 	public static void Deconstruct(this Range range, out int start, out int end)
 	{
@@ -19,8 +19,6 @@ public static class SystemExtensions
 		return (value - min) / (double)(max - min);
 	}
 
-	public static double Invert(this double d) => 1d - d;
-
 	public static int IncreaseValueFromFraction(this Range range, double value)
 	{
 		var (min, max) = range;
@@ -29,13 +27,13 @@ public static class SystemExtensions
 
 	public static int ConvertFromElgatoToKelvin(this int elgato)
 	{
-		var fraction = _elgatoRange.ReduceValueToFraction(elgato).Invert();
+		var fraction = _elgatoRange.ReduceValueToFraction(elgato);
 		return _kelvinRange.IncreaseValueFromFraction(fraction);
 	}
 
 	public static int ConvertFromKelvinToElgato(this int kelvin)
 	{
-		var fraction = _kelvinRange.ReduceValueToFraction(kelvin).Invert();
+		var fraction = _kelvinRange.ReduceValueToFraction(kelvin);
 		return _elgatoRange.IncreaseValueFromFraction(fraction);
 	}
 }
