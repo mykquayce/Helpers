@@ -4,16 +4,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Helpers.Identity" Version="1.0.2" />
+    <PackageReference Include="Helpers.NetworkDiscoveryApi.Models" Version="1.0.0" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Helpers.NetworkDiscoveryApi.Models\Helpers.NetworkDiscoveryApi.Models.csproj" />
   </ItemGroup>
 
 </Project>
