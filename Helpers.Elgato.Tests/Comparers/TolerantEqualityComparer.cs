@@ -20,5 +20,6 @@ public class TolerantEqualityComparer<T> : IEqualityComparer<T>
 
 	public static TolerantEqualityComparer<T> Zero => new(T.Zero);
 	public static TolerantEqualityComparer<T> One => new(T.One);
-	public static TolerantEqualityComparer<T> Two => new(T.Parse("2", NumberStyles.None, CultureInfo.InvariantCulture));
+	public static TolerantEqualityComparer<T> Two => new(T.Parse("2", CultureInfo.InvariantCulture));
+	public static TolerantEqualityComparer<T> Ten => new(T.Parse("10", CultureInfo.InvariantCulture));
 }

@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using System.Drawing;
 using Xunit;
 
 namespace Helpers.Elgato.Tests;
@@ -7,14 +7,15 @@ namespace Helpers.Elgato.Tests;
 public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixture<Fixtures.ConfigFixture>
 {
 	private readonly IService _sut;
-	private readonly IPAddress _ip;
+	private readonly IReadOnlyCollection<string> _aliases;
 
 	public ServiceTests(
 		Fixtures.ServiceFixture serviceFixture,
 		Fixtures.ConfigFixture configFixture)
 	{
 		_sut = serviceFixture.Service;
-		_ip = configFixture.KeylightIPAddress;
+		_aliases = configFixture.Aliases.AsReadOnly();
+		Assert.NotEmpty(_aliases);
 	}
 
 	[Theory]
@@ -22,59 +23,133 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 	[InlineData(true)]
 	public async Task SetPowerStateTests(bool on)
 	{
-		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetPowerStateAsync(_ip, on, cts.Token);
-		(var actual, _) = await _sut.GetLightAsync(_ip, cts.Token);
-		Assert.Equal(on, actual);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
+
+		foreach (var alias in _aliases)
+		{
+			await _sut.SetPowerStateAsync(alias, on, cts.Token);
+			var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
+			Assert.NotNull(lights);
+			Assert.NotEmpty(lights);
+			foreach ((var actual, _, _, _) in lights)
+			{
+				Assert.Equal(on, actual);
+			}
+		}
 	}
 
 	[Theory]
-	[InlineData(2)]
+	[InlineData(8)]
 	public async Task TogglePowerStateTests(int count)
 	{
-		var states = new List<bool>(capacity: count);
-		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
 
-		while (count-- > 0
-			&& !cts.IsCancellationRequested)
+		while (count-- > 0)
 		{
-			await _sut.TogglePowerStateAsync(_ip, cts.Token);
-			(var on, _) = await _sut.GetLightAsync(_ip, cts.Token);
-			states.Add(on);
-		}
+			foreach (var alias in _aliases)
+			{
+				await _sut.TogglePowerStateAsync(alias, cts.Token);
+				var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
 
-		Assert.Equal(2, states.Distinct().Count());
+				var after = lights.Select(tuple => tuple.on).Distinct().ToList();
+				Assert.NotEmpty(after);
+				Assert.Single(after);
+			}
+		}
 	}
 
 	[Theory]
-	[InlineData(0d)]
-	[InlineData(0.1d)]
-	[InlineData(0.5d)]
-	[InlineData(1d)]
+	[InlineData(.2f)]
+	[InlineData(.4f)]
+	[InlineData(.6f)]
 	public async Task SetBrightnessTests(float brightness)
 	{
-		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetBrightnessAsync(_ip, brightness, cts.Token);
-		(_, var actual) = await _sut.GetLightAsync(_ip, cts.Token);
-		Assert.Equal(brightness, actual, precision: 2);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
+
+		foreach (var alias in _aliases)
+		{
+			await _sut.SetBrightnessAsync(alias, brightness, cts.Token);
+
+			var lights = _sut.GetLightStatusAsync(alias, cts.Token);
+
+			await foreach ((_, var actual, _, _) in lights)
+			{
+				Assert.Equal(brightness, actual, precision: 2);
+			}
+		}
+	}
+
+	[Theory]
+	[InlineData(255, 0, 0)]
+	public async Task SetColorTests(int red, int green, int blue)
+	{
+		var color = Color.FromArgb(alpha: 255, red: red, green: green, blue: blue);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
+
+		foreach (var alias in _aliases)
+		{
+			var ok = await _sut.GetLightStatusAsync(alias, cts.Token).AllAsync(l => l.color.HasValue);
+
+			if (!ok) continue;
+
+			await _sut.SetColorAsync(alias, color, cts.Token);
+
+			var actuals = _sut.GetRgbLightStatusAsync(alias, cts.Token);
+
+			await foreach ((_, _, var actual) in actuals)
+			{
+				Assert.Equal(color, actual);
+			}
+		}
+	}
+
+	[Theory]
+	[InlineData("keylight")]
+	public async Task WhiteLightHasNullColor(string alias)
+	{
+		var lights = await _sut.GetLightStatusAsync(alias).ToListAsync();
+
+		Assert.Single(lights);
+		Assert.Null(lights[0].color);
+	}
+
+	[Theory]
+	[InlineData("lightstrip")]
+	public async Task RgbLightHasNullKelvins(string alias)
+	{
+		var lights = await _sut.GetLightStatusAsync(alias).ToListAsync();
+
+		Assert.Single(lights);
+		Assert.Null(lights[0].kelvins);
 	}
 
 	[Theory]
 	[InlineData(2_900)]
-	[InlineData(3_400)]
-	[InlineData(5_600)]
+	[InlineData(3_925)]
+	[InlineData(4_950)]
+	[InlineData(5_975)]
 	[InlineData(7_000)]
 	public async Task SetKelvinsTests(short kelvins)
 	{
-		using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
-		await _sut.SetKelvinsAsync(_ip, kelvins, cts.Token);
-		var light = await _sut.GetLightAsync(_ip, cts.Token);
+		var comparer = Comparers.TolerantEqualityComparer<short>.Ten;
+		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
 
-		Assert.IsType<Models.WhiteLightObject>(light);
+		foreach (var alias in _aliases)
+		{
+			var ok = await _sut.GetLightStatusAsync(alias, cts.Token)
+				.AllAsync(l => l.kelvins.HasValue, cts.Token);
 
-		var actual = light as Models.WhiteLightObject;
+			if (!ok) continue;
 
-		Assert.NotNull(actual);
-		Assert.InRange(actual!.Kelvins, kelvins - 10, kelvins + 10);
+			await _sut.SetKelvinsAsync(alias, kelvins, cts.Token);
+
+			var actuals = _sut.GetLightStatusAsync(alias, cts.Token);
+
+			await foreach ((_, _, _, var actual) in actuals)
+			{
+				Assert.NotNull(actual);
+				Assert.Equal(kelvins, actual!.Value, comparer: comparer);
+			}
+		}
 	}
 }

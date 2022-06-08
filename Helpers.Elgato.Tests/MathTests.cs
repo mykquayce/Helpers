@@ -19,7 +19,7 @@ public class MathTests
 	[InlineData(2_900, 344)]
 	public void ElgatoConversionTests(int before, int expected)
 	{
-		var actual = before.ConvertFromKelvinToElgato();
+		var actual = ((short)before).ConvertFromKelvinToElgato();
 		Assert.Equal(expected, actual);
 	}
 

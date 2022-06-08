@@ -1,68 +1,123 @@
 ﻿using Dawn;
 using System.Drawing;
-using System.Net;
 
 namespace Helpers.Elgato.Concrete;
 
 public class Service : IService
 {
 	private readonly IClient _client;
-	private delegate Models.RgbLightObject RgbLightUpdaterDelegate(Models.RgbLightObject light);
+	private readonly Helpers.NetworkDiscoveryApi.IAliasResolverService _aliasResolverService;
 
-	public Service(IClient client)
+	public Service(
+		IClient client,
+		Helpers.NetworkDiscoveryApi.IAliasResolverService aliasResolverService)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
+		_aliasResolverService = Guard.Argument(aliasResolverService).NotNull().Value;
 	}
 
-	public async Task<Models.LightObject> GetLightAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
 	{
-		var light = await _client.GetLightAsync(ip, cancellationToken);
+		var ip = await _aliasResolverService.ResolveAsync(alias, cancellationToken);
+		var lights = _client.GetLightsAsync(ip, cancellationToken);
 
-		if (light.temperature is not null)
+		await foreach (var (on, brightness, temperature, hue, saturation) in lights)
 		{
-			return (Models.WhiteLightObject)light;
+			Color? color = hue.HasValue && saturation.HasValue
+				? new HsbColor((float)hue!.Value, (float)(saturation!.Value / 100f), brightness / 100f).GetColor()
+				: null;
+
+			short? kelvins = temperature.HasValue
+				? temperature!.Value.ConvertFromElgatoToKelvin()
+				: null;
+
+			yield return (on == 1, brightness / 100f, color, kelvins);
+		}
+	}
+
+	public async IAsyncEnumerable<(bool on, float brightness, Color color)> GetRgbLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
+		var lights = GetLightStatusAsync(alias, cancellationToken);
+
+		await foreach (var (on, brightness, color, _) in lights)
+		{
+			if (color.HasValue)
+			{
+				yield return (on, brightness, color!.Value);
+			}
+		}
+	}
+
+	public async IAsyncEnumerable<(bool on, float brightness, short kelvins)> GetWhiteLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
+		var lights = GetLightStatusAsync(alias, cancellationToken);
+
+		await foreach (var (on, brightness, _, temperature) in lights)
+		{
+			if (temperature.HasValue)
+			{
+				yield return (on, brightness, temperature!.Value);
+			}
+		}
+	}
+
+	public Task SetBrightnessAsync(string alias, float brightness, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(brightness).InRange(0, 1);
+		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = 1, brightness = (brightness * 100f).Round(), };
+		return SetLightAsync(alias, func, cancellationToken);
+	}
+
+	public Task SetColorAsync(string alias, Color color, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(color).NotDefault();
+		Models.Generated.LightObject func(Models.Generated.LightObject light)
+		{
+			var hsbColor = color.GetHsbColor();
+
+			return light with
+			{
+				on = 1, 
+				brightness = (hsbColor.Brightness * 100f).Round(),
+				hue = hsbColor.Hue,
+				saturation = hsbColor.Saturation * 100f,
+			};
 		}
 
-		return (Models.RgbLightObject)light;
+		return SetLightAsync(alias, func, cancellationToken);
 	}
 
-	public async Task SetBrightnessAsync(IPAddress ip, float brightness, CancellationToken? cancellationToken = null)
+	public Task SetKelvinsAsync(string alias, short kelvins, CancellationToken? cancellationToken = null)
 	{
-		var light = await GetLightAsync(ip, cancellationToken);
-		var updated = light with { Brightness = brightness, };
-		await SetLightAsync(ip, updated, cancellationToken);
+		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
+		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = 1, temperature = kelvins.ConvertFromKelvinToElgato(), };
+		return SetLightAsync(alias, func, cancellationToken);
 	}
 
-	public async Task SetColorAsync(IPAddress ip, Color color, CancellationToken? cancellationToken = null)
+	public Task SetPowerStateAsync(string alias, bool on, CancellationToken? cancellationToken = null)
 	{
-		var light = await GetLightAsync(ip, cancellationToken);
-		if (light is not Models.RgbLightObject rgb) return;
-		var updated = rgb with { Red = color.R, Green = color.G, Blue = color.B, };
-		await SetLightAsync(ip, updated, cancellationToken);
+		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = on ? 1 : 0, };
+		return SetLightAsync(alias, func, cancellationToken);
 	}
 
-	public async Task SetKelvinsAsync(IPAddress ip, short kelvins, CancellationToken? cancellationToken = null)
+	public async Task TogglePowerStateAsync(string alias, CancellationToken? cancellationToken = null)
 	{
-		var light = await GetLightAsync(ip, cancellationToken);
-		if (light is not Models.WhiteLightObject white) return;
-		var updated = white with { Kelvins = kelvins, };
-		await SetLightAsync(ip, updated, cancellationToken);
+		var lights = GetLightStatusAsync(alias, cancellationToken);
+		var on = await lights.AnyAsync(l => l.on, cancellationToken ?? CancellationToken.None);
+		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = on ? 0 : 1, };
+		await SetLightAsync(alias, func, cancellationToken);
 	}
 
-	public Task SetLightAsync(IPAddress ip, Models.LightObject light, CancellationToken? cancellationToken = null)
-		=> _client.SetLightAsync(ip, (Models.Generated.LightObject)light, cancellationToken);
-
-	public async Task SetPowerStateAsync(IPAddress ip, bool on, CancellationToken? cancellationToken = null)
+	private async Task SetLightAsync(string alias, Func<Models.Generated.LightObject, Models.Generated.LightObject> func, CancellationToken? cancellationToken = null)
 	{
-		var light = await GetLightAsync(ip, cancellationToken);
-		var updated = light with { On = on, };
-		await SetLightAsync(ip, updated, cancellationToken);
-	}
-
-	public async Task TogglePowerStateAsync(IPAddress ip, CancellationToken? cancellationToken = null)
-	{
-		var light = await GetLightAsync(ip, cancellationToken);
-		var updated = light with { On = !light.On, };
-		await SetLightAsync(ip, updated, cancellationToken);
+		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
+		Guard.Argument(func).NotNull();
+		var ip = await _aliasResolverService.ResolveAsync(alias, cancellationToken);
+		var lights = _client.GetLightsAsync(ip, cancellationToken);
+		var updated = await lights.Select(func)
+			.ToArrayAsync(cancellationToken ?? CancellationToken.None);
+		await _client.SetLightAsync(ip, updated, cancellationToken);
 	}
 }

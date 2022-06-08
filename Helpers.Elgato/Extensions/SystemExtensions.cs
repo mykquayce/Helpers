@@ -11,6 +11,7 @@ public static class SystemExtensions
 		end = range.End.Value;
 	}
 
+	public static int Round(this float f) => (int)Math.Round(f);
 	public static int Round(this double d) => (int)Math.Round(d);
 
 	public static double ReduceValueToFraction(this Range range, int value)
@@ -25,15 +26,15 @@ public static class SystemExtensions
 		return ((max - min) * value).Round() + min;
 	}
 
-	public static int ConvertFromElgatoToKelvin(this int elgato)
+	public static short ConvertFromElgatoToKelvin(this int elgato)
 	{
 		var fraction = _elgatoRange.ReduceValueToFraction(elgato);
-		return _kelvinRange.IncreaseValueFromFraction(fraction);
+		return (short)_kelvinRange.IncreaseValueFromFraction(fraction);
 	}
 
-	public static int ConvertFromKelvinToElgato(this int kelvin)
+	public static short ConvertFromKelvinToElgato(this short kelvin)
 	{
 		var fraction = _kelvinRange.ReduceValueToFraction(kelvin);
-		return _elgatoRange.IncreaseValueFromFraction(fraction);
+		return (short)_elgatoRange.IncreaseValueFromFraction(fraction);
 	}
 }
