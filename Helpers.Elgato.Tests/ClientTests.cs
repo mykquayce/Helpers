@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Helpers.Elgato.Tests.Comparers;
 using System.Drawing;
 using System.Net;
 using Xunit;
@@ -9,45 +9,82 @@ namespace Helpers.Elgato.Tests;
 public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<Fixtures.ConfigFixture>
 {
 	private readonly IClient _sut;
-	private readonly IPAddress _keylightIPAddress, _lightstripIPAddress;
+	private readonly IReadOnlyCollection<IPAddress> _ipAddresses;
 
 	public ClientTests(
 		Fixtures.ClientFixture clientFixture,
 		Fixtures.ConfigFixture configFixture)
 	{
 		_sut = clientFixture.Client;
-		_keylightIPAddress = configFixture.KeylightIPAddress;
-		_lightstripIPAddress = configFixture.LightstripIPAddress;
+		_ipAddresses = configFixture.IPAddresses.AsReadOnly();
+	}
+
+	[Fact]
+	public async Task GetWhiteLightTests()
+	{
+		foreach (var ipAddress in _ipAddresses)
+		{
+			var lights = _sut.GetLightsAsync(ipAddress);
+
+			await foreach (var light in lights)
+			{
+				Assert.True(light.IsRgb || light.IsWhite);
+			}
+		}
 	}
 
 	[Fact]
 	public async Task GetAccessoryInfo()
 	{
-		var info = await _sut.GetAccessoryInfoAsync(_keylightIPAddress);
+		foreach (var ipAddress in _ipAddresses)
+		{
+			var info = await _sut.GetAccessoryInfoAsync(ipAddress);
 
-		Assert.NotNull(info);
+			Assert.NotNull(info);
 
-		Assert.NotEmpty(info.productName);
-		Assert.InRange(info.hardwareBoardType, 1, int.MaxValue);
-		Assert.InRange(info.firmwareBuildNumber, 1, int.MaxValue);
-		Assert.NotNull(info.firmwareVersion);
-		Assert.NotEmpty(info.serialNumber);
-		Assert.NotEmpty(info.displayName);
-		Assert.NotEmpty(info.features);
-		Assert.All(info.features, Assert.NotNull);
-		Assert.All(info.features, Assert.NotEmpty);
+			Assert.NotEmpty(info.productName);
+			Assert.InRange(info.hardwareBoardType, 1, int.MaxValue);
+			Assert.InRange(info.firmwareBuildNumber, 1, int.MaxValue);
+			Assert.NotNull(info.firmwareVersion);
+			Assert.NotEmpty(info.serialNumber);
+			Assert.NotEmpty(info.displayName);
+			Assert.NotEmpty(info.features);
+			Assert.All(info.features, Assert.NotNull);
+			Assert.All(info.features, Assert.NotEmpty);
+		}
 	}
 
 	[Fact]
 	public async Task GetLight()
 	{
-		var light = await _sut.GetLightAsync(_keylightIPAddress);
+		foreach (var ipAddress in _ipAddresses)
+		{
+			var lights = await _sut.GetLightsAsync(ipAddress).ToListAsync();
 
-		Assert.NotNull(light);
-		Assert.InRange(light.brightness, 0, 100);
-		Assert.InRange(light.on, 0, 1);
-		Assert.NotNull(light.temperature);
-		Assert.InRange(light.temperature!.Value, 140, 350);
+			Assert.NotNull(lights);
+			Assert.NotEmpty(lights);
+
+			foreach (var light in lights)
+			{
+				Assert.NotNull(light);
+				Assert.InRange(light.brightness, 0, 100);
+				Assert.InRange(light.on, 0, 1);
+
+				if (light.IsWhite)
+				{
+					Assert.NotNull(light.temperature);
+					Assert.InRange(light.temperature!.Value, 140, 350);
+				}
+
+				if (light.IsRgb)
+				{
+					Assert.NotNull(light.hue);
+					Assert.InRange(light.hue!.Value, 0, 360);
+					Assert.NotNull(light.saturation);
+					Assert.InRange(light.saturation!.Value, 0, 100);
+				}
+			}
+		}
 	}
 
 	[Theory]
@@ -55,16 +92,30 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<
 	[InlineData(1, 23, 22, 85)]
 	public async Task SetRgbLight(int on, int brightness, double hue, double saturation)
 	{
-		var before = new Models.Generated.LightObject(on, brightness, null, hue, saturation);
+		foreach (var ipAddress in _ipAddresses)
+		{
+			if (await _sut.GetLightsAsync(ipAddress).AnyAsync(l => l.IsWhite))
+			{
+				continue;
+			}
 
-		await _sut.SetLightAsync(_lightstripIPAddress, before);
+			var before = new Models.Generated.LightObject(on, brightness, null, hue, saturation);
 
-		var after = await _sut.GetLightAsync(_lightstripIPAddress);
+			await _sut.SetLightAsync(ipAddress, new[] { before, });
 
-		Assert.Equal(on, after.on);
-		Assert.Equal(brightness, after.brightness);
-		Assert.Equal(hue, after.hue);
-		Assert.Equal(saturation, after.saturation);
+			var lights = await _sut.GetLightsAsync(ipAddress).ToListAsync();
+
+			Assert.NotNull(lights);
+			Assert.NotEmpty(lights);
+
+			foreach (var after in lights)
+			{
+				Assert.Equal(on, after.on);
+				Assert.Equal(brightness, after.brightness);
+				Assert.Equal(hue, after.hue);
+				Assert.Equal(saturation, after.saturation);
+			}
+		}
 	}
 
 	[Theory]
@@ -72,15 +123,29 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<
 	[InlineData(1, 25, 143)]
 	public async Task SetWhiteLight(int on, int brightness, int temperature)
 	{
-		var before = new Models.Generated.LightObject(on: on, brightness: brightness, temperature: temperature, hue: null, saturation: null);
+		foreach (var ipAddress in _ipAddresses)
+		{
+			if (await _sut.GetLightsAsync(ipAddress).AnyAsync(l => l.IsRgb))
+			{
+				continue;
+			}
 
-		await _sut.SetLightAsync(_keylightIPAddress, before);
+			var before = new Models.Generated.LightObject(on: on, brightness: brightness, temperature: temperature, hue: null, saturation: null);
 
-		var after = await _sut.GetLightAsync(_keylightIPAddress);
+			await _sut.SetLightAsync(ipAddress, new[] { before, });
 
-		Assert.Equal(on, after.on);
-		Assert.Equal(brightness, after.brightness);
-		Assert.Equal(temperature, after.temperature);
+			var lights = await _sut.GetLightsAsync(ipAddress).ToListAsync();
+
+			Assert.NotNull(lights);
+			Assert.NotEmpty(lights);
+
+			foreach (var after in lights)
+			{
+				Assert.Equal(on, after.on);
+				Assert.Equal(brightness, after.brightness);
+				Assert.Equal(temperature, after.temperature);
+			}
+		}
 	}
 
 	[Theory]
@@ -117,34 +182,30 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<
 			hue: hue,
 			saturation: saturation * 100d);
 
-		await _sut.SetLightAsync(_lightstripIPAddress, before);
+		foreach (var ipAddress in _ipAddresses)
+		{
+			if (await _sut.GetLightsAsync(ipAddress).AnyAsync(l => l.IsWhite))
+			{
+				continue;
+			}
 
-		var after = await _sut.GetLightAsync(_lightstripIPAddress);
+			await _sut.SetLightAsync(ipAddress, new[] { before, });
 
-		var comparer = TolerantEqualityComparer<double>.One;
+			var lights = await _sut.GetLightsAsync(ipAddress).ToListAsync();
 
-		Assert.Equal(before.on, after.on);
-		Assert.Equal(before.brightness, after.brightness);
-		Assert.Equal(before.temperature, after.temperature);
-		Assert.Equal(before.hue!.Value, after.hue!.Value, comparer);
-		Assert.Equal(before.saturation!.Value, after.saturation!.Value, comparer);
+			Assert.NotNull(lights);
+			Assert.NotEmpty(lights);
+
+			var comparer = TolerantEqualityComparer<double>.One;
+
+			foreach (var after in lights)
+			{
+				Assert.Equal(before.on, after.on);
+				Assert.Equal(before.brightness, after.brightness);
+				Assert.Equal(before.temperature, after.temperature);
+				Assert.Equal(before.hue!.Value, after.hue!.Value, comparer);
+				Assert.Equal(before.saturation!.Value, after.saturation!.Value, comparer);
+			}
+		}
 	}
-}
-
-public class TolerantEqualityComparer<T> : IEqualityComparer<T>
-	where T : IComparable<T>
-{
-	private readonly int _tolerance;
-
-	private TolerantEqualityComparer(int tolerance)
-	{
-		_tolerance = tolerance;
-	}
-
-	public bool Equals(T? x, T? y) => x?.CompareTo(y) <= _tolerance;
-	public int GetHashCode([DisallowNull] T obj) => obj?.GetHashCode() ?? 0;
-
-	public static TolerantEqualityComparer<T> Zero => new(0);
-	public static TolerantEqualityComparer<T> One => new(1);
-	public static TolerantEqualityComparer<T> Two => new(2);
 }

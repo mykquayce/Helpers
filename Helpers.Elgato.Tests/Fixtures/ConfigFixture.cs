@@ -1,17 +1,31 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net;
+using System.Net.NetworkInformation;
 
 namespace Helpers.Elgato.Tests.Fixtures;
 
 public class ConfigFixture
 {
-	private readonly XUnitClassFixtures.UserSecretsFixture _userSecretsFixture = new();
-
 	public ConfigFixture()
 	{
-		KeylightIPAddress = IPAddress.Parse(_userSecretsFixture["Elgato:Keylight:IPAddress"]);
-		LightstripIPAddress = IPAddress.Parse(_userSecretsFixture["Elgato:Lightstrip:IPAddress"]);
+		var userSecretsFixture = new XUnitClassFixtures.UserSecretsFixture();
+
+		Configuration = userSecretsFixture.Configuration;
+
+		Configuration.GetSection("Elgato:Aliases").Bind(Aliases);
+
+		foreach (var alias in Aliases)
+		{
+			var ipAddress = IPAddress.Parse(userSecretsFixture[$"Elgato:{alias}:IPAddress"]);
+			IPAddresses.Add(ipAddress);
+			var physicalAddress = PhysicalAddress.Parse(userSecretsFixture[$"Elgato:{alias}:PhysicalAddress"]);
+			PhysicalAddresses.Add(physicalAddress);
+		}
+
 	}
 
-	public IPAddress KeylightIPAddress { get; }
-	public IPAddress LightstripIPAddress { get; }
+	public IConfiguration Configuration { get; }
+	public IList<string> Aliases { get; } = new List<string>();
+	public IList<IPAddress> IPAddresses { get; } = new List<IPAddress>();
+	public IList<PhysicalAddress> PhysicalAddresses { get; } = new List<PhysicalAddress>();
 }
