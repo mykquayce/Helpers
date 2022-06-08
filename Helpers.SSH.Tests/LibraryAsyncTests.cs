@@ -14,7 +14,7 @@ public sealed class LibraryAsyncTests : IClassFixture<LibraryFixture>
 
 	[Theory]
 	[InlineData("echo Hello world", "Hello world\n")]
-	[InlineData("date --utc --rfc-2822", @"^\w{3}, \d{2} \w{3} \d{4} \d{2}:\d{2}:\d{2} UTC$")]
+	[InlineData("date -Iseconds", @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}$")]
 	[InlineData("cat /tmp/dhcp.leases", @"(\d+ \w\w:\w\w:\w\w:\w\w:\w\w:\w\w \d+\.\d+\.\d+\.\d+ .+? .+?)+")]
 	public async Task Async(string commandText, string expected)
 	{
