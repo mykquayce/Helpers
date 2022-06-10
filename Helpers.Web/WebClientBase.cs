@@ -153,24 +153,13 @@ public abstract class WebClientBase
 		}
 		catch (Exception exception)
 		{
-			var baseAddress = (_httpMessageInvoker as System.Net.Http.HttpClient)?.BaseAddress?.OriginalString;
-
-			string? body = request.Content is null
-				? null
-				: await request.Content.ReadAsStringAsync();
-
-			exception.Data.Add(nameof(baseAddress), baseAddress);
-			exception.Data.Add(nameof(body), body);
-			exception.Data.Add(nameof(request.Method), request.Method);
-			exception.Data.Add(nameof(request.RequestUri), request.RequestUri.OriginalString);
+			await exception.PopulateExceptionAsync(request);
 
 			_tracer?.ActiveSpan?.Log(exception);
 
-			_logger?.LogError(exception,
-				"{0}={1}, {2}={3}, {4}={5}",
-				nameof(request.Method), request.Method,
-				nameof(request.RequestUri), request.RequestUri.OriginalString,
-				nameof(body), body);
+			var message = exception.Data.ToCsvString();
+
+			_logger?.LogError(exception, message);
 
 			throw;
 		}
@@ -200,21 +189,28 @@ public abstract class WebClientBase
 
 		await using var stream = await taskStream!;
 
-		T o;
-
 		if (typeof(T) == typeof(string))
 		{
 			using var reader = new StreamReader(stream);
 			var s = await reader.ReadToEndAsync();
-			o = (T)Convert.ChangeType(s, TypeCode.String);
-		}
-		else
-		{
-			o = await stream.DeserializeAsync<T>(cancellationToken)
-				?? throw new Exception();
+			var o = (T)Convert.ChangeType(s, TypeCode.String);
+
+			return new Models.Concrete.Response<T>(headers, statusCode, o);
 		}
 
-		return new Models.Concrete.Response<T>(headers, statusCode, o);
+		try
+		{
+			var o = await stream.DeserializeAsync<T>(cancellationToken);
+			return new Models.Concrete.Response<T>(headers, statusCode, o);
+		}
+		catch (System.Text.Json.JsonException ex)
+		{
+			await ex.PopulateExceptionAsync(response.RequestMessage);
+			return new Models.Concrete.Response<T>(headers, statusCode, null)
+			{
+				Exception = ex,
+			};
+		}
 	}
 	#endregion private methods
 }

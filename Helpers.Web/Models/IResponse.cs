@@ -5,6 +5,7 @@ namespace Helpers.Web.Models;
 
 public interface IResponseBase
 {
+	Exception? Exception { get; init; }
 	IReadOnlyDictionary<string, StringValues> Headers { get; }
 	HttpStatusCode StatusCode { get; }
 	void Deconstruct(out IReadOnlyDictionary<string, StringValues> Headers, out HttpStatusCode StatusCode);
@@ -19,6 +20,6 @@ public interface IResponse : IResponseBase
 public interface IResponse<T> : IResponseBase
 	where T : class
 {
-	T Object { get; }
-	void Deconstruct(out IReadOnlyDictionary<string, StringValues> Headers, out HttpStatusCode StatusCode, out T @Object);
+	T? Object { get; }
+	void Deconstruct(out IReadOnlyDictionary<string, StringValues> Headers, out HttpStatusCode StatusCode, out T? @Object);
 }

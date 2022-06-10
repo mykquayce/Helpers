@@ -92,9 +92,29 @@ public sealed class WebClientBaseTests : IDisposable
 			// Assert
 			Assert.IsType(expectedException, exception);
 			Assert.Equal(expectedMessage, exception.Message);
-			Assert.Contains("RequestUri", exception.Data.Keys.Cast<object>());
-			Assert.Equal(uriString, exception.Data["RequestUri"]);
+			Assert.Contains("requestUri", exception.Data.Keys.Cast<object>());
+			Assert.Equal(uriString, exception.Data["requestUri"]);
 		}
+	}
+
+	[Theory]
+	[InlineData(HttpStatusCode.Unauthorized)]
+	public async Task ErrorTests(HttpStatusCode statusCode)
+	{
+		// Arrange
+		var uriString = $"https://www.httpbin.org/status/{statusCode:D}";
+		var uri = new Uri(uriString, UriKind.Absolute);
+
+		var response = await _client.SendAsync<ResponseObject>(HttpMethod.Get, uri);
+		Assert.NotNull(response);
+		Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
+		Assert.Equal(statusCode, response.StatusCode);
+		Assert.Null(response.Object);
+		Assert.NotNull(response.Exception);
+		Assert.NotNull(response.Exception.Data);
+		Assert.NotEmpty(response.Exception.Data);
+		Assert.Contains("requestUri", response.Exception.Data.Keys.Cast<object>());
+		Assert.Equal(uriString, response.Exception.Data["requestUri"]);
 	}
 
 	private async static Task<string> StreamToString(Stream stream)
@@ -141,3 +161,5 @@ public class WebClient : WebClientBase
 		=> base.SendAsync<T>(httpMethod, uri, body);
 
 }
+
+public record ResponseObject(object Object);

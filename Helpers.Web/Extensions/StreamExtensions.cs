@@ -17,4 +17,25 @@ public static class StreamExtensions
 
 	public static Task<T?> DeserializeAsync<T>(this Stream stream, CancellationToken? cancellationToken = default)
 		=> JsonSerializer.DeserializeAsync<T>(stream, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None).AsTask();
+
+	public static string? ReadAsString(this Stream stream)
+	{
+		if (!stream.CanRead)
+		{
+			return null;
+		}
+
+		if (stream.Position > 0)
+		{
+			if (!stream.CanSeek)
+			{
+				return null;
+			}
+
+			stream.Position = 0;
+		}
+
+		var reader = new StreamReader(stream);
+		return reader.ReadToEnd();
+	}
 }

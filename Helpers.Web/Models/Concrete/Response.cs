@@ -4,11 +4,14 @@ using System.Net;
 namespace Helpers.Web.Models.Concrete;
 
 public record ResponseBase(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode)
-	: IResponseBase;
+	: IResponseBase
+{
+	public Exception? Exception { get; init; }
+}
 
 public record Response(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode, Task<Stream> TaskStream)
 	: ResponseBase(Headers, StatusCode), IResponse;
 
-public record Response<T>(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode, T Object)
+public record Response<T>(IReadOnlyDictionary<string, StringValues> Headers, HttpStatusCode StatusCode, T? Object)
 	: ResponseBase(Headers, StatusCode), IResponse<T>
 	where T : class;
