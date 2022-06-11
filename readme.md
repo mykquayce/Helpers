@@ -3,31 +3,6 @@ Save the Nuget Server API Key to a local variable with:
 ```bash
 export NUGET_SERVER_API_KEY=...
 ```
-### Hierarchies
-```
-               Common
-     +-----------+------+
-    Jwt          |    Tracing
-                 |  +-----+---+
-              RabbitMQ       Web
-                              |
-     +-----+-------+-----+----+------------+---+
-     |  Discord Elgato GitHub | PhilipsHue | Slack  
-     |                        |            |
-     |                        |            |  Steam.Models
-     |                        |           Steam
-     |  Cineworld.Models      |
- Cineworld                    |  Networking.Models
-                              |  +-------+------+
-                            OpenWrt Networking SSH           TPLink.Models
-                                         |                       |
-                                  +------+-------+-------------+ |
-                             GlobalCache XUnitClassFixtures TPLink
-
-Telegram.Models
-        |
-    Telegram
-```
 ### Standalone
 ```
 DawnGuard
@@ -35,15 +10,17 @@ DockerSecrets
 Jaeger
 MySql
 Phasmophobia
+RabbitMQ
 Reddit.Models
 Tracing.Middleware
 Twitch
 ```
 ### Build order
 1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, Json, MySql, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, Tracing.Middleware, and Twitch
-1. Jwt, Networking.Models, Reddit, Telegram, TPLink.Models, and Tracing
-1. Networking, RabbitMQ, SSH, and Web
-1. Cineworld, Discord, Elgato, GitHub, GlobalCache, OldhamCouncil, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
+1. Jwt, NetworkDiscoveryApi.Models, Networking.Models, Reddit, Telegram, TPLink.Models, and Tracing
+1. Networking, SSH, and Web
+1. Cineworld, Discord, DockerHub, Elgato, GitHub, GlobalCache, Identity, OldhamCouncil, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
+1. NetworkDiscoveryApi
 ### User Secrets
 #### Helpers.Discord.Tests
 ```powershell
