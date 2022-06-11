@@ -5,13 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.11</Version>
+    <Version>1.1.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.17" />
-    <PackageReference Include="Helpers.Web" Version="2.3.6" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.18" />
+    <PackageReference Include="Helpers.Web" Version="2.3.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
   </ItemGroup>
 
