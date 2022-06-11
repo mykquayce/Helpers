@@ -5,10 +5,11 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.5" />
+    <PackageReference Include="Helpers.Json" Version="1.2.6" />
   </ItemGroup>
 
 </Project>

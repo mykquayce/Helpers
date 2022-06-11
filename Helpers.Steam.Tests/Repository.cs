@@ -9,7 +9,7 @@ namespace Helpers.Steam.Tests
 	public class Repository : Helpers.MySql.RepositoryBase
 	{
 		public Repository(MySql.Config dbSettings)
-			: base(dbSettings)
+			: base(dbSettings.DbConnection)
 		{ }
 
 		public Task<int> SaveUserAsync(long id, string name)
