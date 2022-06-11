@@ -5,13 +5,12 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.0.3" />
+    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.0.5" />
     <PackageReference Include="Helpers.Web" Version="2.3.8" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
 </Project>

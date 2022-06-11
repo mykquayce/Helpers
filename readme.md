@@ -19,8 +19,9 @@ Twitch
 1. Cineworld.Models, Common, DawnGuard, DockerSecrets, Jaeger, Json, MySql, Phasmophobia, Reddit.Models, Steam.Models, Telegram.Models, Tracing.Middleware, and Twitch
 1. Jwt, NetworkDiscoveryApi.Models, Networking.Models, Reddit, Telegram, TPLink.Models, and Tracing
 1. Networking, SSH, and Web
-1. Cineworld, Discord, DockerHub, Elgato, GitHub, GlobalCache, Identity, OldhamCouncil, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
+1. Cineworld, Discord, DockerHub, GitHub, GlobalCache, Identity, OldhamCouncil, OpenWrt, PhilipsHue, Slack, Steam, TPLink, and XUnitClassFixtures
 1. NetworkDiscoveryApi
+1. Elgato
 ### User Secrets
 #### Helpers.Discord.Tests
 ```powershell
