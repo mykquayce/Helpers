@@ -13,9 +13,9 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 		_client = fixture.Client;
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "non-authorized communications no longer allowed")]
-	[Theory(Skip = "non-authorized communications no longer allowed")]
-	[InlineData(5_000)]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
+	[Theory(Skip = "requires unsecure third party")]
+	[InlineData(5_000_000)]
 	public async Task GetLeasesTests(int millisecondsDelay)
 	{
 		ICollection<Models.DhcpResponseObject> leases;
@@ -37,8 +37,8 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "non-authorized communications no longer allowed")]
-	[Theory(Skip = "non-authorized communications no longer allowed")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "<Pending>")]
+	[Theory(Skip = "requires unsecure third party")]
 	[InlineData(5_000, "3C:6A:9D:14:D7:65")]
 	public async Task GetLeaseTests(int millisecondsDelay, string physicalAddressString)
 	{

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Helpers.NetworkDiscoveryApi.Tests;
@@ -6,28 +7,31 @@ namespace Helpers.NetworkDiscoveryApi.Tests;
 [Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 public class ClientDependencyInjectionTests : IClassFixture<Fixtures.ConfigurationFixture>
 {
-	private readonly Uri _baseAddress;
+	private readonly IConfiguration _configuration;
 
 	public ClientDependencyInjectionTests(Fixtures.ConfigurationFixture configurationFixture)
 	{
-		_baseAddress = configurationFixture.BaseAddress;
+		var initialData = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+		{
+			["EndPoints:IdentityServer"] = configurationFixture.Authority.OriginalString,
+			["EndPoints:NetworkDiscoveryApi"] = configurationFixture.BaseAddress.OriginalString,
+			["Identity:Authority"] = configurationFixture.Authority.OriginalString,
+			["Identity:ClientId"] = configurationFixture.ClientId,
+			["Identity:ClientSecret"] = configurationFixture.ClientSecret,
+			["Identity:Scope"] = configurationFixture.Scope,
+		};
+
+		_configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(initialData)
+			.Build();
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "non-authorized communications no longer allowed")]
-	[Theory(Skip = "non-authorized communications no longer allowed")]
+	[Theory]
 	[InlineData(5_000)]
 	public async Task DependencyInjectionTests(int millisecondsDelay)
 	{
 		var serviceProvider = new ServiceCollection()
-			.AddHttpClient<IClient, Concrete.Client>(httpClient =>
-			{
-				httpClient.BaseAddress = _baseAddress;
-			})
-			.ConfigurePrimaryHttpMessageHandler(() =>
-			{
-				return new HttpClientHandler { AllowAutoRedirect = false, };
-			})
-			.Services
+			.AddAliasResolver(_configuration)
 			.BuildServiceProvider();
 
 		var client = serviceProvider.GetService<IClient>();
