@@ -10,14 +10,15 @@ public sealed class ServiceFixture : IDisposable
 	{
 		var @base = new Helpers.XUnitClassFixtures.UserSecretsFixture();
 
-		var config = @base
+		Config = @base
 			.Configuration.GetSection(_sectionName)
 			.Get<Concrete.Service.Config>()
 			?? throw new KeyNotFoundException($"{_sectionName} not found in user secrets");
 
-		Service = new Concrete.Service(config);
+		Service = new Concrete.Service(Config);
 	}
 
+	public Concrete.Service.Config Config { get; }
 	public IService Service { get; }
 
 	public void Dispose()

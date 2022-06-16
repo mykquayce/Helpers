@@ -101,7 +101,15 @@ public class Service : IDisposable, IService
 	{
 		Guard.Argument(() => queue).NotNull().NotEmpty().NotWhiteSpace();
 		Connect(queue);
-		BasicGetResult result = _channel!.BasicGet(queue, autoAck: false);
+		BasicGetResult result;
+		try
+		{
+			result = _channel!.BasicGet(queue, autoAck: false);
+		}
+		catch (OperationInterruptedException exception)
+		{
+			throw new Exceptions.QueueNotFoundOrEmptyException(queue, exception);
+		}
 
 		if (result is null)
 		{
@@ -127,7 +135,8 @@ public class Service : IDisposable, IService
 	public void DeleteQueue(string queue)
 	{
 		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
-		_channel?.QueueDelete(queue, ifEmpty: false);
+		try { _channel?.QueueDelete(queue, ifEmpty: false); }
+		catch (AlreadyClosedException) { }
 	}
 
 	public void DeleteQueues()

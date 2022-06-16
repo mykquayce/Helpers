@@ -2,12 +2,15 @@
 
 namespace Helpers.RabbitMQ.Tests;
 
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 {
+	private readonly Concrete.Service.Config _config;
 	private readonly IService _service;
 
 	public ServiceTests(Fixtures.ServiceFixture fixture)
 	{
+		_config = fixture.Config;
 		_service = fixture.Service;
 	}
 
@@ -95,25 +98,27 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	[InlineData("test-queue", "hello world")]
 	public void DisposingTests(string queueName, string message)
 	{
+		IService makeService() => new Concrete.Service(_config);
+
 		{
-			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			using IService service = makeService();
 			service.Enqueue(queueName, message);
 		}
 
 		{
-			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			using IService service = makeService();
 			var (actual, tag) = service.Dequeue<string>(queueName);
 			service.Acknowledge(tag);
 			Assert.Equal(message, actual);
 		}
 
 		{
-			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			using IService service = makeService();
 			service.PurgeQueue(queueName);
 		}
 
 		{
-			using IService service = new Concrete.Service(Concrete.Service.Config.Defaults);
+			using IService service = makeService();
 			service.DeleteQueue(queueName);
 		}
 	}
@@ -130,7 +135,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 	[Theory]
 	[InlineData("test-queue", "hello world")]
-	public void DeleteEmptyQueueTests(string queue, string message)
+	public void DequeueEmptyQueueTests(string queue, string message)
 	{
 		_service.Enqueue(queue, message);
 		_service.DeleteQueue(queue);
