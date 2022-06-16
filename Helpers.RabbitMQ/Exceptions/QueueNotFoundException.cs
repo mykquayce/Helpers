@@ -4,7 +4,11 @@
 public class QueueNotFoundOrEmptyException : Exception
 {
 	public QueueNotFoundOrEmptyException(string queueName)
-		: base("Queue not found or empty: " + queueName)
+		: this(queueName, default)
+	{ }
+
+	public QueueNotFoundOrEmptyException(string queueName, Exception? innerException)
+		: base("Queue not found or empty: " + queueName, innerException)
 	{
 		base.Data.Add(nameof(queueName), queueName);
 	}
