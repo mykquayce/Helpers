@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Helpers.RabbitMQ;
 
-public interface IService : IDisposable
+public interface IService
 {
 	private static readonly Encoding _encoding = Encoding.UTF8;
 
@@ -24,7 +24,5 @@ public interface IService : IDisposable
 		Enqueue(queue, body);
 	}
 	void PurgeQueue(string queue);
-	void PurgeQueues();
 	void DeleteQueue(string queue);
-	void DeleteQueues();
 }
