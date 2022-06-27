@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Helpers.Web" Version="2.3.8" />
     <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
   </ItemGroup>
 
 </Project>
