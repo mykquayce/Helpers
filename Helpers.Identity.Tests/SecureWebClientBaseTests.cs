@@ -1,22 +1,24 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics;
 
 namespace Helpers.Identity.Tests;
 
-public sealed class SecureWebClientBaseTests : IDisposable
+public sealed class SecureWebClientBaseTests : IClassFixture<Fixtures.ConfigurationFixture>, IDisposable
 {
+	private readonly WebApplicationFactory<Helpers.Identity.Tests.TestApi.Program> _webApplicationFactory;
 	private readonly HttpClient _apiHttpClient, _identityHttpClient;
 	private readonly IMemoryCache _memoryCache;
 	private readonly Clients.ISecureWebClient _sut;
 
-	public SecureWebClientBaseTests()
+	public SecureWebClientBaseTests(Fixtures.ConfigurationFixture fixture)
 	{
-		var config = new Config(new Uri("https://identityserver"), "client", "secret", "api1");
+		_webApplicationFactory = new();
+		_apiHttpClient = _webApplicationFactory.CreateClient();
 		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		_apiHttpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api:6001"), };
-		_identityHttpClient = new HttpClient(handler) { BaseAddress = config.Authority, };
+		_identityHttpClient = new HttpClient(handler) { BaseAddress = fixture.Authority, };
 		_memoryCache = new MemoryCache(new MemoryCacheOptions());
-		var identityClient = new Identity.Clients.Concrete.IdentityClient(config, _identityHttpClient, _memoryCache);
+		var identityClient = new Identity.Clients.Concrete.IdentityClient(fixture.Config, _identityHttpClient, _memoryCache);
 		_sut = new Clients.Concrete.SecureWebClient(_apiHttpClient, identityClient);
 	}
 
@@ -27,18 +29,16 @@ public sealed class SecureWebClientBaseTests : IDisposable
 		_apiHttpClient.Dispose();
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "needs third party")]
-	[Fact(Skip = "needs third party")]
+	[Fact]
 	public async Task Test1()
 	{
-		var json = await _sut.GetStringAsync(new Uri("/identity", UriKind.Relative));
+		var json = await _sut.GetStringAsync(new Uri("/weatherforecast", UriKind.Relative));
 		Assert.NotNull(json);
 		Assert.NotEmpty(json);
 		Assert.StartsWith("[", json);
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "needs third party")]
-	[Theory(Skip = "needs third party")]
+	[Theory]
 	[InlineData(5)]
 	public async Task CacheTests(int count)
 	{
@@ -47,7 +47,7 @@ public sealed class SecureWebClientBaseTests : IDisposable
 
 		while (count-- > 0)
 		{
-			var json = await _sut.GetStringAsync(new Uri("/identity", UriKind.Relative));
+			var json = await _sut.GetStringAsync(new Uri("/weatherforecast", UriKind.Relative));
 			times.Add(stopwatch.Elapsed);
 			stopwatch.Restart();
 		}
