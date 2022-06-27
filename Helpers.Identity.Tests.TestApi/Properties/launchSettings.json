@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Helpers.Identity.Tests.TestApi": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "weatherforecast",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7031;http://localhost:5031"
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
+}
