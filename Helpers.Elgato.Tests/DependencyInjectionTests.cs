@@ -48,8 +48,7 @@ public class DependencyInjectionTests : IClassFixture<Fixtures.ConfigFixture>
 				.AddHttpClient<IClient, Concrete.Client>("ElgatoClient")
 				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 				.Services
-				.AddTransient<Helpers.NetworkDiscoveryApi.IAliasResolverService, Helpers.NetworkDiscoveryApi.Concrete.AliasResolverService>()
-				.AddAliasResolver(configuration)
+				.AddNetworkDiscoveryApi(configuration)
 				.BuildServiceProvider();
 		}
 

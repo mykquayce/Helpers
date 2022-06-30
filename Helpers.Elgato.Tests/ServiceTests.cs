@@ -14,7 +14,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 		Fixtures.ConfigFixture configFixture)
 	{
 		_sut = serviceFixture.Service;
-		_aliases = configFixture.Aliases.AsReadOnly();
+		_aliases = configFixture.Aliases.Keys;
 		Assert.NotEmpty(_aliases);
 	}
 

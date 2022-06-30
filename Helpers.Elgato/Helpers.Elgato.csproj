@@ -5,11 +5,11 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.0.5" />
+    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.2.0" />
     <PackageReference Include="Helpers.Web" Version="2.3.8" />
   </ItemGroup>
 

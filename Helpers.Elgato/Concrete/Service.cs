@@ -6,19 +6,19 @@ namespace Helpers.Elgato.Concrete;
 public class Service : IService
 {
 	private readonly IClient _client;
-	private readonly Helpers.NetworkDiscoveryApi.IAliasResolverService _aliasResolverService;
+	private readonly NetworkDiscoveryApi.IService _networkDiscoveryApiService;
 
 	public Service(
 		IClient client,
-		Helpers.NetworkDiscoveryApi.IAliasResolverService aliasResolverService)
+		Helpers.NetworkDiscoveryApi.IService networkDiscoveryApiClient)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
-		_aliasResolverService = Guard.Argument(aliasResolverService).NotNull().Value;
+		_networkDiscoveryApiService = networkDiscoveryApiClient;
 	}
 
 	public async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
 	{
-		var ip = await _aliasResolverService.ResolveAsync(alias, cancellationToken);
+		(_, _, var ip, _, _) = await _networkDiscoveryApiService.GetLeaseAsync(alias, cancellationToken);
 		var lights = _client.GetLightsAsync(ip, cancellationToken);
 
 		await foreach (var (on, brightness, temperature, hue, saturation) in lights)
@@ -114,7 +114,7 @@ public class Service : IService
 	{
 		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
 		Guard.Argument(func).NotNull();
-		var ip = await _aliasResolverService.ResolveAsync(alias, cancellationToken);
+		(_, _, var ip, _, _) = await _networkDiscoveryApiService.GetLeaseAsync(alias, cancellationToken);
 		var lights = _client.GetLightsAsync(ip, cancellationToken);
 		var updated = await lights.Select(func)
 			.ToArrayAsync(cancellationToken ?? CancellationToken.None);

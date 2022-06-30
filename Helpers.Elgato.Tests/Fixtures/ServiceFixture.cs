@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using System.Net.NetworkInformation;
 
 namespace Helpers.Elgato.Tests.Fixtures;
 
 public sealed class ServiceFixture : IDisposable
 {
-	private readonly AliasResolverServiceFixture _aliasResolverServiceFixture = new();
+	private readonly NetworkDiscoveryServiceFixture _networkDiscoveryServiceFixture = new();
 	private readonly ClientFixture _elgatoClientFixture = new();
 
 	public ServiceFixture()
 	{
 		Service = new Concrete.Service(
 			_elgatoClientFixture.Client,
-			_aliasResolverServiceFixture.Service);
+			_networkDiscoveryServiceFixture.Service);
 	}
 
 	public IService Service { get; }
@@ -19,36 +20,6 @@ public sealed class ServiceFixture : IDisposable
 	public void Dispose()
 	{
 		_elgatoClientFixture.Dispose();
-		_aliasResolverServiceFixture.Dispose();
-	}
-}
-
-public sealed class AliasResolverServiceFixture : IDisposable
-{
-	private readonly ConfigFixture _configFixture = new();
-	private readonly NetworkDiscoveryServiceFixture _networkDiscoveryServiceFixture = new();
-	private readonly XUnitClassFixtures.UserSecretsFixture _userSecretsFixture = new();
-
-	public AliasResolverServiceFixture()
-	{
-		var aliases = new Helpers.NetworkDiscoveryApi.Aliases();
-
-		for (var a = 0; a < _configFixture.Aliases.Count; a++)
-		{
-			var alias = _configFixture.Aliases[a];
-			var physicalAddressString = _configFixture.PhysicalAddresses[a].ToString().ToLowerInvariant();
-			aliases.Add(alias, physicalAddressString);
-		}
-
-		Service = new Helpers.NetworkDiscoveryApi.Concrete.AliasResolverService(
-			aliases,
-			_networkDiscoveryServiceFixture.Service);
-	}
-
-	public Helpers.NetworkDiscoveryApi.IAliasResolverService Service { get; }
-
-	public void Dispose()
-	{
 		_networkDiscoveryServiceFixture.Dispose();
 	}
 }
@@ -60,9 +31,13 @@ public sealed class NetworkDiscoveryServiceFixture : IDisposable
 
 	public NetworkDiscoveryServiceFixture()
 	{
+		var configFixture = new ConfigFixture();
+		var aliases = Helpers.NetworkDiscoveryApi.Aliases.Bind(configFixture.Configuration.GetSection("aliases"));
+
 		Service = new Helpers.NetworkDiscoveryApi.Concrete.Service(
 			_networkDiscoveryClientFixture.Client,
-			_memoryCacheFixture.MemoryCache);
+			_memoryCacheFixture.MemoryCache,
+			aliases);
 	}
 
 	public Helpers.NetworkDiscoveryApi.IService Service { get; }

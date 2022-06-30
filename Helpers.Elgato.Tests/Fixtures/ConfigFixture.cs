@@ -12,20 +12,19 @@ public class ConfigFixture
 
 		Configuration = userSecretsFixture.Configuration;
 
-		Configuration.GetSection("Elgato:Aliases").Bind(Aliases);
+		Aliases = Helpers.NetworkDiscoveryApi.Aliases.Bind(Configuration.GetSection("aliases"));
 
-		foreach (var alias in Aliases)
+		foreach (var (alias, _) in Aliases)
 		{
 			var ipAddress = IPAddress.Parse(userSecretsFixture[$"Elgato:{alias}:IPAddress"]);
 			IPAddresses.Add(ipAddress);
 			var physicalAddress = PhysicalAddress.Parse(userSecretsFixture[$"Elgato:{alias}:PhysicalAddress"]);
 			PhysicalAddresses.Add(physicalAddress);
 		}
-
 	}
 
 	public IConfiguration Configuration { get; }
-	public IList<string> Aliases { get; } = new List<string>();
+	public Helpers.NetworkDiscoveryApi.Aliases Aliases { get; }
 	public IList<IPAddress> IPAddresses { get; } = new List<IPAddress>();
 	public IList<PhysicalAddress> PhysicalAddresses { get; } = new List<PhysicalAddress>();
 }

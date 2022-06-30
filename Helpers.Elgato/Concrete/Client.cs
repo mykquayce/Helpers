@@ -34,7 +34,9 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		Guard.Argument(ipAddress).NotNull().NotEqual(IPAddress.None);
 		var baseAddress = BuildBaseAddress(ipAddress);
 		var uri = new Uri(baseAddress, "/elgato/lights");
-		var (_, _, message) = await base.SendAsync<Models.Generated.MessageObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
+		var response = await base.SendAsync<Models.Generated.MessageObject>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
+		if (response.Exception is not null) throw response.Exception;
+		var message = response.Object!;
 		foreach (var light in message.lights)
 		{
 			yield return light;
