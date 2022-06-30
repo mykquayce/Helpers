@@ -16,7 +16,7 @@ public class Service : IService
 		_networkDiscoveryApiService = networkDiscoveryApiClient;
 	}
 
-	public async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	private async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightsAsync(string alias, CancellationToken? cancellationToken = null)
 	{
 		(_, _, var ip, _, _) = await _networkDiscoveryApiService.GetLeaseAsync(alias, cancellationToken);
 		var lights = _client.GetLightsAsync(ip, cancellationToken);
@@ -35,32 +35,24 @@ public class Service : IService
 		}
 	}
 
-	public async IAsyncEnumerable<(bool on, float brightness, Color color)> GetRgbLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	public IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
 	{
-		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
-		var lights = GetLightStatusAsync(alias, cancellationToken);
-
-		await foreach (var (on, brightness, color, _) in lights)
-		{
-			if (color.HasValue)
-			{
-				yield return (on, brightness, color!.Value);
-			}
-		}
+		return GetLightsAsync(alias, cancellationToken)
+			.Select(tuple => new Models.Lights.LightModel(tuple.on, tuple.brightness));
 	}
 
-	public async IAsyncEnumerable<(bool on, float brightness, short kelvins)> GetWhiteLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	public IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
 	{
-		Guard.Argument(alias).NotNull().NotEmpty().NotWhiteSpace();
-		var lights = GetLightStatusAsync(alias, cancellationToken);
+		return GetLightsAsync(alias, cancellationToken)
+			.Where(tuple => tuple.color.HasValue)
+			.Select(tuple => new Models.Lights.RgbLightModel(tuple.on, tuple.brightness, tuple.color!.Value));
+	}
 
-		await foreach (var (on, brightness, _, temperature) in lights)
-		{
-			if (temperature.HasValue)
-			{
-				yield return (on, brightness, temperature!.Value);
-			}
-		}
+	public IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(string alias, CancellationToken? cancellationToken = null)
+	{
+		return GetLightsAsync(alias, cancellationToken)
+			.Where(tuple => tuple.kelvins.HasValue)
+			.Select(tuple => new Models.Lights.WhiteLightModel(tuple.on, tuple.brightness, tuple.kelvins!.Value));
 	}
 
 	public Task SetBrightnessAsync(string alias, float brightness, CancellationToken? cancellationToken = null)
@@ -79,7 +71,7 @@ public class Service : IService
 
 			return light with
 			{
-				on = 1, 
+				on = 1,
 				brightness = (hsbColor.Brightness * 100f).Round(),
 				hue = hsbColor.Hue,
 				saturation = hsbColor.Saturation * 100f,
@@ -105,7 +97,7 @@ public class Service : IService
 	public async Task TogglePowerStateAsync(string alias, CancellationToken? cancellationToken = null)
 	{
 		var lights = GetLightStatusAsync(alias, cancellationToken);
-		var on = await lights.AnyAsync(l => l.on, cancellationToken ?? CancellationToken.None);
+		var on = await lights.AnyAsync(l => l.On, cancellationToken ?? CancellationToken.None);
 		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = on ? 0 : 1, };
 		await SetLightAsync(alias, func, cancellationToken);
 	}

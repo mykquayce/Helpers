@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json;
 using Xunit;
 
 namespace Helpers.Elgato.Tests;
@@ -31,7 +32,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 			var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
 			Assert.NotNull(lights);
 			Assert.NotEmpty(lights);
-			foreach ((var actual, _, _, _) in lights)
+			foreach ((var actual, _) in lights)
 			{
 				Assert.Equal(on, actual);
 			}
@@ -51,7 +52,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 				await _sut.TogglePowerStateAsync(alias, cts.Token);
 				var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
 
-				var after = lights.Select(tuple => tuple.on).Distinct().ToList();
+				var after = lights.Select(tuple => tuple.On).Distinct().ToList();
 				Assert.NotEmpty(after);
 				Assert.Single(after);
 			}
@@ -72,7 +73,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 
 			var lights = _sut.GetLightStatusAsync(alias, cts.Token);
 
-			await foreach ((_, var actual, _, _) in lights)
+			await foreach ((_, var actual) in lights)
 			{
 				Assert.Equal(brightness, actual, precision: 2);
 			}
@@ -88,7 +89,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 
 		foreach (var alias in _aliases)
 		{
-			var ok = await _sut.GetLightStatusAsync(alias, cts.Token).AllAsync(l => l.color.HasValue);
+			var ok = await _sut.GetRgbLightStatusAsync(alias, cts.Token).AnyAsync(cts.Token);
 
 			if (!ok) continue;
 
@@ -107,20 +108,18 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 	[InlineData("keylight")]
 	public async Task WhiteLightHasNullColor(string alias)
 	{
-		var lights = await _sut.GetLightStatusAsync(alias).ToListAsync();
+		var lights = await _sut.GetWhiteLightStatusAsync(alias).ToListAsync();
 
 		Assert.Single(lights);
-		Assert.Null(lights[0].color);
 	}
 
 	[Theory]
 	[InlineData("lightstrip")]
 	public async Task RgbLightHasNullKelvins(string alias)
 	{
-		var lights = await _sut.GetLightStatusAsync(alias).ToListAsync();
+		var lights = await _sut.GetRgbLightStatusAsync(alias).ToListAsync();
 
 		Assert.Single(lights);
-		Assert.Null(lights[0].kelvins);
 	}
 
 	[Theory]
@@ -136,19 +135,40 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 
 		foreach (var alias in _aliases)
 		{
-			var ok = await _sut.GetLightStatusAsync(alias, cts.Token)
-				.AllAsync(l => l.kelvins.HasValue, cts.Token);
+			var ok = await _sut.GetWhiteLightStatusAsync(alias, cts.Token)
+				.AnyAsync(cts.Token);
 
 			if (!ok) continue;
 
 			await _sut.SetKelvinsAsync(alias, kelvins, cts.Token);
 
-			var actuals = _sut.GetLightStatusAsync(alias, cts.Token);
+			var actuals = _sut.GetWhiteLightStatusAsync(alias, cts.Token);
 
-			await foreach ((_, _, _, var actual) in actuals)
+			await foreach ((_, _, var actual) in actuals)
 			{
-				Assert.NotNull(actual);
-				Assert.Equal(kelvins, actual!.Value, comparer: comparer);
+				Assert.Equal(kelvins, actual, comparer: comparer);
+			}
+		}
+	}
+
+	[Fact]
+	public async Task ReturnTypesAreSerializable()
+	{
+		foreach (var alias in _aliases)
+		{
+			await test(_sut.GetLightStatusAsync(alias));
+			await test(_sut.GetRgbLightStatusAsync(alias));
+			await test(_sut.GetWhiteLightStatusAsync(alias));
+		}
+
+		static async Task test<T>(IAsyncEnumerable<T> values)
+		{
+			await foreach (var value in values)
+			{
+				var json = JsonSerializer.Serialize(value);
+				Assert.NotNull(json);
+				Assert.NotEmpty(json);
+				Assert.NotEqual("{}", json);
 			}
 		}
 	}

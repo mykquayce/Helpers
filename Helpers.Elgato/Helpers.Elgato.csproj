@@ -5,10 +5,11 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.0.3</Version>
+    <Version>3.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Helpers.Elgato.Models" Version="1.0.1" />
     <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.2.0" />
     <PackageReference Include="Helpers.Web" Version="2.3.8" />
   </ItemGroup>
