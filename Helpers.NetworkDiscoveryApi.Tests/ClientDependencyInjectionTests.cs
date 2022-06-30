@@ -31,7 +31,7 @@ public class ClientDependencyInjectionTests : IClassFixture<Fixtures.Configurati
 	public async Task DependencyInjectionTests(int millisecondsDelay)
 	{
 		var serviceProvider = new ServiceCollection()
-			.AddAliasResolver(_configuration)
+			.AddNetworkDiscoveryApi(_configuration)
 			.BuildServiceProvider();
 
 		var client = serviceProvider.GetService<IClient>();

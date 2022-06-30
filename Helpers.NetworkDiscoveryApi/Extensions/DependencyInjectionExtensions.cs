@@ -5,7 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-	public static IServiceCollection AddAliasResolver(this IServiceCollection services,
+	public static IServiceCollection AddNetworkDiscoveryApi(this IServiceCollection services,
 		Uri authority, string clientId, string clientSecret, string scope,
 		Uri networkDiscoveryApi,
 		Helpers.NetworkDiscoveryApi.Aliases aliases)
@@ -13,10 +13,10 @@ public static class DependencyInjectionExtensions
 		var identity = new Helpers.Identity.Config(authority, clientId, clientSecret, scope);
 		var endPoints = new Helpers.NetworkDiscoveryApi.EndPoints(authority, networkDiscoveryApi);
 
-		return AddAliasResolver(services, aliases, endPoints, identity);
+		return AddNetworkDiscoveryApi(services, aliases, endPoints, identity);
 	}
 
-	public static IServiceCollection AddAliasResolver(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddNetworkDiscoveryApi(this IServiceCollection services, IConfiguration configuration)
 	{
 		T bind<T>(string section)
 			where T : new()
@@ -31,10 +31,10 @@ public static class DependencyInjectionExtensions
 		var endPoints = bind<Helpers.NetworkDiscoveryApi.EndPoints>("endpoints");
 		var aliases = Helpers.NetworkDiscoveryApi.Aliases.Bind(configuration.GetSection("aliases"));
 
-		return AddAliasResolver(services, aliases, endPoints, identity);
+		return AddNetworkDiscoveryApi(services, aliases, endPoints, identity);
 	}
 
-	public static IServiceCollection AddAliasResolver(this IServiceCollection services,
+	public static IServiceCollection AddNetworkDiscoveryApi(this IServiceCollection services,
 		Helpers.NetworkDiscoveryApi.Aliases aliases,
 		Helpers.NetworkDiscoveryApi.EndPoints endPoints,
 		Helpers.Identity.Config identity)
