@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Net.NetworkInformation;
 using Xunit;
 
@@ -68,5 +69,25 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		Assert.InRange(first, 100, 10_000);
 		// Assert the second is less than a millisecond
 		Assert.InRange(second, 0, 1);
+	}
+
+	[Theory]
+	[InlineData("keylight")]
+	[InlineData("lightstrip")]
+	public async Task GetLeaseByAliasTests(string alias)
+	{
+		var today = DateTime.Today;
+		DateTime expiration;
+		PhysicalAddress mac;
+		IPAddress ip;
+		{
+			using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
+			(expiration, mac, ip, _, _) = await _service.GetLeaseAsync(alias, cts.Token);
+		}
+		Assert.InRange(expiration, today, today.AddDays(1));
+		Assert.NotNull(mac);
+		Assert.NotEqual(PhysicalAddress.None, mac);
+		Assert.NotNull(ip);
+		Assert.NotEqual(IPAddress.None, ip);
 	}
 }

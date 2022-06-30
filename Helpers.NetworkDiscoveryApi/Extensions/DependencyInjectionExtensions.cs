@@ -5,51 +5,61 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-	/// <summary>
-	/// adds the alias resolver and its dependencies, i.e.,
-	/// <see cref="IMemoryCache">IMemoryCache</see>,
-	/// <see cref="Helpers.Identity.Clients.IIdentityClient">IIdentityClient</see>,
-	/// <see cref="Helpers.NetworkDiscoveryApi.IClient">IClient</see>,
-	/// <see cref="Helpers.NetworkDiscoveryApi.IService">IService</see>,
-	/// <see cref="Helpers.NetworkDiscoveryApi.IAliasResolverService">IAliasResolverService</see>
-	/// </summary>
-	/// <remarks>
-	/// configuration comes from:
-	/// EndPoints:IdentityServer, EndPoints:NetworkDiscoveryApi, Identity:Authority,
-	/// Identity:ClientId, Identity:ClientSecret, and Identity:Scope.
-	/// MAC addresses under e.g., Aliases:keylight and Aliases:lightstrip
-	/// </remarks>
-	/// <param name="services"><see cref="IServiceCollection">IServiceCollection</see></param>
-	/// <param name="configuration"><see cref="IConfiguration">IConfiguration</see></param>
-	/// <returns><see cref="IServiceCollection">IServiceCollection</see></returns>
+	public static IServiceCollection AddAliasResolver(this IServiceCollection services,
+		Uri authority, string clientId, string clientSecret, string scope,
+		Uri networkDiscoveryApi,
+		Helpers.NetworkDiscoveryApi.Aliases aliases)
+	{
+		var identity = new Helpers.Identity.Config(authority, clientId, clientSecret, scope);
+		var endPoints = new Helpers.NetworkDiscoveryApi.EndPoints(authority, networkDiscoveryApi);
+
+		return AddAliasResolver(services, aliases, endPoints, identity);
+	}
+
 	public static IServiceCollection AddAliasResolver(this IServiceCollection services, IConfiguration configuration)
 	{
-		var config = Helpers.NetworkDiscoveryApi.Config.Defaults;
-		configuration.Bind(config);
+		T bind<T>(string section)
+			where T : new()
+		{
+			var t = new T();
+			configuration.Bind(t);
+			configuration.GetSection(section).Bind(t);
+			return t;
+		}
 
+		var identity = bind<Helpers.Identity.Config>("identity");
+		var endPoints = bind<Helpers.NetworkDiscoveryApi.EndPoints>("endpoints");
+		var aliases = Helpers.NetworkDiscoveryApi.Aliases.Bind(configuration.GetSection("aliases"));
+
+		return AddAliasResolver(services, aliases, endPoints, identity);
+	}
+
+	public static IServiceCollection AddAliasResolver(this IServiceCollection services,
+		Helpers.NetworkDiscoveryApi.Aliases aliases,
+		Helpers.NetworkDiscoveryApi.EndPoints endPoints,
+		Helpers.Identity.Config identity)
+	{
 		return services
-			.AddTransient<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()))
+			.AddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()))
 			// config
-			.AddSingleton(Options.Options.Create(config.Aliases))
-			.AddSingleton(Options.Options.Create(config.EndPoints))
-			.AddSingleton(Options.Options.Create(config.Identity))
+			.AddSingleton(Options.Options.Create(aliases))
+			.AddSingleton(Options.Options.Create(endPoints))
+			.AddSingleton(Options.Options.Create(identity))
 			// identity client
-			.AddHttpClient<Helpers.Identity.Clients.IIdentityClient, Helpers.Identity.Clients.Concrete.IdentityClient>("IdentityClient", (provider, client) =>
+			.AddHttpClient<Helpers.Identity.Clients.IIdentityClient, Helpers.Identity.Clients.Concrete.IdentityClient>("IdentityClient", client =>
 			{
-				client.BaseAddress = config.EndPoints.IdentityServer;
+				client.BaseAddress = endPoints.IdentityServer;
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 			.Services
 			// network discovery client
-			.AddHttpClient<Helpers.NetworkDiscoveryApi.IClient, Helpers.NetworkDiscoveryApi.Concrete.SecureClient>("NetworkDiscoveryClient", (provider, client) =>
+			.AddHttpClient<Helpers.NetworkDiscoveryApi.IClient, Helpers.NetworkDiscoveryApi.Concrete.SecureClient>("NetworkDiscoveryClient", client =>
 			{
-				client.BaseAddress = config.EndPoints.NetworkDiscoveryApi;
+				client.BaseAddress = endPoints.NetworkDiscoveryApi;
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 			.Services
 			// network discovery service
-			.AddTransient<Helpers.NetworkDiscoveryApi.IService, Helpers.NetworkDiscoveryApi.Concrete.Service>()
-			// alias resolver service
-			.AddTransient<Helpers.NetworkDiscoveryApi.IAliasResolverService, Helpers.NetworkDiscoveryApi.Concrete.AliasResolverService>();
+			.AddTransient<Helpers.NetworkDiscoveryApi.IService, Helpers.NetworkDiscoveryApi.Concrete.Service>();
 	}
 }

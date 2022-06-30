@@ -11,6 +11,7 @@ public class ConfigurationFixture
 		ClientId = @base["Identity:ClientId"];
 		ClientSecret = @base["Identity:ClientSecret"];
 		Scope = @base["Identity:Scope"];
+		Aliases = Aliases.Bind(@base.Configuration.GetSection("aliases"));
 	}
 
 	public Uri BaseAddress { get; }
@@ -18,4 +19,5 @@ public class ConfigurationFixture
 	public string ClientId { get; }
 	public string ClientSecret { get; }
 	public string Scope { get; }
+	public Aliases Aliases { get; }
 }
