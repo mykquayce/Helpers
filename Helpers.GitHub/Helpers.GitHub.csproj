@@ -5,11 +5,11 @@
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.0.13</Version>
+    <Version>1.0.14-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.3.8" />
+    <PackageReference Include="Helpers.Web" Version="2.3.9-preview5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
