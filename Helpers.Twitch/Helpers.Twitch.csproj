@@ -5,7 +5,7 @@
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.0.11</Version>
+    <Version>1.0.12-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>

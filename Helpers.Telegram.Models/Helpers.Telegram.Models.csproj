@@ -6,7 +6,7 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.19</Version>
+    <Version>1.0.20-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
