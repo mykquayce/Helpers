@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.17" />
+    <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.18-preview5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0-preview-20220612-01" />
     <PackageReference Include="Moq" Version="4.18.1" />
     <PackageReference Include="xunit" Version="2.4.2-pre.12" />
