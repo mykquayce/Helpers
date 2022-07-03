@@ -1,15 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>2.0.2</Version>
+    <Version>2.0.3-preview5</Version>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Reddit.Models" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Helpers.Reddit.Models" Version="2.0.1-preview5" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 
 </Project>

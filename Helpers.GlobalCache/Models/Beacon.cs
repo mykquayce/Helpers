@@ -17,9 +17,7 @@ public record Beacon(
 	string Status,
 	string Uuid
 	)
-#if NET7_0_OR_GREATER
-	: IParseable<Beacon>
-#endif
+	: IParsable<Beacon>
 {
 	private const RegexOptions _regexOptions = RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
 	private readonly static Regex _ipAddressRegex = new(@"^http:\/\/(\d+\.\d+\.\d+\.\d+)$", _regexOptions);
@@ -57,7 +55,6 @@ public record Beacon(
 			: throw new ArgumentOutOfRangeException(nameof(s), s, $"unable to parse '{s}' as a {nameof(Beacon)}.");
 	}
 
-	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "IParseable<Beacon> implementation")]
 	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out Beacon result)
 	{
 		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace();

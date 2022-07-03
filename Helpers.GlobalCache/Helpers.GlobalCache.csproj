@@ -1,26 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <Version>1.5.1</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <TargetFramework>net7.0</TargetFramework>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <Version>1.5.2-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Json" Version="1.2.6" />
-    <PackageReference Include="Helpers.Networking" Version="1.6.21" />
+    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.22-preview5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="System.Runtime.Experimental" Version="7.0.0-preview.2.22152.2" />
   </ItemGroup>
 
 </Project>

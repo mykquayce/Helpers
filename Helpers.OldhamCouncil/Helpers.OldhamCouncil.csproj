@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <TargetFramework>net7.0</TargetFramework>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.9</Version>
+    <Version>1.1.10-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Web" Version="2.3.8" />
-    <PackageReference Include="System.Text.Json" Version="6.0.4" />
+    <PackageReference Include="Helpers.Web" Version="2.3.9-preview5" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 
 </Project>
