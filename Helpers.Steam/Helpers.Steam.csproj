@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Helpers.Steam.Models" Version="1.1.14" />
     <PackageReference Include="Helpers.Web" Version="2.3.8" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 
 </Project>
