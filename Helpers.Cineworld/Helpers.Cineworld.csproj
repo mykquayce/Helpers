@@ -6,14 +6,14 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.2.10</Version>
+    <Version>1.2.11-preview5</Version>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Cineworld.Models" Version="1.4.3" />
-    <PackageReference Include="Helpers.Json" Version="1.2.6" />
+    <PackageReference Include="Helpers.Cineworld.Models" Version="1.4.4-preview5" />
+    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 

@@ -6,11 +6,11 @@
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.1</Version>
+    <Version>1.0.2-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.6" />
+    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
   </ItemGroup>
 
 </Project>

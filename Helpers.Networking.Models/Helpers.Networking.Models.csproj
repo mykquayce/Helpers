@@ -5,11 +5,11 @@
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.18</Version>
+    <Version>1.1.19-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.6" />
+    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
   </ItemGroup>
 
 </Project>

@@ -5,11 +5,11 @@
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.0.29</Version>
+    <Version>1.0.30-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Common" Version="1.1.8" />
+    <PackageReference Include="Helpers.Common" Version="1.1.9-preview5" />
     <PackageReference Include="OpenTracing" Version="0.12.1" />
   </ItemGroup>
 
