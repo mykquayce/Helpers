@@ -1,14 +1,10 @@
 ﻿namespace Helpers.RabbitMQ.Exceptions;
 
 [Serializable]
-public class QueueNotFoundOrEmptyException : Exception
+public class QueueNotFoundException : Exception
 {
-	public QueueNotFoundOrEmptyException(string queueName)
-		: this(queueName, default)
-	{ }
-
-	public QueueNotFoundOrEmptyException(string queueName, Exception? innerException)
-		: base("Queue not found or empty: " + queueName, innerException)
+	public QueueNotFoundException(string queueName)
+		: base("Queue not found: " + queueName)
 	{
 		base.Data.Add(nameof(queueName), queueName);
 	}

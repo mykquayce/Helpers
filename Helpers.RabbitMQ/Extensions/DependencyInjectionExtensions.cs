@@ -1,36 +1,89 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-	public static IServiceCollection AddRabbitMQ(this IServiceCollection services,
-		string hostname, ushort port, string username, string password, string virtualHost, bool sslEnabled, string queueName)
+	#region configurerabbitmq
+	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IConfiguration configuration)
 	{
-		var config = new Helpers.RabbitMQ.Config(hostname, port, username, password, virtualHost, sslEnabled, queueName);
-		return services.AddRabbitMQ(config);
+		var config = Helpers.RabbitMQ.Config.Defaults;
+		configuration.Bind(config);
+
+		return services
+			.ConfigureRabbitMQ(config);
 	}
 
-	public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IOptions<Helpers.RabbitMQ.Config> configOptions)
+	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services,
+		string hostname, ushort port, ushort restApiPort, string restApiScheme, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
+	{
+		var config = new Helpers.RabbitMQ.Config(hostname, port, restApiPort, restApiScheme, username, password, virtualHost, sslEnabled, queueNames);
+		return services
+			.ConfigureRabbitMQ(config);
+	}
+
+	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, Helpers.RabbitMQ.Config config)
+	{
+		var options = Options.Options.Create(config);
+
+		return services
+			.ConfigureRabbitMQ(options);
+	}
+
+	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IOptions<Helpers.RabbitMQ.Config> options)
 	{
 		return services
-			.AddSingleton(configOptions)
-			.AddRabbitMQ();
+			.AddSingleton(options);
 	}
+	#endregion configurerabbitmq
 
+	#region addrabbitmq
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
 	{
 		return services
-			.Configure<Helpers.RabbitMQ.Config>(configuration)
+			.ConfigureRabbitMQ(configuration)
 			.AddRabbitMQ();
 	}
+	public static IServiceCollection AddRabbitMQ(this IServiceCollection services,
+		string hostname, ushort port, ushort restApiPort, string restApiScheme, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
+	{
+		return services
+			.ConfigureRabbitMQ(hostname, port, restApiPort, restApiScheme, username, password, virtualHost, sslEnabled, queueNames)
+			.AddRabbitMQ();
+	}
+
+	public static IServiceCollection AddRabbitMQ(this IServiceCollection services, Helpers.RabbitMQ.Config config)
+	{
+		return services
+			.ConfigureRabbitMQ(config)
+			.AddRabbitMQ();
+	}
+
+	public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IOptions<Helpers.RabbitMQ.Config> options)
+	{
+		return services
+			.ConfigureRabbitMQ(options)
+			.AddRabbitMQ();
+	}
+
+	private static string ConvertToBase64(params string[] values)
+		=> Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(string.Join(':', values)));
 
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services)
 	{
 		return services
+			.AddHttpClient<Helpers.RabbitMQ.IClient, Helpers.RabbitMQ.Concrete.RabbitMQRestClient>((provider, client) =>
+			{
+				var config = provider.GetRequiredService<IOptions<Helpers.RabbitMQ.Config>>().Value;
+
+				client.BaseAddress = new UriBuilder(scheme: config.RestApiScheme, config.Hostname, portNumber: config.RestApiPort).Uri;
+				client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+					"Basic",
+					ConvertToBase64(config.Username, config.Password));
+			})
+			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
+			.Services
 			.AddSingleton<RabbitMQ.Client.ConnectionFactory>(provider =>
 			{
 				var config = provider.GetConfig<Helpers.RabbitMQ.Config>();
@@ -44,7 +97,7 @@ public static class DependencyInjectionExtensions
 					Password = config.Password,
 
 					VirtualHost = config.VirtualHost,
-					Ssl = new SslOption
+					Ssl = new RabbitMQ.Client.SslOption
 					{
 						Enabled = config.SslEnabled,
 						ServerName = config.Hostname,
@@ -65,7 +118,7 @@ public static class DependencyInjectionExtensions
 					{
 						return factory.CreateConnection();
 					}
-					catch (BrokerUnreachableException ex)
+					catch (RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
 					{
 						exception = ex;
 						Thread.Sleep(millisecondsTimeout: 3_000);
@@ -81,15 +134,19 @@ public static class DependencyInjectionExtensions
 
 				var model = connection.CreateModel();
 
-				model.QueueDeclare(
-					queue: config.QueueName,
-					durable: false,
-					exclusive: false,
-					autoDelete: false,
-					arguments: default);
+				foreach (var queueName in config.QueueNames)
+				{
+					model.QueueDeclare(
+						queue: queueName,
+						durable: false,
+						exclusive: false,
+						autoDelete: false,
+						arguments: default);
+				}
 
 				return model;
 			})
 			.AddScoped<Helpers.RabbitMQ.IService, Helpers.RabbitMQ.Concrete.Service>();
 	}
+	#endregion addrabbitmq
 }

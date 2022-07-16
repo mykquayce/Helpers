@@ -8,6 +8,7 @@ public interface IService
 	private static readonly Encoding _encoding = Encoding.UTF8;
 
 	void Acknowledge(ulong tag);
+	void CreateQueue(string queue);
 	(byte[] body, ulong tag) Dequeue(string queue);
 	(T body, ulong tag) Dequeue<T>(string queue)
 	{
@@ -23,6 +24,20 @@ public interface IService
 		var body = _encoding.GetBytes(json);
 		Enqueue(queue, body);
 	}
+	void Enqueue<T>(string queue, T value, params T[] values)
+	{
+		Enqueue(queue, value);
+		Enqueue(queue, values);
+	}
+	void Enqueue<T>(string queue, IEnumerable<T> values)
+	{
+		foreach (var value in values)
+		{
+			Enqueue(queue, value);
+		}
+	}
+	void EnsureQueueExists(string queue);
 	void PurgeQueue(string queue);
 	void DeleteQueue(string queue);
+	bool QueueExists(string queue);
 }
