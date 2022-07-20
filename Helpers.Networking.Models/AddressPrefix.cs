@@ -1,13 +1,16 @@
-﻿using System.Net;
+﻿using Dawn;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 
 namespace Helpers.Networking.Models;
 
 public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
+	: IParsable<AddressPrefix>
 {
 	public AddressPrefix() : this(IPAddress.Loopback, 32) { }
-	public AddressPrefix(string? s) : this(Parse(s)) { }
+	public AddressPrefix(string s) : this(Parse(s, null)) { }
 
 	public override string ToString() => string.Join('/', IPAddress, MaskLength);
 
@@ -36,18 +39,6 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 		}
 	}
 
-	public static AddressPrefix Parse(string? s)
-	{
-		if (s is null) return new();
-		var strings = s.Split('/');
-		if (!IPAddress.TryParse(strings[0], out var ip)) throw new ArgumentOutOfRangeException(nameof(s), s, "Failed to find an IP address in " + s);
-		var maskLength = strings.Length > 1
-			? byte.TryParse(strings[1], out var b) ? b : throw new ArgumentOutOfRangeException(nameof(s), s, "Failed to find a mask in " + s)
-			: GetMaxMaskLength(ip);
-
-		return new(ip, maskLength);
-	}
-
 	public static byte GetMaxMaskLength(IPAddress ipAddress)
 	{
 		if (ipAddress is null) throw new ArgumentNullException(nameof(ipAddress));
@@ -59,4 +50,27 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 			_ => throw new ArgumentOutOfRangeException(nameof(ipAddress), ipAddress, $"Unexpected {nameof(AddressFamily)}: {ipAddress.AddressFamily}"),
 		};
 	}
+
+	#region iparsable implementation
+	public static AddressPrefix Parse(string s, IFormatProvider? provider)
+		=> TryParse(s, provider, out var prefix)
+			? prefix
+			: throw new ArgumentOutOfRangeException(nameof(s), s, "Failed to find a prefix in " + s);
+
+	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out AddressPrefix result)
+	{
+		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace().Contains('/');
+		var (ipString, maskLengthString) = s!.Split('/');
+
+		if (IPAddress.TryParse(ipString, out var ip)
+			&& byte.TryParse(maskLengthString, provider, out var maskLength))
+		{
+			result = new(ip, maskLength);
+			return true;
+		}
+
+		result = null!;
+		return false;
+	}
+	#endregion iparsable implementation
 }

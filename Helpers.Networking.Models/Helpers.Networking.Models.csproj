@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
   </ItemGroup>
 

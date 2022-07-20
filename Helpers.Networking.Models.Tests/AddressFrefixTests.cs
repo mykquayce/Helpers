@@ -7,15 +7,6 @@ namespace Helpers.Networking.Models.Tests;
 public class AddressFrefixTests
 {
 	[Theory]
-	[InlineData(default)]
-	public void ToStringTests(string? s)
-	{
-		var prefix = new AddressPrefix(s);
-		Assert.Equal("127.0.0.1/32", prefix.ToString());
-	}
-
-	[Theory]
-	[InlineData("127.0.0.1")]
 	[InlineData("127.0.0.1/24")]
 	[InlineData("31.13.24.0/21")]
 	[InlineData("31.13.64.0/18")]
@@ -417,7 +408,7 @@ public class AddressFrefixTests
 	[InlineData("2a03:2881:4003::/48")]
 	[InlineData("2a03:2881:4004::/48")]
 	[InlineData("2a03:2881:4006::/48")]
-	public void Parse(string s) => new AddressPrefix(s);
+	public AddressPrefix Parse(string s) => new(s);
 
 	[Theory]
 	[InlineData("192.168.1.0/32", "1")]
@@ -430,7 +421,7 @@ public class AddressFrefixTests
 	[InlineData("2a03:2880::/36", "4951760157141521099596496896")]
 	public void SubnetCount(string cidr, string expected)
 	{
-		var prefix = Models.AddressPrefix.Parse(cidr);
+		var prefix = Models.AddressPrefix.Parse(cidr, null);
 		var actual = prefix.Count;
 		Assert.Equal(BigInteger.Parse(expected), actual);
 	}
@@ -440,7 +431,7 @@ public class AddressFrefixTests
 	[InlineData("192.168.1.0/30", "192.168.1.0", "192.168.1.1", "192.168.1.2", "192.168.1.3")]
 	public void Addresses(string cidr, params string[] expecteds)
 	{
-		var subnet = Models.AddressPrefix.Parse(cidr);
+		var subnet = Models.AddressPrefix.Parse(cidr, null);
 		var actuals = subnet.Addresses.ToList();
 		Assert.Equal(expecteds.Select(IPAddress.Parse), actuals);
 	}

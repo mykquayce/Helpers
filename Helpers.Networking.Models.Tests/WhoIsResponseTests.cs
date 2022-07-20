@@ -18,7 +18,7 @@ public class WhoIsResponseTests
 	[InlineData("163.114.128.0/20", 54_115, "FACEBOOK-CORP, US", 394)]
 	public void SerializeDeserialize(string prefixString, int asn, string description, int numRisPeers)
 	{
-		var before = new WhoIsResponse(AddressPrefix.Parse(prefixString), asn, description, numRisPeers);
+		var before = new WhoIsResponse(AddressPrefix.Parse(prefixString, null), asn, description, numRisPeers);
 		var json = JsonSerializer.Serialize(before);
 		var after = JsonSerializer.Deserialize<WhoIsResponse>(json);
 		Assert.Equal(before, after);
@@ -83,7 +83,7 @@ source:       RISWHOIS", "163.114.128.0/20", 54_115, "FACEBOOK-CORP, US", 394)]
 			dictionary.Add(key, value);
 		}
 
-		var prefix = AddressPrefix.Parse(dictionary.GetFirst("route", "route6"));
+		var prefix = AddressPrefix.Parse(dictionary.GetFirst("route", "route6"), null);
 		var asn = int.Parse(dictionary["origin"][2..]);
 		var description = dictionary["descr"];
 		var numRisPeers = int.Parse(dictionary["num-rispeers"]);
