@@ -23,7 +23,10 @@ public class Service : IService
 
 		var lines = response.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
-		foreach (var line in lines) yield return new(line);
+		foreach (var line in lines)
+		{
+			yield return Helpers.Networking.Models.AddressPrefix.Parse(line, System.Globalization.CultureInfo.InvariantCulture);
+		}
 	}
 
 	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)

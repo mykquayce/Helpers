@@ -18,7 +18,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	[InlineData("77.68.11.211")]
 	public async Task AddBlackhole(string s)
 	{
-		var prefix = Networking.Models.AddressPrefix.Parse(s);
+		var prefix = Networking.Models.AddressPrefix.Parse(s, null);
 
 		// see if already exists
 		var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
@@ -53,7 +53,9 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	[InlineData("77.68.11.211", "77.68.11.211")]
 	public void Equality(string leftString, string rightString)
 	{
-		Helpers.Networking.Models.AddressPrefix left = new(leftString), right = new(rightString);
+		Helpers.Networking.Models.AddressPrefix
+			left = Networking.Models.AddressPrefix.Parse(leftString, null),
+			right = Networking.Models.AddressPrefix.Parse(rightString, null);
 		Assert.False(object.ReferenceEquals(left, right));
 		Assert.True(left == right);
 		Assert.True(object.Equals(left, right));
@@ -154,7 +156,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 		foreach (var subnetAddressString in subnetAddresstrings)
 		{
-			var subnetAddress = Helpers.Networking.Models.AddressPrefix.Parse(subnetAddressString);
+			var subnetAddress = Helpers.Networking.Models.AddressPrefix.Parse(subnetAddressString, null);
 
 			await _sut.AddBlackholeAsync(subnetAddress);
 			actualCount++;
