@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace Helpers.Networking.Clients;
 
-namespace Helpers.Networking.Clients
+public interface ITcpClient
 {
-	public interface ITcpClient
-	{
-		IAsyncEnumerable<string> SendAndReceiveAsync(string message);
-	}
+	IAsyncEnumerable<string> SendAndReceiveAsync(string message);
 }

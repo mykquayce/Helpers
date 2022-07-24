@@ -1,31 +1,26 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
+﻿namespace Helpers.Networking.Tests;
 
-namespace Helpers.Networking.Tests
+[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
+public class UdpClientTests : IClassFixture<Fixtures.UdpClientFixture>
 {
-	[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
-	public class UdpClientTests : IClassFixture<Fixtures.UdpClientFixture>
+	private readonly Clients.IUdpClient _sut;
+
+	public UdpClientTests(Fixtures.UdpClientFixture udpClientFixture)
 	{
-		private readonly Clients.IUdpClient _sut;
+		_sut = udpClientFixture.UdpClient;
+	}
 
-		public UdpClientTests(Fixtures.UdpClientFixture udpClientFixture)
+	[Fact]
+	public async Task Discover()
+	{
+		var strings = await _sut.DiscoverAsync().ToListAsync();
+
+		Assert.NotEmpty(strings);
+
+		foreach (var @string in strings)
 		{
-			_sut = udpClientFixture.UdpClient;
-		}
-
-		[Fact]
-		public async Task Discover()
-		{
-			var strings = await _sut.DiscoverAsync().ToListAsync();
-
-			Assert.NotEmpty(strings);
-
-			foreach (var @string in strings)
-			{
-				Assert.NotNull(@string);
-				Assert.NotEmpty(@string);
-			}
+			Assert.NotNull(@string);
+			Assert.NotEmpty(@string);
 		}
 	}
 }

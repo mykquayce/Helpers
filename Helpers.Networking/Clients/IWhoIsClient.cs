@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 
-namespace Helpers.Networking.Clients
+namespace Helpers.Networking.Clients;
+
+public interface IWhoIsClient
 {
-	public interface IWhoIsClient
-	{
-		IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn);
-		IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress);
-	}
+	IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn);
+	IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress);
 }
