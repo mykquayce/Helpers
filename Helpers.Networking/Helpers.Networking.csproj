@@ -6,11 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.6.23-preview5</Version>
+    <Version>1.6.24-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.20-preview5" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.21-preview5" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
