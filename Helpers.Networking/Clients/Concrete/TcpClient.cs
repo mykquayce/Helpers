@@ -35,21 +35,22 @@ public class TcpClient : ITcpClient
 	protected int Port { get; }
 	protected string NewLine { get; }
 
-	public async IAsyncEnumerable<string> SendAndReceiveAsync(string message)
+	public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
 
 		using var tcpClient = new System.Net.Sockets.TcpClient(Hostname, Port);
 		await using var stream = tcpClient.GetStream();
 
-		await stream.WriteAsync(_encoding.GetBytes(message));
-		await stream.FlushAsync();
+		await stream.WriteAsync(_encoding.GetBytes(message), cancellationToken ?? CancellationToken.None);
+		await stream.FlushAsync(cancellationToken ?? CancellationToken.None);
 
 		using var reader = new StreamReader(stream, _encoding);
 
-		while (!reader.EndOfStream)
+		while (!reader.EndOfStream
+			&& cancellationToken?.IsCancellationRequested != true)
 		{
-			var line = await reader.ReadLineAsync();
+			var line = await reader.ReadLineAsync(cancellationToken ?? CancellationToken.None);
 			if (line is not null) yield return line;
 		}
 	}

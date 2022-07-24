@@ -2,5 +2,5 @@
 
 public interface ITcpClient
 {
-	IAsyncEnumerable<string> SendAndReceiveAsync(string message);
+	IAsyncEnumerable<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = null);
 }

@@ -10,9 +10,12 @@ public class TcpClientTests
 	[InlineData("iTach059CAD", 4_998, "\r", "sendir,1:1,3,40064,1,1,96,24,24,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,897\r")]
 	public async Task SendAndReceive(string hostname, ushort port, string newLine, string message)
 	{
-		var sut = new Helpers.Networking.Clients.Concrete.TcpClient(hostname, port, newLine);
+		Helpers.Networking.Clients.ITcpClient sut;
+		sut = new Helpers.Networking.Clients.Concrete.TcpClient(hostname, port, newLine);
 
-		var responses = await sut.SendAndReceiveAsync(message).ToListAsync();
+		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
+
+		var responses = await sut.SendAndReceiveAsync(message, cts.Token).ToListAsync(cts.Token);
 
 		Assert.NotNull(responses);
 		Assert.NotEmpty(responses);
