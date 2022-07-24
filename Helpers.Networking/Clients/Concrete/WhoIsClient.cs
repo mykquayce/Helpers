@@ -29,7 +29,7 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 			if (line[0] == '%') continue;
 			var parts = line.Split('\t');
 			if (parts.Length < 2) continue;
-			yield return new(parts[1]);
+			yield return Models.AddressPrefix.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 			dictionary.Add(key, value);
 		}
 
-		var prefix = Models.AddressPrefix.Parse(dictionary.GetFirst("route", "route6"));
+		var prefix = Models.AddressPrefix.Parse(dictionary.GetFirst("route", "route6"), System.Globalization.CultureInfo.InvariantCulture);
 		var asn = int.Parse(dictionary["origin"][2..]);
 		var description = dictionary["descr"];
 		var numRisPeers = int.Parse(dictionary["num-rispeers"]);
