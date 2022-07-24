@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Helpers.Networking.Models.Tests;
 
-public class AddressFrefixTests
+public class AddressPrefixTests
 {
 	[Theory]
 	[InlineData("127.0.0.1/24")]
@@ -408,7 +408,7 @@ public class AddressFrefixTests
 	[InlineData("2a03:2881:4003::/48")]
 	[InlineData("2a03:2881:4004::/48")]
 	[InlineData("2a03:2881:4006::/48")]
-	public AddressPrefix Parse(string s) => new(s);
+	public AddressPrefix Parse(string s) => AddressPrefix.Parse(s, null);
 
 	[Theory]
 	[InlineData("192.168.1.0/32", "1")]
@@ -437,12 +437,27 @@ public class AddressFrefixTests
 	}
 
 	[Theory]
-	[InlineData("127.0.0.1", 32)]
-	[InlineData("::1", 128)]
-	public void GetMaxMaskLength(string s, byte expected)
+	[InlineData("2a03:2880:f158::/48", "55843974225823291876567906814485594112")]
+	public void GetMask(string prefixString, string expectedString)
 	{
-		var before = IPAddress.Parse(s);
-		var actual = AddressPrefix.GetMaxMaskLength(before);
+		var prefix = AddressPrefix.Parse(prefixString, null);
+		var expected = UInt128.Parse(expectedString);
+		var actual = prefix.GetMask();
+		Assert.Equal(expected, actual);
+	}
+
+	[Theory]
+	[InlineData("169.254.0.0/16", "169.254.240.23", true)]
+	[InlineData("169.254.0.0/16", "192.168.1.229", false)]
+	[InlineData("2a03:2880:f157::/48", "2a03:2880:f158:82:face:b00c:0:25de", false)]
+	[InlineData("2a03:2880:f158::/48", "2a03:2880:f158:82:face:b00c:0:25de", true)]
+	public void Contains(string prefixString, string ipString, bool expected)
+	{
+		var prefix = AddressPrefix.Parse(prefixString, null);
+		var ip = IPAddress.Parse(ipString);
+
+		var actual = prefix.Contains(ip);
+
 		Assert.Equal(expected, actual);
 	}
 }

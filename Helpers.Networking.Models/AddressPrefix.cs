@@ -1,7 +1,6 @@
 ﻿using Dawn;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using System.Net.Sockets;
 using System.Numerics;
 
 namespace Helpers.Networking.Models;
@@ -9,8 +8,11 @@ namespace Helpers.Networking.Models;
 public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 	: IParsable<AddressPrefix>
 {
+	private BigInteger? _count;
+	private byte? _length;
+	private UInt128? _mask;
+
 	public AddressPrefix() : this(IPAddress.Loopback, 32) { }
-	public AddressPrefix(string s) : this(Parse(s, null)) { }
 
 	public override string ToString() => string.Join('/', IPAddress, MaskLength);
 
@@ -18,11 +20,10 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 	{
 		get
 		{
-			var count = Count;
 			var bytes = IPAddress!.GetAddressBytes();
 			var start = new BigInteger(bytes, isUnsigned: true, isBigEndian: true);
 
-			for (BigInteger a = 0; a < count; a++)
+			for (BigInteger a = 0; a < Count; a++)
 			{
 				var adjustedBytes = (start + a).ToByteArray().Reverse().SkipWhile(b => b == 0).ToArray();
 				yield return new IPAddress(adjustedBytes);
@@ -30,25 +31,27 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 		}
 	}
 
-	public BigInteger Count
+	public BigInteger Count => _count ??= GetCount();
+	public byte Length => _length ??= (byte)(IPAddress.GetAddressBytes().Length * 8);
+	public UInt128 Mask => _mask ??= GetMask();
+
+	public bool Contains(IPAddress other) => (Mask & other.GetUInt128()) == Mask;
+
+	private BigInteger GetCount()
 	{
-		get
-		{
-			var length = IPAddress.GetAddressBytes().Length * 8;
-			return BigInteger.Pow(2, length - MaskLength);
-		}
+		var length = IPAddress.GetAddressBytes().Length * 8;
+		return BigInteger.Pow(2, length - MaskLength);
 	}
 
-	public static byte GetMaxMaskLength(IPAddress ipAddress)
+	public UInt128 GetMask()
 	{
-		if (ipAddress is null) throw new ArgumentNullException(nameof(ipAddress));
-
-		return ipAddress.AddressFamily switch
+		var left = IPAddress.GetUInt128();
+		UInt128 right;
 		{
-			AddressFamily.InterNetwork => (byte)32,
-			AddressFamily.InterNetworkV6 => (byte)128,
-			_ => throw new ArgumentOutOfRangeException(nameof(ipAddress), ipAddress, $"Unexpected {nameof(AddressFamily)}: {ipAddress.AddressFamily}"),
-		};
+			right = (UInt128)(Math.Pow(2, MaskLength + 1) - 1) << (Length - MaskLength);
+		}
+
+		return left & right;
 	}
 
 	#region iparsable implementation
