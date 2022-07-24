@@ -54,7 +54,7 @@ public class UdpClient : IUdpClient
 		while (!cancellationToken.IsCancellationRequested)
 		{
 			var task = await Task.WhenAny(
-				_udpClient.ReceiveAsync(),
+				_udpClient.ReceiveAsync(cancellationToken).AsTask(),
 				Task.Delay(10_000, cancellationToken));
 
 			if (task is not Task<UdpReceiveResult> myTask) continue;
