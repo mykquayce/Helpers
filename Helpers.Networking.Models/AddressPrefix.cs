@@ -62,13 +62,25 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 
 	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out AddressPrefix result)
 	{
-		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace().Contains('/');
-		var (ipString, maskLengthString) = s!.Split('/');
+		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace();
 
-		if (IPAddress.TryParse(ipString, out var ip)
-			&& byte.TryParse(maskLengthString, provider, out var maskLength))
+		var values = s!.Split('/', count: 2);
+
+		if (!IPAddress.TryParse(values[0], out var ip))
 		{
-			result = new(ip, maskLength);
+			result = null!;
+			return false;
+		}
+
+		if(values.Length == 1)
+		{
+			result = new AddressPrefix(ip, (byte)(ip.GetAddressBytes().Length * 8));
+			return true;
+		}
+
+		if (byte.TryParse(values[1], out var maskLength))
+		{
+			result = new AddressPrefix(ip, maskLength);
 			return true;
 		}
 

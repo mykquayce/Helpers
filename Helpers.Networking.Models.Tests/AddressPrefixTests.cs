@@ -460,4 +460,24 @@ public class AddressPrefixTests
 
 		Assert.Equal(expected, actual);
 	}
+
+	[Theory]
+	[InlineData("0.0.0.0")]
+	[InlineData("0.0.0.0/16")]
+	[InlineData("0.0.0.0/31")]
+	[InlineData("0.0.0.0/32")]
+	[InlineData("127.0.0.1")]
+	[InlineData("aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa")]
+	[InlineData("aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa/128")]
+	[InlineData("::1")]
+	[InlineData("::1/128")]
+	public void AddressesWithoutBitWidth(string prefixString)
+	{
+		var ok = AddressPrefix.TryParse(prefixString, null, out var prefix);
+		Assert.True(ok);
+		Assert.NotNull(prefix);
+		var (ip, maskWidth) = prefix;
+		Assert.NotNull(ip);
+		Assert.NotEqual(0, maskWidth);
+	}
 }
