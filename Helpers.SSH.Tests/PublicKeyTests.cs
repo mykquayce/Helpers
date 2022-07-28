@@ -4,8 +4,7 @@ using Xunit;
 
 namespace Helpers.SSH.Tests;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2252:This API requires opting into preview features", Justification = "<Pending>")]
-public class PublicKeyTests : IClassFixture<Fixtures.UserSecretsFixture>
+public partial class PublicKeyTests : IClassFixture<Fixtures.UserSecretsFixture>
 {
 	private readonly Config _config;
 
@@ -18,7 +17,7 @@ public class PublicKeyTests : IClassFixture<Fixtures.UserSecretsFixture>
 	[InlineData(10, 1_000)]
 	public void ConnectionTests(int count, int pause)
 	{
-		var regex = new Regex(@"^\d+\s[\d\w:]+\s[\d\.]+\s.+?\s.+?$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
+		var regex = LeasesRegex();
 
 		Renci.SshNet.SshClient client;
 		{
@@ -48,4 +47,7 @@ public class PublicKeyTests : IClassFixture<Fixtures.UserSecretsFixture>
 		client.Disconnect();
 		client.Dispose();
 	}
+
+	[RegexGenerator("^\\d+\\s[\\d\\w:]+\\s[\\d\\.]+\\s.+?\\s.+?$", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+	private static partial Regex LeasesRegex();
 }

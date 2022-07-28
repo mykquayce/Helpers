@@ -1,7 +1,4 @@
-﻿using Xunit;
+﻿namespace Helpers.Networking.Tests.CollectionDefinition;
 
-namespace Helpers.Networking.Tests.CollectionDefinition
-{
-	[CollectionDefinition(nameof(NonParallelCollectionDefinitionClass), DisableParallelization = true)]
-	public class NonParallelCollectionDefinitionClass { }
-}
+[CollectionDefinition(nameof(NonParallelCollectionDefinitionClass), DisableParallelization = true)]
+public class NonParallelCollectionDefinitionClass { }
