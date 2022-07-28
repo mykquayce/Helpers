@@ -175,4 +175,24 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	}
 #pragma warning restore IDE0079, xUnit1004 // Remove unnecessary suppression; Test methods should not be skipped
 	#endregion destructive tests
+
+	[Fact]
+	public async Task GetArpTable()
+	{
+		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
+
+		var results = await _sut.GetArpTableAsync()
+			.ToDictionaryAsync(kvp => kvp.Key, kvp => kvp.Value);
+
+		Assert.NotEmpty(results);
+
+		foreach (var (mac, ip) in results)
+		{
+			Assert.NotEqual(mac, PhysicalAddress.None);
+			Assert.NotEqual(ip, IPAddress.Any);
+			Assert.NotEqual(ip, IPAddress.Loopback);
+			Assert.NotEqual(ip, IPAddress.None);
+			Assert.False(linkLocal.Contains(ip));
+		}
+	}
 }

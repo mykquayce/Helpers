@@ -42,4 +42,20 @@ public class ClientTests : IClassFixture<Fixtures.UserSecretsFixture>
 		var actual = Concrete.Client.FixPath(before);
 		Assert.Equal(expected, actual);
 	}
+
+	[Theory]
+	[InlineData("arp -a")]
+	public async Task RunCommandAsShell(string commandText)
+	{
+		ICollection<string> lines;
+		{
+			using var client = new Concrete.Client(_config);
+			lines = await client.RunCommandAsShellAsync(commandText)
+				.ToListAsync();
+		}
+
+		Assert.NotNull(lines);
+		Assert.NotEmpty(lines);
+		Assert.DoesNotContain(null, lines);
+	}
 }

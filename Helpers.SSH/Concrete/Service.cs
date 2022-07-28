@@ -103,4 +103,24 @@ public class Service : IService
 
 		throw new KeyNotFoundException($"{nameof(physicalAddress)} {physicalAddress} not found");
 	}
+
+	public async IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync(CancellationToken? cancellationToken = null)
+	{
+		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
+		var lines = _client.RunCommandAsShellAsync("arp -a", cancellationToken);
+
+		await foreach (var line in lines)
+		{
+			var values = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+			(var ipString, _, _, var macString, _, _) = values;
+
+			if (IPAddress.TryParse(ipString, out var ip)
+				&& !linkLocal.Contains(ip)
+				&& PhysicalAddress.TryParse(macString, out var mac))
+			{
+				yield return new(mac, ip);
+			}
+		}
+	}
 }
