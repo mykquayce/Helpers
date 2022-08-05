@@ -4,9 +4,9 @@ using System.Xml.Serialization;
 
 namespace Helpers.Reddit.Concrete;
 
-public class Client : IClient
+public partial class Client : IClient
 {
-	private static readonly Regex _subredditRegex = new(@"reddit\.com\/r\/(\w+)\/");
+	private static readonly Regex _subredditRegex = SubredditRegex();
 	private readonly HttpClient _httpClient;
 	private readonly XmlSerializerFactory _xmlSerializerFactory;
 
@@ -16,7 +16,7 @@ public class Client : IClient
 		_xmlSerializerFactory = Guard.Argument(xmlSerializerFactory).NotNull().Value;
 	}
 
-	public async Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default)
+	public async Task<string> GetRandomSubredditAsync(CancellationToken? cancellationToken = default)
 	{
 		Uri redirect;
 		{
@@ -27,7 +27,7 @@ public class Client : IClient
 		return match.Groups[1].Value;
 	}
 
-	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsFromSubredditAsync(string subredditName, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, CancellationToken? cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
 
@@ -46,7 +46,7 @@ public class Client : IClient
 		}
 	}
 
-	public async IAsyncEnumerable<string> GetCommentsFromThreadAsync(string subredditName, string threadId, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, string threadId, CancellationToken? cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
 		Guard.Argument(threadId).IsThreadId();
@@ -74,4 +74,7 @@ public class Client : IClient
 		var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
 		return (T)serializer.Deserialize(stream)!;
 	}
+
+	[RegexGenerator("reddit\\.com\\/r\\/(\\w+)\\/")]
+	private static partial Regex SubredditRegex();
 }

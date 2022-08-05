@@ -1,6 +1,5 @@
 ﻿using Dawn;
 using System.Diagnostics;
-using Xunit;
 
 namespace Helpers.Reddit.Tests;
 
@@ -17,7 +16,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	[InlineData("worldnews")]
 	public async Task GetThreads(string subredditName)
 	{
-		var threads = await _sut.GetThreadsFromSubredditAsync(subredditName).ToListAsync();
+		var threads = await _sut.GetThreadsAsync(subredditName).ToListAsync();
 
 		Assert.NotEmpty(threads);
 		Assert.DoesNotContain(default, threads);
@@ -27,7 +26,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	[InlineData("euphoria", "cm3ryv")]
 	public async Task GetComments(string subredditName, string threadId)
 	{
-		var comments = await _sut.GetCommentsFromThreadAsync(subredditName, threadId).ToListAsync();
+		var comments = await _sut.GetCommentsAsync(subredditName, threadId).ToListAsync();
 
 		Assert.NotEmpty(comments);
 		Assert.DoesNotContain(default, comments);
@@ -39,7 +38,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	{
 		while (count-- > 0)
 		{
-			var subreddit = await _sut.GetRandomSubredditNameAsync();
+			var subreddit = await _sut.GetRandomSubredditAsync();
 
 			try
 			{
@@ -76,7 +75,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	[InlineData("Superstonk", "ptvaka")]
 	public async Task ThreadWithNullCommentTests(string subreddit, string threadId)
 	{
-		var comments = await _sut.GetCommentsFromThreadAsync(subreddit, threadId)
+		var comments = await _sut.GetCommentsAsync(subreddit, threadId)
 			.ToListAsync();
 
 		Assert.NotNull(comments);
