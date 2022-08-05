@@ -1,52 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Xml.Serialization;
-using Xunit;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Helpers.Reddit.Tests;
 
 public class DependencyInjectionTests
 {
-	[Theory]
-	[InlineData(@"{
-  ""Denylist"": [
-    ""redd.it"",
-    ""reddit.com"",
-    ""redditmedia.com"",
-    ""redditstatic.com""
-  ]
-}")]
-	public async Task Test1(string json)
+	[Fact]
+	public async Task Test1()
 	{
-		IService? sut;
-		{
-			IServiceProvider serviceProvider;
-			{
-				IConfiguration configuration;
-				{
-					var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-					await using var stream = new MemoryStream(bytes);
+		using var serviceProvider = new ServiceCollection()
+			.AddReddit()
+			.BuildServiceProvider();
 
-					configuration = new ConfigurationBuilder()
-						.AddJsonStream(stream)
-						.Build();
-				}
-
-				serviceProvider = new ServiceCollection()
-					.AddSingleton(new XmlSerializerFactory())
-					.AddHttpClient<IClient, Concrete.Client>(client => client.BaseAddress = new Uri("https://old.reddit.com/"))
-					.ConfigurePrimaryHttpMessageHandler(() =>
-					{
-						return new HttpClientHandler { AllowAutoRedirect = false, };
-					})
-					.Services
-					.Configure<List<string>>(configuration.GetSection("Denylist"))
-					.AddTransient<IService, Concrete.Service>()
-					.BuildServiceProvider();
-			}
-
-			sut = serviceProvider.GetService<Helpers.Reddit.IService>();
-		}
+		IService? sut = serviceProvider.GetService<Helpers.Reddit.IService>();
 
 		Assert.NotNull(sut);
 
