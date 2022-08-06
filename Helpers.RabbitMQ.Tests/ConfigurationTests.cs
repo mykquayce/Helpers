@@ -4,15 +4,16 @@ using Xunit;
 
 namespace Helpers.RabbitMQ.Tests;
 
-public class DependencyInjectionTests : IClassFixture<Helpers.XUnitClassFixtures.UserSecretsFixture>
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
+public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 {
 	private readonly IConfiguration _configuration;
 	private readonly string _queueName;
 
-	public DependencyInjectionTests(Helpers.XUnitClassFixtures.UserSecretsFixture fixture)
+	public ConfigurationTests(Fixtures.ConfigurationFixture fixture)
 	{
-		_configuration = fixture.Configuration.GetSection("RabbitMQ");
-		_queueName = _configuration["QueueName"] ?? throw new Exception();
+		_configuration = fixture.Configuration;
+		_queueName = fixture.QueueName;
 	}
 
 	[Theory]
@@ -48,7 +49,7 @@ public class DependencyInjectionTests : IClassFixture<Helpers.XUnitClassFixtures
 		_configuration.Bind(config);
 
 		IServiceProvider serviceProvider = new ServiceCollection()
-			.AddRabbitMQ(config.Hostname, config.Port, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueName)
+			.AddRabbitMQ(config.Hostname, config.Port, config.RestApiPort, config.RestApiScheme, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
 			.BuildServiceProvider();
 
 		ServiceProviderTests(serviceProvider, messages);
