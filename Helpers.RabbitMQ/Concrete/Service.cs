@@ -30,13 +30,13 @@ public class Service : IService
 			arguments: default);
 	}
 
-	public (byte[] body, ulong tag) Dequeue(string queue)
+	public (byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false)
 	{
 		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
 		BasicGetResult result;
 		try
 		{
-			result = _channel.BasicGet(queue, autoAck: false);
+			result = _channel.BasicGet(queue, autoAcknowledge);
 		}
 		catch (OperationInterruptedException exception)
 			when (exception.ShutdownReason.ReplyCode == 404)
