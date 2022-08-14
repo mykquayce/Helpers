@@ -49,7 +49,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		_configuration.Bind(config);
 
 		IServiceProvider serviceProvider = new ServiceCollection()
-			.AddRabbitMQ(config.Hostname, config.Port, config.RestApiPort, config.RestApiScheme, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
+			.AddRabbitMQ(config.Hostname, config.Port, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
 			.BuildServiceProvider();
 
 		ServiceProviderTests(serviceProvider, messages);

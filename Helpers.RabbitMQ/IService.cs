@@ -36,8 +36,6 @@ public interface IService
 			Enqueue(queue, value);
 		}
 	}
-	void EnsureQueueExists(string queue);
 	void PurgeQueue(string queue);
 	void DeleteQueue(string queue);
-	bool QueueExists(string queue);
 }

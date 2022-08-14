@@ -18,7 +18,6 @@ public sealed class ServiceProviderFixture : ConfigurationFixture, IDisposable
 	public global::RabbitMQ.Client.IModel Model => _serviceProvider.GetRequiredService<global::RabbitMQ.Client.IModel>();
 	public global::RabbitMQ.Client.IConnection Connection => _serviceProvider.GetRequiredService<global::RabbitMQ.Client.IConnection>();
 	public IService Service => _serviceProvider.GetRequiredService<IService>();
-	public IClient Client => _serviceProvider.GetRequiredService<IClient>();
 	public Config Config => _serviceProvider.GetRequiredService<IOptions<Config>>().Value;
 
 	public void Dispose() => (_serviceProvider as ServiceProvider)?.Dispose();

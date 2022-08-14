@@ -16,9 +16,9 @@ public static class DependencyInjectionExtensions
 	}
 
 	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services,
-		string hostname, ushort port, ushort restApiPort, string restApiScheme, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
+		string hostname, ushort port, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
 	{
-		var config = new Helpers.RabbitMQ.Config(hostname, port, restApiPort, restApiScheme, username, password, virtualHost, sslEnabled, queueNames);
+		var config = new Helpers.RabbitMQ.Config(hostname, port, username, password, virtualHost, sslEnabled, queueNames);
 		return services
 			.ConfigureRabbitMQ(config);
 	}
@@ -46,10 +46,10 @@ public static class DependencyInjectionExtensions
 			.AddRabbitMQ();
 	}
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services,
-		string hostname, ushort port, ushort restApiPort, string restApiScheme, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
+		string hostname, ushort port, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
 	{
 		return services
-			.ConfigureRabbitMQ(hostname, port, restApiPort, restApiScheme, username, password, virtualHost, sslEnabled, queueNames)
+			.ConfigureRabbitMQ(hostname, port, username, password, virtualHost, sslEnabled, queueNames)
 			.AddRabbitMQ();
 	}
 
@@ -67,23 +67,9 @@ public static class DependencyInjectionExtensions
 			.AddRabbitMQ();
 	}
 
-	private static string ConvertToBase64(params string[] values)
-		=> Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(string.Join(':', values)));
-
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services)
 	{
 		return services
-			.AddHttpClient<Helpers.RabbitMQ.IClient, Helpers.RabbitMQ.Concrete.RabbitMQRestClient>((provider, client) =>
-			{
-				var config = provider.GetRequiredService<IOptions<Helpers.RabbitMQ.Config>>().Value;
-
-				client.BaseAddress = new UriBuilder(scheme: config.RestApiScheme, config.Hostname, portNumber: config.RestApiPort).Uri;
-				client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
-					"Basic",
-					ConvertToBase64(config.Username, config.Password));
-			})
-			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
-			.Services
 			.AddSingleton<RabbitMQ.Client.ConnectionFactory>(provider =>
 			{
 				var config = provider.GetConfig<Helpers.RabbitMQ.Config>();
