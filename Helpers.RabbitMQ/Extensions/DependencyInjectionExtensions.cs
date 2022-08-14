@@ -45,6 +45,7 @@ public static class DependencyInjectionExtensions
 			.ConfigureRabbitMQ(configuration)
 			.AddRabbitMQ();
 	}
+
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services,
 		string hostname, ushort port, string username, string password, string virtualHost, bool sslEnabled, params string[] queueNames)
 	{

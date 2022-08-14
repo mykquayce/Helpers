@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Helpers.RabbitMQ.Tests.Fixtures;
@@ -21,16 +20,4 @@ public sealed class ServiceProviderFixture : ConfigurationFixture, IDisposable
 	public Config Config => _serviceProvider.GetRequiredService<IOptions<Config>>().Value;
 
 	public void Dispose() => (_serviceProvider as ServiceProvider)?.Dispose();
-}
-
-public class ConfigurationFixture
-{
-	public ConfigurationFixture()
-	{
-		var secrets = new XUnitClassFixtures.UserSecretsFixture();
-		Configuration = secrets.Configuration.GetSection("rabbitmq");
-	}
-
-	public IConfiguration Configuration { get; }
-	public string QueueName => Configuration["QueueNames:0"] ?? throw new Exception();
 }

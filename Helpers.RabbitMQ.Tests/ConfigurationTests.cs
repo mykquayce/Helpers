@@ -20,7 +20,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 	[InlineData("one", "two", "three")]
 	public void Configuration(params string[] messages)
 	{
-		IServiceProvider serviceProvider = new ServiceCollection()
+		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(_configuration)
 			.BuildServiceProvider();
 
@@ -34,7 +34,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
 
-		IServiceProvider serviceProvider = new ServiceCollection()
+		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(config)
 			.BuildServiceProvider();
 
@@ -48,7 +48,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
 
-		IServiceProvider serviceProvider = new ServiceCollection()
+		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(config.Hostname, config.Port, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
 			.BuildServiceProvider();
 
