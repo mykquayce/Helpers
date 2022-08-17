@@ -8,11 +8,8 @@ public static class DependencyInjectionExtensions
 	#region configurerabbitmq
 	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IConfiguration configuration)
 	{
-		var config = Helpers.RabbitMQ.Config.Defaults;
-		configuration.Bind(config);
-
 		return services
-			.ConfigureRabbitMQ(config);
+			.FileConfigure<Helpers.RabbitMQ.Config>(configuration);
 	}
 
 	public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services,
