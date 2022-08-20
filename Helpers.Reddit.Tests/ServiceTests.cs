@@ -21,6 +21,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	}
 
 	[Theory]
+	[InlineData("90dayfianceuncensored")]
 	[InlineData("worldnews")]
 	public async Task GetThreads(string subredditName)
 	{

@@ -6,8 +6,6 @@ namespace Helpers.Reddit.Concrete;
 
 public partial class Service : IService
 {
-	private static readonly Regex _threadRegex = ThreadRegex();
-	private static readonly Regex _linkRegex = LinkRegex();
 	private readonly IClient _client;
 
 	public Service(IClient client)
@@ -28,9 +26,13 @@ public partial class Service : IService
 			&& await enumerator.MoveNextAsync())
 		{
 			var thread = enumerator.Current;
-			var match = _threadRegex.Match(thread.link.href);
-			var (_, _, threadId, _) = match;
-			yield return threadId!;
+			var match = ThreadRegex().Match(thread.link.href);
+
+			if (match.Success)
+			{
+				var (_, _, threadId, _) = match;
+				yield return threadId!;
+			}
 		}
 	}
 
