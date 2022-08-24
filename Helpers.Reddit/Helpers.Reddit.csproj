@@ -10,9 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Reddit.Models" Version="2.0.1-preview5" />
+    <PackageReference Include="Helpers.Reddit.Models" Version="2.1.0-preview5" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0-preview.5.22301.12" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 
 </Project>
