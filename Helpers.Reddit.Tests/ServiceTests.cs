@@ -16,7 +16,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		while (count-- > 0)
 		{
 			var actual = await _sut.GetRandomSubredditNameAsync();
-			Assert.Matches("^[0-9A-Za-z]{2,}$", actual);
+			Assert.Matches("^[0-9A-Z_a-z]{2,}$", actual);
 		}
 	}
 
@@ -35,7 +35,19 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 
 	[Theory]
 	[InlineData("euphoria", "cm3ryv")]
-	public async Task GetComments(string subreddit, string threadId)
+	public async Task GetComments_ByString(string subreddit, string threadId)
+	{
+		// Act
+		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).ToListAsync();
+
+		// Assert
+		Assert.NotEmpty(comments);
+		Assert.DoesNotContain(default, comments);
+	}
+
+	[Theory]
+	[InlineData("euphoria", 762_721_879)]
+	public async Task GetComments_ByInteger(string subreddit, long threadId)
 	{
 		// Act
 		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).ToListAsync();

@@ -24,7 +24,17 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 
 	[Theory]
 	[InlineData("euphoria", "cm3ryv")]
-	public async Task GetComments(string subredditName, string threadId)
+	public async Task GetComments_ByString(string subredditName, string threadId)
+	{
+		var comments = await _sut.GetCommentsAsync(subredditName, threadId).ToListAsync();
+
+		Assert.NotEmpty(comments);
+		Assert.DoesNotContain(default, comments);
+	}
+
+	[Theory]
+	[InlineData("euphoria", 762_721_879)]
+	public async Task GetComments_ByInteger(string subredditName, long threadId)
 	{
 		var comments = await _sut.GetCommentsAsync(subredditName, threadId).ToListAsync();
 
@@ -72,8 +82,8 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	}
 
 	[Theory]
-	[InlineData("Superstonk", "ptvaka")]
-	public async Task ThreadWithNullCommentTests(string subreddit, string threadId)
+	[InlineData("Superstonk", 1_561_823_290)]
+	public async Task ThreadWithNullCommentTests(string subreddit, long threadId)
 	{
 		var comments = await _sut.GetCommentsAsync(subreddit, threadId)
 			.ToListAsync();

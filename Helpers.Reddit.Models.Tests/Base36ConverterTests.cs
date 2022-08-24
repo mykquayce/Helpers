@@ -10,10 +10,12 @@ public class Base36ConverterTests
 	[InlineData("1", 1u)]
 	[InlineData("z", 35u)]
 	[InlineData("10", 36u)]
+	[InlineData("cm3ryv", 762_721_879)]
 	[InlineData("g6kujao", 35_226_331_440)]
 	[InlineData("nno9bs", 1_430_485_048u)]
 	[InlineData("nnpqsp", 1_430_554_345u)]
 	[InlineData("nwy8uj", 1_446_067_531u)]
+	[InlineData("ptvaka", 1_561_823_290)]
 	[InlineData("zzzzzz", 2_176_782_335u)]
 	public void FromStringTests(string s, long expectedId)
 	{
@@ -31,6 +33,8 @@ public class Base36ConverterTests
 	[InlineData(1_430_485_048u, "nno9bs")]
 	[InlineData(1_430_554_345u, "nnpqsp")]
 	[InlineData(1_446_067_531u, "nwy8uj")]
+	[InlineData(762_721_879, "cm3ryv")]
+	[InlineData(1_561_823_290, "ptvaka")]
 	[InlineData(2_176_782_335u, "zzzzzz")]
 	public void ToStringTests(long id, string expected)
 	{
