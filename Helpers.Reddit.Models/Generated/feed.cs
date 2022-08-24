@@ -41,7 +41,7 @@ namespace Helpers.Reddit.Models.Generated {
         public contentType content;
         
         /// <remarks/>
-        public linkType link;
+        public string id;
     }
     
     /// <remarks/>
@@ -55,23 +55,6 @@ namespace Helpers.Reddit.Models.Generated {
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string type;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlTextAttribute()]
-        public string Value;
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.w3.org/2005/Atom")]
-    public partial class linkType {
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string href;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
