@@ -33,7 +33,7 @@ public partial class Client : IClient
 
 		Models.Generated.feedType subreddit;
 		{
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss", cancellationToken ?? CancellationToken.None);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss?limit=100", cancellationToken ?? CancellationToken.None);
 			subreddit = Deserialize<Models.Generated.feedType>(stream);
 		}
 
@@ -42,7 +42,11 @@ public partial class Client : IClient
 		while (cancellationToken?.IsCancellationRequested != true
 			&& enumerator.MoveNext())
 		{
-			yield return (Models.Generated.entryType)enumerator.Current;
+			if (enumerator.Current is Models.Generated.entryType entry
+				&& entry.Type == Models.EntryType.Link)
+			{
+				yield return entry;
+			}
 		}
 	}
 
@@ -52,7 +56,7 @@ public partial class Client : IClient
 		Models.Generated.feedType threadFeed;
 		{
 			var id = Helpers.Reddit.Models.Converters.Base36Converter.ToString(threadId);
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss", cancellationToken ?? CancellationToken.None);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss?limit=500", cancellationToken ?? CancellationToken.None);
 			threadFeed = Deserialize<Models.Generated.feedType>(stream);
 		}
 
@@ -61,10 +65,13 @@ public partial class Client : IClient
 		while (cancellationToken?.IsCancellationRequested != true
 			&& enumerator.MoveNext())
 		{
-			var entry = (Models.Generated.entryType)enumerator.Current;
-			var comment = entry.content.Value;
-			if (string.IsNullOrWhiteSpace(comment)) continue;
-			yield return System.Web.HttpUtility.HtmlDecode(comment);
+			if (enumerator.Current is Models.Generated.entryType entry
+				&& entry.Type == Models.EntryType.Comment)
+			{
+				var comment = entry.content.Value;
+				if (string.IsNullOrWhiteSpace(comment)) continue;
+				yield return System.Web.HttpUtility.HtmlDecode(comment);
+			}
 		}
 	}
 
