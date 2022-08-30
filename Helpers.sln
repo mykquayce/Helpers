@@ -141,6 +141,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3BDBC51D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B52CCDE-5181-48FE-A6AD-F82AF39995F0}"
 	ProjectSection(SolutionItems) = preProject
+		build.ps1 = build.ps1
 		build.sh = build.sh
 		readme.md = readme.md
 	EndProjectSection
