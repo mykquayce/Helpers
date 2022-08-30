@@ -1,8 +1,5 @@
-﻿using Dapper;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System.Data;
 using System.Text;
 using Xunit;
 
@@ -41,13 +38,7 @@ public class DependencyInjectionTests : IClassFixture<Helpers.XUnitClassFixtures
 			}
 
 			serviceProvider = new ServiceCollection()
-				.Configure<Helpers.MySql.Config>(configuration)
-				.AddSingleton<IDbConnection>(serviceProvider =>
-				{
-					var options = serviceProvider.GetRequiredService<IOptions<Config>>();
-					var config = options.Value;
-					return config.DbConnection;
-				})
+				.AddDbConnection(configuration)
 				.AddTransient<ITestRepository, TestRepository>()
 				.BuildServiceProvider();
 		}
