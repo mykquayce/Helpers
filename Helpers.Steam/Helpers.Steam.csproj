@@ -5,13 +5,13 @@
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.0.23-preview5</Version>
+    <Version>1.0.23-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Steam.Models" Version="1.1.15-preview5" />
-    <PackageReference Include="Helpers.Web" Version="2.3.9-preview5" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0-preview.5.22301.12" />
+    <PackageReference Include="Helpers.Steam.Models" Version="1.1.15-rc1" />
+    <PackageReference Include="Helpers.Web" Version="2.3.9-rc1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0-rc.1.22426.10" />
   </ItemGroup>
 
 </Project>

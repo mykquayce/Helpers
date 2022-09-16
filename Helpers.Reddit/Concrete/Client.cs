@@ -82,6 +82,6 @@ public partial class Client : IClient
 		return (T)serializer.Deserialize(stream)!;
 	}
 
-	[RegexGenerator("reddit\\.com\\/r\\/(\\w+)\\/")]
+	[GeneratedRegex("reddit\\.com\\/r\\/(\\w+)\\/")]
 	private static partial Regex SubredditRegex();
 }
