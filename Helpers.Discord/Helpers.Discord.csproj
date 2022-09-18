@@ -2,15 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.26-rc1</Version>
+    <Version>1.0.27-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.3.9-rc1" />
+    <PackageReference Include="Helpers.Web" Version="2.3.10-rc1" />
   </ItemGroup>
 
 </Project>
