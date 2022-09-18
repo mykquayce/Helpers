@@ -1,99 +1,96 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Helpers.Json.Converters
+namespace Helpers.Json.Converters;
+
+public class JsonIPEndPointConverter : JsonConverter<IPEndPoint>
 {
-	public class JsonIPEndPointConverter : JsonConverter<IPEndPoint>
+	public override IPEndPoint? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
-		public override IPEndPoint? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		return TryParse(reader.GetString()!, out var endPoint)
+			? endPoint
+			: default;
+	}
+
+	public override void Write(Utf8JsonWriter writer, IPEndPoint value, JsonSerializerOptions options)
+	{
+		writer.WriteStringValue(value.ToString());
+	}
+
+	public static bool TryParse(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		return s.Where(c => c == ':').Skip(1).Any()
+			? TryParseIPv6(s, out endPoint)
+			: TryParseIPv4(s, out endPoint);
+	}
+
+	public static bool TryParseIPv6(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		return s.Contains("]:")
+			? TryParseIPv6WithPort(s, out endPoint)
+			: TryParseIPv6WithoutPort(s, out endPoint);
+	}
+
+	public static bool TryParseIPv6WithPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		var col = s.LastIndexOf("]:");
+
+		if (IPAddress.TryParse(s[..(col + 1)], out var ip)
+			&& int.TryParse(s[(col + 2)..], out var port))
 		{
-			return TryParse(reader.GetString()!, out var endPoint)
-				? endPoint
-				: default;
+			endPoint = new(ip, port);
+			return true;
 		}
 
-		public override void Write(Utf8JsonWriter writer, IPEndPoint value, JsonSerializerOptions options)
+		endPoint = default;
+		return false;
+	}
+
+	public static bool TryParseIPv6WithoutPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		if (IPAddress.TryParse(s, out var ip))
 		{
-			writer.WriteStringValue(value.ToString());
+			endPoint = new(ip, IPEndPoint.MinPort);
+			return true;
 		}
 
-		public static bool TryParse(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+		endPoint = default;
+		return false;
+	}
+
+	public static bool TryParseIPv4WithoutPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		if (IPAddress.TryParse(s, out var ip))
 		{
-			return s.Where(c => c == ':').Skip(1).Any()
-				? TryParseIPv6(s, out endPoint)
-				: TryParseIPv4(s, out endPoint);
+			endPoint = new(ip, IPEndPoint.MinPort);
+			return true;
 		}
 
-		public static bool TryParseIPv6(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+		endPoint = default;
+		return false;
+	}
+
+	public static bool TryParseIPv4WitnPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		var col = s.LastIndexOf(':');
+
+		if (IPAddress.TryParse(s[..col], out var ip)
+			&& int.TryParse(s[(col + 1)..], out var port))
 		{
-			return s.Contains("]:")
-				? TryParseIPv6WithPort(s, out endPoint)
-				: TryParseIPv6WithoutPort(s, out endPoint);
+			endPoint = new(ip, port);
+			return true;
 		}
 
-		public static bool TryParseIPv6WithPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
-		{
-			var col = s.LastIndexOf("]:");
+		endPoint = default;
+		return false;
+	}
 
-			if (IPAddress.TryParse(s[..(col + 1)], out var ip)
-				&& int.TryParse(s[(col + 2)..], out var port))
-			{
-				endPoint = new(ip, port);
-				return true;
-			}
-
-			endPoint = default;
-			return false;
-		}
-
-		public static bool TryParseIPv6WithoutPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
-		{
-			if (IPAddress.TryParse(s, out var ip))
-			{
-				endPoint = new(ip, IPEndPoint.MinPort);
-				return true;
-			}
-
-			endPoint = default;
-			return false;
-		}
-
-		public static bool TryParseIPv4WithoutPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
-		{
-			if (IPAddress.TryParse(s, out var ip))
-			{
-				endPoint = new(ip, IPEndPoint.MinPort);
-				return true;
-			}
-
-			endPoint = default;
-			return false;
-		}
-
-		public static bool TryParseIPv4WitnPort(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
-		{
-			var col = s.LastIndexOf(':');
-
-			if (IPAddress.TryParse(s[..col], out var ip)
-				&& int.TryParse(s[(col + 1)..], out var port))
-			{
-				endPoint = new(ip, port);
-				return true;
-			}
-
-			endPoint = default;
-			return false;
-		}
-
-		public static bool TryParseIPv4(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
-		{
-			return s.Contains(':')
-				? TryParseIPv4WitnPort(s, out endPoint)
-				: TryParseIPv4WithoutPort(s, out endPoint);
-		}
+	public static bool TryParseIPv4(string s, [NotNullWhen(true)] out IPEndPoint? endPoint)
+	{
+		return s.Contains(':')
+			? TryParseIPv4WitnPort(s, out endPoint)
+			: TryParseIPv4WithoutPort(s, out endPoint);
 	}
 }
