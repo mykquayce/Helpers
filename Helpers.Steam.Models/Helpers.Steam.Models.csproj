@@ -2,10 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.15-rc1</Version>
+    <Version>1.1.16-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>

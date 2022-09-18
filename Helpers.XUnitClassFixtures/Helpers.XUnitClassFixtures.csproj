@@ -2,15 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <UserSecretsId>8391cb70-d94f-4863-b7e4-5659af167bc6</UserSecretsId>
-    <Version>1.0.18-rc1</Version>
+    <Version>1.0.19-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking" Version="1.6.24-rc1" />
+    <PackageReference Include="Helpers.Networking" Version="1.6.25-rc1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.0-rc.1.22426.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0-rc.1.22426.10" />
   </ItemGroup>
