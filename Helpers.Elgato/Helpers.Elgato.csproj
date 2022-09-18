@@ -2,17 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.1.1-rc1</Version>
+    <Version>3.1.2-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Elgato.Models" Version="1.0.2-preview5" />
-    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.2.1-rc1" />
-    <PackageReference Include="Helpers.Web" Version="2.3.9-rc1" />
+    <PackageReference Include="Helpers.Elgato.Models" Version="1.0.3-preview5" />
+    <PackageReference Include="Helpers.NetworkDiscoveryApi" Version="1.2.2-rc1" />
+    <PackageReference Include="Helpers.Web" Version="2.3.10-rc1" />
   </ItemGroup>
 
 </Project>
