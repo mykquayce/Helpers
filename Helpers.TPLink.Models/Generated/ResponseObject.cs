@@ -7,7 +7,7 @@ namespace Helpers.TPLink.Models.Generated
 #pragma warning disable IDE1006 // Naming Styles
 	public record ResponseObject(ResponseObject.SystemObject system, ResponseObject.EmeterObject? emeter)
 	{
-		public record SystemObject(SystemObject.SystemInfoObject get_sysinfo)
+		public record SystemObject(SystemObject.SystemInfoObject get_sysinfo, SystemObject.RelayState set_relay_state)
 		{
 			public record SystemInfoObject(
 				string sw_ver,
@@ -38,6 +38,8 @@ namespace Helpers.TPLink.Models.Generated
 			{
 				public record NextActionObject(int type);
 			}
+
+			public record RelayState(int state, int err_code);
 		}
 
 		public record EmeterObject(EmeterObject.RealtimeDataObject get_realtime)
