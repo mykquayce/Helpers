@@ -9,5 +9,8 @@ namespace Helpers.TPLink
 	{
 		IAsyncEnumerable<Device> DiscoverAsync();
 		Task<RealtimeData> GetRealtimeDataAsync(IPAddress ip);
+		Task<SystemInfo> GetSystemInfoAsync(IPAddress ip);
+		Task<bool> GetStateAsync(IPAddress ip);
+		Task SetStateAsync(IPAddress ip, bool state);
 	}
 }

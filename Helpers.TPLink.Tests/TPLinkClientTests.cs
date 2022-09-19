@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -17,14 +19,16 @@ namespace Helpers.TPLink.Tests
 		[Fact]
 		public async Task DiscoverTests()
 		{
-			var localIPAddresses = Concrete.TPLinkClient.LocalIPAddresses.ToList();
+			var localIPAddresses = Helpers.Networking.NetworkHelpers.GetAllBroadcastAddresses()
+				.Select(ip => ip.Address)
+				.ToList();
 
 			var devices = await _sut.DiscoverAsync().ToListAsync();
 			Assert.NotEmpty(devices);
+			Assert.DoesNotContain(default, devices);
 
-			foreach (var device in devices)
+			foreach (var (alias, ip, mac) in devices)
 			{
-				var (alias, ip, mac) = device;
 				Assert.NotNull(alias);
 				Assert.NotNull(ip);
 				Assert.DoesNotContain(ip, localIPAddresses);
@@ -45,6 +49,35 @@ namespace Helpers.TPLink.Tests
 				Assert.InRange(watts, .0001, double.MaxValue);
 				Assert.InRange(volts, .0001, double.MaxValue);
 			}
+		}
+
+		[Theory]
+		[InlineData("192.168.1.143")]
+		public async Task GetSystemInfoTests(string ipString)
+		{
+			var ip = IPAddress.Parse(ipString);
+			var result = await _sut.GetSystemInfoAsync(ip);
+		}
+
+		[Theory]
+		[InlineData("192.168.1.143", false)]
+		[InlineData("192.168.1.219", true)]
+		[InlineData("192.168.1.248", false)]
+		public async Task GetStateTests(string ipString, bool expected)
+		{
+			var ip = IPAddress.Parse(ipString);
+			var actual = await _sut.GetStateAsync(ip);
+			Assert.Equal(expected, actual);
+		}
+
+		[Theory]
+		[InlineData("192.168.1.143", false)]
+		[InlineData("192.168.1.143", true)]
+		public async Task SetStateTests(string ipString, bool state)
+		{
+			var ip = IPAddress.Parse(ipString);
+			await _sut.SetStateAsync(ip, state);
+			await GetStateTests(ipString, state);
 		}
 	}
 }
