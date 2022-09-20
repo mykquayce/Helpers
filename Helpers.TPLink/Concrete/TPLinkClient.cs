@@ -21,13 +21,13 @@ public class TPLinkClient : ITPLinkClient
 
 	public async IAsyncEnumerable<Models.Device> DiscoverAsync()
 	{
-		var endPoints = (
+		var addresses = (
 			from unicast in Helpers.Networking.NetworkHelpers.GetAllBroadcastAddresses()
 			let broadcast = unicast.GetBroadcastAddress()
-			select new IPEndPoint(broadcast, _port)
+			select broadcast
 			).ToArray();
 
-		var responses = SendAndReceiveAsync(_discoveryObject, endPoints);
+		var responses = SendAndReceiveAsync(_discoveryObject, addresses);
 
 		await foreach (var (ip, response) in responses)
 		{
@@ -38,70 +38,56 @@ public class TPLinkClient : ITPLinkClient
 
 	public async Task<Models.RealtimeData> GetRealtimeDataAsync(IPAddress ip)
 	{
-		var endPoint = new IPEndPoint(ip, _port);
-		var (_, response) = await SendAndReceiveAsync(_getRealtimeDataObject, endPoint).FirstAsync();
+		var (_, response) = await SendAndReceiveAsync(_getRealtimeDataObject, ip).FirstAsync();
 		return (Models.RealtimeData)response!.emeter!.get_realtime;
 	}
 
 	public async Task<Models.SystemInfo> GetSystemInfoAsync(IPAddress ip)
 	{
-		var endPoint = new IPEndPoint(ip, _port);
-		(_, var response) = await SendAndReceiveAsync(_discoveryObject, endPoint).FirstAsync();
+		(_, var response) = await SendAndReceiveAsync(_discoveryObject, ip).FirstAsync();
 		return (Models.SystemInfo)response.system.get_sysinfo;
 	}
 
 	public async Task<bool> GetStateAsync(IPAddress ip)
 	{
-		var endPoint = new IPEndPoint(ip, _port);
-		(_, var response) = await SendAndReceiveAsync(_discoveryObject, endPoint).FirstAsync();
+		(_, var response) = await SendAndReceiveAsync(_discoveryObject, ip).FirstAsync();
 		return response.system.get_sysinfo.relay_state == 1;
 	}
 
 	public Task SetStateAsync(IPAddress ip, bool state)
 	{
-		var endPoint = new IPEndPoint(ip, _port);
 		// {"system":{"set_relay_state":{"state":1}}}
 		var o = new { system = new { set_relay_state = new { state = state ? 1 : 0, }, }, };
-		return SendAndReceiveAsync(o, endPoint).FirstAsync().AsTask();
+		return SendAndReceiveAsync(o, ip).FirstAsync().AsTask();
 	}
 
-	private async static IAsyncEnumerable<(IPAddress, Models.Generated.ResponseObject)> SendAndReceiveAsync(object request, params IPEndPoint[] endPoints)
+	private async IAsyncEnumerable<(IPAddress, Models.Generated.ResponseObject)> SendAndReceiveAsync(object request, params IPAddress[] addresses)
 	{
 		Guard.Argument(request).NotNull();
-		Guard.Argument(endPoints).NotEmpty().DoesNotContainNull();
+		Guard.Argument(addresses).NotEmpty().DoesNotContainNull();
+
+		var message = request.Serialize().Encode().Encrypt();
+
+		using var client = new UdpClient(_port, AddressFamily.InterNetwork);
+
+		await Task.WhenAll(from ip in addresses
+						   let ep = new IPEndPoint(ip, _port)
+						   let task = client.SendAsync(message, message.Length, ep)
+						   select task);
 
 		ICollection<UdpReceiveResult> responses = new List<UdpReceiveResult>();
 		{
-			var message = request.Serialize().Encode().Encrypt();
-			var messageLength = message.Length;
+			using var cts = new CancellationTokenSource(millisecondsDelay: 2_000);
 
-			var ports = endPoints.Select(ep => ep.Port).Distinct();
-
-			foreach (var port in ports)
+			while (!cts.IsCancellationRequested)
 			{
-				using var client = new UdpClient(port);
-
-				var tasks = from ep in endPoints
-							let task = client.SendAsync(message, messageLength, ep)
-							select task;
-
-				await Task.WhenAll(tasks);
-
-				using var cts = new CancellationTokenSource(millisecondsDelay: 2_000);
-				while (!cts.IsCancellationRequested)
+				try
 				{
-					var task = await Task.WhenAny(
-						client.ReceiveAsync(),
-						Task.Delay(millisecondsDelay: 100, cts.Token));
-
-					if (task is not Task<UdpReceiveResult> myTask) continue;
-					var response = await myTask;
-					if (message.SequenceEqual(response.Buffer))
-					{
-						continue;
-					}
+					var response = await client.ReceiveAsync(cts.Token);
+					if (message.SequenceEqual(response.Buffer)) continue;
 					responses.Add(response);
 				}
+				catch (OperationCanceledException) { continue; }
 			}
 		}
 
