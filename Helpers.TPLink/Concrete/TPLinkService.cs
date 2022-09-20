@@ -1,5 +1,5 @@
 ﻿using Dawn;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -8,10 +8,9 @@ namespace Helpers.TPLink.Concrete;
 public class TPLinkService : ITPLinkService
 {
 	private readonly ITPLinkClient _client;
-	private readonly IDeviceCache _cache;
-	private delegate bool TryGetDelegate<T>(T value, [MaybeNullWhen(false)] out Models.Device device);
+	private readonly IMemoryCache _cache;
 
-	public TPLinkService(ITPLinkClient client, IDeviceCache cache)
+	public TPLinkService(ITPLinkClient client, IMemoryCache cache)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
 		_cache = Guard.Argument(cache).NotNull().Value;
@@ -19,9 +18,12 @@ public class TPLinkService : ITPLinkService
 
 	public async IAsyncEnumerable<Models.Device> DicoveryAsync()
 	{
+		var absoluteExpiration = DateTimeOffset.UtcNow.AddHours(1);
 		await foreach (var item in _client.DiscoverAsync())
 		{
-			_cache.Add(item);
+			_cache.Set(item.Alias, item, absoluteExpiration);
+			_cache.Set(item.IPAddress, item, absoluteExpiration);
+			_cache.Set(item.PhysicalAddress, item, absoluteExpiration);
 			yield return item;
 		}
 	}
@@ -29,7 +31,7 @@ public class TPLinkService : ITPLinkService
 	#region getrealtimedata
 	public async Task<Models.RealtimeData> GetRealtimeDataAsync(string alias)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, alias);
+		var device = await GetDeviceAsync(alias);
 		return await _client.GetRealtimeDataAsync(device.IPAddress);
 	}
 
@@ -38,7 +40,7 @@ public class TPLinkService : ITPLinkService
 
 	public async Task<Models.RealtimeData> GetRealtimeDataAsync(PhysicalAddress mac)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, mac);
+		var device = await GetDeviceAsync(mac);
 		return await _client.GetRealtimeDataAsync(device.IPAddress);
 	}
 	#endregion getrealtimedata
@@ -49,13 +51,13 @@ public class TPLinkService : ITPLinkService
 
 	public async Task<Models.SystemInfo> GetSystemInfoAsync(PhysicalAddress mac)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, mac);
+		var device = await GetDeviceAsync(mac);
 		return await _client.GetSystemInfoAsync(device.IPAddress);
 	}
 
 	public async Task<Models.SystemInfo> GetSystemInfoAsync(string alias)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, alias);
+		var device = await GetDeviceAsync(alias);
 		return await _client.GetSystemInfoAsync(device.IPAddress);
 	}
 	#endregion getsysteminfo
@@ -66,13 +68,13 @@ public class TPLinkService : ITPLinkService
 
 	public async Task<bool> GetStateAsync(PhysicalAddress mac)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, mac);
+		var device = await GetDeviceAsync(mac);
 		return await _client.GetStateAsync(device.IPAddress);
 	}
 
 	public async Task<bool> GetStateAsync(string alias)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, alias);
+		var device = await GetDeviceAsync(alias);
 		return await _client.GetStateAsync(device.IPAddress);
 	}
 	#endregion getstate
@@ -83,34 +85,31 @@ public class TPLinkService : ITPLinkService
 
 	public async Task SetStateAsync(PhysicalAddress mac, bool state)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, mac);
+		var device = await GetDeviceAsync(mac);
 		await _client.SetStateAsync(device.IPAddress, state);
 	}
 
 	public async Task SetStateAsync(string alias, bool state)
 	{
-		var device = await GetDeviceAsync(_cache.TryGetValue, alias);
+		var device = await GetDeviceAsync(alias);
 		await _client.SetStateAsync(device.IPAddress, state);
 	}
 	#endregion setstate
 
-	private async Task<Models.Device> GetDeviceAsync<T>(TryGetDelegate<T> tryGet, T value)
+	private async Task<Models.Device> GetDeviceAsync(object key)
 	{
-		if (tryGet(value, out var device))
+		if (_cache.TryGetValue(key, out Models.Device? device))
 		{
-			return device;
+			return device!;
 		}
 
-		await foreach (var item in _client.DiscoverAsync())
+		await DicoveryAsync().ToListAsync();
+
+		if (_cache.TryGetValue(key, out device))
 		{
-			_cache.Add(item);
+			return device!;
 		}
 
-		if (tryGet(value, out device))
-		{
-			return device;
-		}
-
-		throw new KeyNotFoundException(value + " not found");
+		throw new KeyNotFoundException(key + " not found");
 	}
 }

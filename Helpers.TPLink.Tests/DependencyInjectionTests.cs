@@ -49,8 +49,6 @@ public class DependencyInjectionTests
 		var client = provider.GetRequiredService<ITPLinkClient>();
 		var service = provider.GetRequiredService<ITPLinkService>();
 
-		service.Dis
-
 		var devices = await client.DiscoverAsync().ToListAsync();
 
 		Assert.NotEmpty(devices);
