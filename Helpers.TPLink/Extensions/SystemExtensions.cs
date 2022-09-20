@@ -1,25 +1,11 @@
 ﻿using System.Text;
-using System.Text.Json;
 
-namespace Helpers.TPLink;
+namespace System;
 
-public static class Extensions
+public static class SystemExtensions
 {
 	private static readonly Encoding _encoding = Encoding.UTF8;
 	private const byte _initialKey = 0xAB;
-
-	#region serialize
-	public static string Serialize(this object o) => JsonSerializer.Serialize(o);
-	public static T Deserialize<T>(this string s) => JsonSerializer.Deserialize<T>(s)
-		?? throw new Exception($"Failed to deserialize {s} to {typeof(T).Name}")
-		{
-			Data =
-			{
-				[nameof(s)] = s,
-				["type"] = typeof(T),
-			},
-		};
-	#endregion serialize
 
 	#region encode
 	public static byte[] Encode(this string s) => _encoding.GetBytes(s);

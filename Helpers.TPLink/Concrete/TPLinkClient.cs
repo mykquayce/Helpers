@@ -1,9 +1,9 @@
 ﻿using Dawn;
-using Helpers.TPLink.Models;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text.Json;
 
 namespace Helpers.TPLink.Concrete;
 
@@ -13,9 +13,11 @@ public class TPLinkClient : ITPLinkClient
 	private readonly static object _discoveryObject = new { system = new { get_sysinfo = new { }, }, };
 	private readonly static object _getRealtimeDataObject = new { system = new { get_sysinfo = new { }, }, emeter = new { get_realtime = new { }, }, };
 
-	public TPLinkClient(IOptions<Config> options) : this(options.Value) { }
-	public TPLinkClient(Config config) : this(config.Port) { }
-	public TPLinkClient(ushort port) => _port = port;
+	public TPLinkClient(IOptions<Config> options)
+	{
+		_port = Guard.Argument(options).NotNull().Wrap(o => o.Value)
+			.NotNull().Wrap(c => c.Port).Value;
+	}
 
 	public async IAsyncEnumerable<Models.Device> DiscoverAsync()
 	{
@@ -41,11 +43,11 @@ public class TPLinkClient : ITPLinkClient
 		return (Models.RealtimeData)response!.emeter!.get_realtime;
 	}
 
-	public async Task<SystemInfo> GetSystemInfoAsync(IPAddress ip)
+	public async Task<Models.SystemInfo> GetSystemInfoAsync(IPAddress ip)
 	{
 		var endPoint = new IPEndPoint(ip, _port);
 		(_, var response) = await SendAndReceiveAsync(_discoveryObject, endPoint).FirstAsync();
-		return (SystemInfo)response.system.get_sysinfo;
+		return (Models.SystemInfo)response.system.get_sysinfo;
 	}
 
 	public async Task<bool> GetStateAsync(IPAddress ip)

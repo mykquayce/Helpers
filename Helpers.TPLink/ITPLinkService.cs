@@ -5,6 +5,8 @@ namespace Helpers.TPLink;
 
 public interface ITPLinkService
 {
+	IAsyncEnumerable<Models.Device> DicoveryAsync();
+
 	#region getrealtimedata
 	Task<Models.RealtimeData> GetRealtimeDataAsync(IPAddress ip);
 	Task<Models.RealtimeData> GetRealtimeDataAsync(PhysicalAddress mac);

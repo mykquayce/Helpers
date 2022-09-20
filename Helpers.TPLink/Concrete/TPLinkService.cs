@@ -8,12 +8,22 @@ namespace Helpers.TPLink.Concrete;
 public class TPLinkService : ITPLinkService
 {
 	private readonly ITPLinkClient _client;
-	private readonly IDeviceCache _cache = new DeviceCache();
+	private readonly IDeviceCache _cache;
 	private delegate bool TryGetDelegate<T>(T value, [MaybeNullWhen(false)] out Models.Device device);
 
-	public TPLinkService(ITPLinkClient client)
+	public TPLinkService(ITPLinkClient client, IDeviceCache cache)
 	{
 		_client = Guard.Argument(client).NotNull().Value;
+		_cache = Guard.Argument(cache).NotNull().Value;
+	}
+
+	public async IAsyncEnumerable<Models.Device> DicoveryAsync()
+	{
+		await foreach (var item in _client.DiscoverAsync())
+		{
+			_cache.Add(item);
+			yield return item;
+		}
 	}
 
 	#region getrealtimedata

@@ -37,4 +37,36 @@ public class DependencyInjectionTests
 
 		Assert.NotNull(sut);
 	}
+
+	[Theory]
+	[InlineData(9_999)]
+	public async Task Test1(ushort port)
+	{
+		using var provider = new ServiceCollection()
+			.AddTPLink(port)
+			.BuildServiceProvider();
+
+		var client = provider.GetRequiredService<ITPLinkClient>();
+		var service = provider.GetRequiredService<ITPLinkService>();
+
+		service.Dis
+
+		var devices = await client.DiscoverAsync().ToListAsync();
+
+		Assert.NotEmpty(devices);
+
+		foreach (var (alias, ip, mac) in devices)
+		{
+			Models.SystemInfo systemInfo;
+
+			systemInfo = await service.GetSystemInfoAsync(alias);
+			Assert.NotNull(systemInfo);
+
+			systemInfo = await service.GetSystemInfoAsync(ip);
+			Assert.NotNull(systemInfo);
+
+			systemInfo = await service.GetSystemInfoAsync(mac);
+			Assert.NotNull(systemInfo);
+		}
+	}
 }
