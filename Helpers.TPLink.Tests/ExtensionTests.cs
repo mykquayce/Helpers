@@ -1,5 +1,6 @@
 ﻿namespace Helpers.TPLink.Tests;
 
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 public class ExtensionTests
 {
 	[Theory]

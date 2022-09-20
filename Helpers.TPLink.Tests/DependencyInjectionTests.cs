@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Helpers.TPLink.Tests;
 
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 public class DependencyInjectionTests
 {
 	[Theory]
