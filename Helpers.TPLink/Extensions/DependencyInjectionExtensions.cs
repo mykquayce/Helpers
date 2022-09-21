@@ -1,6 +1,7 @@
 ﻿using Helpers.TPLink;
 using Helpers.TPLink.Concrete;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -17,12 +18,16 @@ public static class DependencyInjectionExtensions
 	{
 		return services
 			.AddSingleton<IOptions<Config>>(config)
-			.AddSingleton<IMemoryCache>(provider =>
-			{
-				return provider.GetService<IMemoryCache>()
-					?? new MemoryCache(new MemoryCacheOptions());
-			})
+			.TryAddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
 			.AddTransient<ITPLinkClient, TPLinkClient>()
 			.AddTransient<ITPLinkService, TPLinkService>();
+	}
+
+	public static IServiceCollection TryAddSingleton<TService>(
+		this IServiceCollection collection, TService instance)
+		where TService : class
+	{
+		ServiceCollectionDescriptorExtensions.TryAddSingleton<TService>(collection, instance);
+		return collection;
 	}
 }

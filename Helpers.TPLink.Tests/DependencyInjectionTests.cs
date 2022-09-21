@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Helpers.TPLink.Tests;
@@ -51,5 +52,26 @@ public class DependencyInjectionTests
 			systemInfo = await service.GetSystemInfoAsync(mac);
 			Assert.NotNull(systemInfo);
 		}
+	}
+
+	[Theory]
+	[InlineData(100)]
+	public async Task MemoryCacheLoopTests(int timeout)
+	{
+		using var provider = new ServiceCollection()
+			.AddTPLink(Config.Defaults)
+			.BuildServiceProvider();
+
+		var services = provider.GetServices<IMemoryCache>().ToList();
+
+		var tasks = new Task[2]
+			{
+				Task.Run(provider.GetRequiredService<IMemoryCache>),
+				Task.Delay(timeout),
+			};
+
+		var task = await Task.WhenAny(tasks);
+
+		_ = Assert.IsType<Task<IMemoryCache>>(task);
 	}
 }
