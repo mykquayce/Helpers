@@ -1,65 +1,101 @@
-﻿using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Dawn;
+using Microsoft.Extensions.Options;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Text.Json;
 
-namespace Helpers.TPLink.Concrete
+namespace Helpers.TPLink.Concrete;
+
+public class TPLinkClient : ITPLinkClient
 {
-	public class TPLinkClient : ITPLinkClient
+	private readonly ushort _port;
+	private readonly static object _discoveryObject = new { system = new { get_sysinfo = new { }, }, };
+	private readonly static object _getRealtimeDataObject = new { system = new { get_sysinfo = new { }, }, emeter = new { get_realtime = new { }, }, };
+
+	public TPLinkClient(IOptions<Config> options)
 	{
-		private readonly ushort _port;
-		private readonly static object _discoveryObject = new { system = new { get_sysinfo = new { }, }, };
-		private readonly static object _getRealtimeDataObject = new { system = new { get_sysinfo = new { }, }, emeter = new { get_realtime = new { }, }, };
+		_port = Guard.Argument(options).NotNull().Wrap(o => o.Value)
+			.NotNull().Wrap(c => c.Port).Value;
+	}
 
-		public TPLinkClient(IOptions<Config> options) : this(options.Value) { }
-		public TPLinkClient(Config config) : this(config.Port) { }
-		public TPLinkClient(ushort port) => _port = port;
+	public async IAsyncEnumerable<Models.Device> DiscoverAsync()
+	{
+		var addresses = (
+			from unicast in Helpers.Networking.NetworkHelpers.GetAllBroadcastAddresses()
+			let broadcast = unicast.GetBroadcastAddress()
+			select broadcast
+			).ToArray();
 
-		public static IEnumerable<IPAddress> LocalIPAddresses => Helpers.Networking.NetworkHelpers.GetAllBroadcastAddresses().Select(ip => ip.Address);
+		var responses = SendAndReceiveAsync(_discoveryObject, addresses);
 
-		public async IAsyncEnumerable<Models.Device> DiscoverAsync()
+		await foreach (var (ip, response) in responses)
 		{
-			var endPoint = new IPEndPoint(IPAddress.Broadcast, _port);
-			var responses = SendAndReceiveAsync(endPoint, _discoveryObject);
+			var sysInfo = (Models.SystemInfo)response!.system.get_sysinfo;
+			yield return new(sysInfo.Alias, ip, sysInfo.PhysicalAddress);
+		}
+	}
 
-			await foreach (var (ip, response) in responses)
+	public async Task<Models.RealtimeData> GetRealtimeDataAsync(IPAddress ip)
+	{
+		var (_, response) = await SendAndReceiveAsync(_getRealtimeDataObject, ip).FirstAsync();
+		return (Models.RealtimeData)response!.emeter!.get_realtime;
+	}
+
+	public async Task<Models.SystemInfo> GetSystemInfoAsync(IPAddress ip)
+	{
+		(_, var response) = await SendAndReceiveAsync(_discoveryObject, ip).FirstAsync();
+		return (Models.SystemInfo)response.system.get_sysinfo;
+	}
+
+	public async Task<bool> GetStateAsync(IPAddress ip)
+	{
+		(_, var response) = await SendAndReceiveAsync(_discoveryObject, ip).FirstAsync();
+		return response.system.get_sysinfo.relay_state == 1;
+	}
+
+	public Task SetStateAsync(IPAddress ip, bool state)
+	{
+		// {"system":{"set_relay_state":{"state":1}}}
+		var o = new { system = new { set_relay_state = new { state = state ? 1 : 0, }, }, };
+		return SendAndReceiveAsync(o, ip).FirstAsync().AsTask();
+	}
+
+	private async IAsyncEnumerable<(IPAddress, Models.Generated.ResponseObject)> SendAndReceiveAsync(object request, params IPAddress[] addresses)
+	{
+		Guard.Argument(request).NotNull();
+		Guard.Argument(addresses).NotEmpty().DoesNotContainNull();
+
+		var message = request.Serialize().Encode().Encrypt();
+
+		using var client = new UdpClient(_port, AddressFamily.InterNetwork);
+
+		await Task.WhenAll(from ip in addresses
+						   let ep = new IPEndPoint(ip, _port)
+						   let task = client.SendAsync(message, message.Length, ep)
+						   select task);
+
+		ICollection<UdpReceiveResult> responses = new List<UdpReceiveResult>();
+		{
+			using var cts = new CancellationTokenSource(millisecondsDelay: 2_000);
+
+			while (!cts.IsCancellationRequested)
 			{
-				var sysInfo = (Models.SystemInfo)response!.system.get_sysinfo;
-				yield return new(sysInfo.Alias, ip, sysInfo.PhysicalAddress);
+				try
+				{
+					var response = await client.ReceiveAsync(cts.Token);
+					if (message.SequenceEqual(response.Buffer)) continue;
+					responses.Add(response);
+				}
+				catch (OperationCanceledException) { continue; }
 			}
 		}
 
-		public async Task<Models.RealtimeData> GetRealtimeDataAsync(IPAddress ip)
+		foreach (var response in responses)
 		{
-			var endPoint = new IPEndPoint(ip, _port);
-			var (_, response) = await SendAndReceiveAsync(endPoint, _getRealtimeDataObject).FirstAsync();
-			return (Models.RealtimeData)response!.emeter!.get_realtime;
-		}
-
-		private async static IAsyncEnumerable<(IPAddress, Models.Generated.ResponseObject)> SendAndReceiveAsync(IPEndPoint endPoint, object request)
-		{
-			var localIPs = LocalIPAddresses.ToList();
-			var requestBytes = request.Serialize().Encode().Encrypt();
-			using var cts = new CancellationTokenSource(millisecondsDelay: 3_000);
-			using var udpClient = new UdpClient(endPoint.Port);
-			await udpClient.SendAsync(requestBytes, requestBytes.Length, endPoint);
-
-			while (!cts.Token.IsCancellationRequested)
-			{
-				var task = await Task.WhenAny(
-					udpClient.ReceiveAsync(),
-					Task.Delay(1_000, cts.Token));
-
-				if (task is not Task<UdpReceiveResult> myTask) continue;
-				var result = await myTask;
-				var ip = result.RemoteEndPoint.Address;
-				if (localIPs.Contains(ip)) continue;
-				var response = result.Buffer.Decrypt().Decode().Deserialize<Models.Generated.ResponseObject>();
-				yield return (ip, response);
-			}
+			yield return (
+				response.RemoteEndPoint.Address,
+				response.Buffer.Decrypt().Decode().Deserialize<Models.Generated.ResponseObject>());
 		}
 	}
 }
