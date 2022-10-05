@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using Xunit;
 
 namespace Helpers.Elgato.Tests;
@@ -25,14 +26,6 @@ public class DependencyInjectionTests : IClassFixture<Fixtures.ConfigFixture>
 			{
 				var initialData = new Dictionary<string, string?>
 				{
-					["EndPoints:IdentityServer"] = _configuration["identity:authority"],
-					["EndPoints:NetworkDiscoveryApi"] = _configuration["NetworkDiscoveryApi"],
-					["Identity:Authority"] = _configuration["identity:authority"],
-					["Identity:ClientId"] = _configuration["identity:clientid"],
-					["Identity:ClientSecret"] = _configuration["identity:clientsecret"],
-					["Identity:Scope"] = _configuration["identity:scope"],
-					["Aliases:keylight"] = _configuration["Elgato:Keylight:PhysicalAddress"],
-					["Aliases:lightstrip"] = _configuration["Elgato:Lightstrip:PhysicalAddress"],
 					["Elgato:Scheme"] = Config.DefaultScheme,
 					["Elgato:Port"] = Config.DefaultPort.ToString("D"),
 				};
@@ -48,15 +41,20 @@ public class DependencyInjectionTests : IClassFixture<Fixtures.ConfigFixture>
 				.AddHttpClient<IClient, Concrete.Client>("ElgatoClient")
 				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 				.Services
-				.AddNetworkDiscoveryApi(configuration)
 				.BuildServiceProvider();
 		}
 
 		var sut = serviceProvider.GetRequiredService<IService>();
 
-		foreach (var alias in new[] { "keylight", "lightstrip", })
+		var ips = new IPAddress[2]
 		{
-			var lights = await sut.GetLightStatusAsync(alias).ToListAsync();
+			new IPAddress(new byte[4] { 192, 168, 1, 102, }),
+			new IPAddress(new byte[4] { 192, 168, 1, 217, }),
+		};
+
+		foreach (var ip in ips)
+		{
+			var lights = await sut.GetLightStatusAsync(ip).ToListAsync();
 
 			Assert.NotNull(lights);
 			Assert.NotEmpty(lights);

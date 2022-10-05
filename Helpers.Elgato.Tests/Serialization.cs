@@ -8,7 +8,7 @@ public class Serialization
 {
 	[Theory]
 	[InlineData(@"{""numberOfLights"":1,""lights"":[{""on"":0,""brightness"":23,""temperature"":331}]}", 0, 23, 331, null, null)]
-	[InlineData(@"{""numberOfLights"":1,""lights"":[{""on"":0,""hue"":113.0,""saturation"":72.0,""brightness"":23}]}", 0, 23, null, 113, 72)]
+	[InlineData(@"{""numberOfLights"":1,""lights"":[{""on"":0,""hue"":113.0,""saturation"":72.0,""brightness"":23}]}", 0, 23, null, 113f, 72f)]
 	public void Message(string json, byte on, byte brightness, int? temperature, float? hue, float? saturation)
 	{
 		var message = JsonSerializer.Deserialize<Models.Generated.MessageObject>(json);
