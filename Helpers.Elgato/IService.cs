@@ -1,15 +1,16 @@
 ﻿using System.Drawing;
+using System.Net;
 
 namespace Helpers.Elgato;
 
 public interface IService
 {
-	IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(string alias, CancellationToken? cancellationToken = null);
-	IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(string alias, CancellationToken? cancellationToken = null);
-	IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(string alias, CancellationToken? cancellationToken = null);
-	Task SetBrightnessAsync(string alias, float brightness, CancellationToken? cancellationToken = null);
-	Task SetColorAsync(string alias, Color color, CancellationToken? cancellationToken = null);
-	Task SetKelvinsAsync(string alias, short kelvins, CancellationToken? cancellationToken = null);
-	Task SetPowerStateAsync(string alias, bool on, CancellationToken? cancellationToken = null);
-	Task TogglePowerStateAsync(string alias, CancellationToken? cancellationToken = null);
+	IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null);
+	IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null);
+	IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null);
+	Task SetBrightnessAsync(IPAddress ip, float brightness, CancellationToken? cancellationToken = null);
+	Task SetColorAsync(IPAddress ip, Color color, CancellationToken? cancellationToken = null);
+	Task SetKelvinsAsync(IPAddress ip, short kelvins, CancellationToken? cancellationToken = null);
+	Task SetPowerStateAsync(IPAddress ip, bool on, CancellationToken? cancellationToken = null);
+	Task TogglePowerStateAsync(IPAddress ip, CancellationToken? cancellationToken = null);
 }

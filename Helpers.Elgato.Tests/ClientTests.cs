@@ -16,7 +16,7 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>, IClassFixture<
 		Fixtures.ConfigFixture configFixture)
 	{
 		_sut = clientFixture.Client;
-		_ipAddresses = configFixture.IPAddresses.AsReadOnly();
+		_ipAddresses = configFixture.IPAddresses;
 	}
 
 	[Fact]
