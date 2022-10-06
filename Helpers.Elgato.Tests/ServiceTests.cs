@@ -134,6 +134,20 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 		}
 	}
 
+	[Theory]
+	[InlineData(3_000)]
+	public async Task GetLightStatusTests(int timeout)
+	{
+		foreach (var ip in _ips)
+		{
+			using var cts = new CancellationTokenSource(millisecondsDelay: timeout);
+			await foreach (var light in _sut.GetLightStatusAsync(ip, cts.Token))
+			{
+				Assert.True(light is Models.Lights.RgbLightModel ^ light is Models.Lights.WhiteLightModel);
+			}
+		}
+	}
+
 	[Fact]
 	public async Task ReturnTypesAreSerializable()
 	{

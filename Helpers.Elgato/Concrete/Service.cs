@@ -31,25 +31,38 @@ public class Service : IService
 		}
 	}
 
-	public IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
 	{
-		return GetLightsAsync(ip, cancellationToken)
-			.Select(tuple => new Models.Lights.LightModel(tuple.on, tuple.brightness));
+		var lights = GetLightsAsync(ip, cancellationToken);
+
+		await foreach(var (on, brightness, color, kelvins) in lights)
+		{
+			yield return f(on, brightness, color, kelvins);
+		}
+
+		static Models.Lights.LightModel f(bool on, float brightness, Color? color, short? kelvins)
+		{
+			return (color, kelvins) switch
+			{
+				(_, null) => new Models.Lights.RgbLightModel(on, brightness, color!.Value),
+				(null, _) => new Models.Lights.WhiteLightModel(on, brightness, kelvins!.Value),
+				_ => throw new ArgumentOutOfRangeException("color,kelvins", (color, kelvins), message: "expecting color or kelvins to be null")
+				{
+					Data =
+					{
+						[nameof(color)] = color,
+						[nameof(kelvins)] = kelvins,
+					},
+				},
+			};
+		}
 	}
 
 	public IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
-	{
-		return GetLightsAsync(ip, cancellationToken)
-			.Where(tuple => tuple.color.HasValue)
-			.Select(tuple => new Models.Lights.RgbLightModel(tuple.on, tuple.brightness, tuple.color!.Value));
-	}
+		=> GetLightStatusAsync(ip, cancellationToken).OfType<Models.Lights.RgbLightModel>();
 
 	public IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
-	{
-		return GetLightsAsync(ip, cancellationToken)
-			.Where(tuple => tuple.kelvins.HasValue)
-			.Select(tuple => new Models.Lights.WhiteLightModel(tuple.on, tuple.brightness, tuple.kelvins!.Value));
-	}
+		=> GetLightStatusAsync(ip, cancellationToken).OfType<Models.Lights.WhiteLightModel>();
 
 	public Task SetBrightnessAsync(IPAddress ip, float brightness, CancellationToken? cancellationToken = null)
 	{
