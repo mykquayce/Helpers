@@ -37,7 +37,7 @@ public class IdentityClientTests : IClassFixture<Fixtures.ConfigurationFixture>
 		Assert.NotEmpty(accessTokens);
 		Assert.All(accessTokens, Assert.NotNull);
 		Assert.All(accessTokens, Assert.NotEmpty);
-		Assert.All(accessTokens, s => Assert.Matches(@"^[0-9A-Za-z]{160}\.[0-9A-Za-z]{216}\.[\-0-9A-Z_a-z]{342}$", s));
+		Assert.All(accessTokens, s => Assert.Matches(@"^[0-9A-Za-z]{160}\.[0-9A-Za-z]{200,300}\.[\-0-9A-Z_a-z]{300,400}$", s));
 	}
 
 	[Fact]
@@ -58,7 +58,7 @@ public class IdentityClientTests : IClassFixture<Fixtures.ConfigurationFixture>
 				using var httpClient = factory.CreateClient();
 				httpClient.SetBearerToken(accessToken);
 
-				response = await httpClient.GetStringAsync("/weatherforecast");
+				response = await httpClient.GetStringAsync("weatherforecast");
 			}
 		}
 		Assert.NotNull(response);
