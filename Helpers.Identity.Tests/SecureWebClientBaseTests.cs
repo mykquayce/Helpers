@@ -32,7 +32,7 @@ public sealed class SecureWebClientBaseTests : IClassFixture<Fixtures.Configurat
 	[Fact]
 	public async Task Test1()
 	{
-		var json = await _sut.GetStringAsync(new Uri("/weatherforecast", UriKind.Relative));
+		var json = await _sut.GetStringAsync(new Uri("weatherforecast", UriKind.Relative));
 		Assert.NotNull(json);
 		Assert.NotEmpty(json);
 		Assert.StartsWith("[", json);
@@ -47,7 +47,7 @@ public sealed class SecureWebClientBaseTests : IClassFixture<Fixtures.Configurat
 
 		while (count-- > 0)
 		{
-			var json = await _sut.GetStringAsync(new Uri("/weatherforecast", UriKind.Relative));
+			var json = await _sut.GetStringAsync(new Uri("weatherforecast", UriKind.Relative));
 			times.Add(stopwatch.Elapsed);
 			stopwatch.Restart();
 		}
