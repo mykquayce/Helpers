@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Helpers.Identity" Version="1.0.8-rc1" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.22-rc1" />
+  </ItemGroup>
+
+</Project>
