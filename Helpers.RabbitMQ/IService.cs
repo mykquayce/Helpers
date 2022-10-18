@@ -9,10 +9,10 @@ public interface IService
 
 	void Acknowledge(ulong tag);
 	void CreateQueue(string queue);
-	(byte[] body, ulong tag) Dequeue(string queue);
-	(T body, ulong tag) Dequeue<T>(string queue)
+	(byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false);
+	(T body, ulong tag) Dequeue<T>(string queue, bool autoAcknowledge = false)
 	{
-		var (body, tag) = Dequeue(queue);
+		var (body, tag) = Dequeue(queue, autoAcknowledge);
 		var json = _encoding.GetString(body);
 		var t = JsonSerializer.Deserialize<T>(json);
 		return (t!, tag);
@@ -36,8 +36,6 @@ public interface IService
 			Enqueue(queue, value);
 		}
 	}
-	void EnsureQueueExists(string queue);
 	void PurgeQueue(string queue);
 	void DeleteQueue(string queue);
-	bool QueueExists(string queue);
 }

@@ -6,13 +6,10 @@ namespace Helpers.RabbitMQ.Concrete;
 public class Service : IService
 {
 	private readonly IModel _channel;
-	private readonly IClient _client;
-	private readonly ICollection<string> _knownQueues = new List<string>();
 
-	public Service(IClient client, IModel channel)
+	public Service(IModel channel)
 	{
 		_channel = Guard.Argument(channel).NotNull().Value;
-		_client = Guard.Argument(client).NotNull().Value;
 	}
 
 	public void Enqueue(string queue, byte[] body)
@@ -20,7 +17,6 @@ public class Service : IService
 		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
 		Guard.Argument(body).NotNull().NotEmpty();
 
-		EnsureQueueExists(queue);
 		_channel.BasicPublish(exchange: string.Empty, routingKey: queue, mandatory: true, body: body);
 	}
 
@@ -34,31 +30,13 @@ public class Service : IService
 			arguments: default);
 	}
 
-	public void EnsureQueueExists(string queue)
-	{
-		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
-
-		if (_knownQueues.Contains(queue)) return;
-
-		if (!QueueExists(queue))
-		{
-			CreateQueue(queue);
-		}
-
-		_knownQueues.Add(queue);
-	}
-
-	public bool QueueExists(string queue) => _client.GetQueuesAsync()
-		.AnyAsync(q => q.name.Equals(queue, StringComparison.OrdinalIgnoreCase))
-		.AsTask().GetAwaiter().GetResult();
-
-	public (byte[] body, ulong tag) Dequeue(string queue)
+	public (byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false)
 	{
 		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
 		BasicGetResult result;
 		try
 		{
-			result = _channel.BasicGet(queue, autoAck: false);
+			result = _channel.BasicGet(queue, autoAcknowledge);
 		}
 		catch (OperationInterruptedException exception)
 			when (exception.ShutdownReason.ReplyCode == 404)

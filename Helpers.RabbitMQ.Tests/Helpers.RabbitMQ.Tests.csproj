@@ -23,4 +23,13 @@
     <ProjectReference Include="..\Helpers.RabbitMQ\Helpers.RabbitMQ.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\Password">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Username">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Helpers.RabbitMQ.Tests;
@@ -20,7 +21,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 	[InlineData("one", "two", "three")]
 	public void Configuration(params string[] messages)
 	{
-		IServiceProvider serviceProvider = new ServiceCollection()
+		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(_configuration)
 			.BuildServiceProvider();
 
@@ -34,7 +35,7 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
 
-		IServiceProvider serviceProvider = new ServiceCollection()
+		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(config)
 			.BuildServiceProvider();
 
@@ -48,8 +49,8 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
 
-		IServiceProvider serviceProvider = new ServiceCollection()
-			.AddRabbitMQ(config.Hostname, config.Port, config.RestApiPort, config.RestApiScheme, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
+		using var serviceProvider = new ServiceCollection()
+			.AddRabbitMQ(config.Hostname, config.Port, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
 			.BuildServiceProvider();
 
 		ServiceProviderTests(serviceProvider, messages);
@@ -76,5 +77,54 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		{
 			service.DeleteQueue(_queueName);
 		}
+	}
+
+	[Fact]
+	public void FileSupportTests()
+	{
+		Config config;
+		{
+			IConfiguration configuration;
+			{
+				var initialData = new Dictionary<string, string?>
+				{
+					["Hostname"] = "qwfpqwfqqwfpq",
+					["Port"] = "12345",
+					["Username_file"] = Path.Combine(".", "Data", "Username"),
+					["Password_file"] = Path.Combine(".", "Data", "Password"),
+					["VirtualHost"] = "dhnpgjpgjlpgjl",
+					["SslEnabled"] = "true",
+					["QueueNames:0"] = "airsontaersnot",
+				};
+
+				configuration = new ConfigurationBuilder()
+					.AddInMemoryCollection(initialData)
+					.Build();
+			}
+
+			using var serviceProvider = new ServiceCollection()
+				.AddRabbitMQ(configuration)
+				.BuildServiceProvider();
+
+			config = serviceProvider.GetRequiredService<IOptions<Config>>().Value;
+		}
+
+		Assert.NotNull(config);
+
+		Assert.NotNull(config.Hostname);
+		Assert.NotEqual(default, config.Port);
+		Assert.NotNull(config.Username);
+		Assert.NotNull(config.Password);
+		Assert.NotNull(config.VirtualHost);
+		Assert.NotNull(config.QueueNames);
+		Assert.NotEmpty(config.QueueNames);
+		Assert.DoesNotContain(default, config.QueueNames);
+
+		Assert.NotEqual(RabbitMQ.Config.DefaultHostname, config.Hostname);
+		Assert.NotEqual(RabbitMQ.Config.DefaultPort, config.Port);
+		Assert.NotEqual(RabbitMQ.Config.DefaultUsername, config.Username);
+		Assert.NotEqual(RabbitMQ.Config.DefaultPassword, config.Password);
+		Assert.NotEqual(RabbitMQ.Config.DefaultVirtualHost, config.VirtualHost);
+		Assert.All(config.QueueNames, s => Assert.NotEqual(RabbitMQ.Config.DefaultQueueName, s));
 	}
 }
