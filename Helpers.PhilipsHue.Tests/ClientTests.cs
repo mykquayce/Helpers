@@ -1,153 +1,128 @@
-﻿using Xunit;
+﻿using System.Drawing;
+using System.Text.Json;
 
 namespace Helpers.PhilipsHue.Tests;
 
-public sealed class ClientTests : IClassFixture<Fixtures.ClientFixture>
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinition))]
+public class ClientTests : IClassFixture<Fixtures.Fixture>
 {
-	private readonly IClient _sut;
+	private readonly Config _config;
+	private readonly IClient _client;
 
-	public ClientTests(Fixtures.ClientFixture clientFixture)
+	public ClientTests(Fixtures.Fixture fixture)
 	{
-		_sut = clientFixture.Client;
+		_config = fixture.Config;
+		_client = fixture.Client;
 	}
 
 	[Fact]
-	public async Task GetAll()
+	public async Task GetLightsAliasesTests()
 	{
-		var all = await _sut.GetAllAsync();
+		var kvps = await _client.GetLightAliasesAsync().ToListAsync();
 
-		Assert.NotNull(all);
-		Assert.NotNull(all.config);
+		Assert.Distinct(kvps.Select(kvp => kvp.Key), StringComparer.OrdinalIgnoreCase);
+
+		IDictionary<string, int> actual = kvps
+			.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+
+		Assert.NotNull(actual);
+		Assert.NotEmpty(actual);
+		Assert.All(actual.Keys, Assert.NotNull);
+		Assert.All(actual.Keys, Assert.NotEmpty);
+		Assert.All(actual.Values, id => Assert.InRange(id, 1, int.MaxValue));
 	}
 
 	[Theory]
-	[InlineData("3")]
-	public async Task<Models.LightObject> GetLight(string id)
+	[InlineData(3)]
+	public async Task GetLightColorTests(int index)
 	{
-		var light = await _sut.GetLightAsync(id);
+		var actual = await _client.GetLightColorAsync(index);
 
-		Assert.NotNull(light);
-		Assert.NotNull(light.state);
-
-		return light;
-	}
-
-	[Fact]
-	public async Task GetLights()
-	{
-		var lights = await _sut.GetLightsAsync().ToListAsync();
-
-		Assert.NotNull(lights);
-		Assert.NotEmpty(lights);
-
-		foreach (var (id, light) in lights)
-		{
-			Assert.NotNull(id);
-			Assert.NotEmpty(id);
-			Assert.NotNull(light);
-			Assert.NotNull(light.state);
-		}
+		Assert.NotEqual(default, actual);
+		Assert.NotNull(actual.Name);
 	}
 
 	[Theory]
-	[InlineData("3", true)]
-	[InlineData("3", false)]
-	public async Task SetLightState(string id, bool on)
+	[InlineData(4, 0, 0, 128)]
+	[InlineData(4, 0, 0, 255)]
+	[InlineData(4, 0, 0, 64)]
+	[InlineData(4, 0, 128, 0)]
+	[InlineData(4, 128, 0, 0)]
+	public async Task SetLightColorTests(int index, int red, int green, int blue)
 	{
-		var light = await GetLight(id);
-		var state = light.state with { on = on, };
+		// Arrange
+		var comparer = new Comparers.ColorComparer(tolerance: 10);
+		var color = Color.FromArgb(red, green, blue);
 
-		await _sut.SetLightStateAsync(id, state);
+		// Act
+		await _client.SetLightColorAsync(index, color);
+		var after = await _client.GetLightColorAsync(index);
+
+		// Assert
+		Assert.Equal(color, after, comparer);
 	}
 
 	[Theory]
-	[InlineData("3")]
-	public async Task BrightestThenOff(string id)
+	[InlineData(4)]
+	public Task GetLightPowerTests(int index)
 	{
-		var light = await GetLight(id);
-		{
-			var brightest = light.state.On().Brightest();
-			await _sut.SetLightStateAsync(id, brightest);
-		}
-		await Task.Delay(millisecondsDelay: 2_000);
-		{
-			var off = light.state.Off();
-			await _sut.SetLightStateAsync(id, off);
-		}
+		return _client.GetLightPowerAsync(index);
 	}
 
 	[Theory]
-	[InlineData("1")]
-	public async Task GetGroup(string id)
+	[InlineData(4, false)]
+	[InlineData(4, true)]
+	public Task SetLightPowerTests(int index, bool on)
 	{
-		var group = await _sut.GetGroupAsync(id);
-
-		Assert.NotNull(group);
-		Assert.NotNull(group.name);
-		Assert.NotEmpty(group.name);
-		Assert.NotNull(group.lights);
-		Assert.NotEmpty(group.lights);
-		Assert.DoesNotContain(default, group.lights);
-		Assert.All(group.lights, Assert.NotNull);
-		Assert.All(group.lights, Assert.NotEmpty);
-	}
-
-	[Fact]
-	public async Task GetGroups()
-	{
-		var groups = await _sut.GetGroupsAsync().ToListAsync();
-
-		Assert.NotNull(groups);
-		Assert.NotEmpty(groups);
-
-		foreach (var (id, group) in groups)
-		{
-			Assert.NotNull(id);
-			Assert.NotEmpty(id);
-			Assert.NotNull(group);
-			Assert.NotNull(group.name);
-			Assert.NotNull(group.lights);
-			Assert.NotEmpty(group.lights);
-			Assert.DoesNotContain(default, group.lights);
-			Assert.All(group.lights, Assert.NotNull);
-			Assert.All(group.lights, Assert.NotEmpty);
-		}
-	}
-
-	[Fact]
-	public async Task GetConfig()
-	{
-		var config = await _sut.GetConfigAsync();
-
-		Assert.NotNull(config);
-
-		Assert.NotNull(config.name);
-		Assert.NotNull(config.mac);
-		Assert.NotNull(config.ipaddress);
-
-		Assert.NotEmpty(config.name);
-		Assert.NotEmpty(config.mac);
-		Assert.NotEmpty(config.ipaddress);
+		return _client.SetLightPowerAsync(index, on);
 	}
 
 	[Theory]
-	[InlineData("1")]
-	[InlineData("2")]
-	[InlineData("3")]
-	[InlineData("4")]
-	[InlineData("5")]
-	[InlineData("6")]
-	[InlineData("7")]
-	[InlineData("8")]
-	[InlineData("9")]
-	[InlineData("10")]
-	[InlineData("11")]
-	[InlineData("12")]
-	[InlineData("13")]
-	public async Task GetRule(string id)
+	[InlineData(4)]
+	public async Task GetLightBrightnessTests(int index)
 	{
-		var rule = await _sut.GetRuleAsync(id);
+		var actual = await _client.GetLightBrightnessAsync(index);
+		Assert.InRange(actual, 0, 1);
+	}
 
-		Assert.NotNull(rule);
+	[Theory]
+	[InlineData(4, .8f)]
+	[InlineData(4, .4f)]
+	public Task SetLightBrightnessTests(int index, float brightness)
+	{
+		return _client.SetLightBrightnessAsync(index, brightness);
+	}
+
+	[Theory]
+	[InlineData(4)]
+	public async Task GetLightTemperatureTests(int index)
+	{
+		var actual = await _client.GetLightTemperatureAsync(index);
+		Assert.InRange(actual, 2_900, 7_000);
+	}
+
+	[Theory]
+	[InlineData(4, 2_900)]
+	[InlineData(4, 7_000)]
+	public Task SetLightTemperatureTests(int index, short brightness)
+	{
+		return _client.SetLightTemperatureAsync(index, brightness);
+	}
+
+	[Theory]
+	[InlineData("http", "localhost")]
+	public void BaseAddressAlwaysEndsWithSlash_UriBuilder(string schemeName, string hostName)
+	{
+		var uri = new UriBuilder(schemeName, hostName).Uri;
+		Assert.EndsWith("/", uri.ToString());
+	}
+
+	[Theory]
+	[InlineData("http://localhost")]
+	[InlineData("http://localhost/")]
+	public void BaseAddressAlwaysEndsWithSlash_UriConstructor(string uriString)
+	{
+		var uri = new Uri(uriString);
+		Assert.EndsWith("/", uri.ToString());
 	}
 }

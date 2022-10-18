@@ -1,14 +1,18 @@
-﻿using Helpers.PhilipsHue.Models;
+﻿using System.Drawing;
 
 namespace Helpers.PhilipsHue;
 
 public interface IService
 {
-	IAsyncEnumerable<KeyValuePair<string, GroupObject>> GetGroupsByNamesAsync(params string[] names);
-	IAsyncEnumerable<KeyValuePair<string, LightObject>> GetLightsByNamesAsync(params string[] names);
-	Task SetGroupsStateAsync(LightObject.StateObject state, params string[] names);
-	Task SetLightsStateAsync(LightObject.StateObject state, params string[] names);
-	Task SetLightStateAsync(string groupName, string lightName, LightObject.StateObject state);
-	Task ToggleLightsAsync(params string[] names);
-	Task ToggleLightsInGroupsAsync(params string[] groupNames);
+	IAsyncEnumerable<string> GetLightAliasesAsync(CancellationToken? cancellationToken = null);
+
+	Task<float> GetLightBrightnessAsync(string alias, CancellationToken? cancellationToken = null);
+	Task<Color> GetLightColorAsync(string alias, CancellationToken? cancellationToken = null);
+	Task<bool> GetLightPowerAsync(string alias, CancellationToken? cancellationToken = null);
+	Task<short> GetLightTemperatureAsync(string alias, CancellationToken? cancellationToken = null);
+
+	Task SetLightBrightnessAsync(string alias, float brightness, CancellationToken? cancellationToken = null);
+	Task SetLightColorAsync(string alias, Color color, CancellationToken? cancellationToken = null);
+	Task SetLightPowerAsync(string alias, bool on, CancellationToken? cancellationToken = null);
+	Task SetLightTemperatureAsync(string alias, short kelvins, CancellationToken? cancellationToken = null);
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Helpers.MySql;
 
@@ -13,7 +14,7 @@ public record Config(
 	string UserId,
 	string Password,
 	bool Secure = false)
-	: IOptions<Config>
+	: IOptions<Config>, IParsable<Config>
 {
 	public const string DefaultServer = "localhost", DefaultUserId = "Root";
 	public const string? DefaultDatabase = default;
@@ -50,4 +51,34 @@ public record Config(
 	public string ConnectionString => ConnectionStringBuilder.ConnectionString;
 
 	public IDbConnection DbConnection => new MySqlConnection(ConnectionString);
+
+	#region iparsable implementation
+	public static Config Parse(string s, IFormatProvider? provider)
+	{
+		var builder = new MySqlConnectionStringBuilder(s);
+
+		var secure = builder.SslMode switch
+		{
+			MySqlSslMode.Required => true,
+			MySqlSslMode.VerifyCA => true,
+			_ => false,
+		};
+
+		return new(builder.Server, builder.Port, builder.Database, builder.UserID, builder.Password, secure);
+	}
+
+	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Config result)
+	{
+		if (string.IsNullOrWhiteSpace(s)) goto fail;
+		try
+		{
+			result = Parse(s, provider);
+			return true;
+		}
+		catch { }
+	fail:
+		result = default;
+		return false;
+	}
+	#endregion iparsable implementation
 }

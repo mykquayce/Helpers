@@ -1,42 +1,77 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Xunit;
 
-namespace Helpers.TPLink.Tests
+namespace Helpers.TPLink.Tests;
+
+[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
+public class DependencyInjectionTests
 {
-	public class DependencyInjectionTests
+	[Theory]
+	[InlineData(1)]
+	public void OptionsTests(ushort port)
 	{
-		[Theory]
-		[InlineData(1)]
-		public void OptionsTests(ushort port)
+		var config = new Config(port);
+		var options = Options.Create(config);
+
+		var provider = new ServiceCollection()
+			.AddSingleton(options)
+			.AddTransient<ITPLinkClient, Concrete.TPLinkClient>()
+			.BuildServiceProvider();
+
+		var sut = provider.GetService<ITPLinkClient>();
+
+		Assert.NotNull(sut);
+	}
+
+	[Theory]
+	[InlineData(9_999)]
+	public async Task Test1(ushort port)
+	{
+		using var provider = new ServiceCollection()
+			.AddTPLink(port)
+			.BuildServiceProvider();
+
+		var client = provider.GetRequiredService<ITPLinkClient>();
+		var service = provider.GetRequiredService<ITPLinkService>();
+
+		var devices = await client.DiscoverAsync().ToListAsync();
+
+		Assert.NotEmpty(devices);
+
+		foreach (var (alias, ip, mac) in devices)
 		{
-			var config = new Config(port);
-			var options = Options.Create(config);
+			Models.SystemInfo systemInfo;
 
-			var provider = new ServiceCollection()
-				.AddSingleton(options)
-				.AddTransient<ITPLinkClient, Concrete.TPLinkClient>()
-				.BuildServiceProvider();
+			systemInfo = await service.GetSystemInfoAsync(alias);
+			Assert.NotNull(systemInfo);
 
-			var sut = provider.GetService<ITPLinkClient>();
+			systemInfo = await service.GetSystemInfoAsync(ip);
+			Assert.NotNull(systemInfo);
 
-			Assert.NotNull(sut);
+			systemInfo = await service.GetSystemInfoAsync(mac);
+			Assert.NotNull(systemInfo);
 		}
+	}
 
-		[Theory]
-		[InlineData(1)]
-		public void ConfigTests(ushort port)
-		{
-			var config = new Config(port);
+	[Theory]
+	[InlineData(100)]
+	public async Task MemoryCacheLoopTests(int timeout)
+	{
+		using var provider = new ServiceCollection()
+			.AddTPLink(Config.Defaults)
+			.BuildServiceProvider();
 
-			var provider = new ServiceCollection()
-				.AddSingleton(config)
-				.AddTransient<ITPLinkClient, Concrete.TPLinkClient>()
-				.BuildServiceProvider();
+		var services = provider.GetServices<IMemoryCache>().ToList();
 
-			var sut = provider.GetService<ITPLinkClient>();
+		var tasks = new Task[2]
+			{
+				Task.Run(provider.GetRequiredService<IMemoryCache>),
+				Task.Delay(timeout),
+			};
 
-			Assert.NotNull(sut);
-		}
+		var task = await Task.WhenAny(tasks);
+
+		_ = Assert.IsType<Task<IMemoryCache>>(task);
 	}
 }

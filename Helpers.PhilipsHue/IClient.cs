@@ -1,24 +1,18 @@
-﻿using Helpers.PhilipsHue.Models;
+﻿using System.Drawing;
 
 namespace Helpers.PhilipsHue;
 
 public interface IClient
 {
-	Task<AllObject> GetAllAsync();
-	Task<ConfigObject> GetConfigAsync();
-	Task<GroupObject> GetGroupAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, GroupObject>> GetGroupsAsync();
-	Task<LightObject> GetLightAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, LightObject>> GetLightsAsync();
-	Task<ResourceLinkObject> GetResourceLinkObjectAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, ResourceLinkObject>> GetResourceLinkObjectsAsync();
-	Task<RuleObject> GetRuleAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, RuleObject>> GetRulesAsync();
-	Task<SceneObject> GetSceneAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, SceneObject>> GetScenesAsync();
-	Task<ScheduleObject> GetScheduleAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, ScheduleObject>> GetSchedulesAsync();
-	Task<SensorObject> GetSensorAsync(string id);
-	IAsyncEnumerable<KeyValuePair<string, SensorObject>> GetSensorsAsync();
-	Task SetLightStateAsync(string id, LightObject.StateObject state);
+	IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken? cancellationToken = null);
+
+	Task<float> GetLightBrightnessAsync(int index, CancellationToken? cancellationToken = null);
+	Task<Color> GetLightColorAsync(int index, CancellationToken? cancellationToken = null);
+	Task<bool> GetLightPowerAsync(int index, CancellationToken? cancellationToken = null);
+	Task<short> GetLightTemperatureAsync(int index, CancellationToken? cancellationToken = null);
+
+	Task SetLightBrightnessAsync(int index, float brightness, CancellationToken? cancellationToken = null);
+	Task SetLightColorAsync(int index, Color color, CancellationToken? cancellationToken = null);
+	Task SetLightPowerAsync(int index, bool on, CancellationToken? cancellationToken = null);
+	Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken? cancellationToken = null);
 }

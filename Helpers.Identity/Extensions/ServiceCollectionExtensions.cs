@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -15,27 +16,36 @@ public static class ServiceCollectionExtensions
 		var config = new Helpers.Identity.Config(authority, clientId, clientSecret, scope);
 
 		return services
-			.AddIdentityClient(config);
+			.AddSingleton(Options.Options.Create(config))
+			.AddIdentityClient();
 	}
 
 	public static IServiceCollection AddIdentityClient(this IServiceCollection services, IConfiguration configuration)
 	{
-		var config = Helpers.Identity.Config.Defaults;
-		configuration.Bind(config);
-
 		return services
-			.AddIdentityClient(config);
+			.Configure<Helpers.Identity.Config>(configuration)
+			.AddIdentityClient();
 	}
 
 	public static IServiceCollection AddIdentityClient(this IServiceCollection services, IOptions<Helpers.Identity.Config> options)
 	{
-		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
-
 		return services
 			.AddSingleton(options)
-			.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
-			.AddHttpClient<Helpers.Identity.Clients.IIdentityClient, Helpers.Identity.Clients.Concrete.IdentityClient>(client =>
+			.AddIdentityClient();
+	}
+
+	/// <summary>
+	/// needs a previously-injected <see cref="IOptions"/>&lt;<see cref=<Helpers.Identity.Config"/>&gt;
+	/// </summary>
+	/// <param name="services">The <see cref="IServiceCollection"/>.</param>
+	/// <returns>The <see cref="IServiceCollection"/>.</returns>
+	public static IServiceCollection AddIdentityClient(this IServiceCollection services)
+	{
+		return services
+			.TryAddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
+			.AddHttpClient<Helpers.Identity.Clients.IIdentityClient, Helpers.Identity.Clients.Concrete.IdentityClient>((provider, client) =>
 			{
+				var config = provider.GetRequiredService<IOptions<Helpers.Identity.Config>>().Value;
 				client.BaseAddress = config.Authority;
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
@@ -92,4 +102,11 @@ public static class ServiceCollectionExtensions
 		return services;
 	}
 	#endregion AddAuthenticationAuthorization
+
+	private static IServiceCollection TryAddSingleton<TService>(this IServiceCollection services, TService instance)
+		where TService : class
+	{
+		ServiceCollectionDescriptorExtensions.TryAddSingleton(services, instance);
+		return services;
+	}
 }

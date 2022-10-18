@@ -48,6 +48,6 @@ public partial class PublicKeyTests : IClassFixture<Fixtures.UserSecretsFixture>
 		client.Dispose();
 	}
 
-	[RegexGenerator("^\\d+\\s[\\d\\w:]+\\s[\\d\\.]+\\s.+?\\s.+?$", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+	[GeneratedRegex("^\\d+\\s[\\d\\w:]+\\s[\\d\\.]+\\s.+?\\s.+?$", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.CultureInvariant)]
 	private static partial Regex LeasesRegex();
 }

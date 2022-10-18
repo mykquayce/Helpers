@@ -2,17 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.5-preview5</Version>
+    <Version>1.0.6-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
-    <PackageReference Include="Helpers.Web" Version="2.3.9-preview5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0-preview.5.22301.12" />
+    <PackageReference Include="Helpers.Json" Version="1.2.8-rc1" />
+    <PackageReference Include="Helpers.Web" Version="2.3.10-rc1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0-rc.1.22426.10" />
   </ItemGroup>
 
 </Project>

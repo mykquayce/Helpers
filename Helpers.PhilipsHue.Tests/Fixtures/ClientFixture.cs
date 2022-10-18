@@ -1,22 +1,28 @@
-﻿namespace Helpers.PhilipsHue.Tests.Fixtures;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-public sealed class ClientFixture : IDisposable
+namespace Helpers.PhilipsHue.Tests.Fixtures;
+
+public sealed class Fixture : IDisposable
 {
-	private const string _section = "PhilipsHue";
+	private readonly IServiceProvider _serviceProvider;
 
-	private readonly HttpClient _httpClient;
-
-	public ClientFixture()
+	public Fixture()
 	{
-		var userSecretsFixture = new Helpers.XUnitClassFixtures.UserSecretsFixture();
-		var config = userSecretsFixture.GetSection<Config>(_section);
-		var baseAddress = new Uri("http://" + config.Hostname);
-		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		_httpClient = new HttpClient(handler) { BaseAddress = baseAddress, };
-		Client = new Concrete.Client(_httpClient, config);
+		var secrets = new Helpers.XUnitClassFixtures.UserSecretsFixture();
+
+		_serviceProvider = new ServiceCollection()
+			.AddPhilipsHue(secrets.Configuration.GetSection("PhilipsHue"))
+			.BuildServiceProvider();
+
+		Config = _serviceProvider.GetRequiredService<IOptions<Config>>().Value;
+		Client = _serviceProvider.GetRequiredService<IClient>();
+		Service = _serviceProvider.GetRequiredService<IService>();
 	}
 
+	public Config Config { get; }
 	public IClient Client { get; }
+	public IService	Service { get; }
 
-	public void Dispose() => _httpClient.Dispose();
+	public void Dispose() => (_serviceProvider as IDisposable)?.Dispose();
 }

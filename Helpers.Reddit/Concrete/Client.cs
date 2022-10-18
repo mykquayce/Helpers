@@ -6,7 +6,6 @@ namespace Helpers.Reddit.Concrete;
 
 public partial class Client : IClient
 {
-	private static readonly Regex _subredditRegex = SubredditRegex();
 	private readonly HttpClient _httpClient;
 	private readonly XmlSerializerFactory _xmlSerializerFactory;
 
@@ -20,10 +19,11 @@ public partial class Client : IClient
 	{
 		Uri redirect;
 		{
-			using var response = await _httpClient.GetAsync("r/random", HttpCompletionOption.ResponseHeadersRead, cancellationToken ?? CancellationToken.None);
+			using var request = new HttpRequestMessage(HttpMethod.Head, "r/random");
+			using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken ?? CancellationToken.None);
 			redirect = response.Headers.Location!;
 		}
-		var match = _subredditRegex.Match(redirect.OriginalString);
+		var match = SubredditRegex().Match(redirect.OriginalString);
 		return match.Groups[1].Value;
 	}
 
@@ -33,7 +33,7 @@ public partial class Client : IClient
 
 		Models.Generated.feedType subreddit;
 		{
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss", cancellationToken ?? CancellationToken.None);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss?limit=100", cancellationToken ?? CancellationToken.None);
 			subreddit = Deserialize<Models.Generated.feedType>(stream);
 		}
 
@@ -42,17 +42,21 @@ public partial class Client : IClient
 		while (cancellationToken?.IsCancellationRequested != true
 			&& enumerator.MoveNext())
 		{
-			yield return (Models.Generated.entryType)enumerator.Current;
+			if (enumerator.Current is Models.Generated.entryType entry
+				&& entry.Type == Models.EntryType.Link)
+			{
+				yield return entry;
+			}
 		}
 	}
 
-	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, string threadId, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, long threadId, CancellationToken? cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
-		Guard.Argument(threadId).IsThreadId();
 		Models.Generated.feedType threadFeed;
 		{
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{threadId}/.rss", cancellationToken ?? CancellationToken.None);
+			var id = Helpers.Reddit.Models.Converters.Base36Converter.ToString(threadId);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss?limit=500", cancellationToken ?? CancellationToken.None);
 			threadFeed = Deserialize<Models.Generated.feedType>(stream);
 		}
 
@@ -61,10 +65,13 @@ public partial class Client : IClient
 		while (cancellationToken?.IsCancellationRequested != true
 			&& enumerator.MoveNext())
 		{
-			var entry = (Models.Generated.entryType)enumerator.Current;
-			var comment = entry.content.Value;
-			if (string.IsNullOrWhiteSpace(comment)) continue;
-			yield return System.Web.HttpUtility.HtmlDecode(comment);
+			if (enumerator.Current is Models.Generated.entryType entry
+				&& entry.Type == Models.EntryType.Comment)
+			{
+				var comment = entry.content.Value;
+				if (string.IsNullOrWhiteSpace(comment)) continue;
+				yield return System.Web.HttpUtility.HtmlDecode(comment);
+			}
 		}
 	}
 
@@ -75,6 +82,6 @@ public partial class Client : IClient
 		return (T)serializer.Deserialize(stream)!;
 	}
 
-	[RegexGenerator("reddit\\.com\\/r\\/(\\w+)\\/")]
+	[GeneratedRegex("reddit\\.com\\/r\\/(\\w+)\\/")]
 	private static partial Regex SubredditRegex();
 }

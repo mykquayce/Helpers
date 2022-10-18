@@ -28,9 +28,9 @@ public class SerializationTests
 			Assert.NotNull(entry);
 			Assert.NotNull(entry.content);
 			AssertNotMalformedString(entry.content.Value);
-			Assert.NotNull(entry.link);
-			AssertNotMalformedString(entry.link.href);
-			Assert.Null(entry.link.Value);
+			AssertNotMalformedString(entry.id);
+			Assert.NotEqual(default, entry.Type);
+			Assert.NotEqual(default, entry.Id);
 		}
 	}
 

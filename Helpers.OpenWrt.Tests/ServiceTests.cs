@@ -16,7 +16,7 @@ public sealed class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	[InlineData("77.68.11.211")]
 	public async Task AddBlackhole(string s)
 	{
-		var prefix = Networking.Models.AddressPrefix.Parse(s);
+		var prefix = Networking.Models.AddressPrefix.Parse(s, provider: null);
 
 		// see if already exists
 		var exists = await _sut.GetBlackholesAsync().AnyAsync(b => b == prefix);
@@ -54,7 +54,11 @@ public sealed class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		Assert.NotEmpty(lines);
 		Assert.DoesNotContain(default, lines);
 
-		var prefixes = lines.Select(Helpers.Networking.Models.AddressPrefix.Parse).ToList();
+		var prefixes = (
+			from line in lines
+			let prefix = Helpers.Networking.Models.AddressPrefix.Parse(line, provider: null)
+			select prefix
+		).ToList();
 
 		Assert.NotEmpty(prefixes);
 		Assert.DoesNotContain(default, prefixes);

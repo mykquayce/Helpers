@@ -2,15 +2,15 @@
 
 namespace Helpers.PhilipsHue;
 
-public record Config(string Hostname, string Username)
-		: IOptions<Config>
+public record Config(string Username, Uri DiscoveryEndPoint)
+	: IOptions<Config>
 {
-	public const string DefaultHostname = "192.168.1.157";
-	public const string DefaultUsername = "i35sdUz4iZI0XPWxbIdQKdp76t4cH8LOwUCtFcFJ";
+	public const string DefaultUsername = "username";
+	public static readonly Uri DefaultDiscoveryEndPoint = new("https://discovery.meethue.com/");
 
-	public Config() : this(DefaultHostname, DefaultUsername) { }
-
-	public static Config Defaults => new();
+	public Config() : this(DefaultUsername, DefaultDiscoveryEndPoint) { }
 
 	public Config Value => this;
+
+	public static Config Defaults => new();
 }

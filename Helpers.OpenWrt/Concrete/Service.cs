@@ -49,7 +49,7 @@ public class Service : IService
 		{
 			var match = (Match)enumerator.Current;
 			var s = match.Groups[1].Value;
-			var prefix = Helpers.Networking.Models.AddressPrefix.Parse(s);
+			var prefix = Helpers.Networking.Models.AddressPrefix.Parse(s, provider: null);
 			yield return prefix;
 		}
 	}

@@ -2,18 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.1.13-preview5</Version>
+    <Version>1.1.14-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.19-preview5" />
-    <PackageReference Include="Helpers.Web" Version="2.3.9-preview5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0-preview.5.22301.12" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.22-rc1" />
+    <PackageReference Include="Helpers.Web" Version="2.3.10-rc1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0-rc.1.22426.10" />
   </ItemGroup>
 
 </Project>

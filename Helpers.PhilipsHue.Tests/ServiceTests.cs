@@ -1,69 +1,91 @@
-﻿using Xunit;
+﻿using System.Drawing;
 
 namespace Helpers.PhilipsHue.Tests;
 
-public class ServiceTests : IClassFixture<Fixtures.ClientFixture>
+public class ServiceTests : IClassFixture<Fixtures.Fixture>
 {
-	private readonly IService _sut;
+	private readonly IService _service;
 
-	public ServiceTests(Fixtures.ClientFixture clientFixture)
+	public ServiceTests(Fixtures.Fixture fixture)
 	{
-		_sut = new Concrete.Service(clientFixture.Client);
+		_service = fixture.Service;
+	}
+
+	[Fact]
+	public async Task GetLightsAliasesTests()
+	{
+		var actual = await _service.GetLightAliasesAsync().ToListAsync();
+
+		Assert.NotNull(actual);
+		Assert.NotEmpty(actual);
+		Assert.All(actual, Assert.NotNull);
+		Assert.All(actual, Assert.NotEmpty);
 	}
 
 	[Theory]
-	[InlineData("wall left")]
 	[InlineData("wall right")]
-	[InlineData("wall left", "wall right", "strip")]
-	[InlineData("wall left", "strip")]
-	public Task ToggleLight(params string[] names) => _sut.ToggleLightsAsync(names);
-
-	[Theory]
-	[InlineData("wall left", "wall right", "strip")]
-	public async Task SetLightsOnBrightRed(params string[] names)
+	public Task GetLightPowerTests(string alias)
 	{
-		(_, var light) = await _sut.GetLightsByNamesAsync(names.First()).FirstAsync();
-
-		var state = light.state.On().Bright().Red();
-
-		await _sut.SetLightsStateAsync(state, names);
+		return _service.GetLightPowerAsync(alias);
 	}
 
 	[Theory]
-	[InlineData("wall left", "wall right", "strip")]
-	public async Task SetLightsOnBrightWarm(params string[] names)
+	[InlineData("wall right", false)]
+	[InlineData("wall right", true)]
+	public Task SetLightPowerTests(string alias, bool on)
 	{
-		(_, var light) = await _sut.GetLightsByNamesAsync(names.First()).FirstAsync();
-
-		var state = light.state.On().Bright().Warm();
-
-		await _sut.SetLightsStateAsync(state, names);
+		return _service.SetLightPowerAsync(alias, on);
 	}
 
 	[Theory]
-	[InlineData("bedroom")]
-	public Task ToggleLightsInGroups(params string[] groupNames) => _sut.ToggleLightsInGroupsAsync(groupNames);
-
-	[Theory]
-	[InlineData("bedroom", "main", true)]
-	[InlineData("bedroom", "main", false)]
-	public async Task SetLightState(string groupName, string lightName, bool on)
+	[InlineData("wall right")]
+	public async Task GetLightBrightnessTests(string alias)
 	{
-		(_, var light) = await _sut.GetLightsByNamesAsync(lightName).FirstAsync();
-
-		var state = light.state with { on = on, };
-
-		await _sut.SetLightStateAsync(groupName, lightName, state);
+		var actual = await _service.GetLightBrightnessAsync(alias);
+		Assert.InRange(actual, 0, 1);
 	}
 
 	[Theory]
-	[InlineData("bedroom", "main")]
-	public async Task SetBedroomMainLightOnColdestBrightest(string groupName, string lightName)
+	[InlineData("wall right", .8f)]
+	[InlineData("wall right", .4f)]
+	public Task SetLightBrightnessTests(string alias, float brightness)
 	{
-		(_, var light) = await _sut.GetLightsByNamesAsync(lightName).FirstAsync();
+		return _service.SetLightBrightnessAsync(alias, brightness);
+	}
 
-		var state = light.state.On().Coldest().Brightest();
+	[Theory]
+	[InlineData("wall right")]
+	public async Task GetLightTemperatureTests(string alias)
+	{
+		 var actual = await _service.GetLightTemperatureAsync(alias);
+		Assert.InRange(actual, 2_900, 7_000);
+	}
 
-		await _sut.SetLightStateAsync(groupName, lightName, state);
+	[Theory]
+	[InlineData("wall right", 2_900)]
+	[InlineData("wall right", 7_000)]
+	public Task SetLightTemperatureTests(string alias, short brightness)
+	{
+		return _service.SetLightTemperatureAsync(alias, brightness);
+	}
+
+	[Theory]
+	[InlineData("wall right")]
+	public async Task GetLightColorTests(string alias)
+	{
+		var actual = await _service.GetLightColorAsync(alias);
+
+		Assert.NotEqual(default, actual);
+		Assert.NotNull(actual.Name);
+	}
+
+	[Theory]
+	[InlineData("wall right", 0, 0, 128)]
+	[InlineData("wall right", 0, 128, 0)]
+	[InlineData("wall right", 128, 0, 0)]
+	public Task SetLightColorTests(string alias, int red, int green, int blue)
+	{
+		var color = Color.FromArgb(red, green, blue);
+		return _service.SetLightColorAsync(alias, color);
 	}
 }

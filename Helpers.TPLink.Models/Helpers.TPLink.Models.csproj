@@ -2,14 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
-    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.4.9-preview5</Version>
+    <Version>1.4.10-rc1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.7-preview5" />
+    <PackageReference Include="Helpers.Json" Version="1.2.8-rc1" />
   </ItemGroup>
 
 </Project>

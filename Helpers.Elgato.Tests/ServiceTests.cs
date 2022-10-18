@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Net;
 using System.Text.Json;
 using Xunit;
 
@@ -8,15 +9,15 @@ namespace Helpers.Elgato.Tests;
 public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixture<Fixtures.ConfigFixture>
 {
 	private readonly IService _sut;
-	private readonly IReadOnlyCollection<string> _aliases;
+	private readonly IReadOnlyCollection<IPAddress> _ips;
 
 	public ServiceTests(
 		Fixtures.ServiceFixture serviceFixture,
 		Fixtures.ConfigFixture configFixture)
 	{
 		_sut = serviceFixture.Service;
-		_aliases = configFixture.Aliases.Keys;
-		Assert.NotEmpty(_aliases);
+		_ips = configFixture.IPAddresses;
+		Assert.NotEmpty(_ips);
 	}
 
 	[Theory]
@@ -26,10 +27,10 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 	{
 		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
 
-		foreach (var alias in _aliases)
+		foreach (var ip in _ips)
 		{
-			await _sut.SetPowerStateAsync(alias, on, cts.Token);
-			var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
+			await _sut.SetPowerStateAsync(ip, on, cts.Token);
+			var lights = await _sut.GetLightStatusAsync(ip, cts.Token).ToListAsync(cts.Token);
 			Assert.NotNull(lights);
 			Assert.NotEmpty(lights);
 			foreach ((var actual, _) in lights)
@@ -47,10 +48,10 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 
 		while (count-- > 0)
 		{
-			foreach (var alias in _aliases)
+			foreach (var ip in _ips)
 			{
-				await _sut.TogglePowerStateAsync(alias, cts.Token);
-				var lights = await _sut.GetLightStatusAsync(alias, cts.Token).ToListAsync(cts.Token);
+				await _sut.TogglePowerStateAsync(ip, cts.Token);
+				var lights = await _sut.GetLightStatusAsync(ip, cts.Token).ToListAsync(cts.Token);
 
 				var after = lights.Select(tuple => tuple.On).Distinct().ToList();
 				Assert.NotEmpty(after);
@@ -67,11 +68,11 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 	{
 		using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
 
-		foreach (var alias in _aliases)
+		foreach (var ip in _ips)
 		{
-			await _sut.SetBrightnessAsync(alias, brightness, cts.Token);
+			await _sut.SetBrightnessAsync(ip, brightness, cts.Token);
 
-			var lights = _sut.GetLightStatusAsync(alias, cts.Token);
+			var lights = _sut.GetLightStatusAsync(ip, cts.Token);
 
 			await foreach ((_, var actual) in lights)
 			{
@@ -87,39 +88,21 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 		var color = Color.FromArgb(alpha: 255, red: red, green: green, blue: blue);
 		using var cts = new CancellationTokenSource(millisecondsDelay: 20_000);
 
-		foreach (var alias in _aliases)
+		foreach (var ip in _ips)
 		{
-			var ok = await _sut.GetRgbLightStatusAsync(alias, cts.Token).AnyAsync(cts.Token);
+			var ok = await _sut.GetRgbLightStatusAsync(ip, cts.Token).AnyAsync(cts.Token);
 
 			if (!ok) continue;
 
-			await _sut.SetColorAsync(alias, color, cts.Token);
+			await _sut.SetColorAsync(ip, color, cts.Token);
 
-			var actuals = _sut.GetRgbLightStatusAsync(alias, cts.Token);
+			var actuals = _sut.GetRgbLightStatusAsync(ip, cts.Token);
 
 			await foreach ((_, _, var actual) in actuals)
 			{
 				Assert.Equal(color, actual);
 			}
 		}
-	}
-
-	[Theory]
-	[InlineData("keylight")]
-	public async Task WhiteLightHasNullColor(string alias)
-	{
-		var lights = await _sut.GetWhiteLightStatusAsync(alias).ToListAsync();
-
-		Assert.Single(lights);
-	}
-
-	[Theory]
-	[InlineData("lightstrip")]
-	public async Task RgbLightHasNullKelvins(string alias)
-	{
-		var lights = await _sut.GetRgbLightStatusAsync(alias).ToListAsync();
-
-		Assert.Single(lights);
 	}
 
 	[Theory]
@@ -133,16 +116,16 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 		var comparer = Comparers.TolerantEqualityComparer<short>.Ten;
 		using var cts = new CancellationTokenSource(millisecondsDelay: 10_000);
 
-		foreach (var alias in _aliases)
+		foreach (var ip in _ips)
 		{
-			var ok = await _sut.GetWhiteLightStatusAsync(alias, cts.Token)
+			var ok = await _sut.GetWhiteLightStatusAsync(ip, cts.Token)
 				.AnyAsync(cts.Token);
 
 			if (!ok) continue;
 
-			await _sut.SetKelvinsAsync(alias, kelvins, cts.Token);
+			await _sut.SetKelvinsAsync(ip, kelvins, cts.Token);
 
-			var actuals = _sut.GetWhiteLightStatusAsync(alias, cts.Token);
+			var actuals = _sut.GetWhiteLightStatusAsync(ip, cts.Token);
 
 			await foreach ((_, _, var actual) in actuals)
 			{
@@ -151,14 +134,28 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 		}
 	}
 
+	[Theory]
+	[InlineData(3_000)]
+	public async Task GetLightStatusTests(int timeout)
+	{
+		foreach (var ip in _ips)
+		{
+			using var cts = new CancellationTokenSource(millisecondsDelay: timeout);
+			await foreach (var light in _sut.GetLightStatusAsync(ip, cts.Token))
+			{
+				Assert.True(light is Models.Lights.RgbLightModel ^ light is Models.Lights.WhiteLightModel);
+			}
+		}
+	}
+
 	[Fact]
 	public async Task ReturnTypesAreSerializable()
 	{
-		foreach (var alias in _aliases)
+		foreach (var ip in _ips)
 		{
-			await test(_sut.GetLightStatusAsync(alias));
-			await test(_sut.GetRgbLightStatusAsync(alias));
-			await test(_sut.GetWhiteLightStatusAsync(alias));
+			await test(_sut.GetLightStatusAsync(ip));
+			await test(_sut.GetRgbLightStatusAsync(ip));
+			await test(_sut.GetWhiteLightStatusAsync(ip));
 		}
 
 		static async Task test<T>(IAsyncEnumerable<T> values)

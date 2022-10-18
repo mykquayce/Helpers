@@ -1,93 +1,121 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
+using System.Drawing;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace Helpers.PhilipsHue.Concrete;
 
-public class Client : Helpers.Web.WebClientBase, IClient
+public class Client : IClient
 {
-	private readonly string _username;
+	private readonly Config _config;
+	private readonly HttpClient _httpClient;
+	private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-	public Client(HttpClient httpClient, IOptions<Config> config)
-		: base(httpClient)
+	public Client(IOptions<Config> options, HttpClient httpClient, JsonSerializerOptions jsonSerializerOptions)
 	{
-		Guard.Argument(httpClient).NotNull().Wrap(c => c.BaseAddress)
-			.NotNull().Wrap(uri => uri.OriginalString)
-			.NotNull().NotEmpty().NotWhiteSpace();
-
-		_username = Guard.Argument(config).NotNull().Wrap(o => o.Value)
-			.NotNull().Wrap(c => c.Username)
-			.NotNull().NotEmpty().NotWhiteSpace().Matches("^[0-9A-Za-z]{40}$")
-			.Value;
+		_config = options.Value;
+		_httpClient = httpClient;
+		_jsonSerializerOptions = jsonSerializerOptions;
 	}
 
-	private async Task<T> GetAsync<T>(string uriSuffix)
-		where T : class
+	public async IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken? cancellationToken = null)
 	{
-		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
-		(_, _, var t) = await base.SendAsync<T>(HttpMethod.Get, uri);
-		return t;
+		var requestUri = $"api/{_config.Username}/lights";
+		var dictionary = await GetFromJsonAsync<Dictionary<int, Models.LightResponseObject>>(requestUri, cancellationToken);
+
+		foreach (var (index, light) in dictionary)
+		{
+			var alias = light.name;
+			yield return new(alias, index);
+		}
 	}
 
-	private async IAsyncEnumerable<KeyValuePair<TKey, TValue>> GetAsync<TKey, TValue>(string uriSuffix)
-		where TKey : notnull
+	#region brightness
+	public async Task<float> GetLightBrightnessAsync(int index, CancellationToken? cancellationToken = null)
 	{
-		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
-		(_, _, var dictionary) = await base.SendAsync<IDictionary<TKey, TValue>>(HttpMethod.Get, uri);
-		foreach (var kvp in dictionary) yield return kvp;
+		Guard.Argument(index).Positive();
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		((_, var brightness, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		return (float)brightness / byte.MaxValue;
 	}
 
-	private async Task<T> PutAsync<T>(string uriSuffix, object body)
-		where T : class
+	public Task SetLightBrightnessAsync(int index, float brightness, CancellationToken? cancellationToken = null)
 	{
-		var uri = new Uri($"/api/{_username}/{uriSuffix}", UriKind.Relative);
-		var json = JsonSerializer.Serialize(body);
-		(_, _, var t) = await base.SendAsync<T>(HttpMethod.Put, uri, json);
-		return t;
+		Guard.Argument(index).Positive();
+		Guard.Argument(brightness).InRange(0, 1);
+		var body = new { on = true, bri = (byte)(brightness * byte.MaxValue), };
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
+		return PutAsJsonAsync(requestUri, body, cancellationToken);
+	}
+	#endregion brightness
+
+	#region power
+	public async Task<bool> GetLightPowerAsync(int index, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		((var power, _, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		return power;
 	}
 
-	#region all
-	public Task<Models.AllObject> GetAllAsync() => GetAsync<Models.AllObject>(string.Empty);
-	#endregion all
+	public Task SetLightPowerAsync(int index, bool on, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		var body = new { on, };
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		return PutAsJsonAsync(requestUri, body, cancellationToken);
+	}
+	#endregion power
 
-	#region lights
-	public Task<Models.LightObject> GetLightAsync(string id) => GetAsync<Models.LightObject>("lights/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.LightObject>> GetLightsAsync() => GetAsync<string, Models.LightObject>("lights");
+	#region temperature
+	public async Task<short> GetLightTemperatureAsync(int index, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		((_, _, var ct, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		return (short)(1_000_000d / ct);
+	}
 
-	public Task SetLightStateAsync(string id, Models.LightObject.StateObject state) => PutAsync<string>($"lights/{id}/state", state);
-	#endregion lights
+	public Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
+		var mired = 1_000_000 / kelvins;
+		var body = new { on = true, ct = mired, };
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		return PutAsJsonAsync(requestUri, body, cancellationToken);
+	}
+	#endregion temperature
 
-	#region groups
-	public Task<Models.GroupObject> GetGroupAsync(string id) => GetAsync<Models.GroupObject>("groups/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.GroupObject>> GetGroupsAsync() => GetAsync<string, Models.GroupObject>("groups");
-	#endregion groups
+	#region color
+	public async Task<Color> GetLightColorAsync(int index, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		((_, var bri, _, (var x, var y)), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		return new PointF(x: x, y: y).ToColor(bri);
+	}
 
-	#region config
-	public Task<Models.ConfigObject> GetConfigAsync() => GetAsync<Models.ConfigObject>("config");
-	#endregion config
+	public Task SetLightColorAsync(int index, Color color, CancellationToken? cancellationToken = null)
+	{
+		Guard.Argument(index).Positive();
+		Guard.Argument(color).NotDefault();
+		var ((x, y), bri) = color.ToXY();
+		var body = new { on = true, bri, xy = new[] { x, y, }, };
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
+		return PutAsJsonAsync(requestUri, body, cancellationToken);
+	}
+	#endregion color
 
-	#region schedules
-	public Task<Models.ScheduleObject> GetScheduleAsync(string id) => GetAsync<Models.ScheduleObject>("schedules/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.ScheduleObject>> GetSchedulesAsync() => GetAsync<string, Models.ScheduleObject>("schedules");
-	#endregion schedules
+	private async Task<T> GetFromJsonAsync<T>(string requestUri, CancellationToken? cancellationToken = null)
+	{
+		return (await _httpClient.GetFromJsonAsync<T>(requestUri, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None))
+			?? throw new Exceptions.DeserializationException<T>(requestUri);
+	}
 
-	#region scenes
-	public Task<Models.SceneObject> GetSceneAsync(string id) => GetAsync<Models.SceneObject>("scenes/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.SceneObject>> GetScenesAsync() => GetAsync<string, Models.SceneObject>("scenes");
-	#endregion scenes
-
-	#region rules
-	public Task<Models.RuleObject> GetRuleAsync(string id) => GetAsync<Models.RuleObject>("rules/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.RuleObject>> GetRulesAsync() => GetAsync<string, Models.RuleObject>("rules");
-	#endregion rules
-
-	#region sensor
-	public Task<Models.SensorObject> GetSensorAsync(string id) => GetAsync<Models.SensorObject>("sensor/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.SensorObject>> GetSensorsAsync() => GetAsync<string, Models.SensorObject>("sensor");
-	#endregion sensor
-
-	#region resourcelinks
-	public Task<Models.ResourceLinkObject> GetResourceLinkObjectAsync(string id) => GetAsync<Models.ResourceLinkObject>("resourcelinks/" + id);
-	public IAsyncEnumerable<KeyValuePair<string, Models.ResourceLinkObject>> GetResourceLinkObjectsAsync() => GetAsync<string, Models.ResourceLinkObject>("resourcelinks");
-	#endregion resourcelinks
+	private Task PutAsJsonAsync(string requestUri, object body, CancellationToken? cancellationToken = null)
+	{
+		return _httpClient.PutAsJsonAsync(requestUri, body, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None);
+	}
 }
