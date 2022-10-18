@@ -4,8 +4,6 @@ namespace Helpers.PhilipsHue;
 
 public interface IService
 {
-	public Uri? BaseAddress { init; }
-
 	IAsyncEnumerable<string> GetLightAliasesAsync(CancellationToken? cancellationToken = null);
 
 	Task<float> GetLightBrightnessAsync(string alias, CancellationToken? cancellationToken = null);

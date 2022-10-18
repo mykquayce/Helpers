@@ -4,15 +4,15 @@ namespace Helpers.PhilipsHue;
 
 public interface IClient
 {
-	IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(Uri? baseAddress, CancellationToken? cancellationToken = null);
+	IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken? cancellationToken = null);
 
-	Task<float> GetLightBrightnessAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task<Color> GetLightColorAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task<bool> GetLightPowerAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task<short> GetLightTemperatureAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null);
+	Task<float> GetLightBrightnessAsync(int index, CancellationToken? cancellationToken = null);
+	Task<Color> GetLightColorAsync(int index, CancellationToken? cancellationToken = null);
+	Task<bool> GetLightPowerAsync(int index, CancellationToken? cancellationToken = null);
+	Task<short> GetLightTemperatureAsync(int index, CancellationToken? cancellationToken = null);
 
-	Task SetLightBrightnessAsync(int index, float brightness, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task SetLightColorAsync(int index, Color color, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task SetLightPowerAsync(int index, bool on, Uri? baseAddress, CancellationToken? cancellationToken = null);
-	Task SetLightTemperatureAsync(int index, short kelvins, Uri? baseAddress, CancellationToken? cancellationToken = null);
+	Task SetLightBrightnessAsync(int index, float brightness, CancellationToken? cancellationToken = null);
+	Task SetLightColorAsync(int index, Color color, CancellationToken? cancellationToken = null);
+	Task SetLightPowerAsync(int index, bool on, CancellationToken? cancellationToken = null);
+	Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken? cancellationToken = null);
 }

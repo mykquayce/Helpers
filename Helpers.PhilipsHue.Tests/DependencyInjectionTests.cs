@@ -11,8 +11,7 @@ public class DependencyInjectionTests
 	{
 		var initialData = new Dictionary<string, string?>
 		{
-			[nameof(Config.PhysicalAddress)] = Config.DefaultPhysicalAddress?.ToString(),
-			[nameof(Config.HostName)] = Config.DefaultHostName,
+			[nameof(Config.DiscoveryEndPoint)] = Config.DefaultDiscoveryEndPoint.ToString(),
 			[nameof(Config.Username)] = Config.DefaultUsername,
 		};
 
@@ -31,7 +30,7 @@ public class DependencyInjectionTests
 	public void ArgumentsTests()
 	{
 		using var serviceProvider = new ServiceCollection()
-			.AddPhilipsHue(Config.DefaultPhysicalAddress, Config.DefaultHostName, Config.DefaultUsername)
+			.AddPhilipsHue(Config.DefaultUsername, Config.DefaultDiscoveryEndPoint)
 			.BuildServiceProvider();
 
 		serviceProvider.GetRequiredService<IService>();
@@ -58,5 +57,16 @@ public class DependencyInjectionTests
 			.BuildServiceProvider();
 
 		serviceProvider.GetRequiredService<IService>();
+	}
+
+	[Theory]
+	[InlineData("username", "https://discovery.meethue.com/")]
+	public void ClientHasBaseAddressFromDiscoveryClientTests(string username, string discoveryEndPoint)
+	{
+		using var serviceProvider = new ServiceCollection()
+			.AddPhilipsHue(username: username, discoveryEndPoint: new Uri(discoveryEndPoint))
+			.BuildServiceProvider();
+
+		serviceProvider.GetRequiredService<IClient>();
 	}
 }

@@ -1,9 +1,7 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using System.Net.NetworkInformation;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -21,11 +19,11 @@ public static class DependencyInjectionExtensions
 			.AddPhilipsHue();
 	}
 
-	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, string? physicalAddress, string? hostName, string username)
+	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, string username, Uri discoveryEndPoint)
 	{
 		Guard.Argument(username).NotNull().NotEmpty().NotWhiteSpace();
 
-		var config = new Helpers.PhilipsHue.Config(physicalAddress?.ToString().ToLowerInvariant(), hostName, username);
+		var config = new Helpers.PhilipsHue.Config(username, discoveryEndPoint);
 		return services
 			.AddPhilipsHue(config);
 	}
@@ -47,20 +45,20 @@ public static class DependencyInjectionExtensions
 			})
 			.AddHttpClient<Helpers.PhilipsHue.IClient, Helpers.PhilipsHue.Concrete.Client>(name: "philipshue-client", (provider, client) =>
 			{
-				var config = provider.GetRequiredService<IOptions<Helpers.PhilipsHue.Config>>().Value;
-				client.BaseAddress = config.BaseAddress;
+				var disco = provider.GetRequiredService<Helpers.PhilipsHue.IDiscoveryClient>();
+				var ip = disco.GetBridgeIPAddressAsync().GetAwaiter().GetResult();
+				client.BaseAddress = new UriBuilder("http", ip.ToString()).Uri;
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 			.Services
-			.TryAddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
+			.AddHttpClient<Helpers.PhilipsHue.IDiscoveryClient, Helpers.PhilipsHue.Concrete.DiscoveryClient>(name: "philipshue-discovery-client", (provider, client) =>
+			{
+				var config = provider.GetRequiredService<IOptions<Helpers.PhilipsHue.Config>>().Value;
+				client.BaseAddress = config.DiscoveryEndPoint;
+			})
+			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
+			.Services
+			.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
 			.AddTransient<Helpers.PhilipsHue.IService, Helpers.PhilipsHue.Concrete.Service>();
-	}
-
-	public static IServiceCollection TryAddSingleton<TService>(
-		this IServiceCollection collection, TService instance)
-		where TService : class
-	{
-		ServiceCollectionDescriptorExtensions.TryAddSingleton<TService>(collection, instance);
-		return collection;
 	}
 }

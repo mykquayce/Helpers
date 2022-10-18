@@ -18,7 +18,7 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[Fact]
 	public async Task GetLightsAliasesTests()
 	{
-		var kvps = await _client.GetLightAliasesAsync(baseAddress: null).ToListAsync();
+		var kvps = await _client.GetLightAliasesAsync().ToListAsync();
 
 		Assert.Distinct(kvps.Select(kvp => kvp.Key), StringComparer.OrdinalIgnoreCase);
 
@@ -36,7 +36,7 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[InlineData(3)]
 	public async Task GetLightColorTests(int index)
 	{
-		var actual = await _client.GetLightColorAsync(index, baseAddress: null);
+		var actual = await _client.GetLightColorAsync(index);
 
 		Assert.NotEqual(default, actual);
 		Assert.NotNull(actual.Name);
@@ -55,8 +55,8 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 		var color = Color.FromArgb(red, green, blue);
 
 		// Act
-		await _client.SetLightColorAsync(index, color, baseAddress: null);
-		var after = await _client.GetLightColorAsync(index, baseAddress: null);
+		await _client.SetLightColorAsync(index, color);
+		var after = await _client.GetLightColorAsync(index);
 
 		// Assert
 		Assert.Equal(color, after, comparer);
@@ -66,7 +66,7 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[InlineData(4)]
 	public Task GetLightPowerTests(int index)
 	{
-		return _client.GetLightPowerAsync(index, baseAddress: null);
+		return _client.GetLightPowerAsync(index);
 	}
 
 	[Theory]
@@ -74,14 +74,14 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[InlineData(4, true)]
 	public Task SetLightPowerTests(int index, bool on)
 	{
-		return _client.SetLightPowerAsync(index, on, baseAddress: null);
+		return _client.SetLightPowerAsync(index, on);
 	}
 
 	[Theory]
 	[InlineData(4)]
 	public async Task GetLightBrightnessTests(int index)
 	{
-		var actual = await _client.GetLightBrightnessAsync(index, baseAddress: null);
+		var actual = await _client.GetLightBrightnessAsync(index);
 		Assert.InRange(actual, 0, 1);
 	}
 
@@ -90,14 +90,14 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[InlineData(4, .4f)]
 	public Task SetLightBrightnessTests(int index, float brightness)
 	{
-		return _client.SetLightBrightnessAsync(index, brightness, baseAddress: null);
+		return _client.SetLightBrightnessAsync(index, brightness);
 	}
 
 	[Theory]
 	[InlineData(4)]
 	public async Task GetLightTemperatureTests(int index)
 	{
-		var actual = await _client.GetLightTemperatureAsync(index, baseAddress: null);
+		var actual = await _client.GetLightTemperatureAsync(index);
 		Assert.InRange(actual, 2_900, 7_000);
 	}
 
@@ -106,22 +106,7 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	[InlineData(4, 7_000)]
 	public Task SetLightTemperatureTests(int index, short brightness)
 	{
-		return _client.SetLightTemperatureAsync(index, brightness, baseAddress: null);
-	}
-
-	[Theory]
-	[InlineData(4)]
-	public async Task BaseAddressTests(int index)
-	{
-		using var httpHandler = new HttpClientHandler { AllowAutoRedirect = false, };
-		using var httpClient = new HttpClient(httpHandler) { BaseAddress = null, };
-		var config = new Config(PhysicalAddress: null, HostName: null!, Username: _config.Username);
-
-		IClient sut = new Concrete.Client(config, httpClient, JsonSerializerOptions.Default);
-
-		var actual = await sut.GetLightColorAsync(index, baseAddress: _config.BaseAddress);
-
-		Assert.NotEqual(default, actual);
+		return _client.SetLightTemperatureAsync(index, brightness);
 	}
 
 	[Theory]

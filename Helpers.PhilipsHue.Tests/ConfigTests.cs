@@ -7,17 +7,15 @@ namespace Helpers.PhilipsHue.Tests;
 public class ConfigTests
 {
 	[Theory]
-	[InlineData(null, "192.168.1.156", "i35sdUz4iZI0XPWxbIdQKdp76t4cH8LOwUCtFcFJ")]
-	[InlineData("ecb5fa18e324", "192.168.1.156", "i35sdUz4iZI0XPWxbIdQKdp76t4cH8LOwUCtFcFJ")]
-	public void Test1(string? physicalAddress, string? hostName, string username)
+	[InlineData("i35sdUz4iZI0XPWxbIdQKdp76t4cH8LOwUCtFcFJ", "https://discovery.meethue.com/")]
+	public void Test1(string username, string discoveryEndPoint)
 	{
 		IOptions<Config>? actual;
 		{
 			var initialData = new Dictionary<string, string?>
 			{
-				["PhysicalAddress"] = physicalAddress,
-				["HostName"] = hostName,
-				["Username"] = username,
+				[nameof(Config.DiscoveryEndPoint)] = discoveryEndPoint,
+				[nameof(Config.Username)] = username,
 			};
 
 			var configuration = new ConfigurationBuilder()
@@ -33,17 +31,7 @@ public class ConfigTests
 
 		Assert.NotNull(actual);
 		Assert.NotNull(actual.Value);
-		Assert.Equal(physicalAddress, actual.Value.PhysicalAddress);
-		Assert.Equal(hostName, actual.Value.HostName);
 		Assert.Equal(username, actual.Value.Username);
-		if (hostName is not null)
-		{
-			Assert.NotNull(actual.Value.BaseAddress);
-			Assert.Equal($"http://{hostName}/", actual.Value.BaseAddress.OriginalString);
-		}
-		else
-		{
-			Assert.Null(actual.Value.BaseAddress);
-		}
+		Assert.Equal(discoveryEndPoint, actual.Value.DiscoveryEndPoint.ToString());
 	}
 }

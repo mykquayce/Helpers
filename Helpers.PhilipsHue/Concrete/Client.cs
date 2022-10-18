@@ -19,9 +19,9 @@ public class Client : IClient
 		_jsonSerializerOptions = jsonSerializerOptions;
 	}
 
-	public async IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken? cancellationToken = null)
 	{
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights";
+		var requestUri = $"api/{_config.Username}/lights";
 		var dictionary = await GetFromJsonAsync<Dictionary<int, Models.LightResponseObject>>(requestUri, cancellationToken);
 
 		foreach (var (index, light) in dictionary)
@@ -32,78 +32,78 @@ public class Client : IClient
 	}
 
 	#region brightness
-	public async Task<float> GetLightBrightnessAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public async Task<float> GetLightBrightnessAsync(int index, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		((_, var brightness, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
 		return (float)brightness / byte.MaxValue;
 	}
 
-	public Task SetLightBrightnessAsync(int index, float brightness, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public Task SetLightBrightnessAsync(int index, float brightness, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(brightness).InRange(0, 1);
 		var body = new { on = true, bri = (byte)(brightness * byte.MaxValue), };
-		var requestUri = $"{baseAddress}/api/{_config.Username}/lights/{index:D}/state";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion brightness
 
 	#region power
-	public async Task<bool> GetLightPowerAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public async Task<bool> GetLightPowerAsync(int index, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		((var power, _, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
 		return power;
 	}
 
-	public Task SetLightPowerAsync(int index, bool on, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public Task SetLightPowerAsync(int index, bool on, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
 		var body = new { on, };
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}/state";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion power
 
 	#region temperature
-	public async Task<short> GetLightTemperatureAsync(int index, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public async Task<short> GetLightTemperatureAsync(int index, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		((_, _, var ct, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
 		return (short)(1_000_000d / ct);
 	}
 
-	public Task SetLightTemperatureAsync(int index, short kelvins, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
 		var mired = 1_000_000 / kelvins;
 		var body = new { on = true, ct = mired, };
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}/state";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion temperature
 
 	#region color
-	public async Task<Color> GetLightColorAsync(int index, Uri? baseAddress = null, CancellationToken? cancellationToken = null)
+	public async Task<Color> GetLightColorAsync(int index, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}";
 		((_, var bri, _, (var x, var y)), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
 		return new PointF(x: x, y: y).ToColor(bri);
 	}
 
-	public Task SetLightColorAsync(int index, Color color, Uri? baseAddress, CancellationToken? cancellationToken = null)
+	public Task SetLightColorAsync(int index, Color color, CancellationToken? cancellationToken = null)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(color).NotDefault();
 		var ((x, y), bri) = color.ToXY();
 		var body = new { on = true, bri, xy = new[] { x, y, }, };
-		var requestUri = $"{baseAddress}api/{_config.Username}/lights/{index:D}/state";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion color
