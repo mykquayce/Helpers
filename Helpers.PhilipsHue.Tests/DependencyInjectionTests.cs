@@ -69,4 +69,40 @@ public class DependencyInjectionTests
 
 		serviceProvider.GetRequiredService<IClient>();
 	}
+
+	[Theory]
+	[InlineData("wall right")]
+	public async Task NetworkDiscoveryApiInjectionTests(string alias)
+	{
+		float brightness;
+		{
+			IServiceProvider serviceProvider;
+			{
+				var secrets = new Helpers.XUnitClassFixtures.UserSecretsFixture();
+				T config<T>(string section) => secrets.Configuration.GetSection(section).Get<T>()!;
+
+				var philipsHueConfig = config<Config>("philipshue")!;
+				var identityConfig = config<Helpers.Identity.Config>("identity")!;
+				var networkDiscoveryConfig = config<Helpers.NetworkDiscovery.Config>("networkdiscovery")!;
+
+				serviceProvider = new ServiceCollection()
+					.AddNetworkDiscovery(identityConfig, networkDiscoveryConfig)
+					.AddPhilipsHue(philipsHueConfig, provider =>
+					{
+						var client = provider.GetRequiredService<Helpers.NetworkDiscovery.IClient>();
+						(_, _, var ip, _, _) = client.ResolveAsync("philipshue").GetAwaiter().GetResult();
+						return new UriBuilder("http", ip.ToString()).Uri;
+					})
+					.BuildServiceProvider();
+			}
+
+			var sut = serviceProvider.GetRequiredService<IService>();
+
+			brightness = await sut.GetLightBrightnessAsync(alias);
+
+			await ((ServiceProvider)serviceProvider).DisposeAsync();
+		}
+
+		Assert.InRange(brightness, 0f, 1f);
+	}
 }

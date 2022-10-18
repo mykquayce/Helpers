@@ -9,34 +9,38 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, IConfiguration configuration, GetBridgeBaseAddressDelegate? getBridgeBaseAddress = null)
 	{
 		Guard.Argument(configuration["username"]!)
 			.NotNull().NotEmpty().NotWhiteSpace();
 
 		return services
 			.Configure<Helpers.PhilipsHue.Config>(configuration)
-			.AddPhilipsHue();
+			.AddPhilipsHue(getBridgeBaseAddress);
 	}
 
-	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, string username, Uri discoveryEndPoint)
+	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, string username, Uri discoveryEndPoint, GetBridgeBaseAddressDelegate? getBridgeBaseAddress = null)
 	{
 		Guard.Argument(username).NotNull().NotEmpty().NotWhiteSpace();
 
 		var config = new Helpers.PhilipsHue.Config(username, discoveryEndPoint);
 		return services
-			.AddPhilipsHue(config);
+			.AddPhilipsHue(config, getBridgeBaseAddress);
 	}
 
-	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, Helpers.PhilipsHue.Config config)
+	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, Helpers.PhilipsHue.Config config, GetBridgeBaseAddressDelegate? getBridgeBaseAddress = null)
 	{
 		return services
 			.AddSingleton(Options.Options.Create(config))
-			.AddPhilipsHue();
+			.AddPhilipsHue(getBridgeBaseAddress);
 	}
 
-	public static IServiceCollection AddPhilipsHue(this IServiceCollection services)
+	public delegate Uri GetBridgeBaseAddressDelegate(IServiceProvider serviceProvider);
+
+	public static IServiceCollection AddPhilipsHue(this IServiceCollection services, GetBridgeBaseAddressDelegate? getBridgeBaseAddress = null)
 	{
+		getBridgeBaseAddress ??= d;
+
 		return services
 			.AddSingleton(new JsonSerializerOptions
 			{
@@ -45,9 +49,7 @@ public static class DependencyInjectionExtensions
 			})
 			.AddHttpClient<Helpers.PhilipsHue.IClient, Helpers.PhilipsHue.Concrete.Client>(name: "philipshue-client", (provider, client) =>
 			{
-				var disco = provider.GetRequiredService<Helpers.PhilipsHue.IDiscoveryClient>();
-				var ip = disco.GetBridgeIPAddressAsync().GetAwaiter().GetResult();
-				client.BaseAddress = new UriBuilder("http", ip.ToString()).Uri;
+				client.BaseAddress = getBridgeBaseAddress(provider);
 			})
 			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
 			.Services
@@ -60,5 +62,12 @@ public static class DependencyInjectionExtensions
 			.Services
 			.AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
 			.AddTransient<Helpers.PhilipsHue.IService, Helpers.PhilipsHue.Concrete.Service>();
+
+		static Uri d(IServiceProvider provider)
+		{
+			var disco = provider.GetRequiredService<Helpers.PhilipsHue.IDiscoveryClient>();
+			var ip = disco.GetBridgeIPAddressAsync().GetAwaiter().GetResult();
+			return new UriBuilder("http", ip.ToString()).Uri;
+		}
 	}
 }
