@@ -57,7 +57,7 @@ public class EndToEndTests : IClassFixture<Fixtures.ConfigurationFixture>
 		var response = await client.RequestClientCredentialsTokenAsync(request);
 		Assert.NotNull(response);
 		Assert.False(response.IsError, response.Error);
-		Assert.Matches(@"^[-0-9A-Z_a-z]{160}\.[-0-9A-Z_a-z]{216}\.[-0-9A-Z_a-z]{342}$", response.AccessToken);
+		Assert.Matches(@"^[-0-9A-Z_a-z]{160}\.[-0-9A-Z_a-z]{200,300}\.[-0-9A-Z_a-z]{300,400}$", response.AccessToken);
 		return response.AccessToken;
 	}
 
