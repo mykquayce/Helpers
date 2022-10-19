@@ -63,7 +63,7 @@ public class Client : IClient
 	{
 		Guard.Argument(index).Positive();
 		var body = new { on, };
-		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion power
@@ -83,7 +83,7 @@ public class Client : IClient
 		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
 		var mired = 1_000_000 / kelvins;
 		var body = new { on = true, ct = mired, };
-		var requestUri = $"api/{_config.Username}/lights/{index:D}";
+		var requestUri = $"api/{_config.Username}/lights/{index:D}/state";
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion temperature

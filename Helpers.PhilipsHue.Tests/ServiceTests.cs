@@ -32,9 +32,11 @@ public class ServiceTests : IClassFixture<Fixtures.Fixture>
 	[Theory]
 	[InlineData("wall right", false)]
 	[InlineData("wall right", true)]
-	public Task SetLightPowerTests(string alias, bool on)
+	public async Task SetLightPowerTests(string alias, bool on)
 	{
-		return _service.SetLightPowerAsync(alias, on);
+		await _service.SetLightPowerAsync(alias, on);
+		var actual = await _service.GetLightPowerAsync(alias);
+		Assert.Equal(on, actual);
 	}
 
 	[Theory]
@@ -48,25 +50,29 @@ public class ServiceTests : IClassFixture<Fixtures.Fixture>
 	[Theory]
 	[InlineData("wall right", .8f)]
 	[InlineData("wall right", .4f)]
-	public Task SetLightBrightnessTests(string alias, float brightness)
+	public async Task SetLightBrightnessTests(string alias, float brightness)
 	{
-		return _service.SetLightBrightnessAsync(alias, brightness);
+		await _service.SetLightBrightnessAsync(alias, brightness);
+		var actual = await _service.GetLightBrightnessAsync(alias);
+		Assert.Equal(brightness, actual);
 	}
 
 	[Theory]
 	[InlineData("wall right")]
 	public async Task GetLightTemperatureTests(string alias)
 	{
-		 var actual = await _service.GetLightTemperatureAsync(alias);
+		var actual = await _service.GetLightTemperatureAsync(alias);
 		Assert.InRange(actual, 2_900, 7_000);
 	}
 
 	[Theory]
 	[InlineData("wall right", 2_900)]
 	[InlineData("wall right", 7_000)]
-	public Task SetLightTemperatureTests(string alias, short brightness)
+	public async Task SetLightTemperatureTests(string alias, short brightness)
 	{
-		return _service.SetLightTemperatureAsync(alias, brightness);
+		await _service.SetLightTemperatureAsync(alias, brightness);
+		var actual = await _service.GetLightTemperatureAsync(alias);
+		Assert.InRange(actual, brightness * .8, brightness * 1.2);
 	}
 
 	[Theory]
@@ -83,9 +89,11 @@ public class ServiceTests : IClassFixture<Fixtures.Fixture>
 	[InlineData("wall right", 0, 0, 128)]
 	[InlineData("wall right", 0, 128, 0)]
 	[InlineData("wall right", 128, 0, 0)]
-	public Task SetLightColorTests(string alias, int red, int green, int blue)
+	public async Task SetLightColorTests(string alias, int red, int green, int blue)
 	{
 		var color = Color.FromArgb(red, green, blue);
-		return _service.SetLightColorAsync(alias, color);
+		await _service.SetLightColorAsync(alias, color);
+		var actual = await _service.GetLightColorAsync(alias);
+		Assert.Equal(color, actual, Comparers.ColorComparer.ThreePercentTolerance);
 	}
 }

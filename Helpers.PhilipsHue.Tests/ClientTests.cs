@@ -51,7 +51,6 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	public async Task SetLightColorTests(int index, int red, int green, int blue)
 	{
 		// Arrange
-		var comparer = new Comparers.ColorComparer(tolerance: 10);
 		var color = Color.FromArgb(red, green, blue);
 
 		// Act
@@ -59,7 +58,7 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 		var after = await _client.GetLightColorAsync(index);
 
 		// Assert
-		Assert.Equal(color, after, comparer);
+		Assert.Equal(color, after, Comparers.ColorComparer.ThreePercentTolerance);
 	}
 
 	[Theory]
