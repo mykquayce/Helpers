@@ -2,14 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.21-rc1</Version>
+    <Version>1.0.21-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0-rc.2.22472.3" />
   </ItemGroup>
 
 </Project>

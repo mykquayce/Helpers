@@ -2,10 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.5-preview5</Version>
+    <Version>1.0.5-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
