@@ -49,13 +49,13 @@ public class Client : IClient
 		_cache = Guard.Argument(cache).NotNull().Value;
 	}
 
-	public Task<Models.Generated.AllPerformances.cinemas> GetAllPerformancesAsync(CancellationToken? cancellationToken = default)
+	public Task<Models.Generated.AllPerformances.cinemas> GetAllPerformancesAsync(CancellationToken cancellationToken = default)
 		=> GetAsync<Models.Generated.AllPerformances.cinemas>(_allPerformancesUri, cancellationToken);
 
-	public Task<Models.Generated.Listings.cinemas> GetListingsAsync(CancellationToken? cancellationToken = default)
+	public Task<Models.Generated.Listings.cinemas> GetListingsAsync(CancellationToken cancellationToken = default)
 		=> GetAsync<Models.Generated.Listings.cinemas>(_listingsUri, cancellationToken);
 
-	private async Task<T> GetAsync<T>(Uri relativeUri, CancellationToken? cancellationToken = default)
+	private async Task<T> GetAsync<T>(Uri relativeUri, CancellationToken cancellationToken = default)
 		where T : class
 	{
 		Guard.Argument(relativeUri).NotNull().Require(u => !u.IsAbsoluteUri);
@@ -63,11 +63,11 @@ public class Client : IClient
 		// try the cache
 		if (_cache.TryGetValue<T>(relativeUri, out var result))
 		{
-			return result;
+			return result!;
 		}
 
 		// try remote
-		result = await GetFromRemoteAsync<T>(relativeUri, cancellationToken ?? CancellationToken.None);
+		result = await GetFromRemoteAsync<T>(relativeUri, cancellationToken);
 
 		// cache
 		var expirationTokenSource = new CancellationTokenSource(millisecondsDelay: (int)_cacheExpiration.TotalMilliseconds);
@@ -78,7 +78,7 @@ public class Client : IClient
 		return result;
 	}
 
-	private async Task<T> GetFromRemoteAsync<T>(Uri relativeUri, CancellationToken? cancellationToken = default)
+	private async Task<T> GetFromRemoteAsync<T>(Uri relativeUri, CancellationToken cancellationToken = default)
 		where T : class
 	{
 		Guard.Argument(relativeUri)
@@ -86,11 +86,11 @@ public class Client : IClient
 			.Require(uri => uri.OriginalString is not null)
 			.Require(u => !u.IsAbsoluteUri);
 
-		using var response = await _httpClient.GetAsync(relativeUri, cancellationToken ?? CancellationToken.None);
+		using var response = await _httpClient.GetAsync(relativeUri, cancellationToken);
 
 		response.EnsureSuccessStatusCode();
 
-		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken ?? CancellationToken.None);
+		await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
 		var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
 
@@ -108,7 +108,7 @@ public class Client : IClient
 			{
 				stream.Position = 0;
 				using var reader = new StreamReader(stream);
-				var json = await reader.ReadToEndAsync();
+				var json = await reader.ReadToEndAsync(cancellationToken);
 				ex.Data.Add(nameof(json), json);
 			}
 

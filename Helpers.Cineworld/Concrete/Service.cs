@@ -1,5 +1,5 @@
 ﻿using Dawn;
-using Helpers.Cineworld.Models;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.Cineworld.Concrete;
 
@@ -12,21 +12,21 @@ public class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	public async IAsyncEnumerable<Models.Cinema> GetCinemasAsync(CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Cinema> GetCinemasAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken ?? CancellationToken.None);
+		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken);
 
 		var enumerator = cinemas.cinema.GetEnumerator();
-		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
+		while (!cancellationToken.IsCancellationRequested && enumerator.MoveNext())
 		{
 			var cinema = (Models.Generated.AllPerformances.cinema)enumerator.Current;
 			yield return (Models.Cinema)cinema;
 		}
 	}
 
-	public async IAsyncEnumerable<Models.Film> GetFilmsAsync(CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Film> GetFilmsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken ?? CancellationToken.None);
+		var cinemas = await _client.GetAllPerformancesAsync(cancellationToken);
 
 		var films = (
 			from c in cinemas.cinema
@@ -35,25 +35,25 @@ public class Service : IService
 			).Distinct();
 
 		var enumerator = films.GetEnumerator();
-		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
+		while (!cancellationToken.IsCancellationRequested && enumerator.MoveNext())
 		{
 			var film = enumerator.Current;
 			yield return enumerator.Current;
 		}
 	}
 
-	public async IAsyncEnumerable<Models.Show> GetShowsAsync(CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Show> GetShowsAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var cinemas = await _client.GetListingsAsync(cancellationToken ?? CancellationToken.None);
+		var cinemas = await _client.GetListingsAsync(cancellationToken);
 
 		var shows = from c in cinemas.cinema
 					from f in c.listing
 					from s in f.shows
 					let time = s.time.ToUniversalTime()
-					select new Show(c.id, f.edi, time);
+					select new Models.Show(c.id, f.edi, time);
 
 		var enumerator = shows.GetEnumerator();
-		while (!(cancellationToken?.IsCancellationRequested ?? false) && enumerator.MoveNext())
+		while (!cancellationToken.IsCancellationRequested && enumerator.MoveNext())
 		{
 			yield return enumerator.Current;
 		}
