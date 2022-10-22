@@ -5,7 +5,7 @@ public static class ExceptionExtensions
 	public async static Task<Exception> PopulateExceptionAsync(this Exception exception, HttpRequestMessage request)
 	{
 		var method = request.Method;
-		var requestUri = request.RequestUri.OriginalString;
+		var requestUri = request.RequestUri?.OriginalString ?? string.Empty;
 
 		exception.Data
 			.TryAdd(nameof(method), method)

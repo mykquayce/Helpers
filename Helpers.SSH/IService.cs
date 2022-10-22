@@ -14,5 +14,5 @@ public interface IService
 	IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync();
 	Task<Helpers.Networking.Models.DhcpLease> GetLeaseByIPAddressAsync(IPAddress ipAddress);
 	Task<Helpers.Networking.Models.DhcpLease> GetLeaseByPhysicalAddressAsync(PhysicalAddress physicalAddress);
-	IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync(CancellationToken? cancellationToken = null);
+	IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync(CancellationToken cancellationToken = default);
 }

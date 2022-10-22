@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.SSH.Concrete;
 
@@ -104,7 +105,7 @@ public class Service : IService
 		throw new KeyNotFoundException($"{nameof(physicalAddress)} {physicalAddress} not found");
 	}
 
-	public async IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync(CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
 		var lines = _client.RunCommandAsShellAsync("arp -a", cancellationToken);

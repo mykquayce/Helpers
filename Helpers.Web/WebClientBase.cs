@@ -48,7 +48,7 @@ public abstract class WebClientBase
 		HttpMethod httpMethod,
 		Uri uri,
 		string? body = default,
-		CancellationToken? cancellationToken = default,
+		CancellationToken cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 		where T : class
@@ -63,7 +63,7 @@ public abstract class WebClientBase
 		HttpMethod httpMethod,
 		Uri uri,
 		string? body = default,
-		CancellationToken? cancellationToken = default,
+		CancellationToken cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 	{
@@ -75,7 +75,7 @@ public abstract class WebClientBase
 
 	protected async Task<Models.IResponse> SendAsync(
 		HttpRequestMessage requestMessage,
-		CancellationToken? cancellationToken = default,
+		CancellationToken cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 	{
@@ -86,7 +86,7 @@ public abstract class WebClientBase
 
 	protected async Task<Models.IResponse<T>> SendAsync<T>(
 		HttpRequestMessage requestMessage,
-		CancellationToken? cancellationToken = default,
+		CancellationToken cancellationToken = default,
 		[CallerMemberName] string? callerMemberName = default,
 		[CallerFilePath] string? callerFilePath = default)
 		where T : class
@@ -96,27 +96,23 @@ public abstract class WebClientBase
 		return await ProcessResponseMessageAsync<T>(response, cancellationToken);
 	}
 
-	protected virtual Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken? cancellationToken = default)
+	protected virtual Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
 	{
-		return _httpMessageInvoker.SendAsync(request, cancellationToken ?? CancellationToken.None);
+		return _httpMessageInvoker.SendAsync(request, cancellationToken);
 	}
 	#endregion protected methods
 
 	#region private methods
-	private IScope? LogAndTrace(string? callerMemberName, string? callerFilePath, HttpMethod httpMethod, Uri uri, string? body)
+	private IScope? LogAndTrace(string? callerMemberName, string? callerFilePath, HttpMethod httpMethod, Uri? uri, string? body)
 	{
 		var scope = LogAndTrace(callerMemberName, callerFilePath);
 		scope?.Span.SetTag(nameof(httpMethod), httpMethod.Method);
-		scope?.Span.SetTag(nameof(uri), uri.OriginalString);
+		scope?.Span.SetTag(nameof(uri), uri?.ToString());
 		scope?.Span.SetTag(nameof(body), body);
 
 		_logger?.LogInformation(
-			new Dictionary<string, object?>(3)
-			{
-				[nameof(httpMethod)] = httpMethod.Method,
-				[nameof(uri)] = uri.OriginalString,
-				[nameof(body)] = body?.Truncate(),
-			}.ToKeyValuePairString());
+			"httpMethod={method};uri={uri};body={body};",
+			httpMethod.Method, uri?.ToString(), body?.Truncate());
 
 		return scope;
 	}
@@ -131,7 +127,7 @@ public abstract class WebClientBase
 		return _tracer?.StartSpan(callerMemberName, callerFilePath);
 	}
 
-	private HttpRequestMessage BuildRequest(HttpMethod method, Uri uri, string? body = default)
+	private static HttpRequestMessage BuildRequest(HttpMethod method, Uri uri, string? body = default)
 	{
 		var httpRequestMessage = new HttpRequestMessage(method, uri);
 
@@ -145,7 +141,7 @@ public abstract class WebClientBase
 		return httpRequestMessage;
 	}
 
-	private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken? cancellationToken = default)
+	private async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
 	{
 		try
 		{
@@ -159,13 +155,13 @@ public abstract class WebClientBase
 
 			var message = exception.Data.ToCsvString();
 
-			_logger?.LogError(exception, message);
+			_logger?.LogError(exception, "{message}", message);
 
 			throw;
 		}
 	}
 
-	private Models.IResponse ProcessResponseMessage(HttpResponseMessage response)
+	private static Models.IResponse ProcessResponseMessage(HttpResponseMessage response)
 	{
 		var headers = new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
 
@@ -182,7 +178,7 @@ public abstract class WebClientBase
 		return new Models.Concrete.Response(headers, response.StatusCode, response.Content.ReadAsStreamAsync());
 	}
 
-	private async Task<Models.IResponse<T>> ProcessResponseMessageAsync<T>(HttpResponseMessage response, CancellationToken? cancellationToken = default)
+	private static async Task<Models.IResponse<T>> ProcessResponseMessageAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken = default)
 		where T : class
 	{
 		var (headers, statusCode, taskStream) = ProcessResponseMessage(response);
@@ -192,7 +188,7 @@ public abstract class WebClientBase
 		if (typeof(T) == typeof(string))
 		{
 			using var reader = new StreamReader(stream);
-			var s = await reader.ReadToEndAsync();
+			var s = await reader.ReadToEndAsync(cancellationToken);
 			var o = (T)Convert.ChangeType(s, TypeCode.String);
 
 			return new Models.Concrete.Response<T>(headers, statusCode, o);
@@ -205,7 +201,7 @@ public abstract class WebClientBase
 		}
 		catch (System.Text.Json.JsonException ex)
 		{
-			await ex.PopulateExceptionAsync(response.RequestMessage);
+			await ex.PopulateExceptionAsync(response.RequestMessage!);
 			return new Models.Concrete.Response<T>(headers, statusCode, null)
 			{
 				Exception = ex,

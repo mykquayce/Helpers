@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Helpers.SSH.Concrete;
@@ -65,7 +66,7 @@ public class Client : IClient
 			state: commandText);
 	}
 
-	public async IAsyncEnumerable<string> RunCommandAsShellAsync(string commandText, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<string> RunCommandAsShellAsync(string commandText, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(commandText).NotNull().NotEmpty().NotWhiteSpace();
 
@@ -73,17 +74,17 @@ public class Client : IClient
 
 		using var shellStream = _sshClient.CreateShellStream(_terminalName, _columns, _rows, _width, _height, _bufferSize);
 
-		await Task.Delay(millisecondsDelay: 10, cancellationToken ?? CancellationToken.None);
+		await Task.Delay(millisecondsDelay: 10, cancellationToken);
 
-		var prompt = await shellStream.ReadLinesAsync(cancellationToken ?? CancellationToken.None)
-			.LastAsync(cancellationToken ?? CancellationToken.None);
+		var prompt = await shellStream.ReadLinesAsync(cancellationToken)
+			.LastAsync(cancellationToken);
 
 		shellStream.WriteLine(commandText);
 
-		await Task.Delay(millisecondsDelay: 100, cancellationToken ?? CancellationToken.None);
+		await Task.Delay(millisecondsDelay: 100, cancellationToken);
 
 		var lines = shellStream
-			.ReadLinesAsync(cancellationToken ?? CancellationToken.None)
+			.ReadLinesAsync(cancellationToken)
 			.Skip(1)
 			.TakeWhile(s => s != prompt);
 
