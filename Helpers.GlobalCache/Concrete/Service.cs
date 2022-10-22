@@ -24,33 +24,33 @@ public class Service : IService
 	#endregion constructors
 
 	#region connect
-	public Task ConnectAsync(string uuidOrHostName)
+	public ValueTask ConnectAsync(string uuidOrHostName, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(uuidOrHostName).NotNull().NotEmpty().NotWhiteSpace();
 
 		if (DawnGuardExtensions.UuidRegex.IsMatch(uuidOrHostName))
 		{
-			return ConnectWithUuidAsync(uuidOrHostName);
+			return ConnectWithUuidAsync(uuidOrHostName, cancellationToken);
 		}
 
-		return ConnectWithHostNameAsync(uuidOrHostName);
+		return ConnectWithHostNameAsync(uuidOrHostName, cancellationToken);
 	}
 
-	public Task ConnectAsync(IPAddress ipAddress)
+	public ValueTask ConnectAsync(IPAddress ipAddress, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull();
 		var endPoint = new IPEndPoint(ipAddress, _broadcastPort);
-		return _socketClient.ConnectAsync(endPoint);
+		return _socketClient.ConnectAsync(endPoint, cancellationToken);
 	}
 
-	public async Task ConnectWithUuidAsync(string uuid)
+	public async ValueTask ConnectWithUuidAsync(string uuid, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(uuid).IsGlobalCacheUuid();
 
 		if (!_cache.TryGetValue(uuid, out var ipAddress))
 		{
 			var beacon = await _client.DiscoverAsync()
-				.FirstOrDefaultAsync(b => string.Equals(b.Uuid, uuid, StringComparison.OrdinalIgnoreCase));
+				.FirstOrDefaultAsync(b => string.Equals(b.Uuid, uuid, StringComparison.OrdinalIgnoreCase), cancellationToken);
 
 			Guard.Argument(beacon!).NotNull($"{nameof(uuid)} {uuid} not found on network");
 
@@ -58,20 +58,20 @@ public class Service : IService
 			_cache.Add(uuid, ipAddress);
 		}
 
-		await ConnectAsync(ipAddress);
+		await ConnectAsync(ipAddress, cancellationToken);
 	}
 
-	public Task ConnectWithHostNameAsync(string hostName)
+	public ValueTask ConnectWithHostNameAsync(string hostName, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(hostName).NotNull().NotEmpty().NotWhiteSpace();
-		return _socketClient.ConnectAsync(hostName, _broadcastPort);
+		return _socketClient.ConnectAsync(hostName, _broadcastPort, cancellationToken);
 	}
 	#endregion connect
 
-	public Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
+	public Task<string> SendAndReceiveAsync(string message, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
-		return _socketClient.SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
+		return _socketClient.SendAndReceiveAsync(message, cancellationToken);
 	}
 
 	#region Dispose pattern

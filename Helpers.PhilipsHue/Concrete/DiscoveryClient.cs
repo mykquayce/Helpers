@@ -15,7 +15,7 @@ public class DiscoveryClient : Helpers.Web.WebClientBase, IDiscoveryClient
 		_memoryCache = Guard.Argument(memoryCache).NotIn().Value;
 	}
 
-	public async Task<IPAddress> GetBridgeIPAddressAsync(CancellationToken? cancellationToken = null)
+	public async Task<IPAddress> GetBridgeIPAddressAsync(CancellationToken cancellationToken = default)
 	{
 		var ok = _memoryCache.TryGetValue<IPAddress>(_cacheKey, out var ip);
 		if (ok) { return ip!; }
@@ -26,7 +26,7 @@ public class DiscoveryClient : Helpers.Web.WebClientBase, IDiscoveryClient
 		return ip;
 	}
 
-	private async Task<IPAddress> GetBridgeIPAddressFromRemoteAsync(CancellationToken? cancellationToken = null)
+	private async Task<IPAddress> GetBridgeIPAddressFromRemoteAsync(CancellationToken cancellationToken = default)
 	{
 		var requestUri = new Uri(string.Empty, UriKind.Relative);
 		var response = await base.SendAsync<IReadOnlyList<Models.DiscoveryResponseObject>>(HttpMethod.Get, requestUri, cancellationToken: cancellationToken);

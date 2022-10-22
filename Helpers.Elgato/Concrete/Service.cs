@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using System.Drawing;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.Elgato.Concrete;
 
@@ -13,7 +14,7 @@ public class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	private async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightsAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	private async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightsAsync(IPAddress ip, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var lights = _client.GetLightsAsync(ip, cancellationToken);
 
@@ -31,7 +32,7 @@ public class Service : IService
 		}
 	}
 
-	public async IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var lights = GetLightsAsync(ip, cancellationToken);
 
@@ -58,20 +59,20 @@ public class Service : IService
 		}
 	}
 
-	public IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(IPAddress ip, CancellationToken cancellationToken = default)
 		=> GetLightStatusAsync(ip, cancellationToken).OfType<Models.Lights.RgbLightModel>();
 
-	public IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(IPAddress ip, CancellationToken cancellationToken = default)
 		=> GetLightStatusAsync(ip, cancellationToken).OfType<Models.Lights.WhiteLightModel>();
 
-	public Task SetBrightnessAsync(IPAddress ip, float brightness, CancellationToken? cancellationToken = null)
+	public Task SetBrightnessAsync(IPAddress ip, float brightness, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(brightness).InRange(0, 1);
 		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = 1, brightness = (brightness * 100f).Round(), };
 		return SetLightAsync(ip, func, cancellationToken);
 	}
 
-	public Task SetColorAsync(IPAddress ip, Color color, CancellationToken? cancellationToken = null)
+	public Task SetColorAsync(IPAddress ip, Color color, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(color).NotDefault();
 		Models.Generated.LightObject func(Models.Generated.LightObject light)
@@ -90,34 +91,34 @@ public class Service : IService
 		return SetLightAsync(ip, func, cancellationToken);
 	}
 
-	public Task SetKelvinsAsync(IPAddress ip, short kelvins, CancellationToken? cancellationToken = null)
+	public Task SetKelvinsAsync(IPAddress ip, short kelvins, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
 		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = 1, temperature = kelvins.ConvertFromKelvinToElgato(), };
 		return SetLightAsync(ip, func, cancellationToken);
 	}
 
-	public Task SetPowerStateAsync(IPAddress ip, bool on, CancellationToken? cancellationToken = null)
+	public Task SetPowerStateAsync(IPAddress ip, bool on, CancellationToken cancellationToken = default)
 	{
 		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = on ? 1 : 0, };
 		return SetLightAsync(ip, func, cancellationToken);
 	}
 
-	public async Task TogglePowerStateAsync(IPAddress ip, CancellationToken? cancellationToken = null)
+	public async Task TogglePowerStateAsync(IPAddress ip, CancellationToken cancellationToken = default)
 	{
 		var lights = GetLightStatusAsync(ip, cancellationToken);
-		var on = await lights.AnyAsync(l => l.On, cancellationToken ?? CancellationToken.None);
+		var on = await lights.AnyAsync(l => l.On, cancellationToken);
 		Models.Generated.LightObject func(Models.Generated.LightObject light) => light with { on = on ? 0 : 1, };
 		await SetLightAsync(ip, func, cancellationToken);
 	}
 
-	private async Task SetLightAsync(IPAddress ip, Func<Models.Generated.LightObject, Models.Generated.LightObject> func, CancellationToken? cancellationToken = null)
+	private async Task SetLightAsync(IPAddress ip, Func<Models.Generated.LightObject, Models.Generated.LightObject> func, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ip).NotNull();
 		Guard.Argument(func).NotNull();
 		var lights = _client.GetLightsAsync(ip, cancellationToken);
 		var updated = await lights.Select(func)
-			.ToArrayAsync(cancellationToken ?? CancellationToken.None);
+			.ToArrayAsync(cancellationToken);
 		await _client.SetLightAsync(ip, updated, cancellationToken);
 	}
 }

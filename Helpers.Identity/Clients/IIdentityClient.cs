@@ -1,8 +1,6 @@
-﻿using IdentityModel.Client;
-
-namespace Helpers.Identity.Clients;
+﻿namespace Helpers.Identity.Clients;
 
 public interface IIdentityClient
 {
-	Task<string> GetAccessTokenAsync(CancellationToken? cancellationToken = default);
+	Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default);
 }

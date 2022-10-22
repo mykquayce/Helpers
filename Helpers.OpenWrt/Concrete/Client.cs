@@ -38,7 +38,7 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		_tokenCacheKey = config.EndPoint + "-config-key";
 	}
 
-	public async Task<string> ExecuteCommandAsync(string command, CancellationToken? cancellationToken = default)
+	public async Task<string> ExecuteCommandAsync(string command, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(command).NotNull().NotEmpty().NotWhiteSpace();
 		var token = await GetLoginTokenAsync(cancellationToken);
@@ -47,11 +47,11 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		return await SendAsync(uri, @object, cancellationToken);
 	}
 
-	public async Task<string> GetLoginTokenAsync(CancellationToken? cancellationToken = default)
+	public async Task<string> GetLoginTokenAsync(CancellationToken cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue(_tokenCacheKey, out string token))
+		if (_memoryCache.TryGetValue(_tokenCacheKey, out string? token))
 		{
-			return token;
+			return token!;
 		}
 
 		token = await LoginAsync(cancellationToken);
@@ -59,17 +59,17 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		return token;
 	}
 
-	public Task<string> LoginAsync(CancellationToken? cancellationToken = default)
+	public Task<string> LoginAsync(CancellationToken cancellationToken = default)
 	{
 		var uri = new Uri("/cgi-bin/luci/rpc/auth", UriKind.Relative);
 		var @object = new Models.LoginRequestObject(_username, _password);
 		return SendAsync(uri, @object, cancellationToken);
 	}
 
-	public async Task<string> SendAsync(Uri requestUri, Models.RequestObject requestObject, CancellationToken? cancellationToken = default)
+	public async Task<string> SendAsync(Uri requestUri, Models.RequestObject requestObject, CancellationToken cancellationToken = default)
 	{
 		var body = JsonSerializer.Serialize(requestObject);
 		(_, _, var response) = await base.SendAsync<Models.ResponseObject>(HttpMethod.Post, requestUri, body, cancellationToken);
-		return response.result;
+		return response!.result;
 	}
 }

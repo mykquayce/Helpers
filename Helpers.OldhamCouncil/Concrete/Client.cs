@@ -1,12 +1,8 @@
 ﻿using Dawn;
 using Helpers.Web;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace Helpers.OldhamCouncil.Concrete
@@ -21,14 +17,14 @@ namespace Helpers.OldhamCouncil.Concrete
 
 		public Client(HttpClient httpClient) : base(httpClient) { }
 
-		public async IAsyncEnumerable<KeyValuePair<long, string>> GetAddressesAsync(string postcode, CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<long, string>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
 			var uri = new Uri("/Forms/Common/GetSelectAddressList?type=Postcode&convert=true&term=" + postcode, UriKind.Relative);
 			var (_, _, kvps) = await base.SendAsync<KeyValuePair<string, string>[]>(HttpMethod.Get, uri);
 			foreach (var kvp in kvps!)
 			{
-				if (cancellationToken?.IsCancellationRequested ?? false)
+				if (cancellationToken.IsCancellationRequested)
 				{
 					yield break;
 				}
@@ -40,7 +36,7 @@ namespace Helpers.OldhamCouncil.Concrete
 			}
 		}
 
-		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(long id, CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(long id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(id).Positive();
 			var uri = new Uri("/Forms/EnvironmentalHealth/GetBinView?uprn=" + id, UriKind.Relative);
@@ -49,7 +45,7 @@ namespace Helpers.OldhamCouncil.Concrete
 
 			foreach (Match match in matches)
 			{
-				if (cancellationToken?.IsCancellationRequested ?? false)
+				if (cancellationToken.IsCancellationRequested)
 				{
 					yield break;
 				}

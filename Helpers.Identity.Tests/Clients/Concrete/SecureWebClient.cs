@@ -6,10 +6,10 @@ public class SecureWebClient : SecureWebClientBase, ISecureWebClient
 		: base(apiHttpClient, identityClient)
 	{ }
 
-	public async Task<string> GetStringAsync(Uri relativeUri, CancellationToken? cancellationToken = default)
+	public async Task<string?> GetStringAsync(Uri relativeUri, CancellationToken cancellationToken = default)
 	{
 		using var request = new HttpRequestMessage(HttpMethod.Get, relativeUri);
-		var (_, _, s) = await base.SendAsync<string>(request, cancellationToken);
+		(_, _, string? s) = await base.SendAsync<string>(request, cancellationToken);
 		return s;
 	}
 }

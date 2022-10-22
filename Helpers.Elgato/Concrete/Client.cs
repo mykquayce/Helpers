@@ -1,6 +1,7 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Helpers.Elgato.Concrete;
@@ -20,7 +21,7 @@ public class Client : Helpers.Web.WebClientBase, IClient
 
 	private Uri BuildBaseAddress(IPAddress ipAddress) => new UriBuilder(_scheme, ipAddress.ToString(), _port).Uri;
 
-	public  async Task<Models.Generated.AccessoryInfoObject> GetAccessoryInfoAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default)
+	public  async Task<Models.Generated.AccessoryInfoObject> GetAccessoryInfoAsync(IPAddress ipAddress, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull().NotEqual(IPAddress.None);
 		var baseAddress = BuildBaseAddress(ipAddress);
@@ -29,7 +30,7 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		return info ?? throw new Exception();
 	}
 
-	public async IAsyncEnumerable<Models.Generated.LightObject> GetLightsAsync(IPAddress ipAddress, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Generated.LightObject> GetLightsAsync(IPAddress ipAddress, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull().NotEqual(IPAddress.None);
 		var baseAddress = BuildBaseAddress(ipAddress);
@@ -43,7 +44,7 @@ public class Client : Helpers.Web.WebClientBase, IClient
 		}
 	}
 
-	public async Task SetLightAsync(IPAddress ipAddress, IReadOnlyCollection<Models.Generated.LightObject> lights, CancellationToken? cancellationToken = default)
+	public async Task SetLightAsync(IPAddress ipAddress, IReadOnlyCollection<Models.Generated.LightObject> lights, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull().NotEqual(IPAddress.None);
 		Guard.Argument(lights).NotNull();

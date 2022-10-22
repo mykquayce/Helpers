@@ -14,7 +14,7 @@ public abstract class SecureWebClientBase : Helpers.Web.WebClientBase
 		_identityClient = identityClient;
 	}
 
-	protected override async Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken? cancellationToken = default)
+	protected override async Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
 	{
 		var accessToken = await _identityClient.GetAccessTokenAsync(cancellationToken);
 

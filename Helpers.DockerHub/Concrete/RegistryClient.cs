@@ -13,7 +13,7 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 		_authorizationClient = Guard.Argument(authorizationClient).NotNull().Value;
 	}
 
-	public async IAsyncEnumerable<string> GetTagsAsync(string organization, string repository, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<string> GetTagsAsync(string organization, string repository, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(organization).IsTagName();
 		Guard.Argument(repository).IsTagName();
@@ -24,12 +24,12 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 
 		foreach (var tag in tags)
 		{
-			if (cancellationToken?.IsCancellationRequested == true) yield break;
+			if (cancellationToken.IsCancellationRequested) yield break;
 			yield return tag;
 		}
 	}
 
-	public Task<Models.ManifestsResponseObject> GetManifestsAsync(string organization, string repository, string tag, CancellationToken? cancellationToken = default)
+	public Task<Models.ManifestsResponseObject> GetManifestsAsync(string organization, string repository, string tag, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(organization).IsTagName();
 		Guard.Argument(repository).IsTagName();
@@ -38,7 +38,7 @@ public class RegistryClient : Helpers.Web.WebClientBase, IRegistryClient
 		return SendAsync<Models.ManifestsResponseObject>(organization, repository, uri, cancellationToken);
 	}
 
-	private async Task<T> SendAsync<T>(string organization, string repository, Uri uri, CancellationToken? cancellationToken = default)
+	private async Task<T> SendAsync<T>(string organization, string repository, Uri uri, CancellationToken cancellationToken = default)
 		where T : class
 	{
 		Guard.Argument(organization).IsTagName();

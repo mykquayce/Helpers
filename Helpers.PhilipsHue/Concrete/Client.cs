@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Drawing;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Helpers.PhilipsHue.Concrete;
@@ -19,7 +20,7 @@ public class Client : IClient
 		_jsonSerializerOptions = jsonSerializerOptions;
 	}
 
-	public async IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var requestUri = $"api/{_config.Username}/lights";
 		var dictionary = await GetFromJsonAsync<Dictionary<int, Models.LightResponseObject>>(requestUri, cancellationToken);
@@ -32,7 +33,7 @@ public class Client : IClient
 	}
 
 	#region brightness
-	public async Task<float> GetLightBrightnessAsync(int index, CancellationToken? cancellationToken = null)
+	public async Task<float> GetLightBrightnessAsync(int index, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"api/{_config.Username}/lights/{index:D}";
@@ -40,7 +41,7 @@ public class Client : IClient
 		return (float)brightness / byte.MaxValue;
 	}
 
-	public Task SetLightBrightnessAsync(int index, float brightness, CancellationToken? cancellationToken = null)
+	public Task SetLightBrightnessAsync(int index, float brightness, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(brightness).InRange(0, 1);
@@ -51,7 +52,7 @@ public class Client : IClient
 	#endregion brightness
 
 	#region power
-	public async Task<bool> GetLightPowerAsync(int index, CancellationToken? cancellationToken = null)
+	public async Task<bool> GetLightPowerAsync(int index, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"api/{_config.Username}/lights/{index:D}";
@@ -59,7 +60,7 @@ public class Client : IClient
 		return power;
 	}
 
-	public Task SetLightPowerAsync(int index, bool on, CancellationToken? cancellationToken = null)
+	public Task SetLightPowerAsync(int index, bool on, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		var body = new { on, };
@@ -69,7 +70,7 @@ public class Client : IClient
 	#endregion power
 
 	#region temperature
-	public async Task<short> GetLightTemperatureAsync(int index, CancellationToken? cancellationToken = null)
+	public async Task<short> GetLightTemperatureAsync(int index, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"api/{_config.Username}/lights/{index:D}";
@@ -77,7 +78,7 @@ public class Client : IClient
 		return (short)(1_000_000d / ct);
 	}
 
-	public Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken? cancellationToken = null)
+	public Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(kelvins).InRange((short)2_900, (short)7_000);
@@ -89,7 +90,7 @@ public class Client : IClient
 	#endregion temperature
 
 	#region color
-	public async Task<Color> GetLightColorAsync(int index, CancellationToken? cancellationToken = null)
+	public async Task<Color> GetLightColorAsync(int index, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"api/{_config.Username}/lights/{index:D}";
@@ -97,7 +98,7 @@ public class Client : IClient
 		return new PointF(x: x, y: y).ToColor(bri);
 	}
 
-	public Task SetLightColorAsync(int index, Color color, CancellationToken? cancellationToken = null)
+	public Task SetLightColorAsync(int index, Color color, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(index).Positive();
 		Guard.Argument(color).NotDefault();
@@ -108,14 +109,14 @@ public class Client : IClient
 	}
 	#endregion color
 
-	private async Task<T> GetFromJsonAsync<T>(string requestUri, CancellationToken? cancellationToken = null)
+	private async Task<T> GetFromJsonAsync<T>(string requestUri, CancellationToken cancellationToken = default)
 	{
-		return (await _httpClient.GetFromJsonAsync<T>(requestUri, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None))
+		return (await _httpClient.GetFromJsonAsync<T>(requestUri, _jsonSerializerOptions, cancellationToken))
 			?? throw new Exceptions.DeserializationException<T>(requestUri);
 	}
 
-	private Task PutAsJsonAsync(string requestUri, object body, CancellationToken? cancellationToken = null)
+	private Task PutAsJsonAsync(string requestUri, object body, CancellationToken cancellationToken = default)
 	{
-		return _httpClient.PutAsJsonAsync(requestUri, body, _jsonSerializerOptions, cancellationToken ?? CancellationToken.None);
+		return _httpClient.PutAsJsonAsync(requestUri, body, _jsonSerializerOptions, cancellationToken);
 	}
 }

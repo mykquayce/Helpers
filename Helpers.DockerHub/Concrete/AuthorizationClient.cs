@@ -19,7 +19,7 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 		_memoryCache = Guard.Argument(memoryCache).NotNull().Value;
 	}
 
-	public async Task<string> GetTokenAsync(string organization, string repository, CancellationToken? cancellationToken = default)
+	public async Task<string> GetTokenAsync(string organization, string repository, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(organization).IsTagName();
 		Guard.Argument(repository).IsTagName();
@@ -28,7 +28,7 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 
 		if (_memoryCache.TryGetValue<string>(cacheKey, out var token))
 		{
-			return token;
+			return token!;
 		}
 
 		(token, var expiry) = await GetTokenFromRemoteAsync(organization, repository, cancellationToken);
@@ -43,7 +43,7 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 		return token;
 	}
 
-	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken? cancellationToken = default)
+	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(organization).IsTagName();
 		Guard.Argument(repository).IsTagName();
@@ -61,7 +61,7 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 		};
 
 		var (_, _, responseObject) = await base.SendAsync<Models.AuthResponseObject>(requestMessage, cancellationToken);
-		var (token, _, expiresIn, _) = responseObject;
+		var (token, _, expiresIn, _) = responseObject!;
 		var expiry = DateTime.UtcNow.AddSeconds(expiresIn);
 
 		return (token, expiry);
