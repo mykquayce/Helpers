@@ -40,7 +40,7 @@ namespace Helpers.Json.Tests
 
 			var jsonAgain = JsonSerializer.Serialize(dictionary);
 
-			var t = JsonSerializer.Deserialize<IDictionary<Devices, PhysicalAddress>>(jsonAgain, options);
+			var t = JsonSerializer.Deserialize<IDictionary<Devices, PhysicalAddress>>(jsonAgain, options)!;
 			var o = Options.Create(t);
 
 			var provider = new ServiceCollection()
@@ -109,7 +109,7 @@ namespace Helpers.Json.Tests
 			).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
 			var json = JsonSerializer.Serialize(stringObjectDictionary);
-			var @object = JsonSerializer.Deserialize<TOptions>(json);
+			var @object = JsonSerializer.Deserialize<TOptions>(json)!;
 			var injectable = Options.Create(@object);
 			services.AddSingleton(injectable);
 			return services;

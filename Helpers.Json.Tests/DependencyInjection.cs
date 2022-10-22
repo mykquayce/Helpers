@@ -17,7 +17,7 @@ namespace Helpers.Json.Tests
 
 		public DependencyInjection()
 		{
-			IEnumerable<KeyValuePair<string, string>> values = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			IEnumerable<KeyValuePair<string, string?>> values = new Dictionary<string, string?>(StringComparer.InvariantCultureIgnoreCase)
 			{
 				["Addresses:IPAddress"] = "127.0.0.1",
 				["Addresses:PhysicalAddress"] = "d346f2d525a9",
@@ -105,7 +105,7 @@ namespace Helpers.Json.Tests
 		[Fact]
 		public void Test1_Enum_PhysicalAddress()
 		{
-			var before = new Dictionary<string, string>
+			var before = new Dictionary<string, string?>
 			{
 				["AmpStartPlug"] = "003192e1a474",
 				["IRBlaster"] = "000c1e059cad",
@@ -129,7 +129,7 @@ namespace Helpers.Json.Tests
 		[Fact]
 		public void Test1_Enum_Int()
 		{
-			var before = new Dictionary<string, string>
+			var before = new Dictionary<string, string?>
 			{
 				["AmpStartPlug"] = "1",
 				["IRBlaster"] = "1",

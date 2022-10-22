@@ -24,7 +24,7 @@ namespace Helpers.Steam.Tests
 				.Wrap(f => f.SteamKey).NotNull().NotEmpty().NotWhiteSpace().Value;
 
 			_steamIds = Guard.Argument(userSecretsFixture).NotNull()
-				.Wrap(f => f.SteamIds).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
+				.Wrap(f => f.SteamIds!).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
 		}
 
 		[Fact]
