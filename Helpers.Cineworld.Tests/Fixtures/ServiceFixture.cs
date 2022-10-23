@@ -15,11 +15,11 @@ public class ServiceFixture
 		var clientMock = new Mock<IClient>();
 
 		clientMock
-			.Setup(c => c.GetAllPerformancesAsync(It.IsAny<CancellationToken?>()))
+			.Setup(c => c.GetAllPerformancesAsync(It.IsAny<CancellationToken>()))
 			.ReturnsAsync(allPerformances!);
 
 		clientMock
-			.Setup(c => c.GetListingsAsync(It.IsAny<CancellationToken?>()))
+			.Setup(c => c.GetListingsAsync(It.IsAny<CancellationToken>()))
 			.ReturnsAsync(listings!);
 
 		Service = new Concrete.Service(clientMock.Object);

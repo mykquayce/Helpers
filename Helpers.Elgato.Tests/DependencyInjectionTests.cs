@@ -36,7 +36,7 @@ public class DependencyInjectionTests : IClassFixture<Fixtures.ConfigFixture>
 			}
 
 			serviceProvider = new ServiceCollection()
-				.JsonConfig<Config>(configuration.GetSection("Elgato"))
+				.Configure<Config>(configuration.GetSection("Elgato"))
 				.AddTransient<IService, Concrete.Service>()
 				.AddHttpClient<IClient, Concrete.Client>("ElgatoClient")
 				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })

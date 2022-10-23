@@ -36,10 +36,10 @@ public static class IntervalExtensions
 	private static double GetScale(this IInterval interval)
 		=> interval.Count * interval.Unit.GetTicks();
 
-	public static Task SleepTillNextAsync(this IInterval interval, CancellationToken? cancellationToken = null)
+	public static Task SleepTillNextAsync(this IInterval interval, CancellationToken cancellationToken = default)
 	{
 		var delay = interval.Next() - GetUtcNow();
 		var millisecondInterval = (int)delay.TotalMilliseconds;
-		return Task.Delay(millisecondInterval, cancellationToken ?? CancellationToken.None);
+		return Task.Delay(millisecondInterval, cancellationToken);
 	}
 }

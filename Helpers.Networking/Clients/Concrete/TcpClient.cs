@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Helpers.Networking.Clients.Concrete;
@@ -35,22 +36,22 @@ public class TcpClient : ITcpClient
 	protected int Port { get; }
 	protected string NewLine { get; }
 
-	public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
 
 		using var tcpClient = new System.Net.Sockets.TcpClient(Hostname, Port);
 		await using var stream = tcpClient.GetStream();
 
-		await stream.WriteAsync(_encoding.GetBytes(message), cancellationToken ?? CancellationToken.None);
-		await stream.FlushAsync(cancellationToken ?? CancellationToken.None);
+		await stream.WriteAsync(_encoding.GetBytes(message), cancellationToken);
+		await stream.FlushAsync(cancellationToken);
 
 		using var reader = new StreamReader(stream, _encoding);
 
 		while (!reader.EndOfStream
-			&& cancellationToken?.IsCancellationRequested != true)
+			&& !cancellationToken.IsCancellationRequested)
 		{
-			var line = await reader.ReadLineAsync(cancellationToken ?? CancellationToken.None);
+			var line = await reader.ReadLineAsync(cancellationToken);
 			if (line is not null) yield return line;
 		}
 	}

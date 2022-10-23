@@ -47,56 +47,56 @@ public class SocketClient : ISocketClient
 	#endregion Constructors
 
 	#region Connect
-	public Task ConnectAsync(EndPoint endPoint)
+	public ValueTask ConnectAsync(EndPoint endPoint, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(endPoint).NotNull();
 
-		if (_socket.Connected) return Task.CompletedTask;
-		return _socket.ConnectAsync(endPoint);
+		if (_socket.Connected) return ValueTask.CompletedTask;
+		return _socket.ConnectAsync(endPoint, cancellationToken);
 	}
 
-	public Task ConnectAsync(IPAddress ipAddress, ushort port)
+	public ValueTask ConnectAsync(IPAddress ipAddress, ushort port, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull();
 		Guard.Argument(port).Positive();
 
-		if (_socket.Connected) return Task.CompletedTask;
-		return _socket.ConnectAsync(ipAddress, port);
+		if (_socket.Connected) return ValueTask.CompletedTask;
+		return _socket.ConnectAsync(ipAddress, port, cancellationToken);
 	}
 
-	public Task ConnectAsync(string host, ushort port)
+	public ValueTask ConnectAsync(string host, ushort port, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(host).NotNull().NotEmpty().NotWhiteSpace();
 		Guard.Argument(port).Positive();
 
-		if (_socket.Connected) return Task.CompletedTask;
-		return _socket.ConnectAsync(host, port);
+		if (_socket.Connected) return ValueTask.CompletedTask;
+		return _socket.ConnectAsync(host, port, cancellationToken);
 	}
 	#endregion Connect
 
-	public Task<int> SendAsync(byte[] bytes, CancellationToken? cancellationToken = default)
-		=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken ?? CancellationToken.None).AsTask();
+	public ValueTask<int> SendAsync(byte[] bytes, CancellationToken cancellationToken = default)
+		=> _socket.SendAsync(bytes, SocketFlags.None, cancellationToken);
 
-	public async Task<byte[]> ReceiveAsync(CancellationToken? cancellationToken = default)
+	public async Task<byte[]> ReceiveAsync(CancellationToken cancellationToken = default)
 	{
 		var buffer = new byte[_bufferSize];
-		var bytesRead = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken ?? CancellationToken.None);
+		var bytesRead = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
 		return buffer[..bytesRead];
 	}
 
-	public async Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default)
+	public async Task<string> SendAndReceiveAsync(string message, CancellationToken cancellationToken = default)
 	{
 		var bytes = _encoding.GetBytes(message);
-		await SendAsync(bytes, cancellationToken ?? CancellationToken.None);
-		var responseBytes = await ReceiveAsync(cancellationToken ?? CancellationToken.None);
+		await SendAsync(bytes, cancellationToken);
+		var responseBytes = await ReceiveAsync(cancellationToken);
 		var response = _encoding.GetString(responseBytes);
 		return response;
 	}
 
-	public async Task<string> ConnectSendAndReceive(EndPoint endPoint, string message, CancellationToken? cancellationToken = default)
+	public async Task<string> ConnectSendAndReceive(EndPoint endPoint, string message, CancellationToken cancellationToken = default)
 	{
-		await ConnectAsync(endPoint);
-		return await SendAndReceiveAsync(message, cancellationToken ?? CancellationToken.None);
+		await ConnectAsync(endPoint, cancellationToken);
+		return await SendAndReceiveAsync(message, cancellationToken);
 	}
 
 	#region IDisposable implementation

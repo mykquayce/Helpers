@@ -1,21 +1,33 @@
-﻿using System;
-using System.Net.Http;
+﻿namespace Helpers.XUnitClassFixtures;
 
-namespace Helpers.XUnitClassFixtures
+public class HttpClientFixture : IDisposable
 {
-	public class HttpClientFixture : IDisposable
+	private bool disposedValue;
+
+	public HttpClientFixture()
 	{
-		public HttpClientFixture()
-		{
-			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-			HttpClient = new HttpClient(handler);
-		}
+		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+		HttpClient = new HttpClient(handler);
+	}
 
-		public HttpClient HttpClient { get; }
+	public HttpClient HttpClient { get; }
 
-		public void Dispose()
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!disposedValue)
 		{
-			HttpClient?.Dispose();
+			if (disposing)
+			{
+				HttpClient.Dispose();
+			}
+
+			disposedValue = true;
 		}
+	}
+
+	public void Dispose()
+	{
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
 	}
 }

@@ -3,13 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>1.6.25-rc1</Version>
+    <Version>1.6.26-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.22-rc1" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.24-rc2" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 

@@ -21,9 +21,10 @@ namespace Helpers.Steam.Tests
 
 			_steamClient = new Helpers.Steam.Concrete.SteamClient(key);
 
-			_repository = new Repository(dbSettings);
+			_repository = new Repository(dbSettings!);
 		}
 
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "destructive")]
 		[Theory(Skip = "not really a unit test: just a way to populate the database")]
 		[InlineData(76561197998128899, "platypusrcool")]
 		[InlineData(76561198033583828, "andreas3115")]
@@ -38,6 +39,7 @@ namespace Helpers.Steam.Tests
 			return _repository.SaveUserAsync(id, name);
 		}
 
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1004:Test methods should not be skipped", Justification = "destructive")]
 		[Fact(Skip = "not really a unit test: just a way to populate the database")]
 		public async Task GetAppsForUsers()
 		{

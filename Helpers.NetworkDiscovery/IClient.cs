@@ -2,5 +2,5 @@
 
 public interface IClient
 {
-	Task<Helpers.Networking.Models.DhcpLease> ResolveAsync(object key, CancellationToken? cancellationToken = null);
+	Task<Helpers.Networking.Models.DhcpLease> ResolveAsync(object key, CancellationToken cancellationToken = default);
 }

@@ -15,7 +15,7 @@ namespace Helpers.PeeringDB.Tests
 		public ClientTests()
 		{
 			var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-			_client = new HttpClient(handler) { BaseAddress = new Uri("https://peeringdb.com", UriKind.Absolute), };
+			_client = new HttpClient(handler) { BaseAddress = new Uri("https://www.peeringdb.com/", UriKind.Absolute), };
 		}
 
 		public void Dispose() => _client.Dispose();
@@ -29,7 +29,7 @@ namespace Helpers.PeeringDB.Tests
 		}
 
 		[Theory]
-		[InlineData("facebook", 9_660)]
+		[InlineData("meta", 9_660)]
 		[InlineData("netflix", 6_483)]
 		public async Task SearchOrganisations(string term, params int[] expectedIds)
 		{
@@ -39,11 +39,11 @@ namespace Helpers.PeeringDB.Tests
 			// Assert
 			Assert.NotNull(organisations);
 			Assert.NotEmpty(organisations);
-			Assert.Equal(expectedIds, organisations.Select(org => org.id));
+			Assert.All(expectedIds, id => Assert.Contains(id, organisations.Select(o => o.id)));
 		}
 
 		[Theory]
-		[InlineData("facebook", 32_934, 63_293)]
+		[InlineData("meta", 32_934, 63_293)]
 		[InlineData("netflix", 2_906, 40_027, 55_095)]
 		public async Task SearchNetworks(string term, params int[] expectedAsns)
 		{
@@ -53,17 +53,17 @@ namespace Helpers.PeeringDB.Tests
 			// Assert
 			Assert.NotNull(networks);
 			Assert.NotEmpty(networks);
-			Assert.Equal(expectedAsns, networks.Select(net => net.asn));
+			Assert.All(expectedAsns, asn => Assert.Contains(asn, networks.Select(n => n.asn)));
 		}
 
 		[Theory]
 		[InlineData(714, "Apple Inc.")]
 		[InlineData(2_906, "Netflix")]
 		[InlineData(6_185, "Apple CDN")]
-		[InlineData(32_934, "Facebook Inc")]
+		[InlineData(32_934, "Meta")]
 		[InlineData(40_027, "Netflix Streaming Services")]
 		[InlineData(55_095, "Netflix AS55095")]
-		[InlineData(63_293, "Facebook Inc AS63293")]
+		[InlineData(63_293, "Meta AS63293")]
 		public async Task SearchAsn(int asn, string expected)
 		{
 			var net = await GetNetworkByAsnAsync(asn);
@@ -83,12 +83,12 @@ namespace Helpers.PeeringDB.Tests
 			}
 		}
 
-		private ValueTask<org?> GetOrganisationByIdAsync(int id) => GetAsync<org>($"/api/org/{id:D}?depth=1").FirstOrDefaultAsync();
-		private IAsyncEnumerable<org> SearchOrganisationsAsync(string nameFragment) => GetAsync<org>($"/api/org?name__contains={nameFragment}&depth=1");
-		private ValueTask<net?> GetNetworkByIdAsync(int id) => GetAsync<net>($"/api/net/{id:D}?depth=0").FirstOrDefaultAsync();
-		private ValueTask<net?> GetNetworkByAsnAsync(int asn) => GetAsync<net>($"/api/net?asn={asn:D}&depth=0").FirstOrDefaultAsync();
+		private ValueTask<org?> GetOrganisationByIdAsync(int id) => GetAsync<org>($"api/org/{id:D}?depth=1").FirstOrDefaultAsync();
+		private IAsyncEnumerable<org> SearchOrganisationsAsync(string nameFragment) => GetAsync<org>($"api/org?name__contains={nameFragment}&depth=1");
+		private ValueTask<net?> GetNetworkByIdAsync(int id) => GetAsync<net>($"api/net/{id:D}?depth=0").FirstOrDefaultAsync();
+		private ValueTask<net?> GetNetworkByAsnAsync(int asn) => GetAsync<net>($"api/net?asn={asn:D}&depth=0").FirstOrDefaultAsync();
 
-		private IAsyncEnumerable<net> SearchNetworksAsync(string nameFragment) => GetAsync<net>($"/api/net?name__contains={nameFragment}&depth=0");
+		private IAsyncEnumerable<net> SearchNetworksAsync(string nameFragment) => GetAsync<net>($"api/net?name__contains={nameFragment}&depth=0");
 
 		private async IAsyncEnumerable<T> GetAsync<T>(string uri)
 		{

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -18,11 +19,11 @@ namespace Helpers.OldhamCouncil.Concrete
 			_client = Guard.Argument(client).NotNull().Value;
 		}
 
-		public async IAsyncEnumerable<KeyValuePair<string, long>> GetAddressesAsync(string postcode, CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<string, long>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
 
-			var kvps = _client.GetAddressesAsync(postcode, cancellationToken ?? CancellationToken.None);
+			var kvps = _client.GetAddressesAsync(postcode, cancellationToken);
 
 			await foreach (var (id, address) in kvps)
 			{
@@ -31,13 +32,13 @@ namespace Helpers.OldhamCouncil.Concrete
 			}
 		}
 
-		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(long id, CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(long id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(id).Positive();
 
 			var dictionary = new Dictionary<DateTime, Models.BinTypes>();
 
-			var tables = _client.GetBinCollectionsAsync(id, cancellationToken ?? CancellationToken.None);
+			var tables = _client.GetBinCollectionsAsync(id, cancellationToken);
 
 			await foreach (var table in tables)
 			{
@@ -58,16 +59,16 @@ namespace Helpers.OldhamCouncil.Concrete
 			}
 		}
 
-		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(string postcode, string? houseNumber, CancellationToken? cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(string postcode, string? houseNumber, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
-			var addresses = GetAddressesAsync(postcode, cancellationToken ?? CancellationToken.None);
+			var addresses = GetAddressesAsync(postcode, cancellationToken);
 
 			await foreach (var (no, id) in addresses)
 			{
 				if (houseNumber is null
-					|| string.Equals(houseNumber, no, StringComparison.InvariantCultureIgnoreCase))
+					|| string.Equals(houseNumber, no, StringComparison.OrdinalIgnoreCase))
 				{
-					await foreach (var tuple in GetBinCollectionsAsync(id, cancellationToken ?? CancellationToken.None))
+					await foreach (var tuple in GetBinCollectionsAsync(id, cancellationToken))
 					{
 						yield return tuple;
 					}

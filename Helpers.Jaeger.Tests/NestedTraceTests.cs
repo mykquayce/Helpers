@@ -34,13 +34,13 @@ namespace Helpers.Jaeger.Tests
 			childScope.Span.Log(new Dictionary<string, object> { ["three"] = "three", });
 		}
 
-		public Task SomeAsynchronousWork()
+		private Task SomeAsynchronousWork()
 		{
 			_tracer.ActiveSpan.Log(nameof(SomeAsynchronousWork));
 			return Task.CompletedTask;
 		}
 
-		public Task SomeMoreAsynchronousWork()
+		private Task SomeMoreAsynchronousWork()
 		{
 			_tracer.ActiveSpan.Log(nameof(SomeMoreAsynchronousWork));
 			return Task.CompletedTask;

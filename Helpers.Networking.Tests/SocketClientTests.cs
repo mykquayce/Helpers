@@ -21,7 +21,7 @@ public class SocketClientTests : IClassFixture<Fixtures.SocketClientFixture>
 	}
 
 	[Fact]
-	public Task Connect() => _sut.ConnectAsync(_endPoint);
+	public ValueTask Connect() => _sut.ConnectAsync(_endPoint);
 
 	[Theory]
 	[InlineData("sendir,1:1,1,40192,3,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r")]

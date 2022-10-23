@@ -23,7 +23,7 @@ public partial class IdentityClient : IIdentityClient
 		_memoryCache = Guard.Argument(memoryCache).NotNull().Value;
 	}
 
-	public async Task<string> GetAccessTokenAsync(CancellationToken? cancellationToken = default)
+	public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default)
 	{
 		if (_memoryCache.TryGetValue<string>(_cacheKey, out var accessToken))
 		{
@@ -38,12 +38,12 @@ public partial class IdentityClient : IIdentityClient
 		return accessToken;
 	}
 
-	private async Task<(string, TimeSpan)> GetAccessTokenFromRemote(CancellationToken? cancellationToken = default)
+	private async Task<(string, TimeSpan)> GetAccessTokenFromRemote(CancellationToken cancellationToken = default)
 	{
 		TokenResponse tokenResponse;
 		{
 			DiscoveryDocumentResponse disco;
-			disco = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: cancellationToken ?? CancellationToken.None);
+			disco = await _httpClient.GetDiscoveryDocumentAsync(cancellationToken: cancellationToken);
 			if (disco.IsError) throw new Exceptions.ProtocolResponseException(disco);
 			using var tokenRequest = new ClientCredentialsTokenRequest
 			{
@@ -52,7 +52,7 @@ public partial class IdentityClient : IIdentityClient
 				ClientSecret = _clientSecret,
 				Scope = _scope,
 			};
-			tokenResponse = await _httpClient.RequestClientCredentialsTokenAsync(tokenRequest, cancellationToken ?? CancellationToken.None);
+			tokenResponse = await _httpClient.RequestClientCredentialsTokenAsync(tokenRequest, cancellationToken);
 		}
 		if (tokenResponse.IsError) throw new Exceptions.ProtocolResponseException(tokenResponse);
 		var expires = TimeSpan.FromSeconds(tokenResponse.ExpiresIn);

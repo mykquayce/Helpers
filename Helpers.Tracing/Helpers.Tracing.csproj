@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.40-rc1</Version>
+    <Version>1.0.40-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Common" Version="1.2.3-rc1" />
+    <PackageReference Include="Helpers.Common" Version="1.2.4-rc2" />
     <PackageReference Include="OpenTracing" Version="0.12.1" />
   </ItemGroup>
 

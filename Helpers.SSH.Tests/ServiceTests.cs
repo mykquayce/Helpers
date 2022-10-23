@@ -182,7 +182,7 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
 
 		var results = await _sut.GetArpTableAsync()
-			.ToDictionaryAsync(kvp => kvp.Key, kvp => kvp.Value);
+			.ToListAsync();
 
 		Assert.NotEmpty(results);
 

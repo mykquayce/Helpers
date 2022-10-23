@@ -8,7 +8,7 @@ namespace Helpers.Steam.Tests.Fixtures
 		private readonly Helpers.XUnitClassFixtures.UserSecretsFixture _fixture = new();
 
 		public string SteamKey => _fixture["SteamAPI:Key"];
-		public IReadOnlyList<long> SteamIds => _fixture.Configuration.GetSection("SteamIds").Get<long[]>();
-		public Helpers.MySql.Config DbSettings => _fixture.Configuration.GetSection(nameof(DbSettings)).Get<MySql.Config>();
+		public IReadOnlyList<long>? SteamIds => _fixture.Configuration.GetSection("SteamIds").Get<long[]>();
+		public Helpers.MySql.Config? DbSettings => _fixture.Configuration.GetSection(nameof(DbSettings)).Get<MySql.Config>();
 	}
 }

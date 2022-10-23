@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
@@ -15,31 +16,31 @@ public partial class Client : IClient
 		_xmlSerializerFactory = Guard.Argument(xmlSerializerFactory).NotNull().Value;
 	}
 
-	public async Task<string> GetRandomSubredditAsync(CancellationToken? cancellationToken = default)
+	public async Task<string> GetRandomSubredditAsync(CancellationToken cancellationToken = default)
 	{
 		Uri redirect;
 		{
 			using var request = new HttpRequestMessage(HttpMethod.Head, "r/random");
-			using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken ?? CancellationToken.None);
+			using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 			redirect = response.Headers.Location!;
 		}
 		var match = SubredditRegex().Match(redirect.OriginalString);
 		return match.Groups[1].Value;
 	}
 
-	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
 
 		Models.Generated.feedType subreddit;
 		{
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss?limit=100", cancellationToken ?? CancellationToken.None);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss?limit=100", cancellationToken);
 			subreddit = Deserialize<Models.Generated.feedType>(stream);
 		}
 
 		var enumerator = subreddit.entry.GetEnumerator();
 
-		while (cancellationToken?.IsCancellationRequested != true
+		while (!cancellationToken.IsCancellationRequested
 			&& enumerator.MoveNext())
 		{
 			if (enumerator.Current is Models.Generated.entryType entry
@@ -50,19 +51,19 @@ public partial class Client : IClient
 		}
 	}
 
-	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, long threadId, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, long threadId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
 		Models.Generated.feedType threadFeed;
 		{
 			var id = Helpers.Reddit.Models.Converters.Base36Converter.ToString(threadId);
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss?limit=500", cancellationToken ?? CancellationToken.None);
+			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss?limit=500", cancellationToken);
 			threadFeed = Deserialize<Models.Generated.feedType>(stream);
 		}
 
 		var enumerator = threadFeed.entry.GetEnumerator();
 
-		while (cancellationToken?.IsCancellationRequested != true
+		while (!cancellationToken.IsCancellationRequested
 			&& enumerator.MoveNext())
 		{
 			if (enumerator.Current is Models.Generated.entryType entry

@@ -4,9 +4,9 @@ namespace Helpers.GlobalCache;
 
 public interface IService : IDisposable
 {
-	Task ConnectAsync(string uuidOrHostName);
-	Task ConnectAsync(IPAddress ipAddress);
-	Task ConnectWithUuidAsync(string uuid);
-	Task ConnectWithHostNameAsync(string hostName);
-	Task<string> SendAndReceiveAsync(string message, CancellationToken? cancellationToken = default);
+	ValueTask ConnectAsync(string uuidOrHostName, CancellationToken cancellationToken = default);
+	ValueTask ConnectAsync(IPAddress ipAddress, CancellationToken cancellationToken = default);
+	ValueTask ConnectWithUuidAsync(string uuid, CancellationToken cancellationToken = default);
+	ValueTask ConnectWithHostNameAsync(string hostName, CancellationToken cancellationToken = default);
+	Task<string> SendAndReceiveAsync(string message, CancellationToken cancellationToken = default);
 }

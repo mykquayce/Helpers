@@ -5,15 +5,15 @@ namespace System.Net.Http;
 public static class HttpClientExtensions
 {
 
-	public async static Task<T> GetAsync<T>(this HttpClient client, Uri requestUri, CancellationToken? cancellationToken = default)
+	public async static Task<T> GetAsync<T>(this HttpClient client, Uri requestUri, CancellationToken cancellationToken = default)
 	{
-		using var response = await client.GetAsync(requestUri, cancellationToken: cancellationToken ?? CancellationToken.None);
+		using var response = await client.GetAsync(requestUri, cancellationToken: cancellationToken);
 
 		await using var stream = await response.Content.ReadAsStreamAsync();
 
 		try
 		{
-			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken ?? CancellationToken.None)
+			return await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken)
 				?? throw new ArgumentOutOfRangeException(nameof(stream), stream, "failed to deserialize stream");
 		}
 		catch (Exception ex)

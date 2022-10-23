@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Helpers.OpenWrt.Concrete;
@@ -15,26 +16,26 @@ public class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix prefix, CancellationToken? cancellationToken = default)
+	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix prefix, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(prefix).NotNull();
 		return _client.ExecuteCommandAsync("ip route add blackhole " + prefix, cancellationToken);
 	}
 
-	public async Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> prefixes, CancellationToken? cancellationToken = default)
+	public async Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> prefixes, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(prefixes).NotNull();
 
 		using var enumerator = prefixes.GetEnumerator();
 
 		while (enumerator.MoveNext()
-			&& cancellationToken?.IsCancellationRequested != true)
+			&& !cancellationToken.IsCancellationRequested)
 		{
 			await AddBlackholeAsync(enumerator.Current, cancellationToken);
 		}
 	}
 
-	public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync(CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var response = await _client.ExecuteCommandAsync("ip route show", cancellationToken);
 
@@ -45,7 +46,7 @@ public class Service : IService
 		var enumerator = matches.GetEnumerator();
 
 		while (enumerator.MoveNext()
-			&& cancellationToken?.IsCancellationRequested != true)
+			&& !cancellationToken.IsCancellationRequested)
 		{
 			var match = (Match)enumerator.Current;
 			var s = match.Groups[1].Value;
@@ -54,7 +55,7 @@ public class Service : IService
 		}
 	}
 
-	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix blackhole, CancellationToken? cancellationToken = default)
+	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix blackhole, CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(blackhole).NotNull();
 		return _client.ExecuteCommandAsync("ip route delete blackhole " + blackhole, cancellationToken);

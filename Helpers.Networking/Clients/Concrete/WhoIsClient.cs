@@ -1,5 +1,6 @@
 ﻿using Dawn;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.Networking.Clients.Concrete;
 
@@ -11,18 +12,18 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 	public WhoIsClient() : base("riswhois.ripe.net", 43, "\n")
 	{ }
 
-	public async IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn)
+	public async IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(asn).Positive();
 
 		var message = $"-F -K -i {asn:D}\n";
 
-		var lines = SendAndReceiveAsync(message);
+		var lines = SendAndReceiveAsync(message, cancellationToken);
 
 		await foreach (var line in lines)
 		{
 			if (string.IsNullOrWhiteSpace(line)) continue;
-			if (line.StartsWith("% ERROR:", StringComparison.InvariantCultureIgnoreCase))
+			if (line.StartsWith("% ERROR:", StringComparison.OrdinalIgnoreCase))
 			{
 				throw new Exceptions.WhoIsException(message, Hostname, Port, line[9..]);
 			}
@@ -33,15 +34,15 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 		}
 	}
 
-	public async IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress)
+	public async IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(ipAddress).NotNull();
 
 		var message = ipAddress.ToString() + "\n";
 
-		var lines = await SendAndReceiveAsync(message).ToListAsync();
+		var lines = await SendAndReceiveAsync(message, cancellationToken).ToListAsync(cancellationToken);
 
-		var error = lines.FirstOrDefault(s => s.StartsWith("% ERROR:", StringComparison.InvariantCultureIgnoreCase));
+		var error = lines.FirstOrDefault(s => s.StartsWith("% ERROR:", StringComparison.OrdinalIgnoreCase));
 		if (error is not null) throw new Exceptions.WhoIsException(message, Hostname, Port, error[9..]);
 
 		var text = string.Join('\r', lines);

@@ -2,15 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.1.11-rc1</Version>
+    <Version>1.1.12-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="Helpers.Web" Version="2.3.10-rc1" />
-    <PackageReference Include="System.Text.Json" Version="7.0.0-rc.1.22426.10" />
+    <PackageReference Include="Helpers.Web" Version="2.3.11-rc2" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.PhilipsHue.Concrete;
 
@@ -14,7 +15,7 @@ public class Service : IService
 		_memoryCache = memoryCache;
 	}
 
-	public async IAsyncEnumerable<string> GetLightAliasesAsync(CancellationToken? cancellationToken = null)
+	public async IAsyncEnumerable<string> GetLightAliasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		await foreach (var (alias, _) in _client.GetLightAliasesAsync(cancellationToken))
 		{
@@ -23,13 +24,13 @@ public class Service : IService
 	}
 
 	#region brightness
-	public async Task<float> GetLightBrightnessAsync(string alias, CancellationToken? cancellationToken = null)
+	public async Task<float> GetLightBrightnessAsync(string alias, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		return await _client.GetLightBrightnessAsync(index, cancellationToken);
 	}
 
-	public async Task SetLightBrightnessAsync(string alias, float brightness, CancellationToken? cancellationToken = null)
+	public async Task SetLightBrightnessAsync(string alias, float brightness, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		await _client.SetLightBrightnessAsync(index, brightness, cancellationToken);
@@ -37,13 +38,13 @@ public class Service : IService
 	#endregion brightness
 
 	#region color
-	public async Task<Color> GetLightColorAsync(string alias, CancellationToken? cancellationToken = null)
+	public async Task<Color> GetLightColorAsync(string alias, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		return await _client.GetLightColorAsync(index, cancellationToken);
 	}
 
-	public async Task SetLightColorAsync(string alias, Color color, CancellationToken? cancellationToken = null)
+	public async Task SetLightColorAsync(string alias, Color color, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		await _client.SetLightColorAsync(index, color, cancellationToken);
@@ -51,13 +52,13 @@ public class Service : IService
 	#endregion color
 
 	#region power
-	public async Task<bool> GetLightPowerAsync(string alias, CancellationToken? cancellationToken = null)
+	public async Task<bool> GetLightPowerAsync(string alias, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		return await _client.GetLightPowerAsync(index, cancellationToken);
 	}
 
-	public async Task SetLightPowerAsync(string alias, bool on, CancellationToken? cancellationToken = null)
+	public async Task SetLightPowerAsync(string alias, bool on, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		await _client.SetLightPowerAsync(index, on, cancellationToken);
@@ -65,20 +66,20 @@ public class Service : IService
 	#endregion power
 
 	#region temperature
-	public async Task<short> GetLightTemperatureAsync(string alias, CancellationToken? cancellationToken = null)
+	public async Task<short> GetLightTemperatureAsync(string alias, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		return await _client.GetLightTemperatureAsync(index, cancellationToken);
 	}
 
-	public async Task SetLightTemperatureAsync(string alias, short kelvins, CancellationToken? cancellationToken = null)
+	public async Task SetLightTemperatureAsync(string alias, short kelvins, CancellationToken cancellationToken = default)
 	{
 		var index = await ResolveAliasAsync(alias, cancellationToken);
 		await _client.SetLightTemperatureAsync(index, kelvins, cancellationToken);
 	}
 	#endregion temperature
 
-	private async Task RefreshCacheAsync(CancellationToken? cancellationToken = null)
+	private async Task RefreshCacheAsync(CancellationToken cancellationToken = default)
 	{
 		var absoluteExpiration = DateTimeOffset.UtcNow.AddHours(1);
 		await foreach (var (alias, index) in _client.GetLightAliasesAsync(cancellationToken))
@@ -87,7 +88,7 @@ public class Service : IService
 		}
 	}
 
-	private async Task<int> ResolveAliasAsync(string alias, CancellationToken? cancellationToken = null)
+	private async Task<int> ResolveAliasAsync(string alias, CancellationToken cancellationToken = default)
 	{
 		if (_memoryCache.TryGetValue(alias, out int? index))
 		{

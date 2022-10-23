@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.Reddit.Concrete;
 
@@ -11,16 +12,16 @@ public partial class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
-	public Task<string> GetRandomSubredditNameAsync(CancellationToken? cancellationToken = default)
+	public Task<string> GetRandomSubredditNameAsync(CancellationToken cancellationToken = default)
 		=> _client.GetRandomSubredditAsync(cancellationToken);
 
-	public async IAsyncEnumerable<long> GetThreadIdsForSubredditAsync(string subredditName, CancellationToken? cancellationToken = default)
+	public async IAsyncEnumerable<long> GetThreadIdsForSubredditAsync(string subredditName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var threads = _client.GetThreadsAsync(subredditName, cancellationToken);
 
-		await using var enumerator = threads.GetAsyncEnumerator(cancellationToken ?? CancellationToken.None);
+		await using var enumerator = threads.GetAsyncEnumerator(cancellationToken);
 
-		while (cancellationToken?.IsCancellationRequested != true
+		while (!cancellationToken.IsCancellationRequested
 			&& await enumerator.MoveNextAsync())
 		{
 			var thread = enumerator.Current;
@@ -28,6 +29,6 @@ public partial class Service : IService
 		}
 	}
 
-	public IAsyncEnumerable<string> GetCommentsForThreadIdAsync(string subredditName, long threadId, CancellationToken? cancellationToken = default)
+	public IAsyncEnumerable<string> GetCommentsForThreadIdAsync(string subredditName, long threadId, CancellationToken cancellationToken = default)
 		=> _client.GetCommentsAsync(subredditName, threadId, cancellationToken);
 }
