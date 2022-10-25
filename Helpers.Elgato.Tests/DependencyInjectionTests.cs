@@ -8,56 +8,81 @@ namespace Helpers.Elgato.Tests;
 [Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
 public class DependencyInjectionTests : IClassFixture<Fixtures.ConfigFixture>
 {
-	private readonly Fixtures.ConfigFixture _configFixture;
-	private readonly IConfiguration _configuration;
+	private readonly IReadOnlyCollection<IPAddress> _ipAddresses;
 
 	public DependencyInjectionTests(Fixtures.ConfigFixture configFixture)
 	{
-		_configFixture = configFixture;
-		_configuration = configFixture.Configuration;
+		_ipAddresses = configFixture.Configuration.GetSection("elgato:ipaddresses")
+			.Get<string[]>()!
+			.Select(IPAddress.Parse)
+			.ToArray()
+			.AsReadOnly();
 	}
 
-	[Fact]
-	public async Task Test1()
+	[Theory]
+	[InlineData("http", 9_123)]
+	public async Task ValuesTests(string scheme, int port)
 	{
-		IServiceProvider serviceProvider;
+		using var serviceProvider = new ServiceCollection()
+			.AddElgato(scheme, port)
+			.BuildServiceProvider();
+
+		await TestServiceProvider(serviceProvider);
+	}
+
+	[Theory]
+	[InlineData("http", 9_123)]
+	public async Task ConfigTests(string scheme, int port)
+	{
+		var config = new Config(scheme, port);
+
+		using var serviceProvider = new ServiceCollection()
+			.AddElgato(config)
+			.BuildServiceProvider();
+
+		await TestServiceProvider(serviceProvider);
+	}
+
+	[Theory]
+	[InlineData("http", 9_123)]
+	public async Task ConfigurationTests(string scheme, int port)
+	{
+		IConfiguration configuration;
 		{
-			IConfiguration configuration;
+			var initialData = new Dictionary<string, string?>
 			{
-				var initialData = new Dictionary<string, string?>
-				{
-					["Elgato:Scheme"] = Config.DefaultScheme,
-					["Elgato:Port"] = Config.DefaultPort.ToString("D"),
-				};
+				[nameof(scheme)] = scheme,
+				[nameof(port)] = port.ToString(),
+			};
 
-				configuration = new ConfigurationBuilder()
-					.AddInMemoryCollection(initialData)
-					.Build();
-			}
-
-			serviceProvider = new ServiceCollection()
-				.Configure<Config>(configuration.GetSection("Elgato"))
-				.AddTransient<IService, Concrete.Service>()
-				.AddHttpClient<IClient, Concrete.Client>("ElgatoClient")
-				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
-				.Services
-				.BuildServiceProvider();
+			configuration = new ConfigurationBuilder()
+				.AddInMemoryCollection(initialData)
+				.Build();
 		}
 
-		var sut = serviceProvider.GetRequiredService<IService>();
+		using var serviceProvider = new ServiceCollection()
+			.AddElgato(configuration)
+			.BuildServiceProvider();
 
-		var ips = new IPAddress[2]
-		{
-			new IPAddress(new byte[4] { 192, 168, 1, 102, }),
-			new IPAddress(new byte[4] { 192, 168, 1, 217, }),
-		};
+		await TestServiceProvider(serviceProvider);
+	}
 
-		foreach (var ip in ips)
+	private async Task TestServiceProvider(IServiceProvider serviceProvider)
+	{
+		var sut = serviceProvider.GetRequiredService<Helpers.Elgato.IService>();
+
+		foreach (var ip in _ipAddresses)
 		{
 			var lights = await sut.GetLightStatusAsync(ip).ToListAsync();
 
 			Assert.NotNull(lights);
 			Assert.NotEmpty(lights);
+			Assert.NotEqual(default, lights);
+
+			foreach (var (on, brightness) in lights)
+			{
+				Assert.InRange(brightness, 0, 1);
+			}
 		}
 	}
 

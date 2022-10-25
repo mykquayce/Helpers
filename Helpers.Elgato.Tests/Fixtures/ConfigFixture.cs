@@ -11,7 +11,11 @@ public class ConfigFixture
 
 		Configuration = userSecretsFixture.Configuration;
 
-		IPAddresses = Configuration.GetSection("elgato:ipaddresses").Get<string[]>()!.Select(IPAddress.Parse).ToArray();
+		IPAddresses = Configuration.GetSection("elgato:ipaddresses")
+			.Get<string[]>()!
+			.Select(IPAddress.Parse)
+			.ToArray()
+			.AsReadOnly();
 	}
 
 	public IConfiguration Configuration { get; }

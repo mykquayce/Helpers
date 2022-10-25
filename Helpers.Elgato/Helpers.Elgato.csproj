@@ -4,12 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>3.2.2-rc2</Version>
+    <Version>3.2.3-rc2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Helpers.Elgato.Models" Version="1.0.4-rc1" />
     <PackageReference Include="Helpers.Web" Version="2.3.11-rc2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0-rc.2.22472.3" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
