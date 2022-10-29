@@ -1,18 +1,17 @@
-﻿using System.Net;
-using System.Text.Json.Serialization;
+﻿using Microsoft.Extensions.Options;
 
 namespace Helpers.GlobalCache;
 
-public record Config(
-	[property: JsonConverter(typeof(Helpers.Json.Converters.JsonIPAddressConverter))] IPAddress BroadcastIPAddress,
-	ushort BroadcastPort,
-	ushort ReceivePort)
+public record Config(int BufferSize, string HostName, ushort Port)
+	: IOptions<Config>
 {
-	public static readonly IPAddress DefaultBroadcastIPAddress = IPAddress.Parse("239.255.250.250");
-	public const ushort DefaultBroadcastPort = 4_998;
-	public const ushort DefaultReceivePort = 9_131;
+	public const int DefaultBufferSize = 1_024;
+	public const string DefaultHostName = "localhost";
+	public const ushort DefaultPort = 4_998;
 
-	public Config() : this(DefaultBroadcastIPAddress, DefaultBroadcastPort, DefaultReceivePort) { }
+	public Config() : this(DefaultBufferSize, DefaultHostName, DefaultPort) { }
 
 	public static Config Defaults => new();
+
+	public Config Value => this;
 }

@@ -1,6 +1,8 @@
-﻿namespace Helpers.GlobalCache.Tests.Fixtures;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-public class ClientFixture
+namespace Helpers.GlobalCache.Tests.Fixtures;
+
+public class ClientFixture : ServiceProviderFixture
 {
-	public IClient Client { get; } = new Concrete.Client(Config.Defaults);
+	public IClient Client => ServiceProvider.GetRequiredService<IClient>();
 }

@@ -1,6 +1,6 @@
 ﻿namespace Helpers.GlobalCache.Tests;
 
-[Collection(nameof(CollectionDefinition.NonParallelCollectionDefinitionClass))]
+[Collection(nameof(NonParallelCollection))]
 public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 {
 	private readonly IClient _sut;
@@ -11,17 +11,18 @@ public class ClientTests : IClassFixture<Fixtures.ClientFixture>
 	}
 
 	[Theory]
-	[InlineData("GlobalCache_000C1E059CAD", @"^http:\/\/192\.168\.1\.\d+$")]
-	public async Task Discover(string expectedUuid, string expectedConfigUrlPattern)
+	// amp-mute-toggle
+	[InlineData(
+		"sendir,1:1,1,40192,2,1,96,24,24,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+		"completeir")]
+	// amp-power-toggle
+	[InlineData(
+		"sendir,1:1,1,40192,2,1,96,24,48,24,24,24,48,24,24,24,48,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,48,24,24,24,24,4000\r",
+		"completeir")]
+	public async Task SendTests(string message, string expected)
 	{
-		var beacons = await _sut.DiscoverAsync().ToListAsync();
-
-		Assert.Single(beacons);
-		Assert.DoesNotContain(default, beacons);
-
-		var beacon = beacons.Single();
-
-		Assert.Equal(expectedUuid, beacon.Uuid);
-		Assert.Matches(expectedConfigUrlPattern, beacon.ConfigUrl);
+		var response = await _sut.SendAsync(message);
+		Assert.NotNull(response);
+		Assert.StartsWith(expected, response, StringComparison.OrdinalIgnoreCase);
 	}
 }
