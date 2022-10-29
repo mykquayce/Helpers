@@ -1,8 +1,8 @@
-﻿namespace Helpers.GlobalCache.Tests.Fixtures;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-public sealed class ServiceFixture : IDisposable
+namespace Helpers.GlobalCache.Tests.Fixtures;
+
+public class ServiceFixture : ClientFixture
 {
-	public IService Service { get; } = new Concrete.Service(Config.Defaults);
-
-	public void Dispose() => Service.Dispose();
+	public IService Service => ServiceProvider.GetRequiredService<IService>();
 }

@@ -1,31 +1,55 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
-using System.Globalization;
-using System.Net;
+using System.Net.Sockets;
 
 namespace Helpers.GlobalCache.Concrete;
 
-public partial class Client : IClient
+public class Client : IClient
 {
-	private readonly IPAddress _broadcastIPAddress;
-	private readonly ushort _receivePort;
+	private bool _disposed;
+	private readonly int _bufferSize;
+	private readonly Socket _socket;
 
-	#region constructors
-	public Client(IOptions<Config> options) : this(options.Value) { }
-	public Client(Config config)
+	public Client(Socket socket, IOptions<Config> configOptions)
 	{
-		Guard.Argument(config).NotNull();
-		_broadcastIPAddress = Guard.Argument(config.BroadcastIPAddress).NotNull().Value;
-		_receivePort = Guard.Argument(config.ReceivePort).Positive().Value;
+		_socket = socket;
+		var config = Guard.Argument(configOptions).NotNull().Wrap(o => o.Value)
+			.NotNull().Value;
+		(_bufferSize, var hostName, var port) = config;
+		Guard.Argument(_bufferSize).Positive();
+		Guard.Argument(hostName).NotNull().NotEmpty().NotWhiteSpace();
+		_socket.Connect(hostName, port);
 	}
-	#endregion constructors
 
-	public async IAsyncEnumerable<Models.Beacon> DiscoverAsync()
+	public async Task<ReadOnlyMemory<byte>> SendAsync(ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default)
 	{
-		using var udpClient = new Helpers.Networking.Clients.Concrete.UdpClient(_broadcastIPAddress, _receivePort);
-		var beacons = udpClient.DiscoverAsync().Select(parse).Distinct();
-		await foreach (var beacon in beacons) yield return beacon;
-
-		static Models.Beacon parse(string s) => Models.Beacon.Parse(s, CultureInfo.InvariantCulture);
+		Guard.Argument(bytes).NotDefault();
+		await _socket.SendAsync(bytes, SocketFlags.None, cancellationToken);
+		var buffer = new Memory<byte>(new byte[_bufferSize]);
+		var count = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
+		return buffer[..count];
 	}
+
+	#region IAsyncDisposable implementation
+	protected virtual ValueTask DisposeAsync(bool disposing)
+	{
+		if (!_disposed)
+		{
+			if (disposing)
+			{
+				return _socket.DisconnectAsync(reuseSocket: false);
+			}
+
+			_disposed = true;
+		}
+
+		return ValueTask.CompletedTask;
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		await DisposeAsync(disposing: true);
+		GC.SuppressFinalize(this);
+	}
+	#endregion IAsyncDisposable implementation
 }
