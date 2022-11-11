@@ -4,13 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.8-rc2</Version>
+    <Version>1.0.9-preview</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.3.11-rc2" />
+    <PackageReference Include="Helpers.Web" Version="2.3.11" />
     <PackageReference Include="IdentityModel" Version="6.1.0-preview.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0-rc.2.22476.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
   </ItemGroup>
 
 </Project>
