@@ -7,12 +7,9 @@ public static class SystemExtensions
 	private static readonly Encoding _encoding = Encoding.UTF8;
 	private const byte _initialKey = 0xAB;
 
-	#region encode
 	public static byte[] Encode(this string s) => _encoding.GetBytes(s);
 	public static string Decode(this byte[] bb) => _encoding.GetString(bb);
-	#endregion encode
 
-	#region encrypt
 	public static byte[] Encrypt(this byte[] bb)
 	{
 		var result = new byte[bb.Length];
@@ -35,15 +32,4 @@ public static class SystemExtensions
 		}
 		return result;
 	}
-	#endregion encrypt
-
-	#region hex
-	public static string ToHex(this byte b) => Convert.ToString(b, toBase: 16);
-	public static IEnumerable<string> ToHex(this IEnumerable<byte> bb) => bb.Select(ToHex);
-	#endregion hex
-
-	#region decimal
-	public static byte ToDecimal(this string s) => Convert.ToByte(s, fromBase: 16);
-	public static IEnumerable<byte> ToDecimal(this IEnumerable<string> ss) => ss.Select(ToDecimal);
-	#endregion decimal
 }

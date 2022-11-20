@@ -1,17 +1,28 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Helpers.TPLink.Tests.Fixtures;
 
-public class Fixture
+public sealed class Fixture : IDisposable
 {
-	private static readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+	private readonly IServiceProvider _serviceProvider;
+
 	public Fixture()
 	{
-		var config = Config.Defaults;
-		Client = new Concrete.TPLinkClient(config);
-		Service = new Concrete.TPLinkService(Client, _cache);
+		_serviceProvider = new ServiceCollection()
+			.AddTPLink()
+			.BuildServiceProvider();
+
+		Client = get<IClient>();
+		DiscoveryClient = get<IDiscoveryClient>();
+		Service = get<IService>();
+
+		T get<T>() where T : notnull
+			=> _serviceProvider.GetRequiredService<T>();
 	}
 
-	public ITPLinkClient Client { get; }
-	public ITPLinkService Service { get; }
+	public void Dispose() => ((ServiceProvider)_serviceProvider).Dispose();
+
+	public IClient Client { get; }
+	public IService Service { get; }
+	public IDiscoveryClient DiscoveryClient { get; }
 }
