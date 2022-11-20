@@ -1,5 +1,4 @@
-﻿namespace Helpers.TPLink.Tests.CollectionDefinitions;
+﻿namespace Xunit;
 
-[CollectionDefinition(nameof(NonParallelCollectionDefinitionClass), DisableParallelization = true)]
-public class NonParallelCollectionDefinitionClass
-{ }
+[CollectionDefinition(nameof(NonParallelCollection), DisableParallelization = true)]
+public class NonParallelCollection { }

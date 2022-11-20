@@ -1,77 +1,32 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Helpers.TPLink.Tests;
 
-[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
+[Collection(nameof(NonParallelCollection))]
 public class DependencyInjectionTests
 {
-	[Theory]
-	[InlineData(1)]
-	public void OptionsTests(ushort port)
-	{
-		var config = new Config(port);
-		var options = Options.Create(config);
-
-		var provider = new ServiceCollection()
-			.AddSingleton(options)
-			.AddTransient<ITPLinkClient, Concrete.TPLinkClient>()
-			.BuildServiceProvider();
-
-		var sut = provider.GetService<ITPLinkClient>();
-
-		Assert.NotNull(sut);
-	}
-
-	[Theory]
-	[InlineData(9_999)]
-	public async Task Test1(ushort port)
+	[Fact]
+	public async Task Test1()
 	{
 		using var provider = new ServiceCollection()
-			.AddTPLink(port)
+			.AddTPLink()
 			.BuildServiceProvider();
 
-		var client = provider.GetRequiredService<ITPLinkClient>();
-		var service = provider.GetRequiredService<ITPLinkService>();
+		var discoveryClient = provider.GetRequiredService<IDiscoveryClient>();
+		var client = provider.GetRequiredService<IClient>();
+		var service = provider.GetRequiredService<IService>();
 
-		var devices = await client.DiscoverAsync().ToListAsync();
+		var devices = await discoveryClient.DiscoverAsync().ToListAsync();
 
 		Assert.NotEmpty(devices);
 
-		foreach (var (alias, ip, mac) in devices)
+		foreach ((_, var ip, _) in devices)
 		{
-			Models.SystemInfo systemInfo;
+			var (amps, volts, watts) = await service.GetRealtimeDataAsync(ip).FirstAsync();
 
-			systemInfo = await service.GetSystemInfoAsync(alias);
-			Assert.NotNull(systemInfo);
-
-			systemInfo = await service.GetSystemInfoAsync(ip);
-			Assert.NotNull(systemInfo);
-
-			systemInfo = await service.GetSystemInfoAsync(mac);
-			Assert.NotNull(systemInfo);
+			Assert.InRange(amps, 0, 13);
+			Assert.InRange(volts, 230, 250);
+			Assert.InRange(watts, 0, 1_000);
 		}
-	}
-
-	[Theory]
-	[InlineData(100)]
-	public async Task MemoryCacheLoopTests(int timeout)
-	{
-		using var provider = new ServiceCollection()
-			.AddTPLink(Config.Defaults)
-			.BuildServiceProvider();
-
-		var services = provider.GetServices<IMemoryCache>().ToList();
-
-		var tasks = new Task[2]
-			{
-				Task.Run(provider.GetRequiredService<IMemoryCache>),
-				Task.Delay(timeout),
-			};
-
-		var task = await Task.WhenAny(tasks);
-
-		_ = Assert.IsType<Task<IMemoryCache>>(task);
 	}
 }
