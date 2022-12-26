@@ -1,6 +1,6 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Options;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
