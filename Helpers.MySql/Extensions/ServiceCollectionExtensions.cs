@@ -1,7 +1,5 @@
 ﻿using Dawn;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using System.Data;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
