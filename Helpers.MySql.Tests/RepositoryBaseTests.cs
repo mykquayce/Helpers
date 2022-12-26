@@ -78,7 +78,7 @@ public class RepositoryBaseTests : IClassFixture<Helpers.XUnitClassFixtures.User
 		while (count-- > 0)
 		{
 			using var transaction = sut.BeginTransaction();
-			await sut.GetDateTimeAsync();
+			await sut.GetDateTimeAsync(transaction);
 		}
 	}
 
