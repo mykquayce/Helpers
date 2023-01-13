@@ -19,7 +19,7 @@ namespace Helpers.OldhamCouncil.Concrete
 			_client = Guard.Argument(client).NotNull().Value;
 		}
 
-		public async IAsyncEnumerable<KeyValuePair<string, long>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<string, string>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
 
@@ -32,9 +32,9 @@ namespace Helpers.OldhamCouncil.Concrete
 			}
 		}
 
-		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(long id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(string id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
-			Guard.Argument(id).Positive();
+			Guard.Argument(id).NotNull().NotEmpty();
 
 			var dictionary = new Dictionary<DateTime, Models.BinTypes>();
 

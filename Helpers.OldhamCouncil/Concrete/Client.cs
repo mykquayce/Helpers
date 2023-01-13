@@ -3,45 +3,41 @@ using Helpers.Web;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml.Serialization;
 
 namespace Helpers.OldhamCouncil.Concrete
 {
-	public class Client : WebClientBase, IClient
+	public partial class Client : WebClientBase, IClient
 	{
 		private readonly Encoding _encoding = Encoding.UTF8;
 
 		private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
-		private const RegexOptions _regexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline;
-		private readonly static Regex regex = new(@"<table.+?<\/table>", _regexOptions);
 
 		public Client(HttpClient httpClient) : base(httpClient) { }
 
-		public async IAsyncEnumerable<KeyValuePair<long, string>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		public async IAsyncEnumerable<Models.Address> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
 			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
-			var uri = new Uri("/Forms/Common/GetSelectAddressList?type=Postcode&convert=true&term=" + postcode, UriKind.Relative);
-			var (_, _, kvps) = await base.SendAsync<KeyValuePair<string, string>[]>(HttpMethod.Get, uri);
-			foreach (var kvp in kvps!)
+			var uri = new Uri("Common/GetAddressList?type=Postcode&term=" + HttpUtility.UrlEncode(postcode), UriKind.Relative);
+			var (headers, status, addresses) = await SendAsync<ICollection<Models.Address>>(HttpMethod.Get, uri);
+
+			using var enumerator = addresses!.GetEnumerator();
+
+			enumerator.MoveNext();
+
+			while (enumerator.MoveNext())
 			{
-				if (cancellationToken.IsCancellationRequested)
-				{
-					yield break;
-				}
-
-				var id = long.Parse(kvp.Key);
-				var address = kvp.Value;
-
-				yield return new(id, address);
+				yield return enumerator.Current;
 			}
 		}
 
-		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(long id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(string uprn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 		{
-			Guard.Argument(id).Positive();
-			var uri = new Uri("/Forms/EnvironmentalHealth/GetBinView?uprn=" + id, UriKind.Relative);
-			var (_, _, html) = await base.SendAsync<string>(HttpMethod.Get, uri);
-			var matches = regex.Matches(html);
+			Guard.Argument(uprn).NotNull().NotEmpty();
+			var uri = new Uri("bincollectiondates/details?uprn=" + uprn, UriKind.Relative);
+			var (_, _, html) = await SendAsync<string>(HttpMethod.Get, uri);
+			var matches = TableRegex().Matches(html!);
 
 			foreach (Match match in matches)
 			{
@@ -68,5 +64,8 @@ namespace Helpers.OldhamCouncil.Concrete
 			var t = serializer.Deserialize(stream) as T;
 			return t;
 		}
+
+		[GeneratedRegex("<table.+?<\\/table>", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+		private static partial Regex TableRegex();
 	}
 }

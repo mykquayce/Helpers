@@ -5,7 +5,7 @@ namespace Helpers.OldhamCouncil.Tests.Fixtures
 {
 	public sealed class ClientFixture : IDisposable
 	{
-		private readonly Uri _baseAddress = new("https://adt.oldham.gov.uk", UriKind.Absolute);
+		private readonly Uri _baseAddress = new("https://portal.oldham.gov.uk/", UriKind.Absolute);
 		private readonly HttpClient _httpClient;
 
 		public ClientFixture()

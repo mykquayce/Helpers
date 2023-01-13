@@ -14,11 +14,10 @@ namespace Helpers.OldhamCouncil.Tests
 		}
 
 		[Theory]
-		[InlineData(422_000_014_726)]
-		[InlineData(422_000_112_981)]
-		public async Task GetBinCollections(long id)
+		[InlineData("422000112981")]
+		public async Task GetBinCollections(string uprn)
 		{
-			var dictionary = await _sut.GetBinCollectionsAsync(id)
+			var dictionary = await _sut.GetBinCollectionsAsync(uprn)
 				.ToDictionaryAsync(kvp => kvp.Key, kvp => kvp.Value);
 
 			Assert.NotNull(dictionary);

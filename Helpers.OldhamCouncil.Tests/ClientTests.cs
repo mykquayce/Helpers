@@ -14,19 +14,29 @@ namespace Helpers.OldhamCouncil.Tests
 		}
 
 		[Theory]
-		[InlineData("ol11aa", 422_000_069_073, "21  OLDHAM DELIVERY OFFICE HAMILTON STREET OLDHAM OL1 1AA")]
-		[InlineData("ol1 1ut", 422_000_112_981, "CIVIC CENTRE WEST STREET OLDHAM OL1 1UT")]
-		public async Task GetAddresses(string postcode, long id, string address)
+		[InlineData("ol11aa", "422000069073", "21  OLDHAM DELIVERY OFFICE HAMILTON STREET OLDHAM OL1 1AA")]
+		[InlineData("ol1 1ut", "422000112981", "CIVIC CENTRE WEST STREET OLDHAM OL1 1UT")]
+		public async Task GetAddresses(string postcode, string uprn, string address)
 		{
-			var dictionary = await _sut.GetAddressesAsync(postcode)
-				.ToDictionaryAsync(kvp => kvp.Key, kvp => kvp.Value);
+			var addresses = await _sut.GetAddressesAsync(postcode)
+				.ToListAsync();
 
-			Assert.NotNull(dictionary);
-			Assert.NotEmpty(dictionary);
-			Assert.NotNull(dictionary);
-			Assert.NotEmpty(dictionary);
-			Assert.Contains(id, dictionary.Keys);
-			Assert.Equal(address, dictionary[id]);
+			Assert.NotNull(addresses);
+			Assert.NotEmpty(addresses);
+			Assert.NotNull(addresses);
+			Assert.NotEmpty(addresses);
+			Assert.Contains(uprn, addresses.Select(a => a.Uprn));
+			Assert.Contains(address, addresses.Select(a => a.FullAddress));
+		}
+
+		[Theory]
+		[InlineData("422000112981")]
+		public async Task GetBinCollections(string uprn)
+		{
+			var collections = await _sut.GetBinCollectionsAsync(uprn)
+				.ToListAsync();
+
+			Assert.NotEmpty(collections);
 		}
 	}
 }
