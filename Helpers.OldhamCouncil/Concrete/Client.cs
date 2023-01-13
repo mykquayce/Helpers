@@ -3,70 +3,68 @@ using Helpers.Web;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml.Serialization;
 
-namespace Helpers.OldhamCouncil.Concrete
+namespace Helpers.OldhamCouncil.Concrete;
+
+public partial class Client : WebClientBase, IClient
 {
-	public class Client : WebClientBase, IClient
+	private readonly Encoding _encoding = Encoding.UTF8;
+
+	private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
+
+	public Client(HttpClient httpClient) : base(httpClient) { }
+
+	public async IAsyncEnumerable<Models.Address> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		private readonly Encoding _encoding = Encoding.UTF8;
+		Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
+		var uri = new Uri("Common/GetAddressList?type=Postcode&term=" + HttpUtility.UrlEncode(postcode), UriKind.Relative);
+		var (headers, status, addresses) = await SendAsync<ICollection<Models.Address>>(HttpMethod.Get, uri);
 
-		private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
-		private const RegexOptions _regexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline;
-		private readonly static Regex regex = new(@"<table.+?<\/table>", _regexOptions);
+		using var enumerator = addresses!.GetEnumerator();
 
-		public Client(HttpClient httpClient) : base(httpClient) { }
+		enumerator.MoveNext();
 
-		public async IAsyncEnumerable<KeyValuePair<long, string>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+		while (enumerator.MoveNext())
 		{
-			Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
-			var uri = new Uri("/Forms/Common/GetSelectAddressList?type=Postcode&convert=true&term=" + postcode, UriKind.Relative);
-			var (_, _, kvps) = await base.SendAsync<KeyValuePair<string, string>[]>(HttpMethod.Get, uri);
-			foreach (var kvp in kvps!)
-			{
-				if (cancellationToken.IsCancellationRequested)
-				{
-					yield break;
-				}
-
-				var id = long.Parse(kvp.Key);
-				var address = kvp.Value;
-
-				yield return new(id, address);
-			}
-		}
-
-		public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(long id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-		{
-			Guard.Argument(id).Positive();
-			var uri = new Uri("/Forms/EnvironmentalHealth/GetBinView?uprn=" + id, UriKind.Relative);
-			var (_, _, html) = await base.SendAsync<string>(HttpMethod.Get, uri);
-			var matches = regex.Matches(html);
-
-			foreach (Match match in matches)
-			{
-				if (cancellationToken.IsCancellationRequested)
-				{
-					yield break;
-				}
-
-				var tableHtml = match.Value;
-				var table = DeserializeXml<Models.Generated.tableType>(tableHtml);
-				if (table is not null)
-				{
-					yield return table;
-				}
-			}
-		}
-
-		public T? DeserializeXml<T>(string xml)
-			where T : class
-		{
-			var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
-			var bytes = _encoding.GetBytes(xml);
-			using var stream = new MemoryStream(bytes);
-			var t = serializer.Deserialize(stream) as T;
-			return t;
+			yield return enumerator.Current;
 		}
 	}
+
+	public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(string uprn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+	{
+		Guard.Argument(uprn).NotNull().NotEmpty();
+		var uri = new Uri("bincollectiondates/details?uprn=" + uprn, UriKind.Relative);
+		var (_, _, html) = await SendAsync<string>(HttpMethod.Get, uri);
+		var matches = TableRegex().Matches(html!);
+
+		foreach (Match match in matches)
+		{
+			if (cancellationToken.IsCancellationRequested)
+			{
+				yield break;
+			}
+
+			var tableHtml = match.Value;
+			var table = DeserializeXml<Models.Generated.tableType>(tableHtml);
+			if (table is not null)
+			{
+				yield return table;
+			}
+		}
+	}
+
+	public T? DeserializeXml<T>(string xml)
+		where T : class
+	{
+		var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
+		var bytes = _encoding.GetBytes(xml);
+		using var stream = new MemoryStream(bytes);
+		var t = serializer.Deserialize(stream) as T;
+		return t;
+	}
+
+	[GeneratedRegex("<table.+?<\\/table>", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+	private static partial Regex TableRegex();
 }
