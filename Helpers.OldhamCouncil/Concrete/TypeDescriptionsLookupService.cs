@@ -1,48 +1,44 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
-namespace Helpers.OldhamCouncil.Concrete
+namespace Helpers.OldhamCouncil.Concrete;
+
+public class TypeDescriptionsLookupService<T> : ITypeDescriptionsLookupService<T>
 {
-	public class TypeDescriptionsLookupService<T> : ITypeDescriptionsLookupService<T>
+	private readonly IDictionary<string, T> _dictionary = new Dictionary<string, T>(StringComparer.InvariantCultureIgnoreCase);
+
+	public TypeDescriptionsLookupService()
 	{
-		private readonly IDictionary<string, T> _dictionary = new Dictionary<string, T>(StringComparer.InvariantCultureIgnoreCase);
+		var type = typeof(T);
+		var fields = type.GetFields();
 
-		public TypeDescriptionsLookupService()
+		foreach (var field in fields)
 		{
-			var type = typeof(T);
-			var fields = type.GetFields();
+			var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), inherit: false);
 
-			foreach (var field in fields)
+			foreach (var attribute in attributes)
 			{
-				var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), inherit: false);
-
-				foreach (var attribute in attributes)
+				if (attribute is not DescriptionAttribute descriptionAttribute)
 				{
-					if (attribute is not DescriptionAttribute descriptionAttribute)
-					{
-						continue;
-					}
-
-					var key = descriptionAttribute.Description;
-					var value = (T)field.GetValue(default)!;
-
-					_dictionary.Add(key, value);
+					continue;
 				}
+
+				var key = descriptionAttribute.Description;
+				var value = (T)field.GetValue(default)!;
+
+				_dictionary.Add(key, value);
 			}
 		}
-
-		#region IReadOnlyDictionary implementation
-		public T this[string key] => _dictionary[key];
-		public IEnumerable<string> Keys => _dictionary.Keys;
-		public IEnumerable<T> Values => _dictionary.Values;
-		public int Count => _dictionary.Count;
-		public bool ContainsKey(string key) => _dictionary.ContainsKey(key);
-		public IEnumerator<KeyValuePair<string, T>> GetEnumerator() => _dictionary.GetEnumerator();
-		public bool TryGetValue(string key, out T value) => _dictionary.TryGetValue(key, out value);
-		IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
-		#endregion IReadOnlyDictionary implementation
 	}
+
+	#region IReadOnlyDictionary implementation
+	public T this[string key] => _dictionary[key];
+	public IEnumerable<string> Keys => _dictionary.Keys;
+	public IEnumerable<T> Values => _dictionary.Values;
+	public int Count => _dictionary.Count;
+	public bool ContainsKey(string key) => _dictionary.ContainsKey(key);
+	public IEnumerator<KeyValuePair<string, T>> GetEnumerator() => _dictionary.GetEnumerator();
+	public bool TryGetValue(string key, out T value) => _dictionary.TryGetValue(key, out value);
+	IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
+	#endregion IReadOnlyDictionary implementation
 }

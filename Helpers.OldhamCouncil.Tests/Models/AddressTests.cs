@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Xunit;
 
-namespace Helpers.OldhamCouncil.Tests.Models
+namespace Helpers.OldhamCouncil.Tests.Models;
+
+public class AddressTests
 {
-	public class AddressTests
-	{
-		[Theory]
-		[InlineData("""
+	[Theory]
+	[InlineData("""
 [
     {
         "UPRN": null,
@@ -51,20 +48,19 @@ namespace Helpers.OldhamCouncil.Tests.Models
     }
 ]
 """, "422000069073", "21  OLDHAM DELIVERY OFFICE HAMILTON STREET OLDHAM OL1 1AA")]
-		public void Deserialize(string json, string expectedUprn, string expectedFullAddress)
-		{
-			var addresses = JsonSerializer.Deserialize<IList<OldhamCouncil.Models.Address>>(json);
+	public void Deserialize(string json, string expectedUprn, string expectedFullAddress)
+	{
+		var addresses = JsonSerializer.Deserialize<IList<OldhamCouncil.Models.Address>>(json);
 
-			Assert.NotNull(addresses);
-			Assert.NotEmpty(addresses);
-			Assert.DoesNotContain(default, addresses);
-			Assert.Equal(2, addresses.Count);
+		Assert.NotNull(addresses);
+		Assert.NotEmpty(addresses);
+		Assert.DoesNotContain(default, addresses);
+		Assert.Equal(2, addresses.Count);
 
-			Assert.Equal(default, addresses[0].Uprn);
-			Assert.Equal("-- Please select from the list --", addresses[0].FullAddress);
+		Assert.Equal(default, addresses[0].Uprn);
+		Assert.Equal("-- Please select from the list --", addresses[0].FullAddress);
 
-			Assert.Equal(expectedUprn, addresses[1].Uprn);
-			Assert.Equal(expectedFullAddress, addresses[1].FullAddress);
-		}
+		Assert.Equal(expectedUprn, addresses[1].Uprn);
+		Assert.Equal(expectedFullAddress, addresses[1].FullAddress);
 	}
 }

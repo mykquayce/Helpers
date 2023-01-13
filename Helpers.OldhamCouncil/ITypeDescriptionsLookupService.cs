@@ -1,6 +1,3 @@
-﻿using System.Collections.Generic;
+﻿namespace Helpers.OldhamCouncil;
 
-namespace Helpers.OldhamCouncil
-{
-	public interface ITypeDescriptionsLookupService<T> : IReadOnlyDictionary<string, T> { }
-}
+public interface ITypeDescriptionsLookupService<T> : IReadOnlyDictionary<string, T> { }
