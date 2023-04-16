@@ -9,11 +9,11 @@ public class Client : Helpers.Identity.SecureWebClientBase, IClient
 		: base(httpClient, identityClient)
 	{ }
 
-	public async IAsyncEnumerable<string> GetAliasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+	public async IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetAllLeasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var requestUri = new Uri("api/router", UriKind.Relative);
-		(_, _, var aliases) = await base.SendAsync<IAsyncEnumerable<string>>(HttpMethod.Get, requestUri, cancellationToken: cancellationToken);
-		await foreach (var alias in aliases!) { yield return alias; }
+		(_, _, var leases) = await base.SendAsync<IAsyncEnumerable<Helpers.Networking.Models.DhcpLease>>(HttpMethod.Get, requestUri, cancellationToken: cancellationToken);
+		await foreach (var lease in leases!) { yield return lease; }
 	}
 
 	public Task ResetAsync(CancellationToken cancellationToken = default)
