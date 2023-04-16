@@ -10,21 +10,20 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	}
 
 	[Fact]
-	public async Task AliasesTests()
+	public async Task AllLeasesTests()
 	{
-		var aliases = await _sut.GetAliasesAsync().ToArrayAsync();
+		var aliases = await _sut.GetAllLeasesAsync().ToArrayAsync();
 
 		Assert.NotEmpty(aliases);
 		Assert.All(aliases, Assert.NotNull);
-		Assert.All(aliases, Assert.NotEmpty);
 	}
 
 	[Fact]
 	public Task ResetTests() => _sut.ResetAsync();
 
 	[Theory]
-	[InlineData("28ee52eb0aa4")]
-	[InlineData("vr front")]
+	[InlineData("7ea7b0328b3e")]
+	[InlineData("flichub")]
 	public async Task ResolveTests(object key)
 	{
 		var now = DateTime.UtcNow;
