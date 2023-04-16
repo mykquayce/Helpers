@@ -1,44 +1,57 @@
-﻿using Dawn;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Helpers.TPLink.Concrete;
 
-public class Service : IService
+public class Service(UdpClient client) : IService
 {
-	private readonly IClient _client;
-	private readonly IDiscoveryClient _discoveryClient;
-
-	public Service(IClient client, IDiscoveryClient discoveryClient)
+	public async IAsyncEnumerable<(string, IPEndPoint, PhysicalAddress)> DiscoverAsync(IPEndPoint endPoint, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		_client = Guard.Argument(client).NotNull().Value;
-		_discoveryClient = Guard.Argument(discoveryClient).NotNull().Value;
-	}
-
-	public IAsyncEnumerable<(string, IPAddress, PhysicalAddress)> DiscoverAsync()
-		=> _discoveryClient.DiscoverAsync();
-
-	public IAsyncEnumerable<(string, IPAddress, PhysicalAddress)> DiscoverAsync(CancellationToken cancellationToken = default)
-		=> _discoveryClient.DiscoverAsync(cancellationToken);
-
-	public async IAsyncEnumerable<(double amps, double volts, double watts)> GetRealtimeDataAsync(
-		IPAddress ip,
-		[EnumeratorCancellation] CancellationToken cancellationToken = default)
-	{
-		var data = _client.GetRealtimeDataAsync(ip, cancellationToken);
-		await foreach (var power in data)
+		var request = new { system = new { get_sysinfo = new { }, }, }
+			.Serialize().Encode().Encrypt();
+		var responses = client.SendAndReceiveAsyncEnumerable(endPoint, request, cancellationToken);
+		await foreach (var (responseEndPoint, responseBytes) in responses)
 		{
-			var amps = power.current_ma / 1_000d;
-			var volts = power.voltage_mv / 1_000d;
-			var watts = power.power_mw / 1_000d;
-			yield return (amps, volts, watts);
+			var (system, _) = responseBytes.Decrypt().Decode().Deserialize<Models.ResponseObject>();
+			var (alias, mac, _, _) = system.get_sysinfo;
+			yield return (alias, responseEndPoint, mac);
 		}
 	}
 
-	public IAsyncEnumerable<bool> GetStateAsync(IPAddress ip, CancellationToken cancellationToken = default)
-		=> _client.GetStateAsync(ip, cancellationToken);
+	public async Task<(double amps, double volts, double watts)> GetRealtimeDataAsync(IPEndPoint endPoint, CancellationToken cancellationToken = default)
+	{
+		var request = new { system = new { get_sysinfo = new { }, }, emeter = new { get_realtime = new { }, }, }
+			.Serialize().Encode().Encrypt();
+		var (_, responseBytes) = await client.SendAndReceiveAsync(endPoint, request, cancellationToken);
+		var (_, emeter) = responseBytes.Decrypt().Decode()
+			.Deserialize<Models.ResponseObject>();
+		var (milliamps, millivolts, milliwatts) = emeter.get_realtime;
+		return (milliamps / 1_000d, millivolts / 1_000d, milliwatts / 1_000d);
+	}
 
-	public ValueTask<int> SetStateAsync(IPAddress ip, bool state, CancellationToken cancellationToken = default)
-		=> _client.SetStateAsync(ip, state, cancellationToken);
+	public async Task<bool> GetStateAsync(IPEndPoint endPoint, CancellationToken cancellationToken = default)
+	{
+		var info = await GetSystemInfoAsync(endPoint, cancellationToken);
+		return info.relay_state > 0;
+	}
+
+	public async Task<Models.SystemInfoObject> GetSystemInfoAsync(IPEndPoint endPoint, CancellationToken cancellationToken = default)
+	{
+		var request = new { system = new { get_sysinfo = new { }, }, }
+			.Serialize().Encode().Encrypt();
+		var (_, responseBytes) = await client.SendAndReceiveAsync(endPoint, request, cancellationToken);
+		var (system, _) = responseBytes.Decrypt().Decode()
+			.Deserialize<Models.ResponseObject>();
+		return system.get_sysinfo;
+	}
+
+	public Task SetStateAsync(IPEndPoint endPoint, bool on, CancellationToken cancellationToken = default)
+	{
+		var request = new { system = new { set_relay_state = new { state = on ? 1 : 0, }, }, }
+			.Serialize().Encode().Encrypt();
+		return client.SendAsync(request, endPoint, cancellationToken).AsTask();
+	}
 }
