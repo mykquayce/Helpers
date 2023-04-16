@@ -14,6 +14,12 @@ public class Service : IService
 		_client = Guard.Argument(client).NotNull().Value;
 	}
 
+	public async Task<Models.AccessoryInfoObject> GetAccessoryInfo(IPAddress ip, CancellationToken cancellationToken = default)
+	{
+		var info = await _client.GetAccessoryInfoAsync(ip, cancellationToken);
+		return new(DisplayName: info.displayName, ProductName: info.productName, SerialNumber: info.serialNumber);
+	}
+
 	private async IAsyncEnumerable<(bool on, float brightness, Color? color, short? kelvins)> GetLightsAsync(IPAddress ip, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var lights = _client.GetLightsAsync(ip, cancellationToken);

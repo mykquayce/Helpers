@@ -5,6 +5,7 @@ namespace Helpers.Elgato;
 
 public interface IService
 {
+	Task<Models.AccessoryInfoObject> GetAccessoryInfo(IPAddress ip, CancellationToken cancellationToken = default);
 	IAsyncEnumerable<Models.Lights.LightModel> GetLightStatusAsync(IPAddress ip, CancellationToken cancellationToken = default);
 	IAsyncEnumerable<Models.Lights.RgbLightModel> GetRgbLightStatusAsync(IPAddress ip, CancellationToken cancellationToken = default);
 	IAsyncEnumerable<Models.Lights.WhiteLightModel> GetWhiteLightStatusAsync(IPAddress ip, CancellationToken cancellationToken = default);

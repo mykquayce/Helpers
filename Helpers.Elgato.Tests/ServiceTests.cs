@@ -169,4 +169,21 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>, IClassFixtur
 			}
 		}
 	}
+
+	[Fact]
+	public async Task GetAccessoryInfoTests()
+	{
+		foreach (var ip in _ips)
+		{
+			string displayName, productName, serialNumber;
+			{
+				using var cts = new CancellationTokenSource(millisecondsDelay: 1_000);
+				(displayName, productName, serialNumber) = await _sut.GetAccessoryInfo(ip, cts.Token);
+			}
+
+			Assert.NotEmpty(displayName);
+			Assert.NotEmpty(productName);
+			Assert.NotEmpty(serialNumber);
+		}
+	}
 }
