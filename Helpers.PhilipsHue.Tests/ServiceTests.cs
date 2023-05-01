@@ -98,7 +98,7 @@ public class ServiceTests : IClassFixture<Fixtures.Fixture>
 	}
 
 	[Theory]
-	[InlineData("Nebula", "bedroom")]
+	[InlineData("nebula", "bedroom")]
 	public Task ApplySceneToGroupTests(string scene, string group)
 	{
 		return _service.ApplySceneToGroupAsync(scene, group);

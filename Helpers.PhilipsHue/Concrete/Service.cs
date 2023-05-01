@@ -18,28 +18,28 @@ public partial class Service : IService
 		var absoluteExpiration = DateTimeOffset.UtcNow.AddHours(1);
 		await foreach (var (alias, index) in _client.GetLightAliasesAsync(cancellationToken))
 		{
-			_memoryCache.Set("light_" + alias, index, absoluteExpiration);
+			_memoryCache.Set("light_" + alias.ToLowerInvariant(), index, absoluteExpiration);
 		}
 		await foreach (var (name, id) in _client.GetGroupsAsync(cancellationToken))
 		{
-			_memoryCache.Set("group_" + name, id, absoluteExpiration);
+			_memoryCache.Set("group_" + name.ToLowerInvariant(), id, absoluteExpiration);
 		}
 		await foreach (var (name, id) in _client.GetScenesAsync(cancellationToken))
 		{
-			_memoryCache.Set("scene_" + name, id, absoluteExpiration);
+			_memoryCache.Set("scene_" + name.ToLowerInvariant(), id, absoluteExpiration);
 		}
 	}
 
 	private async Task<int> ResolveGroupNameAsync(string name, CancellationToken cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue("group_" + name, out int? index))
+		if (_memoryCache.TryGetValue("group_" + name.ToLowerInvariant(), out int? index))
 		{
 			return index!.Value;
 		}
 
 		await RefreshCacheAsync(cancellationToken);
 
-		if (_memoryCache.TryGetValue("group_" + name, out index))
+		if (_memoryCache.TryGetValue("group_" + name.ToLowerInvariant(), out index))
 		{
 			return index!.Value;
 		}
@@ -49,14 +49,14 @@ public partial class Service : IService
 
 	private async Task<int> ResolveLightAliasAsync(string alias, CancellationToken cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue("light_" + alias, out int? index))
+		if (_memoryCache.TryGetValue("light_" + alias.ToLowerInvariant(), out int? index))
 		{
 			return index!.Value;
 		}
 
 		await RefreshCacheAsync(cancellationToken);
 
-		if (_memoryCache.TryGetValue("light_" + alias, out index))
+		if (_memoryCache.TryGetValue("light_" + alias.ToLowerInvariant(), out index))
 		{
 			return index!.Value;
 		}
@@ -66,14 +66,14 @@ public partial class Service : IService
 
 	private async Task<string> ResolveSceneNameAsync(string name, CancellationToken cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue("scene_" + name, out string? id))
+		if (_memoryCache.TryGetValue("scene_" + name.ToLowerInvariant(), out string? id))
 		{
 			return id!;
 		}
 
 		await RefreshCacheAsync(cancellationToken);
 
-		if (_memoryCache.TryGetValue("scene_" + name, out id))
+		if (_memoryCache.TryGetValue("scene_" + name.ToLowerInvariant(), out id))
 		{
 			return id!;
 		}
