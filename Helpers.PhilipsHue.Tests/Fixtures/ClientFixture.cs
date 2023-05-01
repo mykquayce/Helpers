@@ -16,7 +16,7 @@ public sealed class Fixture : IDisposable
 			.AddPhilipsHue(secrets.Configuration.GetSection("PhilipsHue"), provider =>
 			{
 				var disco = provider.GetRequiredService<Helpers.NetworkDiscovery.IClient>();
-				(_, _, var ip, _, _) = disco.ResolveAsync("philipshue").GetAwaiter().GetResult();
+				(_, _, var ip, _, _) = disco.ResolveAsync("ecb5fa18e324").GetAwaiter().GetResult();
 				return new UriBuilder("http", ip.ToString()).Uri;
 			})
 			.BuildServiceProvider();

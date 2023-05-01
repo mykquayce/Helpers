@@ -90,7 +90,7 @@ public class DependencyInjectionTests
 					.AddPhilipsHue(philipsHueConfig, provider =>
 					{
 						var client = provider.GetRequiredService<Helpers.NetworkDiscovery.IClient>();
-						(_, _, var ip, _, _) = client.ResolveAsync("philipshue").GetAwaiter().GetResult();
+						(_, _, var ip, _, _) = client.ResolveAsync("ecb5fa18e324").GetAwaiter().GetResult();
 						return new UriBuilder("http", ip.ToString()).Uri;
 					})
 					.BuildServiceProvider();
