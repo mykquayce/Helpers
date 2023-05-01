@@ -96,4 +96,11 @@ public class ServiceTests : IClassFixture<Fixtures.Fixture>
 		var actual = await _service.GetLightColorAsync(alias);
 		Assert.Equal(color, actual, Comparers.ColorComparer.ThreePercentTolerance);
 	}
+
+	[Theory]
+	[InlineData("Nebula", "bedroom")]
+	public Task ApplySceneToGroupTests(string scene, string group)
+	{
+		return _service.ApplySceneToGroupAsync(scene, group);
+	}
 }

@@ -20,6 +20,31 @@ public partial class Service : IService
 		{
 			_memoryCache.Set("light_" + alias, index, absoluteExpiration);
 		}
+		await foreach (var (name, id) in _client.GetGroupsAsync(cancellationToken))
+		{
+			_memoryCache.Set("group_" + name, id, absoluteExpiration);
+		}
+		await foreach (var (name, id) in _client.GetScenesAsync(cancellationToken))
+		{
+			_memoryCache.Set("scene_" + name, id, absoluteExpiration);
+		}
+	}
+
+	private async Task<int> ResolveGroupNameAsync(string name, CancellationToken cancellationToken = default)
+	{
+		if (_memoryCache.TryGetValue("group_" + name, out int? index))
+		{
+			return index!.Value;
+		}
+
+		await RefreshCacheAsync(cancellationToken);
+
+		if (_memoryCache.TryGetValue("group_" + name, out index))
+		{
+			return index!.Value;
+		}
+
+		throw new KeyNotFoundException(name + " not found");
 	}
 
 	private async Task<int> ResolveLightAliasAsync(string alias, CancellationToken cancellationToken = default)
@@ -37,5 +62,22 @@ public partial class Service : IService
 		}
 
 		throw new KeyNotFoundException(alias + " not found");
+	}
+
+	private async Task<string> ResolveSceneNameAsync(string name, CancellationToken cancellationToken = default)
+	{
+		if (_memoryCache.TryGetValue("scene_" + name, out string? id))
+		{
+			return id!;
+		}
+
+		await RefreshCacheAsync(cancellationToken);
+
+		if (_memoryCache.TryGetValue("scene_" + name, out id))
+		{
+			return id!;
+		}
+
+		throw new KeyNotFoundException(name + " not found");
 	}
 }
