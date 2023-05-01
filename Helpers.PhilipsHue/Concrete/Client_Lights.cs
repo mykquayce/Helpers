@@ -1,5 +1,7 @@
 ﻿using Dawn;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace Helpers.PhilipsHue.Concrete;
 
@@ -22,7 +24,7 @@ public partial class Client
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"{_uriPrefix}/lights/{index:D}";
-		((_, var brightness, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		((_, var brightness, _, _), _) = await GetFromJsonAsync<Light>(requestUri, cancellationToken);
 		return (float)brightness / byte.MaxValue;
 	}
 
@@ -41,7 +43,7 @@ public partial class Client
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"{_uriPrefix}/lights/{index:D}";
-		((var power, _, _, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
+		((var power, _, _, _), _) = await GetFromJsonAsync<Light>(requestUri, cancellationToken);
 		return power;
 	}
 
@@ -59,8 +61,8 @@ public partial class Client
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"{_uriPrefix}/lights/{index:D}";
-		((_, _, var ct, _), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
-		return (short)(1_000_000d / ct);
+		(var state, _) = await GetFromJsonAsync<Light>(requestUri, cancellationToken);
+		return state.Kelvins;
 	}
 
 	public Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken cancellationToken = default)
@@ -79,8 +81,8 @@ public partial class Client
 	{
 		Guard.Argument(index).Positive();
 		var requestUri = $"{_uriPrefix}/lights/{index:D}";
-		((_, var bri, _, (var x, var y)), _) = await GetFromJsonAsync<Models.LightResponseObject>(requestUri, cancellationToken);
-		return new PointF(x: x, y: y).ToColor(bri);
+		(var state, _) = await GetFromJsonAsync<Light>(requestUri, cancellationToken);
+		return state.Color;
 	}
 
 	public Task SetLightColorAsync(int index, Color color, CancellationToken cancellationToken = default)
@@ -93,4 +95,14 @@ public partial class Client
 		return PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 	#endregion color
+
+	[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
+	private readonly record struct Light(Light.State state, string name)
+	{
+		public readonly record struct State(bool on, byte bri, short ct, float[] xy)
+		{
+			public Color Color => new PointF(xy[0], xy[1]).ToColor(bri);
+			public short Kelvins => (short)(1_000_000d / ct);
+		}
+	}
 }
