@@ -29,10 +29,10 @@ public partial class Client
 		return action.state.any_on;
 	}
 
-	public Task SetGroupPowerAsync(int group, bool on, CancellationToken cancellationToken = default)
+	public Task SetGroupPowerAsync(int group, bool on, TimeSpan transition, CancellationToken cancellationToken = default)
 	{
 		var requestUri = $"{_uriPrefix}/groups/{group:D}/action";
-		var body = new GroupSetStateAction(on);
+		var body = new GroupSetStateAction(on, transition);
 		return this.PutAsJsonAsync(requestUri, body, cancellationToken);
 	}
 
@@ -46,7 +46,12 @@ public partial class Client
 	}
 
 	[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
-	private readonly record struct GroupSetStateAction(bool on);
+	private readonly record struct GroupSetStateAction(bool on, int transitiontime)
+	{
+		public GroupSetStateAction(bool on, TimeSpan transition)
+			: this(on, (int)(transition.TotalMilliseconds) / 100)
+		{ }
+	}
 
 	[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
 	private readonly record struct GroupSceneAction(string scene, int transitiontime)
