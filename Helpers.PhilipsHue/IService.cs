@@ -17,4 +17,8 @@ public interface IService
 	Task SetLightTemperatureAsync(string alias, short kelvins, CancellationToken cancellationToken = default);
 
 	Task ApplySceneToGroupAsync(string scene, string group, TimeSpan transition = default, CancellationToken cancellationToken = default);
+
+	Task<bool> GetGroupPowerAsync(string alias, CancellationToken cancellationToken = default);
+	Task SetGroupPowerAsync(string alias, bool on, CancellationToken cancellationToken = default);
+	Task ToggleGroupPowerAsync(string alias, CancellationToken cancellationToken = default);
 }
