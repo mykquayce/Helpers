@@ -18,6 +18,13 @@ public interface IClient
 
 	Task ApplySceneToGroupAsync(int group, string scene, TimeSpan transition, CancellationToken cancellationToken = default);
 	IAsyncEnumerable<KeyValuePair<string, int>> GetGroupsAsync(CancellationToken cancellationToken = default);
+	Task<bool> GetGroupPowerAsync(int group, CancellationToken cancellationToken = default);
+	Task SetGroupPowerAsync(int group, bool on, CancellationToken cancellationToken = default);
+	async Task ToggleGroupPowerAsync(int group, CancellationToken cancellationToken = default)
+	{
+		var on = await GetGroupPowerAsync(group, cancellationToken);
+		await SetGroupPowerAsync(group, !on, cancellationToken);
+	}
 
 	IAsyncEnumerable<KeyValuePair<string, string>> GetScenesAsync(CancellationToken cancellationToken = default);
 }
