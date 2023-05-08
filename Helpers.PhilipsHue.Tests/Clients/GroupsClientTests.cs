@@ -30,4 +30,26 @@ public class GroupsClientTests : IClassFixture<Fixtures.Fixture>
 		Assert.DoesNotContain(string.Empty, dictionary.Keys);
 		Assert.DoesNotContain(default, dictionary.Values);
 	}
+
+	[Theory]
+	[InlineData(1, false)]
+	[InlineData(1, true)]
+	public Task SetGroupPowerTests(int group, bool on)
+	{
+		return _sut.SetGroupPowerAsync(group, on);
+	}
+
+	[Theory]
+	[InlineData(1)]
+	public Task ToggleGroupPower(int group)
+	{
+		return _sut.ToggleGroupPowerAsync(group);
+	}
+
+	[Theory]
+	[InlineData(1)]
+	public Task GetGroupPower(int group)
+	{
+		return _sut.GetGroupPowerAsync(group);
+	}
 }

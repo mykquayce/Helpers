@@ -2,7 +2,7 @@
 
 namespace Helpers.PhilipsHue;
 
-public interface IClient
+public partial interface IClient
 {
 	IAsyncEnumerable<KeyValuePair<string, int>> GetLightAliasesAsync(CancellationToken cancellationToken = default);
 
@@ -15,9 +15,4 @@ public interface IClient
 	Task SetLightColorAsync(int index, Color color, CancellationToken cancellationToken = default);
 	Task SetLightPowerAsync(int index, bool on, CancellationToken cancellationToken = default);
 	Task SetLightTemperatureAsync(int index, short kelvins, CancellationToken cancellationToken = default);
-
-	Task ApplySceneToGroupAsync(int group, string scene, TimeSpan transition, CancellationToken cancellationToken = default);
-	IAsyncEnumerable<KeyValuePair<string, int>> GetGroupsAsync(CancellationToken cancellationToken = default);
-
-	IAsyncEnumerable<KeyValuePair<string, string>> GetScenesAsync(CancellationToken cancellationToken = default);
 }

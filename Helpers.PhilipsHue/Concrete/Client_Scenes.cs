@@ -15,6 +15,21 @@ public partial class Client : IClient
 		}
 	}
 
+	public Task ApplySceneToGroupAsync(int group, string scene, TimeSpan transition, CancellationToken cancellationToken = default)
+	{
+		var requestUri = $"{_uriPrefix}/groups/{group:D}/action";
+		var body = new GroupSceneAction(scene, transition);
+		return this.PutAsJsonAsync(requestUri, body, cancellationToken);
+	}
+
 	[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
 	private readonly record struct Scene(string name);
+
+	[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
+	private readonly record struct GroupSceneAction(string scene, int transitiontime)
+	{
+		public GroupSceneAction(string scene, TimeSpan transition)
+			: this(scene, (int)(transition.TotalMilliseconds) / 100)
+		{ }
+	}
 }
