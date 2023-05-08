@@ -30,54 +30,29 @@ public partial class Service : IService
 		}
 	}
 
-	private async Task<int> ResolveGroupNameAsync(string name, CancellationToken cancellationToken = default)
+	private Task<int> ResolveGroupNameAsync(string name, CancellationToken cancellationToken = default)
+		=> ResolveKeyAsync<int>("group_" + name, cancellationToken);
+
+	private Task<int> ResolveLightAliasAsync(string alias, CancellationToken cancellationToken = default)
+		=> ResolveKeyAsync<int>("light_" + alias, cancellationToken);
+
+	private Task<string> ResolveSceneNameAsync(string name, CancellationToken cancellationToken = default)
+		=> ResolveKeyAsync<string>("scene_" + name, cancellationToken);
+
+	private async Task<T> ResolveKeyAsync<T>(string key, CancellationToken cancellationToken = default)
 	{
-		if (_memoryCache.TryGetValue("group_" + name.ToLowerInvariant(), out int? index))
+		if (_memoryCache.TryGetValue(key.ToLowerInvariant(), out T? value))
 		{
-			return index!.Value;
+			return value!;
 		}
 
 		await RefreshCacheAsync(cancellationToken);
 
-		if (_memoryCache.TryGetValue("group_" + name.ToLowerInvariant(), out index))
+		if (_memoryCache.TryGetValue(key.ToLowerInvariant(), out value))
 		{
-			return index!.Value;
+			return value!;
 		}
 
-		throw new KeyNotFoundException(name + " not found");
-	}
-
-	private async Task<int> ResolveLightAliasAsync(string alias, CancellationToken cancellationToken = default)
-	{
-		if (_memoryCache.TryGetValue("light_" + alias.ToLowerInvariant(), out int? index))
-		{
-			return index!.Value;
-		}
-
-		await RefreshCacheAsync(cancellationToken);
-
-		if (_memoryCache.TryGetValue("light_" + alias.ToLowerInvariant(), out index))
-		{
-			return index!.Value;
-		}
-
-		throw new KeyNotFoundException(alias + " not found");
-	}
-
-	private async Task<string> ResolveSceneNameAsync(string name, CancellationToken cancellationToken = default)
-	{
-		if (_memoryCache.TryGetValue("scene_" + name.ToLowerInvariant(), out string? id))
-		{
-			return id!;
-		}
-
-		await RefreshCacheAsync(cancellationToken);
-
-		if (_memoryCache.TryGetValue("scene_" + name.ToLowerInvariant(), out id))
-		{
-			return id!;
-		}
-
-		throw new KeyNotFoundException(name + " not found");
+		throw new KeyNotFoundException(key + " not found");
 	}
 }
