@@ -1,0 +1,31 @@
+@scheme=http
+@hostname=Shapes-0324
+@port=16021
+@host={{scheme}}://{{hostname}}:{{port}}
+@token=GEqNyrdBVYfyiFO5tGcTVW9rmLtHRbRa
+@baseUri={{host}}/api/v1/{{token}}
+
+### off
+
+PUT {{baseUri}}/state
+
+{ "on": { "value": false } }
+
+
+### on
+
+PUT {{baseUri}}/state
+
+{ "on": { "value": true } }
+
+
+### get a token
+
+POST {{baseUri}}/new
+
+
+### set to cocoa beach
+
+PUT http://Shapes-0324:16021/api/v1/GEqNyrdBVYfyiFO5tGcTVW9rmLtHRbRa/effects HTTP/1.1
+
+{ "select": "Cocoa Beach" }
