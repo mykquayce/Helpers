@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Helpers.Networking.Models" Version="1.1.25" />
     <PackageReference Include="Helpers.Web" Version="2.3.12" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

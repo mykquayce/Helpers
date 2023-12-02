@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Web" Version="2.3.12" />
-    <PackageReference Include="IdentityModel" Version="6.1.0-preview.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.2" />
+    <PackageReference Include="IdentityModel" Version="6.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
