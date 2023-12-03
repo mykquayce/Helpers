@@ -4,12 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.5-preview</Version>
+    <Version>1.0.6</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Identity" Version="1.0.10-preview" />
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.25" />
+    <PackageReference Include="Helpers.Identity" Version="1.0.11" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.26" />
   </ItemGroup>
 
 </Project>
