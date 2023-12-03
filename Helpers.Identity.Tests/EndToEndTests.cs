@@ -1,7 +1,6 @@
 ﻿using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
-using System.Text.Json;
 
 namespace Helpers.Identity.Tests;
 
@@ -30,41 +29,27 @@ public class EndToEndTests : IClassFixture<Fixtures.ConfigurationFixture>
 	}
 
 	[Fact]
-	public async Task<string> DiscoveryDocumentTests()
+	public async Task DiscoveryDocumentTests()
 	{
-		using var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		using var client = new HttpClient(handler) { BaseAddress = _authority, };
-		var document = await client.GetDiscoveryDocumentAsync();
+		var document = await GetDiscoveryDocumentAsync();
 		Assert.NotNull(document);
 		Assert.False(document.IsError, userMessage: document.Error);
-		return document.TokenEndpoint;
 	}
 
 	[Fact]
-	public async Task<string> TokenTests()
+	public async Task TokenTests()
 	{
-		var tokenEndpoint = await DiscoveryDocumentTests();
-		using var request = new ClientCredentialsTokenRequest
-		{
-			Address = tokenEndpoint,
-			ClientId = _clientId,
-			ClientSecret = _clientSecret,
-			Scope = _scope,
-		};
-
-		using var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		using var client = new HttpClient(handler) { BaseAddress = _authority, };
-		var response = await client.RequestClientCredentialsTokenAsync(request);
+		var response = await GetTokenResponseAsync();
 		Assert.NotNull(response);
 		Assert.False(response.IsError, response.Error);
 		Assert.Matches(@"^[-0-9A-Z_a-z]{160}\.[-0-9A-Z_a-z]{200,300}\.[-0-9A-Z_a-z]{300,400}$", response.AccessToken);
-		return response.AccessToken;
 	}
 
 	[Fact]
 	public async Task EndToEndTests1()
 	{
-		var token = await TokenTests();
+		var tokenResponse = await GetTokenResponseAsync();
+		var token = tokenResponse.AccessToken;
 		using var factory = new WebApplicationFactory<Helpers.Identity.Tests.TestApi.Program>();
 		using var client = factory.CreateClient();
 		using var request = new HttpRequestMessage(HttpMethod.Get, "weatherforecast");
@@ -75,5 +60,29 @@ public class EndToEndTests : IClassFixture<Fixtures.ConfigurationFixture>
 		Assert.NotNull(s);
 		Assert.NotEmpty(s);
 		Assert.StartsWith("[", s);
+	}
+
+	private async Task<DiscoveryDocumentResponse> GetDiscoveryDocumentAsync(CancellationToken cancellationToken = default)
+	{
+		using var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+		using var client = new HttpClient(handler) { BaseAddress = _authority, };
+		return await client.GetDiscoveryDocumentAsync(cancellationToken: cancellationToken);
+	}
+
+	private async Task<TokenResponse> GetTokenResponseAsync(CancellationToken cancellationToken = default)
+	{
+		var disco = await GetDiscoveryDocumentAsync(cancellationToken);
+		var tokenEndpoint = disco.TokenEndpoint;
+		using var request = new ClientCredentialsTokenRequest
+		{
+			Address = tokenEndpoint,
+			ClientId = _clientId,
+			ClientSecret = _clientSecret,
+			Scope = _scope,
+		};
+
+		using var handler = new HttpClientHandler { AllowAutoRedirect = false, };
+		using var client = new HttpClient(handler) { BaseAddress = _authority, };
+		return await client.RequestClientCredentialsTokenAsync(request, cancellationToken);
 	}
 }

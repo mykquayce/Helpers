@@ -1,7 +1,7 @@
 $start = Get-Date -Format "o"
 
 # update the base image
-docker pull mcr.microsoft.com/dotnet/sdk:7.0 `
+docker pull mcr.microsoft.com/dotnet/sdk:8.0 `
 	|| exit 1
 
 # build

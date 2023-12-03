@@ -408,7 +408,7 @@ public class AddressPrefixTests
 	[InlineData("2a03:2881:4003::/48")]
 	[InlineData("2a03:2881:4004::/48")]
 	[InlineData("2a03:2881:4006::/48")]
-	public AddressPrefix Parse(string s) => AddressPrefix.Parse(s, null);
+	public void Parse(string s) => AddressPrefix.Parse(s, null);
 
 	[Theory]
 	[InlineData("192.168.1.0/32", "1")]

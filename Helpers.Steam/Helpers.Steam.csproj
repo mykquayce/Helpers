@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.25</Version>
+    <Version>1.0.26</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Steam.Models" Version="1.1.16" />
-    <PackageReference Include="Helpers.Web" Version="2.3.12" />
+    <PackageReference Include="Helpers.Steam.Models" Version="1.1.17" />
+    <PackageReference Include="Helpers.Web" Version="2.3.13" />
   </ItemGroup>
 
 </Project>
