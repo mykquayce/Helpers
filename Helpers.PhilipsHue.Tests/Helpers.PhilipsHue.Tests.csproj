@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.NetworkDiscovery" Version="1.0.5-preview" />
+    <PackageReference Include="Helpers.NetworkDiscovery" Version="1.0.6" />
     <PackageReference Include="Helpers.XUnitClassFixtures" Version="1.0.22" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="System.Linq.Async.Queryable" Version="6.0.1" />
