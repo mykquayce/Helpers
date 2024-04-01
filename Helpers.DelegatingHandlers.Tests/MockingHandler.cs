@@ -11,14 +11,31 @@ public partial class MockingHandler(RandomNumberGenerator rng) : DelegatingHandl
 
 	protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
-		var match = BytesRegex().Match(request.RequestUri?.PathAndQuery ?? string.Empty);
+		var path = request.RequestUri?.PathAndQuery ?? string.Empty;
 
-		if (match.Success)
+		if (string.Equals("/headers", path, StringComparison.OrdinalIgnoreCase))
 		{
-			var count = short.Parse(match.Groups[1].Value);
+			var headers = request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+			var response = new { headers, };
+			return new(HttpStatusCode.OK) { Content = JsonContent.Create(response), };
+		}
+
+		var bytesMatch = BytesRegex().Match(path);
+
+		if (bytesMatch.Success)
+		{
+			var count = short.Parse(bytesMatch.Groups[1].Value);
 			var bytes = new byte[count];
 			rng.GetBytes(bytes);
 			return new(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes), };
+		}
+
+		var statusMatch = StatusRegex().Match(path);
+
+		if (statusMatch.Success)
+		{
+			var code = (HttpStatusCode)short.Parse(statusMatch.Groups[1].Value);
+			return new(code) { Content = new StringContent(code.ToString("G")), };
 		}
 
 		return await base.SendAsync(request, cancellationToken);
@@ -26,4 +43,7 @@ public partial class MockingHandler(RandomNumberGenerator rng) : DelegatingHandl
 
 	[GeneratedRegex(@"^\/bytes\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
 	private static partial Regex BytesRegex();
+
+	[GeneratedRegex(@"^\/status\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
+	private static partial Regex StatusRegex();
 }
