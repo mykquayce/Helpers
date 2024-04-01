@@ -1,4 +1,7 @@
-﻿namespace Helpers.DelegatingHandlers.Tests;
+﻿using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
+
+namespace Helpers.DelegatingHandlers.Tests;
 
 public class TestClient(HttpClient httpClient)
 {
@@ -24,3 +27,6 @@ public class TestClient(HttpClient httpClient)
 		return content;
 	}
 }
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "3rd party")]
+public readonly record struct HeadersResponseObject(IReadOnlyDictionary<string, string[]> headers);

@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net.Http.Json;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace System.Net.Http;
@@ -41,9 +42,9 @@ public partial class MockingHandler(RandomNumberGenerator rng) : DelegatingHandl
 		return await base.SendAsync(request, cancellationToken);
 	}
 
-	[GeneratedRegex(@"^\/bytes\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
+	[GeneratedRegex(@"^\/bytes\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
 	private static partial Regex BytesRegex();
 
-	[GeneratedRegex(@"^\/status\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking)]
+	[GeneratedRegex(@"^\/status\/(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
 	private static partial Regex StatusRegex();
 }
