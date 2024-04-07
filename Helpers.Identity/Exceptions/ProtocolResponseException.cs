@@ -1,6 +1,4 @@
-﻿using IdentityModel.Client;
-
-namespace Helpers.Identity.Exceptions;
+﻿namespace IdentityModel.Client;
 
 public class ProtocolResponseException : Exception
 {
