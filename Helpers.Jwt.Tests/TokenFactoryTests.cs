@@ -150,37 +150,38 @@ namespace Helpers.Jwt.Tests
 		public static T GetEnum<T>(this JsonElement element)
 			where T : struct, Enum, IConvertible
 		{
-			var provider = System.Globalization.CultureInfo.InvariantCulture;
-
-			switch (element.ValueKind)
+			return element.ValueKind switch
 			{
-				case JsonValueKind.String:
-					{
-						var s = element.GetString() ?? throw new ArgumentNullException();
+				JsonValueKind.String => fromstring(element.GetString()),
+				JsonValueKind.Array => fromarray(element.EnumerateArray()),
+				_ => throw new ArgumentOutOfRangeException(nameof(element), element, $"Unexpected {nameof(element.ValueKind)}: {element.ValueKind}."),
+			};
 
-						if (Enum.TryParse<T>(s, out var roles))
-						{
-							return roles;
-						}
+			static T fromstring(string? s)
+			{
+				ArgumentException.ThrowIfNullOrEmpty(s);
 
-						throw new ArgumentOutOfRangeException(nameof(s), s, $"Unexpected role: {s}");
-					}
-				case JsonValueKind.Array:
-					{
-						var roles = 0L;
+				if (Enum.TryParse<T>(s, out var roles))
+				{
+					return roles;
+				}
 
-						foreach (var role in from e in element.EnumerateArray()
-											 let t = e.GetEnum<T>()
-											 let i = t.ToInt64(provider)
-											 select i)
-						{
-							roles |= role;
-						}
+				throw new ArgumentOutOfRangeException(nameof(s), s, $"Unexpected role: {s}");
+			}
 
-						return Enum.Parse<T>(roles.ToString("D"));
-					}
-				default:
-					throw new ArgumentOutOfRangeException(nameof(element.ValueKind), element.ValueKind, $"Unexpected {nameof(element.ValueKind)}: {element.ValueKind}.");
+			static T fromarray(JsonElement.ArrayEnumerator array)
+			{
+				var roles = 0L;
+
+				foreach (var role in from e in array
+										let t = e.GetEnum<T>()
+										let i = t.ToInt64(System.Globalization.CultureInfo.InvariantCulture)
+										select i)
+				{
+					roles |= role;
+				}
+
+				return Enum.Parse<T>(roles.ToString("D"));
 			}
 		}
 	}
