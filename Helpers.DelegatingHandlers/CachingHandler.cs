@@ -13,19 +13,22 @@ public class CachingHandler(IMemoryCache memoryCache) : DelegatingHandler
 			return await base.SendAsync(request, cancellationToken);
 		}
 
-		var (code, body) = await memoryCache.GetOrCreateAsync(key, factory);
-
-		return new(code) { Content = new ByteArrayContent(body), };
-
-		async Task<(HttpStatusCode, byte[])> factory(ICacheEntry entry)
+		if (memoryCache.TryGetValue<(HttpStatusCode, byte[])>(key, out var tuple))
 		{
-			var response = await base.SendAsync(request, cancellationToken);
-			entry.AbsoluteExpiration = response.IsSuccessStatusCode
-				? DateTimeOffset.UtcNow.AddHours(.9)
-				: DateTimeOffset.MinValue;
+			var (code, body) = tuple;
+			return new(code) { Content = new ByteArrayContent(body), };
+		}
+
+		var response = await base.SendAsync(request, cancellationToken);
+
+		if (response.IsSuccessStatusCode)
+		{
 			var code = response.StatusCode;
 			var body = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-			return (code, body);
+			var absoluteExpiration = DateTimeOffset.UtcNow.AddHours(.9);
+			memoryCache.Set(key, (code, body), absoluteExpiration);
 		}
+
+		return response;
 	}
 }
