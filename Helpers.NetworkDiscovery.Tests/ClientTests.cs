@@ -1,13 +1,8 @@
 ﻿namespace Helpers.NetworkDiscovery.Tests;
 
-public class ClientTests : IClassFixture<Fixtures.Fixture>
+public class ClientTests(Fixtures.Fixture fixture) : IClassFixture<Fixtures.Fixture>
 {
-	private readonly IClient _sut;
-
-	public ClientTests(Fixtures.Fixture fixture)
-	{
-		_sut = fixture.Client;
-	}
+	private readonly IClient _sut = fixture.Client;
 
 	[Fact]
 	public async Task AllLeasesTests()
@@ -22,8 +17,8 @@ public class ClientTests : IClassFixture<Fixtures.Fixture>
 	public Task ResetTests() => _sut.ResetAsync();
 
 	[Theory]
-	[InlineData("7ea7b0328b3e")]
-	[InlineData("flichub")]
+	[InlineData("000c1e059cad")]
+	[InlineData("itach059cad")]
 	public async Task ResolveTests(object key)
 	{
 		var now = DateTime.UtcNow;
