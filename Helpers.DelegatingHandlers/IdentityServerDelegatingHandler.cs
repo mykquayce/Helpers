@@ -6,7 +6,7 @@ namespace System.Net.Http;
 public class IdentityServerDelegatingHandler(HttpClient httpClient, IOptions<IdentityServerDelegatingHandler.Config> config)
 	: DelegatingHandler
 {
-	private readonly Config _config = config.Value;
+	private readonly Config _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
 
 	public record Config(Uri Authority, string ClientId, string ClientSecret, string Scope)
 	{
