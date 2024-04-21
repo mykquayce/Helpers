@@ -81,10 +81,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PeeringDB.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Phasmophobia", "Helpers.Phasmophobia\Helpers.Phasmophobia.csproj", "{C939C83C-FB75-475A-A24F-3B5EDB9F90DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue", "Helpers.PhilipsHue\Helpers.PhilipsHue.csproj", "{BA6200A0-593A-4194-AFB0-3309AF549647}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.PhilipsHue.Tests", "Helpers.PhilipsHue.Tests\Helpers.PhilipsHue.Tests.csproj", "{1608AE50-09FA-462F-8E96-7881D8816FD0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ", "Helpers.RabbitMQ\Helpers.RabbitMQ.csproj", "{353248AD-DC50-471E-A7C5-FD68A5D98499}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.RabbitMQ.Tests", "Helpers.RabbitMQ.Tests\Helpers.RabbitMQ.Tests.csproj", "{524F3F6B-857D-4864-9456-A55EE81D6245}"
@@ -162,9 +158,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DelegatingHandlers"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DelegatingHandlers.Tests", "Helpers.DelegatingHandlers.Tests\Helpers.DelegatingHandlers.Tests.csproj", "{A1C35512-94BF-4544-B3BC-FD9536B9CF95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Identity", "Helpers.Identity\Helpers.Identity.csproj", "{C9DD75BB-38E4-4DD7-BFC4-D4E1D4745895}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Identity", "Helpers.Identity\Helpers.Identity.csproj", "{C9DD75BB-38E4-4DD7-BFC4-D4E1D4745895}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers.Identity.Tests", "Helpers.Identity.Tests\Helpers.Identity.Tests.csproj", "{F43A4126-0E4B-4BB3-8E64-A7A64056ED81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Identity.Tests", "Helpers.Identity.Tests\Helpers.Identity.Tests.csproj", "{F43A4126-0E4B-4BB3-8E64-A7A64056ED81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -328,14 +324,6 @@ Global
 		{C939C83C-FB75-475A-A24F-3B5EDB9F90DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C939C83C-FB75-475A-A24F-3B5EDB9F90DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C939C83C-FB75-475A-A24F-3B5EDB9F90DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA6200A0-593A-4194-AFB0-3309AF549647}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA6200A0-593A-4194-AFB0-3309AF549647}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA6200A0-593A-4194-AFB0-3309AF549647}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA6200A0-593A-4194-AFB0-3309AF549647}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1608AE50-09FA-462F-8E96-7881D8816FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1608AE50-09FA-462F-8E96-7881D8816FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1608AE50-09FA-462F-8E96-7881D8816FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1608AE50-09FA-462F-8E96-7881D8816FD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{353248AD-DC50-471E-A7C5-FD68A5D98499}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{353248AD-DC50-471E-A7C5-FD68A5D98499}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{353248AD-DC50-471E-A7C5-FD68A5D98499}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -505,7 +493,6 @@ Global
 		{4042ED09-A285-402B-AB4C-BA6EF26A0BC1} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
 		{83C6AE8C-7DBE-4D1E-B84F-81F88F9AD644} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
 		{C939C83C-FB75-475A-A24F-3B5EDB9F90DF} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
-		{1608AE50-09FA-462F-8E96-7881D8816FD0} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
 		{524F3F6B-857D-4864-9456-A55EE81D6245} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
 		{25A25091-1634-4B91-BA9A-3488DF24EBFC} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
 		{396C918D-B11B-4516-BAE1-1B961D4F5108} = {5259EFFF-C5E1-49B0-B6EA-C86ADDA1C522}
