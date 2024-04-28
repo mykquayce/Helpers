@@ -15,7 +15,7 @@ public class CachingHandlerTests
 			.AddMemoryCache()
 			.AddSingleton(RandomNumberGenerator.Create())
 			.AddTransient<HttpMessageHandler>(_ => new HttpClientHandler { AllowAutoRedirect = false, })
-			.AddTransient<CachingHandler>()
+			.AddCachingHandler(c => c.Expiration = TimeSpan.FromMinutes(5))
 			.AddTransient<MockingHandler>()
 			.AddHttpClient<TestClient>(c => c.BaseAddress = new Uri("http://localhost/"))
 				.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()

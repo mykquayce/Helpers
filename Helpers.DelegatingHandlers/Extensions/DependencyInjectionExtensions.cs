@@ -4,6 +4,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
+	public static IServiceCollection AddCachingHandler(this IServiceCollection services, Action<CachingHandler.IConfig> configBuilder)
+	{
+		var config = new CachingConfig();
+		configBuilder(config);
+
+		return services
+			.AddSingleton<IOptions<CachingHandler.IConfig>>(Options.Options.Create(config))
+			.AddTransient<CachingHandler>();
+	}
+
 	public static IHttpClientBuilder AddIdentityServerHandler(this IServiceCollection services, Action<IdentityServerHandler.IConfig> configBuilder)
 	{
 		var config = new IdentityServerHandlerConfig();
@@ -15,6 +25,11 @@ public static class DependencyInjectionExtensions
 			{
 				client.BaseAddress = config.Authority;
 			});
+	}
+
+	private record CachingConfig : CachingHandler.IConfig
+	{
+		public TimeSpan Expiration { get; set; }
 	}
 
 	private record IdentityServerHandlerConfig : IdentityServerHandler.IConfig

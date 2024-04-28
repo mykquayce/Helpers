@@ -1,9 +1,14 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace System.Net.Http;
 
-public class CachingHandler(IMemoryCache memoryCache) : DelegatingHandler
+public class CachingHandler(IMemoryCache memoryCache, IOptions<CachingHandler.IConfig> config) : DelegatingHandler
 {
+	public interface IConfig { TimeSpan Expiration { get; set; } }
+
+	private readonly TimeSpan _expiration = config.Value.Expiration;
+
 	protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
 		var key = request.RequestUri?.OriginalString.ToLowerInvariant();
@@ -25,7 +30,7 @@ public class CachingHandler(IMemoryCache memoryCache) : DelegatingHandler
 		{
 			var code = response.StatusCode;
 			var body = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-			var absoluteExpiration = DateTimeOffset.UtcNow.AddHours(.9);
+			var absoluteExpiration = DateTimeOffset.UtcNow.Add(_expiration);
 			memoryCache.Set(key, (code, body), absoluteExpiration);
 		}
 
