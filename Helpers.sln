@@ -29,8 +29,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.DockerHub.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Elgato", "Helpers.Elgato\Helpers.Elgato.csproj", "{1147A9FB-C869-4DBB-9D61-DBBBAF33A442}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Elgato.Models", "Helpers.Elgato.Models\Helpers.Elgato.Models.csproj", "{66F6CA9B-18C7-4BCF-858B-A6E32CBA8A21}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.Elgato.Tests", "Helpers.Elgato.Tests\Helpers.Elgato.Tests.csproj", "{A8D78E6A-8CF3-455A-A75B-C53DB7B44FCF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Helpers.GitHub", "Helpers.GitHub\Helpers.GitHub.csproj", "{892BDC58-5E53-4E8D-A547-0260378135A3}"
@@ -224,10 +222,6 @@ Global
 		{1147A9FB-C869-4DBB-9D61-DBBBAF33A442}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1147A9FB-C869-4DBB-9D61-DBBBAF33A442}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1147A9FB-C869-4DBB-9D61-DBBBAF33A442}.Release|Any CPU.Build.0 = Release|Any CPU
-		{66F6CA9B-18C7-4BCF-858B-A6E32CBA8A21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66F6CA9B-18C7-4BCF-858B-A6E32CBA8A21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66F6CA9B-18C7-4BCF-858B-A6E32CBA8A21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66F6CA9B-18C7-4BCF-858B-A6E32CBA8A21}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A8D78E6A-8CF3-455A-A75B-C53DB7B44FCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A8D78E6A-8CF3-455A-A75B-C53DB7B44FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8D78E6A-8CF3-455A-A75B-C53DB7B44FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU

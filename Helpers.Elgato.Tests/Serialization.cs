@@ -1,19 +1,19 @@
-﻿using System.Text.Json;
+﻿using Helpers.Elgato.Models;
+using System.Text.Json;
 using Xunit;
 
 namespace Helpers.Elgato.Tests;
 
-[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
+[Collection(nameof(NonParallelCollectionDefinitionClass))]
 public class Serialization
 {
 	[Theory]
-	[InlineData(@"{""numberOfLights"":1,""lights"":[{""on"":0,""brightness"":23,""temperature"":331}]}", 0, 23, 331, null, null)]
-	[InlineData(@"{""numberOfLights"":1,""lights"":[{""on"":0,""hue"":113.0,""saturation"":72.0,""brightness"":23}]}", 0, 23, null, 113f, 72f)]
-	public void Message(string json, byte on, byte brightness, int? temperature, float? hue, float? saturation)
+	[InlineData("""{"numberOfLights":1,"lights":[{"on":0,"brightness":23,"temperature":331}]}""", 0, 23, 331)]
+	public void Message(string json, byte on, byte brightness, int? temperature)
 	{
-		var message = JsonSerializer.Deserialize<Models.Generated.MessageObject>(json);
+		var message = JsonSerializer.Deserialize<Message<WhiteLight>>(json);
 
-		Assert.NotNull(message);
+		Assert.NotEqual(default, message);
 		Assert.Equal(1, message!.numberOfLights);
 		Assert.NotNull(message.lights);
 		Assert.NotEmpty(message.lights);
@@ -24,16 +24,15 @@ public class Serialization
 		Assert.Equal(on, light.on);
 		Assert.Equal(brightness, light.brightness);
 		Assert.Equal(temperature, light.temperature);
-		Assert.Equal(hue, light.hue);
-		Assert.Equal(saturation, light.saturation);
 	}
+
 	[Theory]
-	[InlineData(@"{""productName"":""Elgato Key Light"",""hardwareBoardType"":53,""firmwareBuildNumber"":200,""firmwareVersion"":""1.0.3"",""serialNumber"":""BW33J1A02740"",""displayName"":""Elgato Key Light 227A"",""features"":[""lights""]}")]
+	[InlineData("""{"productName":"Elgato Key Light","hardwareBoardType":53,"firmwareBuildNumber":200,"firmwareVersion":"1.0.3","serialNumber":"BW33J1A02740","displayName":"Elgato Key Light 227A","features":["lights"]}""")]
 	public void AccessoryInfo(string json)
 	{
-		var info = JsonSerializer.Deserialize<Models.Generated.AccessoryInfoObject>(json);
+		var info = JsonSerializer.Deserialize<Info>(json);
 
-		Assert.NotNull(info);
+		Assert.NotEqual(default, info);
 		f(info!.productName);
 		Assert.InRange(info.hardwareBoardType, 1, int.MaxValue);
 		Assert.InRange(info.firmwareBuildNumber, 1, int.MaxValue);

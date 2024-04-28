@@ -5,9 +5,9 @@ public static class DrawingExtensions
 	public static HsbColor GetHsbColor(this Color color)
 	{
 		return new(
-			hue: color.GetHue(),
-			saturation: color.GetSaturation(),
-			brightness: color.GetBrightness());
+			Hue: color.GetHue(),
+			Saturation: color.GetSaturation(),
+			Brightness: color.GetBrightness());
 	}
 
 	public static Color GetColor(this HsbColor hsbColor)

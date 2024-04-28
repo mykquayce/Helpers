@@ -1,37 +1,24 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Helpers.Elgato;
+using Helpers.Elgato.Concrete;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjectionExtensions
 {
-	public static IServiceCollection AddElgato(this IServiceCollection services, string scheme, int port)
+	public static IHttpClientBuilder AddElgato(this IServiceCollection services, Uri baseAddress)
+		=> AddElgato(services, client => client.BaseAddress = baseAddress);
+
+	public static IHttpClientBuilder AddElgato(this IServiceCollection services, Action<HttpClient> configureClient)
 	{
-		var config = new Helpers.Elgato.Config(scheme, port);
 		return services
-			.AddElgato(config);
+			.AddTransient<IWhiteLightService, WhiteLightService>()
+			.AddHttpClient<IWhiteLightClient, WhiteLightClient>(configureClient);
 	}
 
-	public static IServiceCollection AddElgato(this IServiceCollection services, IOptions<Helpers.Elgato.Config> config)
+	public static IHttpClientBuilder AddElgato(this IServiceCollection services, Action<IServiceProvider, HttpClient> configureClient)
 	{
 		return services
-			.AddSingleton(config)
-			.AddElgato();
-	}
-
-	public static IServiceCollection AddElgato(this IServiceCollection services, IConfiguration configuration)
-	{
-		return services
-			.Configure<Helpers.Elgato.Config>(configuration)
-			.AddElgato();
-	}
-
-	public static IServiceCollection AddElgato(this IServiceCollection services)
-	{
-		return services
-			.AddHttpClient<Helpers.Elgato.IClient, Helpers.Elgato.Concrete.Client>(name: "elgato-client")
-			.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, })
-			.Services
-			.AddTransient<Helpers.Elgato.IService, Helpers.Elgato.Concrete.Service>();
+			.AddTransient<IWhiteLightService, WhiteLightService>()
+			.AddHttpClient<IWhiteLightClient, WhiteLightClient>(configureClient);
 	}
 }

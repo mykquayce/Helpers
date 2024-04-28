@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Helpers.Elgato.Tests.CollectionDefinitions;
+﻿namespace Xunit;
 
 [CollectionDefinition(nameof(NonParallelCollectionDefinitionClass), DisableParallelization = true)]
 public class NonParallelCollectionDefinitionClass { }

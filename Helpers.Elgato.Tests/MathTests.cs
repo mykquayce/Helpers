@@ -2,7 +2,7 @@
 
 namespace Helpers.Elgato.Tests;
 
-[Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
+[Collection(nameof(NonParallelCollectionDefinitionClass))]
 public class MathTests
 {
 	[Theory]

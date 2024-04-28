@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Numerics;
 
-namespace Helpers.Elgato.Tests.Comparers;
+namespace System.Collections.Generic;
 
 public class TolerantEqualityComparer<T> : IEqualityComparer<T>
 	where T : INumber<T>
