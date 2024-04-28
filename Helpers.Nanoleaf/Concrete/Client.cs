@@ -4,9 +4,15 @@ using System.Net.Http.Json;
 
 namespace Helpers.Nanoleaf.Concrete;
 
-public class Client(HttpClient httpClient, IOptions<Config> config) : IClient
+public class Client(HttpClient httpClient, IOptions<Client.IConfig> config) : IClient
 {
-	private readonly string _token = config.Value.Token;
+	public interface IConfig
+	{
+		string Token { get; set; }
+		Uri BaseAddress { get; set; }
+	}
+
+	private readonly string _token = config?.Value?.Token ?? throw new ArgumentNullException(nameof(config));
 
 	public async Task<string> GetTokenAsync(CancellationToken cancellationToken = default)
 	{

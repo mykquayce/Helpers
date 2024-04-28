@@ -1,43 +1,49 @@
 ﻿using Helpers.Nanoleaf;
 using Helpers.Nanoleaf.Concrete;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServicesExtensions
 {
-	public static IServiceCollection AddNanoleaf(this IServiceCollection services, Uri baseAddress, string token)
+	public static IServiceCollection AddNanoleaf(this IServiceCollection services, IConfiguration configuration)
 	{
-		var config = new Config(baseAddress, token);
+		var config = new Config();
+		configuration.Bind(config);
 		return services.AddNanoleaf(config);
 	}
 
-	public static IServiceCollection AddNanoleaf(this IServiceCollection services, Config config)
+	public static IServiceCollection AddNanoleaf(this IServiceCollection services, Uri baseAddress, string token)
 	{
-		return services
-			.AddSingleton(Options.Options.Create(config))
-			.AddNanoleaf();
+		var config = new Config { BaseAddress = baseAddress, Token = token};
+		return services.AddNanoleaf(config);
 	}
 
-	public static IServiceCollection AddNanoleaf(this IServiceCollection services, IConfiguration configuration)
+	public static IServiceCollection AddNanoleaf(this IServiceCollection services, Action<Client.IConfig> configBuilder)
 	{
-		return services
-			.Configure<Config>(configuration)
-			.AddNanoleaf();
+		Client.IConfig config = new Config();
+		configBuilder(config);
+		return services.AddNanoleaf(config);
 	}
 
-	public static IServiceCollection AddNanoleaf(this IServiceCollection services)
+	public static IServiceCollection AddNanoleaf(this IServiceCollection services, Client.IConfig config)
 	{
+		var options = Options.Options.Create(config);
+
 		return services
 			.AddTransient<HttpMessageHandler>(_ => new HttpClientHandler { AllowAutoRedirect = false, })
-			.AddHttpClient<IClient, Client>("nanoleaf-client", (provider, client) =>
+			.AddSingleton(options)
+			.AddHttpClient<IClient, Client>(name: "nanoleaf-client", client =>
 			{
-				var config = provider.GetRequiredService<IOptions<Config>>().Value;
 				client.BaseAddress = config.BaseAddress;
 			})
 			.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
 			.Services;
+	}
+
+	private class Config : Client.IConfig
+	{
+		public string Token { get; set; }
+		public Uri BaseAddress { get; set; }
 	}
 }

@@ -18,13 +18,19 @@ public class DependencyInjectionTests
 	[Fact]
 	public void ConfigTests()
 	{
-		var config = new Config(Constants.BaseAddress, Constants.Token);
+		var config = new Config { BaseAddress = Constants.BaseAddress, Token = Constants.Token, };
 
 		using var provider = new ServiceCollection()
 			.AddNanoleaf(config)
 			.BuildServiceProvider();
 
 		Assert.NotNull(provider.GetService<IClient>());
+	}
+
+	private class Config : Concrete.Client.IConfig
+	{
+		public string Token { get; set; }
+		public Uri BaseAddress { get; set; }
 	}
 
 	[Fact]
@@ -42,6 +48,20 @@ public class DependencyInjectionTests
 
 		using var provider = new ServiceCollection()
 			.AddNanoleaf(configuration)
+			.BuildServiceProvider();
+
+		Assert.NotNull(provider.GetService<IClient>());
+	}
+
+	[Fact]
+	public void BuilderTests()
+	{
+		using var provider = new ServiceCollection()
+			.AddNanoleaf(builder =>
+			{
+				builder.BaseAddress = Constants.BaseAddress;
+				builder.Token = Constants.Token;
+			})
 			.BuildServiceProvider();
 
 		Assert.NotNull(provider.GetService<IClient>());
