@@ -3,14 +3,17 @@ using Microsoft.Extensions.Options;
 
 namespace System.Net.Http;
 
-public class IdentityServerDelegatingHandler(HttpClient httpClient, IOptions<IdentityServerDelegatingHandler.Config> config)
+public class IdentityServerHandler(HttpClient httpClient, IOptions<IdentityServerHandler.IConfig> config)
 	: DelegatingHandler
 {
-	private readonly Config _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
+	private readonly IConfig _config = config?.Value ?? throw new ArgumentNullException(nameof(config));
 
-	public record Config(Uri Authority, string ClientId, string ClientSecret, string Scope)
+	public interface IConfig
 	{
-		public Config() : this(default!, default!, default!, default!) { }
+		Uri Authority { get; set; }
+		string ClientId { get; set; }
+		string ClientSecret { get; set; }
+		string Scope { get; set; }
 	}
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Helpers.DelegatingHandlers.Tests;
 
-public class IdentityServerDelegatingHandlerTests(IdentityServerDelegatingHandlerTests.Fixture fixture)
-	: IClassFixture<IdentityServerDelegatingHandlerTests.Fixture>
+public class IdentityServerHandlerTests(IdentityServerHandlerTests.Fixture fixture)
+	: IClassFixture<IdentityServerHandlerTests.Fixture>
 {
 	private readonly TestClient _sut = fixture.TestClient;
 
@@ -35,35 +33,24 @@ public class IdentityServerDelegatingHandlerTests(IdentityServerDelegatingHandle
 
 		public Fixture()
 		{
-			var initialData = new Dictionary<string, string?>
-			{
-				["authority"] = _authority.OriginalString,
-				["clientId"] = _clientId,
-				["clientSecret"] = _clientSecret,
-				["scope"] = _scope,
-			};
-
-			var configuration = new ConfigurationBuilder()
-				.AddInMemoryCollection(initialData)
-				.Build();
-
 			_provider = new ServiceCollection()
 				.AddMemoryCache()
-				.Configure<IdentityServerDelegatingHandler.Config>(configuration)
 				.AddTransient<HttpMessageHandler>(_ => new HttpClientHandler { AllowAutoRedirect = false, })
 				.AddTransient<MockingHandler>()
 				.AddTransient<CachingHandler>()
-				.AddHttpClient<IdentityServerDelegatingHandler>((provider, client) =>
+				.AddIdentityServerHandler(b =>
 				{
-					var config = provider.GetRequiredService<IOptions<IdentityServerDelegatingHandler.Config>>().Value;
-					client.BaseAddress = config.Authority;
+					b.Authority = _authority;
+					b.ClientId = _clientId;
+					b.ClientSecret = _clientSecret;
+					b.Scope = _scope;
 				})
 					.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
 					.AddHttpMessageHandler<CachingHandler>()
 					.Services
 				.AddHttpClient<TestClient>(c => c.BaseAddress = new Uri("http://localhost/"))
 					.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
-					.AddHttpMessageHandler<IdentityServerDelegatingHandler>()
+					.AddHttpMessageHandler<IdentityServerHandler>()
 					.AddHttpMessageHandler<MockingHandler>()
 					.Services
 				.BuildServiceProvider();
