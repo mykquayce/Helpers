@@ -101,4 +101,18 @@ public class Service : IService
 
 		throw new KeyNotFoundException($"{nameof(physicalAddress)} {physicalAddress} not found");
 	}
+
+	public Task RebootAsync(CancellationToken cancellationToken = default)
+		=> _client.RunCommandAsync("reboot", cancellationToken);
+
+	public Task SetWifiStatusAsync(OperationalStatus status, CancellationToken cancellationToken = default)
+	{
+		var s = status switch
+		{
+			OperationalStatus.Down => "down",
+			OperationalStatus.Up => "up",
+			_ => throw new ArgumentOutOfRangeException(nameof(status), status, "expected up/down"),
+		};
+		return _client.RunCommandAsync("/sbin/wifi " + s, cancellationToken);
+	}
 }

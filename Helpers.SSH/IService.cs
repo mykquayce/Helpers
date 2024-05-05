@@ -14,4 +14,6 @@ public interface IService
 	IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync(CancellationToken cancellationToken = default);
 	Task<Helpers.Networking.Models.DhcpLease> GetLeaseByIPAddressAsync(IPAddress ipAddress, CancellationToken cancellationToken = default);
 	Task<Helpers.Networking.Models.DhcpLease> GetLeaseByPhysicalAddressAsync(PhysicalAddress physicalAddress, CancellationToken cancellationToken = default);
+	Task RebootAsync(CancellationToken cancellationToken = default);
+	Task SetWifiStatusAsync(OperationalStatus status, CancellationToken cancellationToken = default);
 }

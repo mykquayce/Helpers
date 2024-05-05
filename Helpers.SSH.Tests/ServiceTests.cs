@@ -168,6 +168,14 @@ public class ServiceTests(Fixtures.Fixture fixture) : IClassFixture<Fixtures.Fix
 			expected,
 			await _sut.GetBlackholesAsync().CountAsync());
 	}
+
+	[Fact]
+	public Task RebootTests() => _sut.RebootAsync();
 #pragma warning restore IDE0079, xUnit1004 // Remove unnecessary suppression; Test methods should not be skipped
+
+	[Theory]
+	[InlineData(OperationalStatus.Down)]
+	[InlineData(OperationalStatus.Up)]
+	public Task WifiTests(OperationalStatus status) => _sut.SetWifiStatusAsync(status);
 	#endregion destructive tests
 }
