@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 
@@ -12,15 +11,16 @@ public class Service : IService
 
 	public Service(IClient client)
 	{
-		_client = Guard.Argument(client).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(client);
+		_client = client;
 		_newline = _client.RunCommandAsync("echo").GetAwaiter().GetResult();
 	}
 
-	public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync()
+	public async IAsyncEnumerable<Helpers.Networking.Models.AddressPrefix> GetBlackholesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		var command = "(ip route show && ip -6 route show) | grep ^[Bb]lackhole | awk '{print($2)}'";
 
-		var response = await _client.RunCommandAsync(command);
+		var response = await _client.RunCommandAsync(command, cancellationToken);
 
 		var lines = response.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
@@ -30,30 +30,30 @@ public class Service : IService
 		}
 	}
 
-	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
+	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subnetAddress).NotNull();
-		return _client.RunCommandAsync("ip route add blackhole " + subnetAddress);
+		ArgumentNullException.ThrowIfNull(subnetAddress);
+		return _client.RunCommandAsync("ip route add blackhole " + subnetAddress, cancellationToken);
 	}
 
-	public Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses)
-		=> Task.WhenAll(subnetAddresses.Select(AddBlackholeAsync));
+	public Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses, CancellationToken cancellationToken = default)
+		=> Task.WhenAll(subnetAddresses.Select(p => AddBlackholeAsync(p, cancellationToken)));
 
-	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress)
+	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subnetAddress).NotNull();
-		return _client.RunCommandAsync("ip route delete blackhole " + subnetAddress);
+		ArgumentNullException.ThrowIfNull(subnetAddress);
+		return _client.RunCommandAsync("ip route delete blackhole " + subnetAddress, cancellationToken);
 	}
 
-	public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses)
-		=> Task.WhenAll(subnetAddresses.Select(DeleteBlackholeAsync));
+	public Task DeleteBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses, CancellationToken cancellationToken = default)
+		=> Task.WhenAll(subnetAddresses.Select(p => DeleteBlackholeAsync(p, cancellationToken)));
 
-	public Task DeleteBlackholesAsync()
-		=> _client.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"ip route delete blackhole \" $2)}'");
+	public Task DeleteBlackholesAsync(CancellationToken cancellationToken = default)
+		=> _client.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"ip route delete blackhole \" $2)}'", cancellationToken);
 
-	public async IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync()
+	public async IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var output = await _client.RunCommandAsync("cat /tmp/dhcp.leases");
+		var output = await _client.RunCommandAsync("cat /tmp/dhcp.leases", cancellationToken);
 
 		var lines = output.Split(_newline, StringSplitOptions.RemoveEmptyEntries);
 
@@ -62,13 +62,10 @@ public class Service : IService
 
 	public static Helpers.Networking.Models.DhcpLease GetDhcpLease(string dhcpLeaseString)
 	{
-		Guard.Argument(dhcpLeaseString)
-			.NotNull()
-			.NotEmpty()
-			.NotWhiteSpace()
-			.Matches(@"^\d+ [\d\w:]+ [\d\.]+ .+? .+?$");
+		ArgumentException.ThrowIfNullOrEmpty(dhcpLeaseString);
 
-		var values = dhcpLeaseString.Split(' ');
+		var values = dhcpLeaseString.Split(' ', count: 5);
+		ArgumentOutOfRangeException.ThrowIfNotEqual(values.Length, 5, nameof(dhcpLeaseString));
 
 		var expiration = DateTime.UnixEpoch.AddSeconds(int.Parse(values[0]));
 		var physicalAddress = PhysicalAddress.Parse(values[1]);
@@ -79,9 +76,9 @@ public class Service : IService
 		return new(expiration, physicalAddress, ipAddress, hostName, identifier);
 	}
 
-	public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByIPAddressAsync(IPAddress ipAddress)
+	public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByIPAddressAsync(IPAddress ipAddress, CancellationToken cancellationToken = default)
 	{
-		await foreach (var lease in GetDhcpLeasesAsync())
+		await foreach (var lease in GetDhcpLeasesAsync(cancellationToken))
 		{
 			if (Equals(lease.IPAddress, ipAddress))
 			{
@@ -92,9 +89,9 @@ public class Service : IService
 		throw new KeyNotFoundException($"{nameof(ipAddress)} {ipAddress} not found");
 	}
 
-	public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByPhysicalAddressAsync(PhysicalAddress physicalAddress)
+	public async Task<Helpers.Networking.Models.DhcpLease> GetLeaseByPhysicalAddressAsync(PhysicalAddress physicalAddress, CancellationToken cancellationToken = default)
 	{
-		await foreach (var lease in GetDhcpLeasesAsync())
+		await foreach (var lease in GetDhcpLeasesAsync(cancellationToken))
 		{
 			if (Equals(lease.PhysicalAddress, physicalAddress))
 			{
@@ -103,25 +100,5 @@ public class Service : IService
 		}
 
 		throw new KeyNotFoundException($"{nameof(physicalAddress)} {physicalAddress} not found");
-	}
-
-	public async IAsyncEnumerable<KeyValuePair<PhysicalAddress, IPAddress>> GetArpTableAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
-	{
-		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
-		var lines = _client.RunCommandAsShellAsync("arp -a", cancellationToken);
-
-		await foreach (var line in lines)
-		{
-			var values = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-			(var ipString, _, _, var macString, _, _) = values;
-
-			if (IPAddress.TryParse(ipString, out var ip)
-				&& !linkLocal.Contains(ip)
-				&& PhysicalAddress.TryParse(macString, out var mac))
-			{
-				yield return new(mac, ip);
-			}
-		}
 	}
 }

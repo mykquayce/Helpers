@@ -4,14 +4,9 @@ using Xunit;
 
 namespace Helpers.SSH.Tests;
 
-public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
+public class ServiceTests(Fixtures.Fixture fixture) : IClassFixture<Fixtures.Fixture>
 {
-	private readonly IService _sut;
-
-	public ServiceTests(Fixtures.ServiceFixture fixture)
-	{
-		_sut = fixture.Service;
-	}
+	private readonly IService _sut = fixture.Service;
 
 	[Theory]
 	[InlineData("77.68.0.0/17")]
@@ -175,24 +170,4 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	}
 #pragma warning restore IDE0079, xUnit1004 // Remove unnecessary suppression; Test methods should not be skipped
 	#endregion destructive tests
-
-	[Fact]
-	public async Task GetArpTable()
-	{
-		var linkLocal = Networking.Models.AddressPrefix.Parse("169.254.0.0/16", null);
-
-		var results = await _sut.GetArpTableAsync()
-			.ToListAsync();
-
-		Assert.NotEmpty(results);
-
-		foreach (var (mac, ip) in results)
-		{
-			Assert.NotEqual(mac, PhysicalAddress.None);
-			Assert.NotEqual(ip, IPAddress.Any);
-			Assert.NotEqual(ip, IPAddress.Loopback);
-			Assert.NotEqual(ip, IPAddress.None);
-			Assert.False(linkLocal.Contains(ip));
-		}
-	}
 }

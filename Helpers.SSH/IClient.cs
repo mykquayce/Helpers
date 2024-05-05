@@ -1,7 +1,6 @@
 ﻿namespace Helpers.SSH;
 
-public interface IClient : IDisposable
+public interface IClient
 {
-	Task<string> RunCommandAsync(string commandText, int millisecondsTimeout = 5_000);
-	IAsyncEnumerable<string> RunCommandAsShellAsync(string commandText, CancellationToken cancellationToken = default);
+	Task<string> RunCommandAsync(string commandText, CancellationToken cancellationToken = default);
 }
