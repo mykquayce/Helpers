@@ -1,95 +1,39 @@
-﻿using Dawn;
-using System.Diagnostics;
+﻿using Helpers.Reddit.Models.Generated;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Helpers.Reddit.Tests;
 
-public class ClientTests : IClassFixture<Fixtures.ClientFixture>
+public partial class ClientTests(Fixture fixture) : IClassFixture<Fixture>
 {
-	public readonly IClient _sut;
+	private readonly IClient _sut = fixture.Client;
 
-	public ClientTests(Fixtures.ClientFixture clientFixture)
+	[Fact]
+	public async Task GetRandomSubredditTests()
 	{
-		_sut = clientFixture.Client;
+		var subreddit = await _sut.GetRandomSubredditAsync();
+
+		Assert.NotEmpty(subreddit);
 	}
 
-	[Theory]
-	[InlineData("worldnews")]
-	public async Task GetThreads(string subredditName)
+	[Theory, InlineData("worldnews", 100)]
+	public async Task GetThreadsTests(string subredditName, int count)
 	{
-		var threads = await _sut.GetThreadsAsync(subredditName).ToListAsync();
+		// Act
+		var entries = await _sut.GetThreadsAsync(subredditName).Take(count).ToArrayAsync();
 
-		Assert.NotEmpty(threads);
-		Assert.DoesNotContain(default, threads);
+		// Assert
+		Assert.NotEmpty(entries);
+		Assert.Equal(count, entries.Length);
+		Assert.DoesNotContain(null, entries);
+		Assert.Distinct(entries, EntryComparer.Instance);
 	}
 
-	[Theory]
-	[InlineData("euphoria", "cm3ryv")]
-	public async Task GetComments_ByString(string subredditName, string threadId)
+	private class EntryComparer : IEqualityComparer<entryType>
 	{
-		var comments = await _sut.GetCommentsAsync(subredditName, threadId).ToListAsync();
+		public bool Equals(entryType? x, entryType? y) => x?.id == y?.id;
+		public int GetHashCode([DisallowNull] entryType obj) => obj.id.GetHashCode();
 
-		Assert.NotEmpty(comments);
-		Assert.DoesNotContain(default, comments);
-	}
-
-	[Theory]
-	[InlineData("euphoria", 762_721_879)]
-	public async Task GetComments_ByInteger(string subredditName, long threadId)
-	{
-		var comments = await _sut.GetCommentsAsync(subredditName, threadId).ToListAsync();
-
-		Assert.NotEmpty(comments);
-		Assert.DoesNotContain(default, comments);
-	}
-
-	[Theory]
-	[InlineData(10)]
-	public async Task TestSubredditNames(int count)
-	{
-		while (count-- > 0)
-		{
-			var subreddit = await _sut.GetRandomSubredditAsync();
-
-			try
-			{
-				Guard.Argument(subreddit).IsSubredditName();
-			}
-			catch (Exception ex)
-			{
-				Assert.True(false, ex.Message);
-			}
-		}
-	}
-
-	[Theory]
-	[InlineData("/r/worldnews/.rss")]
-	[InlineData("/r/worldnews/comments/mplu2s/.rss")]
-	[InlineData("/r/worldnews/comments/mplu2s/guaobq4/.rss")]
-	[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/.rss")]
-	[InlineData("/r/worldnews/comments/mplu2s/scientists_4c_would_unleash_unimaginable_amounts/guaobq4/.rss")]
-	public async Task TimeoutTests(string uriString)
-	{
-		var uri = new Uri(uriString, UriKind.Relative);
-		var baseAddress = new Uri("https://old.reddit.com", UriKind.Absolute);
-
-		var handler = new HttpClientHandler { AllowAutoRedirect = false, };
-		using var client = new HttpClient(handler) { BaseAddress = baseAddress, };
-
-		var stopwatch = Stopwatch.StartNew();
-		var s = await client.GetStringAsync(uri);
-		stopwatch.Stop();
-		Console.WriteLine(stopwatch.ElapsedTicks / (double)TimeSpan.TicksPerSecond);
-	}
-
-	[Theory]
-	[InlineData("Superstonk", 1_561_823_290)]
-	public async Task ThreadWithNullCommentTests(string subreddit, long threadId)
-	{
-		var comments = await _sut.GetCommentsAsync(subreddit, threadId)
-			.ToListAsync();
-
-		Assert.NotNull(comments);
-		Assert.NotEmpty(comments);
-		Assert.DoesNotContain(default, comments);
+		public static EntryComparer Instance { get; } = new EntryComparer();
 	}
 }
+

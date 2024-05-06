@@ -1,88 +1,57 @@
 ﻿using Dawn;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 
 namespace Helpers.Reddit.Concrete;
 
-public partial class Client : IClient
+public class Client(HttpClient httpClient) : IClient
 {
-	private readonly HttpClient _httpClient;
-	private readonly XmlSerializerFactory _xmlSerializerFactory;
-
-	public Client(HttpClient httpClient, XmlSerializerFactory xmlSerializerFactory)
-	{
-		_httpClient = Guard.Argument(httpClient).NotNull().Value;
-		_xmlSerializerFactory = Guard.Argument(xmlSerializerFactory).NotNull().Value;
-	}
-
 	public async Task<string> GetRandomSubredditAsync(CancellationToken cancellationToken = default)
 	{
-		Uri redirect;
-		{
-			using var request = new HttpRequestMessage(HttpMethod.Head, "r/random");
-			using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-			redirect = response.Headers.Location!;
-		}
-		var match = SubredditRegex().Match(redirect.OriginalString);
-		return match.Groups[1].Value;
+		var response = await httpClient.GetAsync("/r/random", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		return response.Headers.Location!.Segments.Last().Trim('/');
 	}
 
 	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
 
-		Models.Generated.feedType subreddit;
-		{
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/.rss?limit=100", cancellationToken);
-			subreddit = Deserialize<Models.Generated.feedType>(stream);
-		}
+		string? after = null;
 
-		var enumerator = subreddit.entry.GetEnumerator();
-
-		while (!cancellationToken.IsCancellationRequested
-			&& enumerator.MoveNext())
+		do
 		{
-			if (enumerator.Current is Models.Generated.entryType entry
-				&& entry.Type == Models.EntryType.Link)
+			var requestUri = new Uri($"/r/{subredditName}/.xml?after={after}&limit=100", UriKind.Relative);
+			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
+
+			foreach (var entry in feed.entry)
 			{
+				if (entry.id[1] != '3') { continue; } // link
 				yield return entry;
+				after = entry.id;
 			}
 		}
+		while (after != null);
 	}
 
-	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, long threadId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, string threadId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		Guard.Argument(subredditName).IsSubredditName();
-		Models.Generated.feedType threadFeed;
-		{
-			var id = Helpers.Reddit.Models.Converters.Base36Converter.ToString(threadId);
-			await using var stream = await _httpClient.GetStreamAsync($"r/{subredditName}/comments/{id}/.rss?limit=500", cancellationToken);
-			threadFeed = Deserialize<Models.Generated.feedType>(stream);
-		}
+		Guard.Argument(threadId).IsId();
 
-		var enumerator = threadFeed.entry.GetEnumerator();
+		string? after = null;
 
-		while (!cancellationToken.IsCancellationRequested
-			&& enumerator.MoveNext())
+		do
 		{
-			if (enumerator.Current is Models.Generated.entryType entry
-				&& entry.Type == Models.EntryType.Comment)
+			var requestUri = new Uri($"r/{subredditName}/comments/{threadId[3..]}/.rss?after={after}&limit=500", UriKind.Relative);
+			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
+
+			foreach (var entry in feed.entry)
 			{
-				var comment = entry.content.Value;
-				if (string.IsNullOrWhiteSpace(comment)) continue;
-				yield return System.Web.HttpUtility.HtmlDecode(comment);
+				if (entry.id[1] != '1') { continue; } // comment
+				var comment = System.Web.HttpUtility.HtmlDecode(entry.content.Value);
+				yield return comment;
+				after = entry.id[3..];
 			}
-		}
-	}
 
-	private T Deserialize<T>(Stream stream)
-	{
-		Guard.Argument(stream).NotNull().Require(s => s.CanRead);
-		var serializer = _xmlSerializerFactory.CreateSerializer(typeof(T));
-		return (T)serializer.Deserialize(stream)!;
+		} while (after != null);
 	}
-
-	[GeneratedRegex("reddit\\.com\\/r\\/(\\w+)\\/")]
-	private static partial Regex SubredditRegex();
 }

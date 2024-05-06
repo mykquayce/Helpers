@@ -27,19 +27,17 @@ public class SerializationTests
 		{
 			Assert.NotNull(entry);
 			Assert.NotNull(entry.content);
-			AssertNotMalformedString(entry.content.Value);
-			AssertNotMalformedString(entry.id);
-			Assert.NotEqual(default, entry.Type);
-			Assert.NotEqual(default, entry.Id);
+			assert(entry.content.Value);
+			assert(entry.id);
 		}
-	}
 
-	private static void AssertNotMalformedString(string? s)
-	{
-		Assert.NotNull(s);
-		Assert.NotEmpty(s);
-		Assert.DoesNotMatch(@"^\s+$", s);
-		Assert.DoesNotMatch(@"^\s", s);
-		Assert.DoesNotMatch(@"\s$", s);
+		static void assert(string s)
+		{
+			Assert.NotNull(s);
+			Assert.NotEmpty(s);
+			Assert.DoesNotMatch(@"^\s+$", s);
+			Assert.DoesNotMatch(@"^\s", s);
+			Assert.DoesNotMatch(@"\s$", s);
+		}
 	}
 }

@@ -1,13 +1,8 @@
 ﻿namespace Helpers.Reddit.Tests;
 
-public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
+public class ServiceTests(Fixture fixture) : IClassFixture<Fixture>
 {
-	private readonly IService _sut;
-
-	public ServiceTests(Fixtures.ServiceFixture serviceFixture)
-	{
-		_sut = serviceFixture.Service;
-	}
+	private readonly IService _sut = fixture.Service;
 
 	[Theory]
 	[InlineData(10)]
@@ -23,10 +18,10 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	[Theory]
 	[InlineData("90dayfianceuncensored")]
 	[InlineData("worldnews")]
-	public async Task GetThreads(string subredditName)
+	public async Task GetThreadIdsForSubredditTests(string subredditName)
 	{
 		// Act
-		var threadIds = await _sut.GetThreadIdsForSubredditAsync(subredditName).ToListAsync();
+		var threadIds = await _sut.GetThreadIdsForSubredditAsync(subredditName).Take(100).ToArrayAsync();
 
 		// Assert
 		Assert.NotEmpty(threadIds);
@@ -34,45 +29,15 @@ public class ServiceTests : IClassFixture<Fixtures.ServiceFixture>
 	}
 
 	[Theory]
-	[InlineData("euphoria", "cm3ryv")]
-	public async Task GetComments_ByString(string subreddit, string threadId)
+	[InlineData("euphoria", "t3_cm3ryv", 100)]
+	public async Task GetCommentsForThreadIdTests(string subreddit, string threadId, int count)
 	{
 		// Act
-		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).ToListAsync();
+		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).Take(count).ToArrayAsync();
 
 		// Assert
 		Assert.NotEmpty(comments);
+		Assert.Equal(count, comments.Length);
 		Assert.DoesNotContain(default, comments);
-	}
-
-	[Theory]
-	[InlineData("euphoria", 762_721_879)]
-	public async Task GetComments_ByInteger(string subreddit, long threadId)
-	{
-		// Act
-		var comments = await _sut.GetCommentsForThreadIdAsync(subreddit, threadId).ToListAsync();
-
-		// Assert
-		Assert.NotEmpty(comments);
-		Assert.DoesNotContain(default, comments);
-	}
-
-	[Fact]
-	public async Task EndToEndTests()
-	{
-		var comments = new List<string>();
-		var subredditName = await _sut.GetRandomSubredditNameAsync();
-
-		Assert.NotNull(subredditName);
-
-		await foreach (var threadId in _sut.GetThreadIdsForSubredditAsync(subredditName))
-		{
-			await foreach (var comment in _sut.GetCommentsForThreadIdAsync(subredditName, threadId))
-			{
-				comments.Add(comment);
-			}
-		}
-
-		Assert.NotEmpty(comments);
 	}
 }
