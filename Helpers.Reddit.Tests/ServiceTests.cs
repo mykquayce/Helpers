@@ -16,16 +16,17 @@ public class ServiceTests(Fixture fixture) : IClassFixture<Fixture>
 	}
 
 	[Theory]
-	[InlineData("90dayfianceuncensored")]
-	[InlineData("worldnews")]
-	public async Task GetThreadIdsForSubredditTests(string subredditName)
+	[InlineData("90dayfianceuncensored", 120)]
+	[InlineData("worldnews", 120)]
+	public async Task GetThreadIdsForSubredditTests(string subredditName, int count)
 	{
 		// Act
-		var threadIds = await _sut.GetThreadIdsForSubredditAsync(subredditName).Take(100).ToArrayAsync();
+		var threadIds = await _sut.GetThreadIdsForSubredditAsync(subredditName).Take(count).ToArrayAsync();
 
 		// Assert
 		Assert.NotEmpty(threadIds);
 		Assert.DoesNotContain(default, threadIds);
+		Assert.Equal(count, threadIds.Length);
 	}
 
 	[Theory]
@@ -39,5 +40,7 @@ public class ServiceTests(Fixture fixture) : IClassFixture<Fixture>
 		Assert.NotEmpty(comments);
 		Assert.Equal(count, comments.Length);
 		Assert.DoesNotContain(default, comments);
+		// at least 90% of comments are unique (some will just be [deleted])
+		Assert.InRange(comments.Distinct().Count(), count * .9, count);
 	}
 }

@@ -37,21 +37,14 @@ public class Client(HttpClient httpClient) : IClient
 		Guard.Argument(subredditName).IsSubredditName();
 		Guard.Argument(threadId).IsId();
 
-		string? after = null;
+		var requestUri = new Uri($"r/{subredditName}/comments/{threadId[3..]}/.rss?&limit=500", UriKind.Relative);
+		var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
 
-		do
+		foreach (var entry in feed.entry)
 		{
-			var requestUri = new Uri($"r/{subredditName}/comments/{threadId[3..]}/.rss?after={after}&limit=500", UriKind.Relative);
-			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
-
-			foreach (var entry in feed.entry)
-			{
-				if (entry.id[1] != '1') { continue; } // comment
-				var comment = System.Web.HttpUtility.HtmlDecode(entry.content.Value);
-				yield return comment;
-				after = entry.id[3..];
-			}
-
-		} while (after != null);
+			if (entry.id[1] != '1') { continue; } // comment
+			var comment = System.Web.HttpUtility.HtmlDecode(entry.content.Value);
+			yield return comment;
+		}
 	}
 }
