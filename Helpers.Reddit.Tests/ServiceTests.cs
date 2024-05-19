@@ -1,4 +1,6 @@
-﻿namespace Helpers.Reddit.Tests;
+﻿using System.Text.RegularExpressions;
+
+namespace Helpers.Reddit.Tests;
 
 public class ServiceTests(Fixture fixture) : IClassFixture<Fixture>
 {
@@ -42,5 +44,18 @@ public class ServiceTests(Fixture fixture) : IClassFixture<Fixture>
 		Assert.DoesNotContain(default, comments);
 		// at least 90% of comments are unique (some will just be [deleted])
 		Assert.InRange(comments.Distinct().Count(), count * .9, count);
+	}
+
+	[Theory]
+	[InlineData("""<a href="https://preview.redd.it/24vk5mf0mnzc1.jpeg?width=554&format=pjpg&auto=webp&s=e6ad3163769c8034cf656c3e4d6d2a4e0516ed1d">https://preview.redd.it/24vk5mf0mnzc1.jpeg?width=554&format=pjpg&auto=webp&s=e6ad3163769c8034cf656c3e4d6d2a4e0516ed1d</a>""")]
+	[InlineData("""Glad that I was able to hurt your feelings!</p> <p><a href="https://giphy.com/gifs/Im6tajjZwrRN6QQx75">https://giphy.com/gifs/Im6tajjZwrRN6QQx75</a>""")]
+	[InlineData("""<a href="https://preview.redd.it/n3bpc8zbmnzc1.jpeg?width=320&format=pjpg&auto=webp&s=2c3f6910ec90ffb74fa12017fe3864f3938f90ac">https://preview.redd.it/n3bpc8zbmnzc1.jpeg?width=320&format=pjpg&auto=webp&s=2c3f6910ec90ffb74fa12017fe3864f3938f90ac</a>""")]
+	[InlineData("""<a href="https://preview.redd.it/ux7mcppzmnzc1.jpeg?width=720&format=pjpg&auto=webp&s=d008106f223b01517379b9e15f8a7b8a19e86cad">https://preview.redd.it/ux7mcppzmnzc1.jpeg?width=720&format=pjpg&auto=webp&s=d008106f223b01517379b9e15f8a7b8a19e86cad</a></p> <p>I don't know what to reply with, so here's a meme!""")]
+	public void GetLinksFromCommentsTests(string comment)
+	{
+		var regex = new Regex(@"href=""(https:\/\/.+?)""");
+		var link = regex.Match(comment).Groups[1].Value;
+		Assert.NotEmpty(link);
+		Assert.True(Uri.TryCreate(link, UriKind.Absolute, out _));
 	}
 }

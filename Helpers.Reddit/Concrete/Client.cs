@@ -7,7 +7,7 @@ public class Client(HttpClient httpClient) : IClient
 {
 	public async Task<string> GetRandomSubredditAsync(CancellationToken cancellationToken = default)
 	{
-		var response = await httpClient.GetAsync("/r/random", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		var response = await httpClient.GetAsync("random", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 		return response.Headers.Location!.Segments.Last().Trim('/');
 	}
 
@@ -19,7 +19,7 @@ public class Client(HttpClient httpClient) : IClient
 
 		do
 		{
-			var requestUri = new Uri($"/r/{subredditName}/.xml?after={after}&limit=100", UriKind.Relative);
+			var requestUri = new Uri($"{subredditName}/.rss?after={after}&limit=100", UriKind.Relative);
 			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
 
 			foreach (var entry in feed.entry)
@@ -37,7 +37,7 @@ public class Client(HttpClient httpClient) : IClient
 		Guard.Argument(subredditName).IsSubredditName();
 		Guard.Argument(threadId).IsId();
 
-		var requestUri = new Uri($"r/{subredditName}/comments/{threadId[3..]}/.rss?&limit=500", UriKind.Relative);
+		var requestUri = new Uri($"{subredditName}/comments/{threadId[3..]}/.rss?&limit=500", UriKind.Relative);
 		var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
 
 		foreach (var entry in feed.entry)
