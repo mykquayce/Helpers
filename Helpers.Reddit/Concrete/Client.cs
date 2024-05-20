@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Helpers.Reddit.Concrete;
 
@@ -13,7 +12,7 @@ public class Client(HttpClient httpClient) : IClient
 
 	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subredditName).IsSubredditName();
+		ArgumentException.ThrowIfNullOrEmpty(subredditName);
 
 		string? after = null;
 
@@ -34,8 +33,8 @@ public class Client(HttpClient httpClient) : IClient
 
 	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, string threadId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subredditName).IsSubredditName();
-		Guard.Argument(threadId).IsId();
+		ArgumentException.ThrowIfNullOrEmpty(subredditName);
+		ArgumentException.ThrowIfNullOrEmpty(threadId);
 
 		var requestUri = new Uri($"{subredditName}/comments/{threadId[3..]}/.rss?&limit=500", UriKind.Relative);
 		var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
