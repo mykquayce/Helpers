@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -57,4 +58,31 @@ public static class DependencyInjectionExtensions
 		var handler = new UserAgentHandler(userAgent);
 		return services.AddTransient(_ => handler);
 	}
+
+	#region retry handler
+	public static IServiceCollection AddRetryHandler(this IServiceCollection services, IConfiguration configuration)
+	{
+		var config = new RetryHandler.Config();
+		configuration.Bind(config);
+		return services.AddRetryHandler(config);
+	}
+
+	public static IServiceCollection AddRetryHandler(this IServiceCollection services, Action<RetryHandler.Config> builder)
+	{
+		var config = new RetryHandler.Config();
+		builder(config);
+		return services.AddRetryHandler(config);
+	}
+
+	public static IServiceCollection AddRetryHandler(this IServiceCollection services, RetryHandler.Config config)
+	{
+		ArgumentNullException.ThrowIfNull(config);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(config.Count);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(config.Pause, TimeSpan.Zero);
+
+		return services
+			.AddTransient(_ => Options.Options.Create(config))
+			.AddTransient<RetryHandler>();
+	}
+	#endregion retry handler
 }
