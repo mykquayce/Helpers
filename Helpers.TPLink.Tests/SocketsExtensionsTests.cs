@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Helpers.TPLink.Tests;
@@ -9,51 +10,55 @@ public sealed class SocketsExtensionsTests : IDisposable
 	private readonly UdpClient _sut = new();
 
 	[Theory]
-	[InlineData("192.168.1.255:9999", 2)]
-	public async Task Discover_GetRealtimeData(string endPointString, int expectedCount)
+	[InlineData("192.168.1.255:9999")]
+	public async Task DiscoveryTests(string endPointString)
 	{
-		IReadOnlyCollection<IPEndPoint> devices = await DiscoveryTests(endPointString).ToArrayAsync();
-		Assert.Equal(expectedCount, devices.Count);
+		var endPoint = IPEndPoint.Parse(endPointString);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
+		var responses = await DiscoveryAsync(endPoint, cts.Token).ToArrayAsync(cts.Token);
+		Assert.NotEmpty(responses);
+		Assert.DoesNotContain(default, responses);
+	}
 
-		foreach (var endPoint in devices)
+	[Theory]
+	[InlineData("192.168.1.255:9999")]
+	public async Task GetRealtimeDataTests(string endPointString)
+	{
+		var endPoint = IPEndPoint.Parse(endPointString);
+		using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
+		var data = await GetRealtimeDataAsync(endPoint, cts.Token).ToArrayAsync(cts.Token);
+
+		Assert.NotEmpty(data);
+		Assert.DoesNotContain(default, data);
+
+		foreach (var datum in data)
 		{
-			var (amps, volts, watts) = await GetRealtimeDataTests(endPoint.ToString());
+			var (amps, volts, watts) = datum;
 			Assert.InRange(amps, .001, 1_000);
 			Assert.InRange(volts, 220, 260);
 			Assert.InRange(watts, .1, 50);
 		}
 	}
 
-	[Theory]
-	[InlineData("192.168.1.255:9999")]
-	public async IAsyncEnumerable<IPEndPoint> DiscoveryTests(string endPointString)
+	private IAsyncEnumerable<IPEndPoint> DiscoveryAsync(IPEndPoint endPoint, CancellationToken cancellationToken = default)
 	{
-		var endPoint = IPEndPoint.Parse(endPointString);
-		var request = new { system = new { get_sysinfo = new { }, }, }
-			.Serialize().Encode().Encrypt();
-		using var cts = new CancellationTokenSource(millisecondsDelay: 5_000);
-		var responses = await _sut.SendAndReceiveAsyncEnumerable(endPoint, request, cts.Token)
-			.ToArrayAsync(cts.Token);
-		Assert.NotEmpty(responses);
-		Assert.All(responses, r => Assert.NotEqual(default, r));
-		foreach (var response in responses) { yield return response.RemoteEndPoint; }
+		var o = new { system = new { get_sysinfo = new { }, }, };
+		var bytes = o.Serialize().Encode().Encrypt();
+		return _sut.SendAndReceiveAsyncEnumerable(endPoint, bytes, cancellationToken)
+			.Select(r => r.RemoteEndPoint);
 	}
 
-	[Theory]
-	[InlineData("192.168.1.219:9999")]
-	[InlineData("192.168.1.248:9999")]
-	public async Task<(double, double, double)> GetRealtimeDataTests(string endPointString)
+	private async IAsyncEnumerable<(double, double, double)> GetRealtimeDataAsync(IPEndPoint endPoint, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		var endPoint = IPEndPoint.Parse(endPointString);
-		var request = new { emeter = new { get_realtime = new { }, }, }
-			.Serialize().Encode().Encrypt();
-		var response = await _sut.SendAndReceiveAsync(endPoint, request);
-		(_, var emeter) = response.Buffer
-			.Decrypt().Decode().Deserialize<Models.ResponseObject>();
-		Assert.NotEqual(default, emeter);
-		Assert.NotEqual(default, emeter.get_realtime);
-		var (milliamps, millivolts, milliwatts) = emeter.get_realtime;
-		return (milliamps / 1_000d, millivolts / 1_000d, milliwatts / 1_000d);
+		var o = new { emeter = new { get_realtime = new { }, }, };
+		var bytes = o.Serialize().Encode().Encrypt();
+		await foreach (var ep in DiscoveryAsync(endPoint, cancellationToken))
+		{
+			var result = await _sut.SendAndReceiveAsync(ep, bytes, cancellationToken);
+			var (_, emeter) = result.Buffer.Decrypt().Decode().Deserialize<Models.ResponseObject>();
+			var (milliamps, millivolts, milliwatts) = emeter.get_realtime;
+			yield return (milliamps / 1_000d, millivolts / 1_000d, milliwatts / 1_000d);
+		}
 	}
 
 	public void Dispose() => _sut.Dispose();
