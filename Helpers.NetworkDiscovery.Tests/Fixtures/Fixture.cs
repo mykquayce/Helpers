@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Helpers.NetworkDiscovery.Tests.Fixtures;
 
@@ -14,38 +13,52 @@ public sealed class Fixture : IDisposable
 			.AddUserSecrets<XUnitClassFixtures.UserSecretsFixture>()
 			.Build();
 
-		_serviceProvider = new ServiceCollection()
+		var services = new ServiceCollection();
+
+		services
 			.AddMemoryCache()
-			.Configure<Helpers.NetworkDiscovery.Config>(configuration.GetSection("networkdiscovery"))
-			.Configure<IdentityServerDelegatingHandler.Config>(configuration.GetSection("identity"))
 			.AddTransient<HttpMessageHandler>(_ => new HttpClientHandler { AllowAutoRedirect = false, })
-			.AddTransient<CachingHandler>()
-			.AddHttpClient<IdentityServerDelegatingHandler>((provider, httpClient) =>
+			.AddCachingHandler(c => c.Expiration = TimeSpan.FromHours(.9))
+			.AddTransient<LoggingHandler>();
+
+		services
+			.AddIdentityServerHandler(b =>
 			{
-				var config = provider.GetRequiredService<IOptions<IdentityServerDelegatingHandler.Config>>().Value;
-				httpClient.BaseAddress = config.Authority;
+				b.Authority = new Uri("https://identityserver/");
+				b.ClientId = "client1";
+				b.ClientSecret = "secret1";
 			})
 				.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
 				.AddHttpMessageHandler<CachingHandler>()
-				.AddHttpMessageHandler<LoggingHandler>()
-				.Services
-			.AddTransient<LoggingHandler>()
+				.AddHttpMessageHandler<LoggingHandler>();
+
+		services
 			.AddHttpClient<Helpers.NetworkDiscovery.IClient, Helpers.NetworkDiscovery.Concrete.Client>(name: "NetworkDiscoveryClient", (provider, httpClient) =>
 			{
-				var config = provider.GetRequiredService<IOptions<Helpers.NetworkDiscovery.Config>>().Value;
-				httpClient.BaseAddress = config.BaseAddress;
+				var baseAddress = configuration.GetSection("networkdiscovery").GetValue<Uri>("baseaddress");
+				httpClient.BaseAddress = baseAddress;
 			})
 				.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
-				.AddHttpMessageHandler<IdentityServerDelegatingHandler>()
+				.AddHttpMessageHandler<IdentityServerHandler>()
 				.AddHttpMessageHandler<CachingHandler>()
-				.AddHttpMessageHandler<LoggingHandler>()
-				.Services
-			.BuildServiceProvider();
+				.AddHttpMessageHandler<LoggingHandler>();
+
+		services
+			.AddTransient<PhysicalAddressResolver>();
+
+		services
+			.AddHttpClient<TestClient>()
+				.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
+				.AddHttpMessageHandler<PhysicalAddressResolver>();
+
+		_serviceProvider = services.BuildServiceProvider();
 
 		Client = _serviceProvider.GetRequiredService<IClient>();
+		TestClient = _serviceProvider.GetRequiredService<TestClient>();
 	}
 
 	public IClient Client { get; }
+	public TestClient TestClient { get; }
 
 	public void Dispose() => (_serviceProvider as ServiceProvider)?.Dispose();
 }
