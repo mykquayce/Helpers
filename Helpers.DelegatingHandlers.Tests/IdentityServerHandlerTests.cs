@@ -27,7 +27,7 @@ public class IdentityServerHandlerTests(IdentityServerHandlerTests.Fixture fixtu
 	public sealed class Fixture : IDisposable
 	{
 		private readonly static Uri _authority = new("https://identityserver/");
-		private const string _clientId = "client", _clientSecret = "secret", _scope = "api1";
+		private const string _clientId = "client1", _clientSecret = "secret1";
 
 		private readonly IServiceProvider _provider;
 
@@ -37,16 +37,17 @@ public class IdentityServerHandlerTests(IdentityServerHandlerTests.Fixture fixtu
 				.AddMemoryCache()
 				.AddTransient<HttpMessageHandler>(_ => new HttpClientHandler { AllowAutoRedirect = false, })
 				.AddTransient<MockingHandler>()
-				.AddTransient<CachingHandler>()
+				.AddCachingHandler(c => c.Expiration = TimeSpan.FromHours(.9))
+				.AddRetryHandler(new RetryHandler.Config { Count = 3, Pause = TimeSpan.FromSeconds(2), })
 				.AddIdentityServerHandler(b =>
 				{
 					b.Authority = _authority;
 					b.ClientId = _clientId;
 					b.ClientSecret = _clientSecret;
-					b.Scope = _scope;
 				})
 					.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()
 					.AddHttpMessageHandler<CachingHandler>()
+					.AddHttpMessageHandler<RetryHandler>()
 					.Services
 				.AddHttpClient<TestClient>(c => c.BaseAddress = new Uri("http://localhost/"))
 					.ConfigurePrimaryHttpMessageHandler<HttpMessageHandler>()

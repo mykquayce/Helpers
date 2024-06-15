@@ -27,11 +27,26 @@ public class RetryHandler(ILogger<RetryHandler> logger, IOptions<RetryHandler.Co
 				{
 					>= 200 and <= 299 => false,
 					>= 300 and <= 399 => false,
+					400 => false, // BadRequest
 					404 => false,
 					_ => true,
 				};
 			})
 			.WaitAndRetryAsync(retryCount: config.Value.Count, _ => config.Value.Pause)
-			.ExecuteAsync(() => base.SendAsync(request, cancellationToken));
+			.ExecuteAsync(async () =>
+			{
+				HttpResponseMessage response;
+				try
+				{
+					response = await base.SendAsync(request, cancellationToken);
+				}
+				catch (Sockets.SocketException ex) when (ex.Message.StartsWith("Connection refused", StringComparison.OrdinalIgnoreCase))
+				{
+					throw;
+				}
+				var content = await response.Content.ReadAsStringAsync(cancellationToken);
+				logger.LogWarning("{uri}{newline}{response}{newline}{content}", request?.RequestUri, Environment.NewLine, response, Environment.NewLine, content);
+				return response;
+			});
 	}
 }

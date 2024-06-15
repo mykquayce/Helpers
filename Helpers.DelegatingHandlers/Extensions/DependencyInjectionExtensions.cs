@@ -39,7 +39,6 @@ public static class DependencyInjectionExtensions
 		public Uri Authority { get; set; }
 		public string ClientId { get; set; }
 		public string ClientSecret { get; set; }
-		public string Scope { get; set; }
 	}
 
 	public static IServiceCollection AddRateLimitHandler(this IServiceCollection services, TimeSpan replenishmentPeriod, int tokenLimit, int tokensPerPeriod)

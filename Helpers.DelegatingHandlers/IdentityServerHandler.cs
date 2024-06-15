@@ -1,5 +1,5 @@
-﻿using IdentityModel.Client;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 
 namespace System.Net.Http;
 
@@ -13,7 +13,6 @@ public class IdentityServerHandler(HttpClient httpClient, IOptions<IdentityServe
 		Uri Authority { get; set; }
 		string ClientId { get; set; }
 		string ClientSecret { get; set; }
-		string Scope { get; set; }
 	}
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -32,34 +31,24 @@ public class IdentityServerHandler(HttpClient httpClient, IOptions<IdentityServe
 
 	public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default)
 	{
-		TokenResponse tokenResponse;
+		var now = DateTimeOffset.UtcNow;
+		var values = new Dictionary<string, string>
 		{
-			var disco = await httpClient.GetDiscoveryDocumentAsync(cancellationToken: cancellationToken);
-			if (disco.IsError) @throw(disco);
-			using var tokenRequest = new ClientCredentialsTokenRequest
-			{
-				Address = disco.TokenEndpoint,
-				ClientId = _config.ClientId,
-				ClientSecret = _config.ClientSecret,
-				Scope = _config.Scope,
-			};
-			tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(tokenRequest, cancellationToken);
-		}
-		if (tokenResponse.IsError) @throw(tokenResponse);
-		return tokenResponse.AccessToken!;
+			["client_id"] = _config.ClientId,
+			["client_secret"] = _config.ClientSecret,
+			["grant_type"] = "client_credentials",
+		};
 
-		static void @throw(ProtocolResponse response)
-		{
-			throw new InvalidOperationException(message: $"error {response.ErrorType}: ({response.Error})")
-			{
-				Data =
-				{
-					[nameof(response.ErrorType)] = response.ErrorType,
-					[nameof(response.Error)] = response.Error,
-					[nameof(response.HttpErrorReason)] = response.HttpErrorReason,
-					[nameof(response.Raw)] = response.Raw,
-				},
-			};
-		}
+		var content = new FormUrlEncodedContent(values);
+
+		var response = await httpClient.PostAsync("connect/token", content, cancellationToken);
+
+		var (access_token, _, _, _) = await response.Content.ReadFromJsonAsync<TokenResponseObject>(cancellationToken);
+
+		return access_token;
 	}
+
+#pragma warning disable IDE1006 // Naming Styles
+		private readonly record struct TokenResponseObject(string access_token, int expires_in, string token_type, string scope);
+#pragma warning restore IDE1006 // Naming Styles
 }
