@@ -4,7 +4,7 @@ namespace Helpers.Reddit.Tests;
 
 public sealed class Fixture : IDisposable
 {
-	private static readonly Uri _baseAddress = new("https://old.reddit.com/", UriKind.Absolute);
+	private static readonly Uri _baseAddress = new("https://old.reddit.com/r/", UriKind.Absolute);
 	private const string _userAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2_1 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Mobile/7B405";
 
 	private readonly IServiceProvider _serviceProvider;

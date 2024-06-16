@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Helpers.Reddit.Concrete;
 
@@ -7,19 +6,19 @@ public class Client(HttpClient httpClient) : IClient
 {
 	public async Task<string> GetRandomSubredditAsync(CancellationToken cancellationToken = default)
 	{
-		var response = await httpClient.GetAsync("/r/random", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+		var response = await httpClient.GetAsync("random", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 		return response.Headers.Location!.Segments.Last().Trim('/');
 	}
 
 	public async IAsyncEnumerable<Models.Generated.entryType> GetThreadsAsync(string subredditName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subredditName).IsSubredditName();
+		ArgumentException.ThrowIfNullOrEmpty(subredditName);
 
 		string? after = null;
 
 		do
 		{
-			var requestUri = new Uri($"/r/{subredditName}/.xml?after={after}&limit=100", UriKind.Relative);
+			var requestUri = new Uri($"{subredditName}/.rss?after={after}&limit=100", UriKind.Relative);
 			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
 
 			foreach (var entry in feed.entry)
@@ -34,24 +33,17 @@ public class Client(HttpClient httpClient) : IClient
 
 	public async IAsyncEnumerable<string> GetCommentsAsync(string subredditName, string threadId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(subredditName).IsSubredditName();
-		Guard.Argument(threadId).IsId();
+		ArgumentException.ThrowIfNullOrEmpty(subredditName);
+		ArgumentException.ThrowIfNullOrEmpty(threadId);
 
-		string? after = null;
+		var requestUri = new Uri($"{subredditName}/comments/{threadId[3..]}/.rss?&limit=500", UriKind.Relative);
+		var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
 
-		do
+		foreach (var entry in feed.entry)
 		{
-			var requestUri = new Uri($"r/{subredditName}/comments/{threadId[3..]}/.rss?after={after}&limit=500", UriKind.Relative);
-			var feed = await httpClient.GetFromXml<Models.Generated.feedType>(requestUri, cancellationToken);
-
-			foreach (var entry in feed.entry)
-			{
-				if (entry.id[1] != '1') { continue; } // comment
-				var comment = System.Web.HttpUtility.HtmlDecode(entry.content.Value);
-				yield return comment;
-				after = entry.id[3..];
-			}
-
-		} while (after != null);
+			if (entry.id[1] != '1') { continue; } // comment
+			var comment = System.Web.HttpUtility.HtmlDecode(entry.content.Value);
+			yield return comment;
+		}
 	}
 }
