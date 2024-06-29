@@ -8,8 +8,6 @@ public static class DependencyInjectionExtensions
 	{
 		return services
 			.AddTransient<UdpClient>(_ => new UdpClient(AddressFamily.InterNetwork))
-			.AddTransient<Helpers.TPLink.IClient, Helpers.TPLink.Concrete.Client>()
-			.AddTransient<Helpers.TPLink.IDiscoveryClient, Helpers.TPLink.Concrete.DiscoveryClient>()
 			.AddTransient<Helpers.TPLink.IService, Helpers.TPLink.Concrete.Service>();
 	}
 }

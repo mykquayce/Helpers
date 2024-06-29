@@ -1,48 +1,31 @@
-﻿using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace System.Net.Sockets;
 
 public static class SocketsExtensions
 {
-	public static async Task BroadcastAsync(this UdpClient udpClient,
-		byte[] bytes,
-		ushort port,
-		CancellationToken cancellationToken = default)
+	private static readonly TimeSpan _receiveTimeSpan = TimeSpan.FromSeconds(5);
+
+	public static ValueTask<UdpReceiveResult> SendAndReceiveAsync(this UdpClient client, IPEndPoint endPoint, byte[] request, CancellationToken cancellationToken = default)
+		=> SendAndReceiveAsyncEnumerable(client, endPoint, request, cancellationToken).FirstOrDefaultAsync(cancellationToken);
+
+	public static async IAsyncEnumerable<UdpReceiveResult> SendAndReceiveAsyncEnumerable(this UdpClient client, IPEndPoint endPoint, byte[] request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
-		{
-			if (nic.NetworkInterfaceType != NetworkInterfaceType.Ethernet) continue;
-			if (nic.OperationalStatus != OperationalStatus.Up) continue;
-
-			var properties = nic.GetIPProperties();
-
-			foreach (var unicast in properties.UnicastAddresses)
-			{
-				var broadcast = unicast.GetBroadcastAddress();
-				var endPoint = new IPEndPoint(broadcast, port);
-				await udpClient.SendAsync(bytes, endPoint, cancellationToken);
-			}
-		}
-	}
-
-	public static async IAsyncEnumerable<UdpReceiveResult> SendAndReceiveAsync(this UdpClient udpClient,
-		IPEndPoint endPoint,
-		byte[] bytes,
-		[EnumeratorCancellation] CancellationToken cancellationToken = default)
-	{
-		await udpClient.SendAsync(bytes, endPoint, cancellationToken);
+		await client.SendAsync(request, endPoint, cancellationToken);
 
 		while (!cancellationToken.IsCancellationRequested)
 		{
-			UdpReceiveResult result;
-			try
+			var task = await Task.WhenAny(
+				Task.Delay(_receiveTimeSpan, cancellationToken),
+				client.ReceiveAsync(cancellationToken).AsTask());
+
+			if (task is Task<UdpReceiveResult> resultTask)
 			{
-				result = await udpClient.ReceiveAsync(cancellationToken);
+				var result = await resultTask;
+				yield return result;
 			}
-			catch (OperationCanceledException) { continue; }
-			yield return result;
-			if (!cancellationToken.CanBeCanceled) { break; }
+
+			if (!cancellationToken.CanBeCanceled) { yield break; }
 		}
 	}
 

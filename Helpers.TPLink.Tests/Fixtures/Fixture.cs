@@ -2,7 +2,7 @@
 
 namespace Helpers.TPLink.Tests.Fixtures;
 
-public sealed class Fixture : IDisposable
+public sealed class Fixture : IAsyncDisposable, IDisposable
 {
 	private readonly IServiceProvider _serviceProvider;
 
@@ -12,17 +12,11 @@ public sealed class Fixture : IDisposable
 			.AddTPLink()
 			.BuildServiceProvider();
 
-		Client = get<IClient>();
-		DiscoveryClient = get<IDiscoveryClient>();
-		Service = get<IService>();
-
-		T get<T>() where T : notnull
-			=> _serviceProvider.GetRequiredService<T>();
+		Service = _serviceProvider.GetRequiredService<IService>();
 	}
 
 	public void Dispose() => ((ServiceProvider)_serviceProvider).Dispose();
+	public ValueTask DisposeAsync() => ((ServiceProvider)_serviceProvider).DisposeAsync();
 
-	public IClient Client { get; }
 	public IService Service { get; }
-	public IDiscoveryClient DiscoveryClient { get; }
 }
