@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Reddit.Models" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
