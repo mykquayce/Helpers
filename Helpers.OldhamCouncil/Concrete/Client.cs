@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Helpers.Web;
+﻿using Helpers.Web;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,7 +17,7 @@ public partial class Client : WebClientBase, IClient
 
 	public async IAsyncEnumerable<Models.Address> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(postcode);
 		var uri = new Uri("Common/GetAddressList?type=Postcode&term=" + HttpUtility.UrlEncode(postcode), UriKind.Relative);
 		var (headers, status, addresses) = await SendAsync<ICollection<Models.Address>>(HttpMethod.Get, uri);
 
@@ -34,7 +33,7 @@ public partial class Client : WebClientBase, IClient
 
 	public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(string uprn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(uprn).NotNull().NotEmpty();
+		ArgumentException.ThrowIfNullOrWhiteSpace(uprn);
 		var uri = new Uri("bincollectiondates/details?uprn=" + uprn, UriKind.Relative);
 		var (_, _, html) = await SendAsync<string>(HttpMethod.Get, uri);
 		var matches = TableRegex().Matches(html!);

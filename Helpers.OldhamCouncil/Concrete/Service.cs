@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -13,12 +12,13 @@ public class Service : IService
 
 	public Service(IClient client)
 	{
-		_client = Guard.Argument(client).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(client);
+		_client = client;
 	}
 
 	public async IAsyncEnumerable<KeyValuePair<string, string>> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(postcode).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(postcode);
 
 		var kvps = _client.GetAddressesAsync(postcode, cancellationToken);
 
@@ -31,7 +31,7 @@ public class Service : IService
 
 	public async IAsyncEnumerable<KeyValuePair<DateTime, Models.BinTypes>> GetBinCollectionsAsync(string id, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(id).NotNull().NotEmpty();
+		ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
 		var dictionary = new Dictionary<DateTime, Models.BinTypes>();
 

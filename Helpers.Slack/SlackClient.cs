@@ -1,15 +1,8 @@
-﻿using Dawn;
-using Helpers.Slack.Models;
+﻿using Helpers.Slack.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTracing;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Helpers.Slack
 {
@@ -24,13 +17,11 @@ namespace Helpers.Slack
 			ITracer? tracer = default)
 			: base(new ClientFactory(), logger, tracer)
 		{
-			_token = Guard.Argument(() => settingsOptions).NotNull()
-				.Wrap(o => o.Value).NotNull()
-				.Wrap(o => o.Token!).NotNull().NotEmpty().NotWhiteSpace().Value;
+			ArgumentException.ThrowIfNullOrWhiteSpace(settingsOptions?.Value?.Token);
+			ArgumentOutOfRangeException.ThrowIfZero(settingsOptions?.Value?.WebhookSegments?.Length ?? 0);
 
-			_webhookSegments = Guard.Argument(() => settingsOptions).NotNull()
-				.Wrap(o => o.Value).NotNull()
-				.Wrap(s => s.WebhookSegments!).NotNull().NotEmpty().DoesNotContainNull().Value;
+			_token = settingsOptions!.Value!.Token;
+			_webhookSegments = settingsOptions!.Value!.WebhookSegments!;
 		}
 
 		public async Task<bool> SendTextAsync(string text)

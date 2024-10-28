@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Text;
+﻿using System.Text;
 
 namespace System.IO;
 
@@ -37,7 +36,7 @@ public static class IOExtensions
 
 	public static void EnsureExists(this DirectoryInfo dir)
 	{
-		Guard.Argument(dir).NotNull();
+		ArgumentNullException.ThrowIfNull(dir);
 		if (dir.Exists) return;
 
 		var stack = new Stack<DirectoryInfo>();

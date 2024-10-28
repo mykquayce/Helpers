@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Net;
+﻿using System.Net;
 using System.Runtime.CompilerServices;
 
 namespace Helpers.Networking.Clients.Concrete;
@@ -14,7 +13,7 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 
 	public async IAsyncEnumerable<Models.AddressPrefix> GetIpsAsync(int asn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(asn).Positive();
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(asn);
 
 		var message = $"-F -K -i {asn:D}\n";
 
@@ -36,7 +35,7 @@ public class WhoIsClient : TcpClient, IWhoIsClient
 
 	public async IAsyncEnumerable<Models.WhoIsResponse> GetWhoIsDetailsAsync(IPAddress ipAddress, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(ipAddress).NotNull();
+		ArgumentNullException.ThrowIfNull(ipAddress);
 
 		var message = ipAddress.ToString() + "\n";
 

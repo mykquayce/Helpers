@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -26,7 +25,8 @@ public class PingClient : IPingClient
 
 	public PingClient(IOptions<Config> options)
 	{
-		_timeout = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Wrap(c => c.Timeout).Positive().Value;
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options?.Value?.Timeout ?? 0);
+		_timeout = options!.Value.Timeout;
 	}
 
 	public async Task<Models.PacketLossResults> PacketLossTestAsync(IPAddress ip, int milliseconds = 10_000)
@@ -40,7 +40,7 @@ public class PingClient : IPingClient
 
 	public async IAsyncEnumerable<PingReply> PingsAsync(IPAddress ip, int milliseconds)
 	{
-		Guard.Argument(milliseconds).Positive();
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(milliseconds);
 
 		using var cts = new CancellationTokenSource(milliseconds);
 
@@ -52,8 +52,8 @@ public class PingClient : IPingClient
 
 	public async IAsyncEnumerable<PingReply> PingsAsync(IPAddress ip, [EnumeratorCancellation] CancellationToken cancellationToken)
 	{
-		Guard.Argument(ip).NotNull();
-		Guard.Argument(cancellationToken).NotDefault();
+		ArgumentNullException.ThrowIfNull(ip);
+		ArgumentNullException.ThrowIfNull(cancellationToken);
 
 		using var ping = new Ping();
 

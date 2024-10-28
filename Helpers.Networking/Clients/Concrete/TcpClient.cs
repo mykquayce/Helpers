@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -26,9 +25,12 @@ public class TcpClient : ITcpClient
 
 	public TcpClient(string hostname, ushort port, string newLine)
 	{
-		Hostname = Guard.Argument(hostname).NotNull().NotEmpty().NotWhiteSpace().Value;
-		Port = Guard.Argument(port).Positive().Value;
-		NewLine = Guard.Argument(newLine).NotNull().NotEmpty().In("\r", "\n", "\r\n").Value;
+		ArgumentException.ThrowIfNullOrWhiteSpace(hostname);
+		ArgumentOutOfRangeException.ThrowIfZero(port);
+		ArgumentException.ThrowIfNullOrWhiteSpace(newLine);
+		Hostname = hostname;
+		Port = port;
+		NewLine = newLine;
 	}
 	#endregion Constructors
 
@@ -38,7 +40,7 @@ public class TcpClient : ITcpClient
 
 	public async IAsyncEnumerable<string> SendAndReceiveAsync(string message, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(message).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(message);
 
 		using var tcpClient = new System.Net.Sockets.TcpClient(Hostname, Port);
 		await using var stream = tcpClient.GetStream();

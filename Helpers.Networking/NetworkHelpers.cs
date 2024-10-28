@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
 
 namespace Helpers.Networking;
@@ -31,7 +30,7 @@ public static class NetworkHelpers
 
 	public async static Task<(IPAddress, IPStatus)> PingAsync(string hostName)
 	{
-		Guard.Argument(hostName).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
 		using var ping = new Ping();
 		var reply = await ping.SendPingAsync(hostName, timeout: 10_000);
 		return (reply.Address, reply.Status);

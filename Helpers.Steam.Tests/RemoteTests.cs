@@ -1,10 +1,5 @@
-﻿using Dawn;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Helpers.Steam.Tests
@@ -17,14 +12,15 @@ namespace Helpers.Steam.Tests
 
 		public RemoteTests(Fixtures.HttpClientFixture httpClientFixture, Fixtures.UserSecretsFixture userSecretsFixture)
 		{
-			_httpClient = Guard.Argument(httpClientFixture).NotNull()
-				.Wrap(f => f.HttpClient).NotNull().Value;
+			ArgumentNullException.ThrowIfNull(httpClientFixture?.HttpClient);
+			ArgumentOutOfRangeException.ThrowIfZero(userSecretsFixture?.SteamIds?.Count ?? 0);
+			ArgumentException.ThrowIfNullOrWhiteSpace(userSecretsFixture?.SteamKey);
 
-			_key = Guard.Argument(userSecretsFixture).NotNull()
-				.Wrap(f => f.SteamKey).NotNull().NotEmpty().NotWhiteSpace().Value;
+			_httpClient = httpClientFixture!.HttpClient;
 
-			_steamIds = Guard.Argument(userSecretsFixture).NotNull()
-				.Wrap(f => f.SteamIds!).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
+			_key = userSecretsFixture!.SteamKey;
+
+			_steamIds = userSecretsFixture.SteamIds;
 		}
 
 		[Fact]

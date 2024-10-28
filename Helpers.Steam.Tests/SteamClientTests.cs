@@ -1,10 +1,4 @@
-﻿using Dawn;
-using Helpers.Steam.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using Helpers.Steam.Models;
 using Xunit;
 
 namespace Helpers.Steam.Tests
@@ -16,11 +10,11 @@ namespace Helpers.Steam.Tests
 
 		public SteamClientTests(Fixtures.SteamClientFixture steamClientFixture, Fixtures.UserSecretsFixture userSecretsFixture)
 		{
-			_steamClient = Guard.Argument(steamClientFixture).NotNull()
-				.Wrap(f => f.SteamClient).NotNull().Value;
+			ArgumentNullException.ThrowIfNull(steamClientFixture?.SteamClient);
+			ArgumentOutOfRangeException.ThrowIfZero(userSecretsFixture?.SteamIds?.Count ?? 0);
 
-			_steamIds = Guard.Argument(userSecretsFixture).NotNull()
-				.Wrap(f => f.SteamIds!).NotNull().NotEmpty().DoesNotContainNull().DoesNotContainDuplicate().Value;
+			_steamClient = steamClientFixture!.SteamClient;
+			_steamIds = userSecretsFixture!.SteamIds;
 		}
 
 
