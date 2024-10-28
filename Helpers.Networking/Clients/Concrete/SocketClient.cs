@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -49,7 +48,7 @@ public class SocketClient : ISocketClient
 	#region Connect
 	public ValueTask ConnectAsync(EndPoint endPoint, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(endPoint).NotNull();
+		ArgumentNullException.ThrowIfNull(endPoint);
 
 		if (_socket.Connected) return ValueTask.CompletedTask;
 		return _socket.ConnectAsync(endPoint, cancellationToken);
@@ -57,8 +56,8 @@ public class SocketClient : ISocketClient
 
 	public ValueTask ConnectAsync(IPAddress ipAddress, ushort port, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(ipAddress).NotNull();
-		Guard.Argument(port).Positive();
+		ArgumentNullException.ThrowIfNull(ipAddress);
+		ArgumentOutOfRangeException.ThrowIfZero(port);
 
 		if (_socket.Connected) return ValueTask.CompletedTask;
 		return _socket.ConnectAsync(ipAddress, port, cancellationToken);
@@ -66,8 +65,8 @@ public class SocketClient : ISocketClient
 
 	public ValueTask ConnectAsync(string host, ushort port, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(host).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(port).Positive();
+		ArgumentException.ThrowIfNullOrWhiteSpace(host);
+		ArgumentOutOfRangeException.ThrowIfZero(port);
 
 		if (_socket.Connected) return ValueTask.CompletedTask;
 		return _socket.ConnectAsync(host, port, cancellationToken);

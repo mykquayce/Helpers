@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -30,17 +29,21 @@ public class Client : Helpers.Web.WebClientBase, IClient
 	public Client(HttpClient httpClient, IMemoryCache memoryCache, IOptions<Config> options)
 		: base(httpClient)
 	{
-		_memoryCache = Guard.Argument(memoryCache).NotNull().Value;
-		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(memoryCache);
+		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.Username);
+		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.Password);
+		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.EndPoint);
+		_memoryCache = memoryCache;
+		var config = options!.Value;
 
-		_username = Guard.Argument(config.Username).NotNull().NotEmpty().NotWhiteSpace().NotEqual("\u2026").Value;
-		_password = Guard.Argument(config.Password).NotNull().NotEmpty().NotWhiteSpace().NotEqual("\u2026").Value;
+		_username = config.Username;
+		_password = config.Password;
 		_tokenCacheKey = config.EndPoint + "-config-key";
 	}
 
 	public async Task<string> ExecuteCommandAsync(string command, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(command).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(command);
 		var token = await GetLoginTokenAsync(cancellationToken);
 		var uri = new Uri("/cgi-bin/luci/rpc/sys?auth=" + token, UriKind.Relative);
 		var @object = new Models.CommandRequestObject(command);

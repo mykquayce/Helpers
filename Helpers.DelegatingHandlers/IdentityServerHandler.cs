@@ -31,7 +31,6 @@ public class IdentityServerHandler(HttpClient httpClient, IOptions<IdentityServe
 
 	public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken = default)
 	{
-		var now = DateTimeOffset.UtcNow;
 		var values = new Dictionary<string, string>
 		{
 			["client_id"] = _config.ClientId,

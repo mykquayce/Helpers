@@ -1,10 +1,10 @@
-﻿using Dawn;
-using Helpers.Jaeger.Models;
+﻿using Helpers.Jaeger.Models;
 using Jaeger;
 using Jaeger.Reporters;
 using Jaeger.Samplers;
 using Jaeger.Senders.Thrift;
 using OpenTracing;
+using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,10 +26,10 @@ namespace Microsoft.Extensions.DependencyInjection
 			this IServiceCollection services,
 			Settings settings)
 		{
-			Guard.Argument(settings).NotNull();
-			Guard.Argument(settings.ServiceName!).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(settings.Host).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(settings.SamplingRate).InRange(0, double.MaxValue);
+			ArgumentNullException.ThrowIfNull(settings);
+			ArgumentException.ThrowIfNullOrWhiteSpace(settings.ServiceName);
+			ArgumentException.ThrowIfNullOrWhiteSpace(settings.Host);
+			ArgumentOutOfRangeException.ThrowIfNegative(settings.SamplingRate);
 
 			var sender = new UdpSender(settings.Host, settings.Port, maxPacketSize: 0);
 

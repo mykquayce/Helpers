@@ -1,5 +1,4 @@
-﻿using Dawn;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
 namespace Helpers.RabbitMQ.Concrete;
@@ -9,13 +8,14 @@ public class Service : IService
 
 	public Service(IModel channel)
 	{
-		_channel = Guard.Argument(channel).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(channel);
+		_channel = channel;
 	}
 
 	public void Enqueue(string queue, byte[] body)
 	{
-		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
-		Guard.Argument(body).NotNull().NotEmpty();
+		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
+		ArgumentNullException.ThrowIfNull(body);
 
 		_channel.BasicPublish(exchange: string.Empty, routingKey: queue, mandatory: true, body: body);
 	}
@@ -32,7 +32,7 @@ public class Service : IService
 
 	public (byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false)
 	{
-		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
 		BasicGetResult result;
 		try
 		{
@@ -56,13 +56,13 @@ public class Service : IService
 
 	public void PurgeQueue(string queue)
 	{
-		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
 		while (_channel.BasicGet(queue, autoAck: true) is not null) { }
 	}
 
 	public void DeleteQueue(string queue)
 	{
-		Guard.Argument(queue).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
 		try { _channel.QueueDelete(queue, ifEmpty: false); }
 		catch (AlreadyClosedException) { }
 	}

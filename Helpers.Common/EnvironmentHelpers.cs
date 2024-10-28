@@ -1,6 +1,4 @@
-﻿using Dawn;
-
-namespace Helpers.Common;
+﻿namespace Helpers.Common;
 
 public static class EnvironmentHelpers
 {
@@ -15,7 +13,7 @@ public static class EnvironmentHelpers
 
 	public static string GetEnvironmentVariable(string variable)
 	{
-		Guard.Argument(variable).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(variable);
 
 		foreach (var target in _targets)
 		{

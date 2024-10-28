@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Helpers.GlobalCache.Exceptions;
+﻿using Helpers.GlobalCache.Exceptions;
 using Microsoft.Extensions.Options;
 
 namespace Helpers.GlobalCache.Concrete;
@@ -11,9 +10,11 @@ public class Service : IService
 
 	public Service(IClient client, IOptions<Models.MessagesDictionary> messagesDictionaryOptions)
 	{
-		_client = Guard.Argument(client).NotNull().Value;
-		_messagesDictionary = Guard.Argument(messagesDictionaryOptions).NotNull().Wrap(o => o.Value)
-			.NotNull().NotEmpty().Value.AsReadOnly();
+		ArgumentNullException.ThrowIfNull(client);
+		ArgumentNullException.ThrowIfNull(messagesDictionaryOptions?.Value?.Value);
+		ArgumentOutOfRangeException.ThrowIfZero(messagesDictionaryOptions.Value.Value.Count);
+		_client = client;
+		_messagesDictionary = messagesDictionaryOptions.Value.Value.AsReadOnly();
 	}
 
 	public async Task SendMessageAsync(string alias, CancellationToken cancellationToken = default)

@@ -1,15 +1,7 @@
-﻿using Dawn;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenTracing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Helpers.Steam.Concrete
 {
@@ -28,9 +20,8 @@ namespace Helpers.Steam.Concrete
 			ITracer? tracer = default)
 			: base(_httpClient, logger, tracer)
 		{
-			_key = Guard.Argument(settingsOptions).NotNull()
-				.Wrap(o => o.Value).NotNull()
-				.Wrap(v => v.Key!).NotNull().NotEmpty().NotWhiteSpace().Value;
+			ArgumentException.ThrowIfNullOrWhiteSpace(settingsOptions?.Value?.Key);
+			_key = settingsOptions!.Value!.Key;
 		}
 
 		public SteamClient(
@@ -39,7 +30,8 @@ namespace Helpers.Steam.Concrete
 			ITracer? tracer = default)
 			: base(_httpClient, logger, tracer)
 		{
-			_key = Guard.Argument(key).NotNull().NotEmpty().NotWhiteSpace().Value;
+			ArgumentException.ThrowIfNullOrWhiteSpace(key);
+			_key = key;
 		}
 
 		public async Task<Models.AppDetails> GetAppDetailsAsync(int appId)
@@ -74,7 +66,7 @@ namespace Helpers.Steam.Concrete
 
 		public async IAsyncEnumerable<Models.Game> GetOwnedGamesAsync(long steamId)
 		{
-			Guard.Argument(steamId).Positive();
+			ArgumentOutOfRangeException.ThrowIfNegativeOrZero(steamId);
 
 			var uri = new Uri($"/IPlayerService/GetOwnedGames/v0001/?key={_key}&steamid={steamId:D}&format=json&include_appinfo=1&include_played_free_games=1", UriKind.Relative);
 

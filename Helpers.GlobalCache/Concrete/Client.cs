@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net.Sockets;
 
 namespace Helpers.GlobalCache.Concrete;
@@ -12,18 +11,22 @@ public class Client : IClient
 
 	public Client(Socket socket, IOptions<Config> configOptions)
 	{
+		ArgumentNullException.ThrowIfNull(configOptions);
+		ArgumentNullException.ThrowIfNull(configOptions.Value);
+		ArgumentNullException.ThrowIfNull(configOptions.Value.Value);
+
 		_socket = socket;
-		var config = Guard.Argument(configOptions).NotNull().Wrap(o => o.Value)
-			.NotNull().Value;
-		(_bufferSize, var hostName, var port) = config;
-		Guard.Argument(_bufferSize).Positive();
-		Guard.Argument(hostName).NotNull().NotEmpty().NotWhiteSpace();
+		(_bufferSize, var hostName, var port) = configOptions.Value.Value;
+
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(_bufferSize);
+		ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
+
 		_socket.Connect(hostName, port);
 	}
 
 	public async Task<ReadOnlyMemory<byte>> SendAsync(ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(bytes).NotDefault();
+		ArgumentNullException.ThrowIfNull(bytes);
 		await _socket.SendAsync(bytes, SocketFlags.None, cancellationToken);
 		var buffer = new Memory<byte>(new byte[_bufferSize]);
 		var count = await _socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);

@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MySqlConnector;
 using System.Data;
 using System.Data.Common;
@@ -34,16 +33,22 @@ public record Config(
 	{
 		get
 		{
+			ArgumentException.ThrowIfNullOrWhiteSpace(Server);
+			ArgumentOutOfRangeException.ThrowIfNegativeOrZero(Port);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(Port, ushort.MaxValue);
+			ArgumentException.ThrowIfNullOrWhiteSpace(Database);
+			ArgumentException.ThrowIfNullOrWhiteSpace(UserId);
+			ArgumentException.ThrowIfNullOrWhiteSpace(Password);
 			var sslMode = Secure ? MySqlSslMode.Required : MySqlSslMode.Preferred;
 
 			return new MySqlConnectionStringBuilder
 			{
-				Server = Guard.Argument(Server).NotNull().NotEmpty().NotWhiteSpace().Value,
-				Port = Guard.Argument(Port).InRange((ushort)1, ushort.MaxValue).Value,
-				Database = Guard.Argument(Database).NotEmpty().NotWhiteSpace().Value,
-				UserID = Guard.Argument(UserId).NotNull().NotEmpty().NotWhiteSpace().Value,
-				Password = Guard.Argument(Password).NotEmpty().NotWhiteSpace().Value,
-				SslMode = Guard.Argument(sslMode).Defined().Value,
+				Server = this.Server,
+				Port = this.Port,
+				Database = this.Database,
+				UserID = this.UserId,
+				Password = this.Password,
+				SslMode = sslMode,
 			};
 		}
 	}

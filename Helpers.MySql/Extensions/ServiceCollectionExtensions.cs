@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -7,7 +6,7 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
 	{
-		Guard.Argument(configuration).NotNull();
+		ArgumentNullException.ThrowIfNull(configuration);
 		var config = Helpers.MySql.Config.Defaults;
 		configuration.Bind(config);
 		return AddDbConnection(services, config);
@@ -15,7 +14,7 @@ public static class ServiceCollectionExtensions
 
 	public static IServiceCollection AddDbConnection(this IServiceCollection services, string connectionString)
 	{
-		Guard.Argument(connectionString).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 		var config = Helpers.MySql.Config.Parse(connectionString, provider: null);
 		return AddDbConnection(services, config);
 	}
@@ -28,7 +27,7 @@ public static class ServiceCollectionExtensions
 
 	public static IServiceCollection AddDbConnection(this IServiceCollection services, Helpers.MySql.Config config)
 	{
-		Guard.Argument(config).NotNull();
+		ArgumentNullException.ThrowIfNull(config);
 		return services.AddSingleton(config.DbConnection);
 	}
 }

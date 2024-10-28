@@ -1,10 +1,6 @@
-﻿using Dawn;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using OpenTracing;
-using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 using Xunit;
@@ -111,8 +107,8 @@ namespace Helpers.Jaeger.Tests
 
 		private static string GetOperationName(string callerMethodName, string callerFilePath)
 		{
-			Guard.Argument(callerMethodName).NotNull().NotEmpty().NotWhiteSpace();
-			Guard.Argument(callerFilePath).NotNull().NotEmpty().NotWhiteSpace();
+			ArgumentException.ThrowIfNullOrWhiteSpace(callerMethodName);
+			ArgumentException.ThrowIfNullOrWhiteSpace(callerFilePath);
 
 			var fileName = System.IO.Path.GetFileNameWithoutExtension(callerFilePath);
 

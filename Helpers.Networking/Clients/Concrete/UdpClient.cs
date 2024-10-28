@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -27,10 +26,8 @@ public class UdpClient : IUdpClient
 
 	public UdpClient(IPAddress broadcastIPAddress, ushort receivePort)
 	{
-		Guard.Argument(broadcastIPAddress).NotNull()
-			.Require(ip => !ip.Equals(default));
-
-		Guard.Argument(receivePort).Positive();
+		ArgumentNullException.ThrowIfNull(broadcastIPAddress);
+		ArgumentOutOfRangeException.ThrowIfZero(receivePort);
 
 		_udpClient = new System.Net.Sockets.UdpClient { ExclusiveAddressUse = false, };
 		_udpClient.JoinMulticastGroup(broadcastIPAddress);

@@ -1,7 +1,4 @@
-﻿using Dawn;
-using System.Text.Json;
-
-namespace System;
+﻿namespace System;
 
 public static class SystemExtensions
 {
@@ -11,8 +8,8 @@ public static class SystemExtensions
 		this IDictionary<TKey, TValue> dictionary,
 		IEnumerable<KeyValuePair<TKey, TValue>> range)
 	{
-		Guard.Argument(dictionary).NotNull();
-		Guard.Argument(range).NotNull();
+		ArgumentNullException.ThrowIfNull(dictionary);
+		ArgumentNullException.ThrowIfNull(range);
 
 		using var enumerator = range.GetEnumerator();
 
@@ -31,11 +28,9 @@ public static class SystemExtensions
 
 	public static Uri StripQuery(this Uri uri)
 	{
-		Guard.Argument(uri).NotNull().Wrap(u => u.IsAbsoluteUri)
-			.Positive(_ => nameof(uri) + " must be absolute");
-
-		Guard.Argument(uri).NotNull().Wrap(u => u.OriginalString)
-			.NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentNullException.ThrowIfNull(uri);
+		ArgumentOutOfRangeException.ThrowIfNotEqual(true, uri.IsAbsoluteUri);
+		ArgumentException.ThrowIfNullOrWhiteSpace(uri.OriginalString);
 
 		return new Uri(uri.GetLeftPart(UriPartial.Path), UriKind.Absolute);
 	}

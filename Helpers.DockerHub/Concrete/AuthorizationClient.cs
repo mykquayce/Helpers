@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System.Net.Http.Headers;
@@ -14,15 +13,17 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 	public AuthorizationClient(IOptions<Config> options, HttpClient httpClient, IMemoryCache memoryCache)
 		: base(httpClient)
 	{
-		var config = Guard.Argument(options).NotNull().Wrap(o => o.Value).NotNull().Value;
-		_credentials = Guard.Argument(config.Credentials).NotNull().Value;
-		_memoryCache = Guard.Argument(memoryCache).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(options?.Value?.Credentials);
+		ArgumentNullException.ThrowIfNull(memoryCache);
+
+		_credentials = options!.Value!.Credentials;
+		_memoryCache = memoryCache;
 	}
 
 	public async Task<string> GetTokenAsync(string organization, string repository, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(organization).IsTagName();
-		Guard.Argument(repository).IsTagName();
+		ArgumentException.ThrowIfNullOrWhiteSpace(organization);
+		ArgumentException.ThrowIfNullOrWhiteSpace(repository);
 
 		var cacheKey = BuildCacheKey(organization, repository);
 
@@ -45,8 +46,8 @@ public class AuthorizationClient : Helpers.Web.WebClientBase, IAuthorizationClie
 
 	public async Task<(string token, DateTime expires)> GetTokenFromRemoteAsync(string organization, string repository, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(organization).IsTagName();
-		Guard.Argument(repository).IsTagName();
+		ArgumentException.ThrowIfNullOrWhiteSpace(organization);
+		ArgumentException.ThrowIfNullOrWhiteSpace(repository);
 		
 		var repositoryScope = $"repository:{organization}/{repository}:pull";
 

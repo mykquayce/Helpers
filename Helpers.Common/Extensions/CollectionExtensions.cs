@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Text;
+﻿using System.Text;
 
 namespace System.Collections.Generic;
 
@@ -7,16 +6,21 @@ public static class CollectionExtensions
 {
 	public static IEnumerator<(TFirst, TSecond)> GetEnumerator<TFirst, TSecond>(this (IEnumerable<TFirst>, IEnumerable<TSecond>) tuple)
 	{
-		Guard.Argument(tuple).NotDefault();
-		var first = Guard.Argument(tuple.Item1).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
-		var second = Guard.Argument(tuple.Item2).NotNull().Wrap(e => e.GetEnumerator()).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(tuple);
+		ArgumentNullException.ThrowIfNull(tuple.Item1);
+		ArgumentNullException.ThrowIfNull(tuple.Item1.GetEnumerator());
+		ArgumentNullException.ThrowIfNull(tuple.Item2);
+		ArgumentNullException.ThrowIfNull(tuple.Item2.GetEnumerator());
+
+		var first = tuple.Item1.GetEnumerator();
+		var second = tuple.Item2.GetEnumerator();
 
 		return new DoubleEnumerator<TFirst, TSecond>(first, second);
 	}
 
 	public static string ToKeyValuePairString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dictionary)
 	{
-		Guard.Argument(dictionary).NotNull();
+		ArgumentNullException.ThrowIfNull(dictionary);
 
 		var sb = new StringBuilder();
 

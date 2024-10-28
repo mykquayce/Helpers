@@ -1,5 +1,4 @@
-﻿using Dawn;
-using Helpers.Networking.Models;
+﻿using Helpers.Networking.Models;
 
 namespace System.Text.Json.Serialization;
 
@@ -8,7 +7,7 @@ public class JsonAddressPrefixConverter : JsonConverter<AddressPrefix>
 	public override AddressPrefix? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 	{
 		var s = reader.GetString();
-		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(s);
 
 		return AddressPrefix.Parse(s!, null);
 	}

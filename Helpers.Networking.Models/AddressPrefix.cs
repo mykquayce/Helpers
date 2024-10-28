@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Numerics;
 
@@ -62,17 +61,19 @@ public record AddressPrefix(IPAddress IPAddress, byte MaskLength)
 
 	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out AddressPrefix result)
 	{
-		Guard.Argument(s!).NotNull().NotEmpty().NotWhiteSpace();
-
-		var values = s!.Split('/', count: 2);
-
-		if (!IPAddress.TryParse(values[0], out var ip))
+		if (string.IsNullOrWhiteSpace(s))
 		{
 			result = null!;
 			return false;
 		}
 
-		if(values.Length == 1)
+		var values = s!.Split('/', count: 2);
+
+		if (!IPAddress.TryParse(values[0], out var ip))
+		{
+		}
+
+		if (values.Length == 1)
 		{
 			result = new AddressPrefix(ip, (byte)(ip.GetAddressBytes().Length * 8));
 			return true;

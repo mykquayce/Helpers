@@ -4,11 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.5.3</Version>
+    <Version>1.5.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Json" Version="1.2.10" />
+    <PackageReference Include="Helpers.Json" Version="1.2.11" />
   </ItemGroup>
 
 </Project>

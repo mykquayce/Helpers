@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Helpers.OpenWrt.Concrete;
@@ -13,18 +12,19 @@ public class Service : IService
 
 	public Service(IClient client)
 	{
-		_client = Guard.Argument(client).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(client);
+		_client = client;
 	}
 
 	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix prefix, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(prefix).NotNull();
+		ArgumentNullException.ThrowIfNull(prefix);
 		return _client.ExecuteCommandAsync("ip route add blackhole " + prefix, cancellationToken);
 	}
 
 	public async Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> prefixes, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(prefixes).NotNull();
+		ArgumentNullException.ThrowIfNull(prefixes);
 
 		using var enumerator = prefixes.GetEnumerator();
 
@@ -39,7 +39,7 @@ public class Service : IService
 	{
 		var response = await _client.ExecuteCommandAsync("ip route show", cancellationToken);
 
-		Guard.Argument(response).NotNull().NotEmpty().NotWhiteSpace();
+		ArgumentException.ThrowIfNullOrWhiteSpace(response);
 
 		var matches = _blackholeRegex.Matches(response);
 
@@ -57,7 +57,7 @@ public class Service : IService
 
 	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix blackhole, CancellationToken cancellationToken = default)
 	{
-		Guard.Argument(blackhole).NotNull();
+		ArgumentNullException.ThrowIfNull(blackhole);
 		return _client.ExecuteCommandAsync("ip route delete blackhole " + blackhole, cancellationToken);
 	}
 }

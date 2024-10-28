@@ -1,6 +1,4 @@
-﻿using Dawn;
-
-namespace System.Collections.Generic;
+﻿namespace System.Collections.Generic;
 
 public class DoubleEnumerator<TFirst, TSecond> : IEnumerator<(TFirst, TSecond)>
 {
@@ -9,8 +7,10 @@ public class DoubleEnumerator<TFirst, TSecond> : IEnumerator<(TFirst, TSecond)>
 
 	public DoubleEnumerator(IEnumerator<TFirst> first, IEnumerator<TSecond> second)
 	{
-		_first = Guard.Argument(first).NotNull().Value;
-		_second = Guard.Argument(second).NotNull().Value;
+		ArgumentNullException.ThrowIfNull(first);
+		ArgumentNullException.ThrowIfNull(second);
+		_first = first;
+		_second = second;
 	}
 
 	public (TFirst, TSecond) Current => (_first.Current, _second.Current);

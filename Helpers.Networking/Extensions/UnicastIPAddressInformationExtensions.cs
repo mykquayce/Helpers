@@ -1,12 +1,10 @@
-﻿using Dawn;
-
-namespace System.Net.NetworkInformation;
+﻿namespace System.Net.NetworkInformation;
 
 public static class UnicastIPAddressInformationExtensions
 {
 	public static IPAddress GetBroadcastAddress(this UnicastIPAddressInformation unicast)
 	{
-		Guard.Argument(unicast).NotNull();
+		ArgumentNullException.ThrowIfNull(unicast);
 
 		var ip = unicast.Address.GetAddressBytes();
 		var mask = unicast.IPv4Mask.GetAddressBytes();
