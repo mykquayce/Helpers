@@ -27,7 +27,7 @@ public class TcpClient : ITcpClient
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(hostname);
 		ArgumentOutOfRangeException.ThrowIfZero(port);
-		ArgumentException.ThrowIfNullOrWhiteSpace(newLine);
+		ArgumentException.ThrowIfNullOrEmpty(newLine);
 		Hostname = hostname;
 		Port = port;
 		NewLine = newLine;
