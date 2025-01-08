@@ -7,8 +7,4 @@
     <Version>1.2.1</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Helpers.Web" Version="2.3.13" />
-  </ItemGroup>
-
 </Project>

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Net;
+using System.Net.Http.Json;
 
 namespace Helpers.GitHub.Clients.Concrete
 {
-	public sealed class GitHubClient : Helpers.Web.WebClientBase, IGitHubClient
+	public sealed class GitHubClient(HttpClient httpClient) : IGitHubClient
 	{
-		public GitHubClient(HttpClient httpClient)
-			: base(httpClient)
-		{ }
-
 		public IAsyncEnumerable<Models.ForkObject> GetForksAsync(string owner, string repo)
 			=> GetCollectionAsync<Models.ForkObject>($"/repos/{owner}/{repo}/forks");
 
@@ -30,13 +22,15 @@ namespace Helpers.GitHub.Clients.Concrete
 			where T : class
 		{
 			var uri = new Uri(requestUri, UriKind.Relative);
-			var response = await base.SendAsync<T>(HttpMethod.Get, uri);
+			var response = await httpClient.GetAsync(uri);
 
-			return response.StatusCode switch
+			if (response.StatusCode == HttpStatusCode.Forbidden)
 			{
-				HttpStatusCode.Forbidden => throw new Exception("Rate-limit exceeded"),
-				_ => response.Object!,
-			};
+				throw new Exception("Rate-limit exceeded");
+			}
+
+			var o = await response.Content.ReadFromJsonAsync<T>();
+			return o;
 		}
 
 		private async IAsyncEnumerable<T> GetCollectionAsync<T>(string requestUri)

@@ -1,4 +1,4 @@
-﻿using Helpers.Web;
+﻿using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,35 +7,24 @@ using System.Xml.Serialization;
 
 namespace Helpers.OldhamCouncil.Concrete;
 
-public partial class Client : WebClientBase, IClient
+public partial class Client(HttpClient httpClient) : IClient
 {
 	private readonly Encoding _encoding = Encoding.UTF8;
 
 	private readonly static XmlSerializerFactory _xmlSerializerFactory = new();
 
-	public Client(HttpClient httpClient) : base(httpClient) { }
-
-	public async IAsyncEnumerable<Models.Address> GetAddressesAsync(string postcode, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+	public IAsyncEnumerable<Models.Address> GetAddressesAsync(string postcode, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(postcode);
 		var uri = new Uri("Common/GetAddressList?type=Postcode&term=" + HttpUtility.UrlEncode(postcode), UriKind.Relative);
-		var (headers, status, addresses) = await SendAsync<ICollection<Models.Address>>(HttpMethod.Get, uri);
-
-		using var enumerator = addresses!.GetEnumerator();
-
-		enumerator.MoveNext();
-
-		while (enumerator.MoveNext())
-		{
-			yield return enumerator.Current;
-		}
+		return httpClient.GetFromJsonAsAsyncEnumerable<Models.Address>(uri, cancellationToken);
 	}
 
 	public async IAsyncEnumerable<Models.Generated.tableType> GetBinCollectionsAsync(string uprn, [EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(uprn);
 		var uri = new Uri("bincollectiondates/details?uprn=" + uprn, UriKind.Relative);
-		var (_, _, html) = await SendAsync<string>(HttpMethod.Get, uri);
+		var html = await httpClient.GetStringAsync(uri);
 		var matches = TableRegex().Matches(html!);
 
 		foreach (Match match in matches)

@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Networking.Models" Version="1.1.27" />
-    <PackageReference Include="Helpers.Web" Version="2.3.13" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
   </ItemGroup>
 

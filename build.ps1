@@ -8,7 +8,6 @@ if (!$?) { exit 1; }
 docker build `
 	--build-arg "NuGetServerApiKey=${env:NuGetServerApiKey}" `
 	--no-cache `
-	--secret "id=ca_crt,src=${env:userprofile}\.aspnet\https\ca.crt" `
 	.
 
 # remove "dangling" images created since the script began

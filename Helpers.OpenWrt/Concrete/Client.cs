@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace Helpers.OpenWrt.Concrete;
 
-public class Client : Helpers.Web.WebClientBase, IClient
+public class Client : IClient
 {
 	#region config
 	public record Config(string EndPoint, string Username, string Password)
@@ -22,17 +23,18 @@ public class Client : Helpers.Web.WebClientBase, IClient
 	}
 	#endregion config
 
+	private readonly HttpClient _httpClient;
 	private readonly string _username, _password;
 	private readonly IMemoryCache _memoryCache;
 	private readonly string _tokenCacheKey;
 
 	public Client(HttpClient httpClient, IMemoryCache memoryCache, IOptions<Config> options)
-		: base(httpClient)
 	{
 		ArgumentNullException.ThrowIfNull(memoryCache);
 		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.Username);
 		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.Password);
 		ArgumentException.ThrowIfNullOrWhiteSpace(options?.Value?.EndPoint);
+		_httpClient = httpClient;
 		_memoryCache = memoryCache;
 		var config = options!.Value;
 
@@ -72,7 +74,8 @@ public class Client : Helpers.Web.WebClientBase, IClient
 	public async Task<string> SendAsync(Uri requestUri, Models.RequestObject requestObject, CancellationToken cancellationToken = default)
 	{
 		var body = JsonSerializer.Serialize(requestObject);
-		(_, _, var response) = await base.SendAsync<Models.ResponseObject>(HttpMethod.Post, requestUri, body, cancellationToken);
-		return response!.result;
+		var response = await _httpClient.PostAsJsonAsync(requestUri, body, cancellationToken);
+		var o = await response.Content.ReadAsStringAsync(cancellationToken);
+		return o;
 	}
 }
