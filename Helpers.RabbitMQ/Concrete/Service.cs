@@ -2,44 +2,39 @@
 using RabbitMQ.Client.Exceptions;
 
 namespace Helpers.RabbitMQ.Concrete;
-public class Service : IService
+
+public class Service(IChannel channel) : IService
 {
-	private readonly IModel _channel;
-
-	public Service(IModel channel)
-	{
-		ArgumentNullException.ThrowIfNull(channel);
-		_channel = channel;
-	}
-
-	public void Enqueue(string queue, byte[] body)
+	public ValueTask EnqueueAsync(string queue, byte[] body, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
 		ArgumentNullException.ThrowIfNull(body);
 
-		_channel.BasicPublish(exchange: string.Empty, routingKey: queue, mandatory: true, body: body);
+		return channel.BasicPublishAsync(exchange: string.Empty, routingKey: queue, mandatory: true, body: body, cancellationToken);
 	}
 
-	public void CreateQueue(string queue)
+	public Task<QueueDeclareOk> CreateQueueAsync(string queue, CancellationToken cancellationToken = default)
 	{
-		_channel.QueueDeclare(
+		return channel.QueueDeclareAsync(
 			queue: queue,
 			durable: false,
 			exclusive: false,
 			autoDelete: false,
-			arguments: default);
+			arguments: default,
+			noWait: false,
+			cancellationToken);
 	}
 
-	public (byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false)
+	public async ValueTask<(byte[] body, ulong tag)> DequeueAsync(string queue, bool autoAcknowledge = false, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
-		BasicGetResult result;
+		BasicGetResult? result;
 		try
 		{
-			result = _channel.BasicGet(queue, autoAcknowledge);
+			result = await channel.BasicGetAsync(queue, autoAcknowledge, cancellationToken);
 		}
 		catch (OperationInterruptedException exception)
-			when (exception.ShutdownReason.ReplyCode == 404)
+			when (exception.ShutdownReason?.ReplyCode == 404)
 		{
 			throw new Exceptions.QueueNotFoundException(queue);
 		}
@@ -52,18 +47,18 @@ public class Service : IService
 		return (result.Body.ToArray(), result.DeliveryTag);
 	}
 
-	public void Acknowledge(ulong tag) => _channel.BasicAck(tag, multiple: false);
+	public ValueTask AcknowledgeAsync(ulong tag, CancellationToken cancellationToken = default)
+		=> channel.BasicAckAsync(tag, multiple: false, cancellationToken);
 
-	public void PurgeQueue(string queue)
+	public Task<uint> PurgeQueueAsync(string queue, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
-		while (_channel.BasicGet(queue, autoAck: true) is not null) { }
+		return channel.QueuePurgeAsync(queue, cancellationToken);
 	}
 
-	public void DeleteQueue(string queue)
+	public Task<uint> DeleteQueueAsync(string queue, CancellationToken cancellationToken = default)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(queue);
-		try { _channel.QueueDelete(queue, ifEmpty: false); }
-		catch (AlreadyClosedException) { }
+		return channel.QueueDeleteAsync(queue, ifUnused: true, ifEmpty: false, cancellationToken);
 	}
 }

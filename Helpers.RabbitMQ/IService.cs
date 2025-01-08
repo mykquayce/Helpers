@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using RabbitMQ.Client;
+using System.Text;
 using System.Text.Json;
 
 namespace Helpers.RabbitMQ;
@@ -7,35 +8,23 @@ public interface IService
 {
 	private static readonly Encoding _encoding = Encoding.UTF8;
 
-	void Acknowledge(ulong tag);
-	void CreateQueue(string queue);
-	(byte[] body, ulong tag) Dequeue(string queue, bool autoAcknowledge = false);
-	(T body, ulong tag) Dequeue<T>(string queue, bool autoAcknowledge = false)
+	ValueTask AcknowledgeAsync(ulong tag, CancellationToken cancellationToken = default);
+	Task<QueueDeclareOk> CreateQueueAsync(string queue, CancellationToken cancellationToken = default);
+	ValueTask<(byte[] body, ulong tag)> DequeueAsync(string queue, bool autoAcknowledge = false, CancellationToken cancellationToken = default);
+	async ValueTask<(T body, ulong tag)> DequeueAsync<T>(string queue, bool autoAcknowledge = false, CancellationToken cancellationToken = default)
 	{
-		var (body, tag) = Dequeue(queue, autoAcknowledge);
+		var (body, tag) = await DequeueAsync(queue, autoAcknowledge, cancellationToken);
 		var json = _encoding.GetString(body);
 		var t = JsonSerializer.Deserialize<T>(json);
 		return (t!, tag);
 	}
-	void Enqueue(string queue, byte[] body);
-	void Enqueue<T>(string queue, T value)
+	ValueTask EnqueueAsync(string queue, byte[] body, CancellationToken cancellationToken = default);
+	ValueTask EnqueueAsync<T>(string queue, T value, CancellationToken cancellationToken = default)
 	{
 		var json = JsonSerializer.Serialize(value);
 		var body = _encoding.GetBytes(json);
-		Enqueue(queue, body);
+		return EnqueueAsync(queue, body, cancellationToken);
 	}
-	void Enqueue<T>(string queue, T value, params T[] values)
-	{
-		Enqueue(queue, value);
-		Enqueue(queue, values);
-	}
-	void Enqueue<T>(string queue, IEnumerable<T> values)
-	{
-		foreach (var value in values)
-		{
-			Enqueue(queue, value);
-		}
-	}
-	void PurgeQueue(string queue);
-	void DeleteQueue(string queue);
+	Task<uint> PurgeQueueAsync(string queue, CancellationToken cancellationToken = default);
+	Task<uint> DeleteQueueAsync(string queue, CancellationToken cancellationToken = default);
 }

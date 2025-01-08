@@ -34,7 +34,7 @@ public static class DependencyInjectionExtensions
 	public static IServiceCollection AddRabbitMQ(this IServiceCollection services)
 	{
 		return services
-			.AddSingleton<RabbitMQ.Client.ConnectionFactory>(provider =>
+			.AddSingleton<RabbitMQ.Client.IConnectionFactory, RabbitMQ.Client.ConnectionFactory>(provider =>
 			{
 				var config = provider.GetConfig<Helpers.RabbitMQ.Config>();
 
@@ -57,7 +57,7 @@ public static class DependencyInjectionExtensions
 			})
 			.AddScoped<RabbitMQ.Client.IConnection>(provider =>
 			{
-				var factory = provider.GetRequiredService<RabbitMQ.Client.ConnectionFactory>();
+				var factory = provider.GetRequiredService<RabbitMQ.Client.IConnectionFactory>();
 
 				var count = 10;
 				Exception? exception = null;
@@ -66,7 +66,7 @@ public static class DependencyInjectionExtensions
 				{
 					try
 					{
-						return factory.CreateConnection();
+						return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 					}
 					catch (RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
 					{
@@ -77,24 +77,24 @@ public static class DependencyInjectionExtensions
 
 				throw exception!;
 			})
-			.AddScoped<RabbitMQ.Client.IModel>(provider =>
+			.AddScoped<RabbitMQ.Client.IChannel>(provider =>
 			{
 				var config = provider.GetConfig<Helpers.RabbitMQ.Config>();
 				var connection = provider.GetRequiredService<RabbitMQ.Client.IConnection>();
 
-				var model = connection.CreateModel();
+				var channel = connection.CreateChannelAsync().GetAwaiter().GetResult();
 
 				foreach (var queueName in config.QueueNames)
 				{
-					model.QueueDeclare(
+					channel.QueueDeclareAsync(
 						queue: queueName,
 						durable: false,
 						exclusive: false,
 						autoDelete: false,
-						arguments: default);
+						arguments: default).GetAwaiter().GetResult();
 				}
 
-				return model;
+				return channel;
 			})
 			.AddScoped<Helpers.RabbitMQ.IService, Helpers.RabbitMQ.Concrete.Service>();
 	}

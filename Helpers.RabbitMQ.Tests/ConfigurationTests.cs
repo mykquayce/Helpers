@@ -6,31 +6,25 @@ using Xunit;
 namespace Helpers.RabbitMQ.Tests;
 
 [Collection(nameof(CollectionDefinitions.NonParallelCollectionDefinitionClass))]
-public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
+public class ConfigurationTests(Fixtures.ConfigurationFixture fixture) : IClassFixture<Fixtures.ConfigurationFixture>
 {
-	private readonly IConfiguration _configuration;
-	private readonly string _queueName;
-
-	public ConfigurationTests(Fixtures.ConfigurationFixture fixture)
-	{
-		_configuration = fixture.Configuration;
-		_queueName = fixture.QueueName;
-	}
+	private readonly IConfiguration _configuration = fixture.Configuration;
+	private readonly string _queueName = fixture.QueueName;
 
 	[Theory]
 	[InlineData("one", "two", "three")]
-	public void Configuration(params string[] messages)
+	public async Task Configuration(params string[] messages)
 	{
 		using var serviceProvider = new ServiceCollection()
 			.AddRabbitMQ(_configuration)
 			.BuildServiceProvider();
 
-		ServiceProviderTests(serviceProvider, messages);
+		await ServiceProviderTests(serviceProvider, messages);
 	}
 
 	[Theory]
 	[InlineData("one", "two", "three")]
-	public void Config(params string[] messages)
+	public async Task Config(params string[] messages)
 	{
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
@@ -39,12 +33,12 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 			.AddRabbitMQ(config)
 			.BuildServiceProvider();
 
-		ServiceProviderTests(serviceProvider, messages);
+		await ServiceProviderTests(serviceProvider, messages);
 	}
 
 	[Theory]
 	[InlineData("one", "two", "three")]
-	public void Value(params string[] messages)
+	public async Task Value(params string[] messages)
 	{
 		var config = Helpers.RabbitMQ.Config.Defaults;
 		_configuration.Bind(config);
@@ -53,10 +47,10 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 			.AddRabbitMQ(config.Hostname, config.Port, config.Username, config.Password, config.VirtualHost, config.SslEnabled, config.QueueNames)
 			.BuildServiceProvider();
 
-		ServiceProviderTests(serviceProvider, messages);
+		await ServiceProviderTests(serviceProvider, messages);
 	}
 
-	private void ServiceProviderTests(IServiceProvider serviceProvider, params string[] messages)
+	private async Task ServiceProviderTests(IServiceProvider serviceProvider, params string[] messages)
 	{
 		var service = serviceProvider.GetRequiredService<Helpers.RabbitMQ.IService>();
 
@@ -64,18 +58,18 @@ public class ConfigurationTests : IClassFixture<Fixtures.ConfigurationFixture>
 		{
 			foreach (var message in messages)
 			{
-				service.Enqueue(_queueName, message);
+				await service.EnqueueAsync(_queueName, message);
 
-				var (actual, tag) = service.Dequeue<string>(_queueName);
+				var (actual, tag) = await service.DequeueAsync<string>(_queueName);
 
-				service.Acknowledge(tag);
+				await service.AcknowledgeAsync(tag);
 
 				Assert.Equal(message, actual);
 			}
 		}
 		finally
 		{
-			service.DeleteQueue(_queueName);
+			await service.DeleteQueueAsync(_queueName);
 		}
 	}
 
