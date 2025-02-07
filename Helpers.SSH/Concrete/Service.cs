@@ -33,7 +33,7 @@ public class Service : IService
 	public Task AddBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(subnetAddress);
-		return _client.RunCommandAsync("ip route add blackhole " + subnetAddress, cancellationToken);
+		return _client.RunCommandAsync("sudo ip route add blackhole " + subnetAddress, cancellationToken);
 	}
 
 	public async Task AddBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses, CancellationToken cancellationToken = default)
@@ -47,7 +47,7 @@ public class Service : IService
 	public Task DeleteBlackholeAsync(Helpers.Networking.Models.AddressPrefix subnetAddress, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(subnetAddress);
-		return _client.RunCommandAsync("ip route delete blackhole " + subnetAddress, cancellationToken);
+		return _client.RunCommandAsync("sudo ip route delete blackhole " + subnetAddress, cancellationToken);
 	}
 
 	public async Task DeleteBlackholesAsync(IEnumerable<Networking.Models.AddressPrefix> subnetAddresses, CancellationToken cancellationToken = default)
@@ -59,7 +59,7 @@ public class Service : IService
 	}
 
 	public Task DeleteBlackholesAsync(CancellationToken cancellationToken = default)
-		=> _client.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"ip route delete blackhole \" $2)}'", cancellationToken);
+		=> _client.RunCommandAsync("(ip route show && ip -6 route show) | grep ^blackhole | awk '{system(\"sudo ip route delete blackhole \" $2)}'", cancellationToken);
 
 	public async IAsyncEnumerable<Helpers.Networking.Models.DhcpLease> GetDhcpLeasesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
