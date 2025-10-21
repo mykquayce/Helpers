@@ -4,11 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.23</Version>
+    <Version>1.0.24</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.25" />
+    <PackageReference Include="Helpers.Telegram.Models" Version="1.0.26" />
   </ItemGroup>
 
 </Project>

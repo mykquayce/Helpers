@@ -4,12 +4,12 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.6.31</Version>
+    <Version>1.6.32</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Helpers.Networking.Models" Version="1.1.28" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="Helpers.Networking.Models" Version="1.1.29" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.3" />
   </ItemGroup>
 
 </Project>
