@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Helpers.Networking.Models" Version="1.1.29" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.3" />
   </ItemGroup>
 
 </Project>
