@@ -6,7 +6,6 @@ public static class CollectionExtensions
 {
 	public static IEnumerator<(TFirst, TSecond)> GetEnumerator<TFirst, TSecond>(this (IEnumerable<TFirst>, IEnumerable<TSecond>) tuple)
 	{
-		ArgumentNullException.ThrowIfNull(tuple);
 		ArgumentNullException.ThrowIfNull(tuple.Item1);
 		ArgumentNullException.ThrowIfNull(tuple.Item1.GetEnumerator());
 		ArgumentNullException.ThrowIfNull(tuple.Item2);

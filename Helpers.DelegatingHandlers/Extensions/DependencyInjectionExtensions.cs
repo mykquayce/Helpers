@@ -18,7 +18,7 @@ public static class DependencyInjectionExtensions
 
 	public static IHttpClientBuilder AddIdentityServerHandler(this IServiceCollection services, Action<IdentityServerHandler.IConfig> configBuilder)
 	{
-		var config = new IdentityServerHandlerConfig();
+		var config = IdentityServerHandlerConfig.Empty;
 		configBuilder(config);
 
 		return services
@@ -36,9 +36,11 @@ public static class DependencyInjectionExtensions
 
 	private record IdentityServerHandlerConfig : IdentityServerHandler.IConfig
 	{
-		public Uri Authority { get; set; }
-		public string ClientId { get; set; }
-		public string ClientSecret { get; set; }
+		public required Uri Authority { get; set; }
+		public required string ClientId { get; set; }
+		public required string ClientSecret { get; set; }
+
+		public static IdentityServerHandler.IConfig Empty => new IdentityServerHandlerConfig { Authority = default!, ClientId = default!, ClientSecret = default!, };
 	}
 
 	public static IServiceCollection AddRateLimitHandler(this IServiceCollection services, TimeSpan replenishmentPeriod, int tokenLimit, int tokensPerPeriod)
